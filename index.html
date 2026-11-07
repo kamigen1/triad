@@ -1,3 +1,5 @@
+<!doctype html>
+<html lang="en">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Triad Summons</title>
@@ -21,9 +23,12 @@
   color-scheme: dark;
 }
 [hidden] { display: none !important; }
+html { background: #032b19; }
+.sa #app { padding-top: env(safe-area-inset-top, 0px); }
+.sa #splash { padding-top: env(safe-area-inset-top, 0px); }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { height: 100%; }
-body { margin: 0; color: var(--ink); font: 800 15px/1.35 var(--body); padding-left: max(14px, env(safe-area-inset-left, 0px)); padding-right: max(14px, env(safe-area-inset-right, 0px)); overflow: hidden; user-select: none; -webkit-user-select: none;
+body { margin: 0; color: var(--ink); font: 800 15px/1.35 var(--body); padding-left: max(14px, env(safe-area-inset-left, 0px)); padding-right: max(14px, env(safe-area-inset-right, 0px)); overflow: hidden; user-select: none; -webkit-user-select: none; touch-action: manipulation; -webkit-touch-callout: none;
   background: radial-gradient(ellipse at 50% -10%, #1aa664 0%, var(--felt) 22%, var(--felt-d) 58%, var(--felt-dd) 100%); }
 body::before { content: ""; position: fixed; inset: 0; pointer-events: none; opacity: .07; background-size: 120px 120px; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><text x='12' y='40' font-size='34' fill='white'>♠</text><text x='72' y='44' font-size='34' fill='white'>♥</text><text x='16' y='104' font-size='34' fill='white'>♦</text><text x='72' y='108' font-size='34' fill='white'>♣</text></svg>"); }
 body::after { content: ""; position: fixed; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 50% 45%, transparent 55%, #000a 100%); }
@@ -249,6 +254,8 @@ table.odds { width: 100%; border-collapse: collapse; } table.odds td { padding: 
 .slots .empty { border: 3px dashed #ffffff44; border-radius: 10px; background: #0003; }
 .filters { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 9px; }
 .filters select, .filters input { flex: 1 1 100px; }
+.mute { flex: none; width: 36px; height: 36px; border-radius: 50%; border: 3px solid #000; background: linear-gradient(#34413a, #151d19); box-shadow: inset 0 2px 0 #ffffff44, 0 3px 0 #000; font-size: 16px; line-height: 1; padding: 0; }
+.rng { flex: 1; min-width: 0; accent-color: var(--yellow); height: 28px; }
 @media (prefers-reduced-motion: reduce) { * { animation-duration: .01s !important; } }
 </style>
 
@@ -275,6 +282,7 @@ table.odds { width: 100%; border-collapse: collapse; } table.odds td { padding: 
 
 <script>
 /* ===== the card table (triad_app/gen_cards.py): id, name, level, top, right, bottom, left, summon-only, group ===== */
+if (navigator.standalone || (window.matchMedia && matchMedia("(display-mode: standalone)").matches)) document.documentElement.classList.add("sa");
 const RAW = [["goblin","Goblin",1,2,6,4,3,0,"monster"],["slime","Slime",1,2,2,5,6,0,"monster"],["dracky","Dracky",1,2,2,5,4,0,"monster"],["she_slime","She-slime",1,4,3,1,5,0,"monster"],["cactuar","Cactuar",1,4,4,6,1,0,"monster"],["shadow","Shadow",1,2,4,6,2,0,"monster"],["bomb","Bomb",1,1,5,2,6,0,"monster"],["healslime","Healslime",1,6,3,3,2,0,"monster"],["flan","Flan",1,5,1,4,3,0,"monster"],["soldier","Soldier",1,2,2,6,4,0,"monster"],["coeurl","Coeurl",2,7,3,7,1,0,"monster"],["zu","Zu",2,6,2,6,5,0,"monster"],["black_mage","Black Mage",2,6,1,6,4,0,"monster"],["metal_slime","Metal Slime",2,6,2,5,4,0,"monster"],["dusk","Dusk",2,7,6,1,3,0,"monster"],["neoshadow","Neoshadow",2,2,6,5,4,0,"monster"],["large_body","Large Body",2,7,6,2,2,0,"monster"],["golem","Golem",2,7,5,2,5,0,"monster"],["killing_machine","Killing Machine",2,4,6,3,6,0,"monster"],["malboro","Malboro",2,7,4,1,7,0,"monster"],["tonberry","Tonberry",3,6,6,7,2,0,"monster"],["iron_giant","Iron Giant",3,8,4,2,7,0,"monster"],["king_slime","King Slime",3,7,6,2,6,0,"monster"],["behemoth","Behemoth",3,2,7,6,8,0,"monster"],["darkside","Darkside",3,3,7,6,6,0,"monster"],["ultros","Ultros",3,4,8,4,6,0,"monster"],["thornmother","Thornmother",3,3,4,8,8,0,"monster"],["frost_queen","Frost Queen",3,7,2,8,4,0,"monster"],["forgemaster","Forgemaster",3,5,3,8,7,0,"monster"],["oracle","The Oracle",3,6,4,6,5,0,"monster"],["archmage","Archmage",4,9,7,5,6,0,"monster"],["blaze_lord","Blaze Lord",4,5,4,8,9,0,"monster"],["herald","The Herald",4,3,8,5,9,0,"monster"],["juggernaut","Juggernaut",4,8,4,9,6,0,"monster"],["oathbound","Oathbound",4,4,7,6,8,0,"monster"],["voidwalker","Voidwalker",4,6,6,8,5,0,"monster"],["warlord","Warlord",4,7,3,9,7,0,"monster"],["withered_king","Withered King",4,3,5,9,8,0,"monster"],["garuda","Garuda",4,9,6,2,8,0,"monster"],["ifrit","Ifrit",5,8,7,9,7,0,"monster"],["shiva","Shiva",5,7,6,7,9,0,"monster"],["ramuh","Ramuh",5,3,10,7,10,0,"monster"],["titan","Titan",5,9,6,7,9,0,"monster"],["phoenix","Phoenix",5,7,8,6,8,0,"monster"],["odin","Odin",5,8,9,7,7,0,"monster"],["bahamut","Bahamut",5,10,9,4,7,0,"monster"],["ultima","Ultima",5,9,3,9,10,0,"monster"],["bandit","Bandit",1,6,1,3,5,0,"folk"],["bandit_lieutenant","Bandit Lieutenant",2,2,4,5,7,0,"folk"],["bandit_chief","Bandit Chief",3,8,8,4,1,0,"folk"],["hollow_soldier","Hollow Soldier",2,3,6,5,3,0,"folk"],["hollow_captain","Hollow Captain",3,6,6,5,4,0,"folk"],["hollow_warden","Hollow Warden",4,5,7,6,7,0,"folk"],["gilgamesh","Gilgamesh",5,9,4,7,9,0,"monster"],["dominant_bahamut","Dominant of Bahamut",4,8,5,5,7,0,"dominant"],["dominant_garuda","Dominant of Garuda",4,8,2,8,7,0,"dominant"],["dominant_odin","Dominant of Odin",4,7,8,4,7,0,"dominant"],["dominant_phoenix","Dominant of Phoenix",4,9,2,8,7,0,"dominant"],["dominant_ramuh","Dominant of Ramuh",4,5,6,7,7,0,"dominant"],["dominant_shiva","Dominant of Shiva",4,9,7,9,1,0,"dominant"],["dominant_titan","Dominant of Titan",4,4,7,6,9,0,"dominant"],["hero_bard","Bard",2,4,5,3,7,0,"hero"],["hero_beastmaster","Beastmaster",2,2,7,3,5,0,"hero"],["hero_berserker","Berserker",3,5,6,2,8,0,"hero"],["hero_black_mage","Black Mage",2,1,5,7,4,0,"hero"],["hero_blue_mage","Blue Mage",2,5,4,7,2,0,"hero"],["hero_chemist","Chemist",2,7,3,7,1,0,"hero"],["hero_dancer","Dancer",2,6,3,2,6,0,"hero"],["hero_dragoon","Dragoon",3,4,6,3,8,0,"hero"],["hero_freelancer","Freelancer",2,5,3,6,3,0,"hero"],["hero_geomancer","Geomancer",2,6,4,4,4,0,"hero"],["hero_knight","Knight",3,5,6,8,4,0,"hero"],["hero_mime","Mime",2,6,5,5,2,0,"hero"],["hero_monk","Monk",2,7,2,3,7,0,"hero"],["hero_mystic_knight","Mystic Knight",3,2,7,7,7,0,"hero"],["hero_ninja","Ninja",3,4,8,8,1,0,"hero"],["hero_ranger","Ranger",2,6,3,5,4,0,"hero"],["hero_red_mage","Red Mage",2,5,3,5,5,0,"hero"],["hero_samurai","Samurai",3,3,4,8,8,0,"hero"],["hero_summoner","Summoner",2,5,7,1,6,0,"hero"],["hero_thief","Thief",2,5,2,6,4,0,"hero"],["hero_time_mage","Time Mage",2,7,4,5,3,0,"hero"],["hero_white_mage","White Mage",2,6,3,2,6,0,"hero"],["folk_alchemist","Alchemist",1,2,5,4,3,0,"folk"],["folk_angler","Angler",1,3,4,5,3,0,"folk"],["folk_armorer","Armorer",1,6,4,2,1,0,"folk"],["folk_barkeep","Barkeep",1,3,1,5,6,0,"folk"],["folk_blacksmith","Blacksmith",1,6,1,4,3,0,"folk"],["folk_captain","Captain",1,6,3,1,5,0,"folk"],["folk_clothier","Clothier",1,4,4,1,5,0,"folk"],["folk_cook","Cook",1,4,2,3,4,0,"folk"],["folk_decorator","Decorator",1,1,5,3,5,0,"folk"],["folk_demolitionist","Demolitionist",1,1,5,3,5,0,"folk"],["folk_elder","Elder",1,4,1,3,6,0,"folk"],["folk_gardener","Gardener",1,2,2,3,6,0,"folk"],["folk_guide","Guide",1,1,6,4,3,0,"folk"],["folk_innkeeper","Innkeeper",1,2,6,4,2,0,"folk"],["folk_merchant","Merchant",1,2,4,6,1,0,"folk"],["folk_nurse","Nurse",1,5,5,3,2,0,"folk"],["folk_outrider","Outrider",1,2,6,4,3,0,"folk"],["folk_priestess","Priestess",1,5,1,3,6,0,"folk"],["folk_scholar","Scholar",1,3,4,2,5,0,"folk"],["folk_shopkeeper","Shopkeeper",1,1,4,4,4,0,"folk"],["folk_spell_merchant","Spell Merchant",1,2,5,5,1,0,"folk"],["folk_storekeeper","Storekeeper",1,1,1,5,6,0,"folk"],["folk_summoner","Summoner",1,3,2,4,4,0,"folk"],["folk_tinkerer","Tinkerer",1,4,1,3,5,0,"folk"],["folk_traveling_merchant","Traveling Merchant",1,5,2,5,1,0,"folk"],["folk_weaponsmith","Weaponsmith",1,5,2,3,3,0,"folk"],["w_mythril_sword","Mythril Sword",1,2,4,5,2,0,"weapon"],["w_flametongue","Flametongue",2,2,5,7,3,0,"weapon"],["w_icebrand","Icebrand",2,2,6,5,4,0,"weapon"],["w_blood_sword","Blood Sword",3,6,8,8,1,0,"weapon"],["w_defender","Defender",3,7,8,6,2,0,"weapon"],["w_save_the_queen","Save the Queen",3,4,4,5,8,0,"weapon"],["w_excalibur","Excalibur",4,7,5,6,9,0,"weapon"],["w_excalipoor","Excalipoor",1,2,1,5,5,0,"weapon"],["w_ragnarok","Ragnarok",4,8,8,6,5,0,"weapon"],["w_apocalypse","Apocalypse",4,7,8,8,3,0,"weapon"],["w_ultima_weapon","Ultima Weapon",5,5,6,9,9,0,"weapon"],["w_kotetsu","Kotetsu",1,5,2,4,2,0,"weapon"],["w_kiku_ichimonji","Kiku-ichimonji",2,2,4,5,7,0,"weapon"],["w_murasame","Murasame",3,1,7,7,8,0,"weapon"],["w_muramasa","Muramasa",4,8,6,7,5,0,"weapon"],["w_masamune","Masamune",5,10,10,5,5,0,"weapon"],["w_mage_masher","Mage Masher",1,1,3,6,3,0,"weapon"],["w_gungnir","Gungnir",4,8,6,4,9,0,"weapon"],["w_longinus","Longinus",5,8,9,5,9,0,"weapon"],["w_zodiac_spear","Zodiac Spear",5,9,4,8,8,0,"weapon"],["w_yoichi_bow","Yoichi Bow",4,3,8,8,8,0,"weapon"],["w_artemis_bow","Artemis Bow",3,8,7,1,6,0,"weapon"],["w_nirvana","Nirvana",5,10,7,10,4,0,"weapon"],["w_mace_of_zeus","Mace of Zeus",4,8,6,8,3,0,"weapon"],["w_princess_guard","Princess Guard",4,8,7,7,4,0,"weapon"],["w_onion_sword","Onion Sword",2,5,7,6,1,0,"weapon"],["w_brave_blade","Brave Blade",4,5,6,6,9,0,"weapon"],["w_valiant_knife","Valiant Knife",3,2,6,8,6,0,"weapon"],["w_buster_sword","Buster Sword",3,6,6,4,5,0,"weapon"],["w_premium_heart","Premium Heart",4,3,8,9,6,0,"weapon"],["w_revolver","Revolver",2,6,5,5,2,0,"weapon"],["w_hyperion","Hyperion",4,7,8,7,4,0,"weapon"],["w_lionheart","Lionheart",5,9,10,6,5,0,"weapon"],["w_orichalcon","Orichalcon",4,7,7,3,8,0,"weapon"],["w_excalibur_ii","Excalibur II",5,8,10,2,10,0,"weapon"],["w_brotherhood","Brotherhood",3,8,4,2,7,0,"weapon"],["w_caladbolg","Caladbolg",5,8,3,8,10,0,"weapon"],["w_curtana","Curtana",4,6,6,8,5,0,"weapon"],["w_blazefire_saber","Blazefire Saber",4,5,3,9,8,0,"weapon"],["w_engine_blade","Engine Blade",3,8,5,1,7,0,"weapon"],["w_gotterdammerung","Gotterdammerung",5,7,6,8,9,0,"weapon"],["w_blade_of_dawn","Blade of Dawn",4,2,9,8,7,0,"weapon"],["w_ultima_blade","Ultima Blade",5,9,7,8,7,0,"weapon"],["w_deathbringer","Deathbringer",3,8,4,2,7,0,"weapon"],["w_holy_lance","Holy Lance",4,9,6,9,2,0,"weapon"],["w_kingdom_key","Kingdom Key",1,4,5,5,1,0,"weapon"],["w_oathkeeper","Oathkeeper",3,3,8,2,8,0,"weapon"],["w_oblivion","Oblivion",3,5,3,5,8,0,"weapon"],["w_star_seeker","Star Seeker",4,8,5,8,6,0,"weapon"],["w_way_to_the_dawn","Way to the Dawn",4,6,9,2,9,0,"weapon"],["w_ultima_keyblade","Ultima Keyblade",5,5,10,6,8,0,"weapon"],["w_zenithian_sword","Zenithian Sword",5,8,2,10,9,0,"weapon"],["w_erdricks_sword","Erdrick's Sword",4,5,7,8,5,0,"weapon"],["w_metal_king_sword","Metal King Sword",5,8,9,9,4,0,"weapon"],["w_falcon_blade","Falcon Blade",3,1,8,5,7,0,"weapon"],["w_dragon_slayer","Dragon Slayer",3,8,4,7,4,0,"weapon"],["w_staff_of_divine_wrath","Staff of Divine Wrath",3,8,3,4,8,0,"weapon"],["a_mythril","Mythril Armour",2,7,4,5,3,0,"armor"],["a_adamant","Adamant Armour",3,6,6,5,4,0,"armor"],["a_maximillian","Maximillian Armour",4,8,2,7,9,0,"armor"],["a_dragon","Dragon Armour",4,2,5,9,9,0,"armor"],["a_crystal","Crystal Armour",5,5,9,10,7,0,"armor"],["a_genji","Genji Armour",5,10,8,7,5,0,"armor"],["a_ninja","Ninja Armour",3,7,7,2,6,0,"armor"],["a_white_robe","White Mage's Armour",3,6,1,7,7,0,"armor"],["a_black_robe","Black Mage's Armour",3,7,6,7,3,0,"armor"],["r_ribbon","Ribbon",4,6,9,5,7,0,"relic"],["r_hermes_sandals","Hermes Sandals",3,3,2,8,8,0,"relic"],["r_sprint_shoes","Sprint Shoes",2,3,5,2,7,0,"relic"],["r_genji_gloves","Genji Gloves",4,2,9,9,6,0,"relic"],["r_power_wrist","Power Wrist",2,6,5,7,1,0,"relic"],["r_protect_ring","Protect Ring",2,7,1,4,6,0,"relic"],["r_magic_armlet","Magic Armlet",2,6,2,7,4,0,"relic"],["r_rune_bracelet","Rune Bracelet",3,5,7,7,2,0,"relic"],["r_star_pendant","Star Pendant",2,6,6,2,4,0,"relic"],["r_cat_ear_hood","Cat-Ear Hood",3,5,6,4,8,0,"relic"],["r_phoenix_pinion","Phoenix Pinion",4,8,7,6,4,0,"relic"],["x_esper_fenrir","Fenrir",5,8,8,7,10,1,"esper"],["x_esper_sylph","Sylph",5,7,10,8,7,1,"esper"],["x_esper_fat_chocobo","Fat Chocobo",5,6,5,10,10,1,"esper"],["x_esper_moogle","Moogle",5,8,8,8,9,1,"esper"],["x_esper_anima","Anima",5,7,9,9,7,1,"esper"],["x_esper_siren","Siren",5,7,7,9,9,1,"esper"],["x_esper_stone_golem","Stone Golem",5,9,7,8,7,1,"esper"],["x_esper_diabolos","Diabolos",5,10,5,10,7,1,"esper"],["x_esper_carbuncle","Carbuncle",5,9,8,7,8,1,"esper"],["x_esper_leviathan","Leviathan",5,8,7,8,8,1,"esper"],["x_hunt_griffin","Griffin",5,9,7,8,8,1,"esper"],["x_hunt_wyvern","Wyvern",5,9,10,8,6,1,"esper"],["x_hunt_hill_giant","Hill Giant",5,7,7,8,9,1,"esper"],["ff_ahriman","Ahriman",2,6,5,5,1,0,"ff"],["ff_cockatrice","Cockatrice",2,5,3,6,5,0,"ff"],["ff_sahagin","Sahagin",1,6,6,1,1,0,"ff"],["ff_goblin_shaman","Goblin Shaman",1,1,5,2,6,0,"ff"],["ff_cerberus","Cerberus",3,7,6,8,1,0,"ff"],["ff_ochu","Ochu",2,3,5,7,3,0,"ff"],["ff_adamantoise","Adamantoise",4,8,9,3,7,0,"ff"],["ff_omega_weapon","Omega Weapon",5,6,10,6,9,1,"ff"],["ff_shinryu","Shinryu",5,7,7,6,9,1,"ff"],["ff_kefka","Kefka",5,7,6,6,10,0,"ff"],["ff_sephiroth","Sephiroth",5,5,6,9,10,0,"ff"],["ff_exdeath","Exdeath",4,7,9,5,5,0,"ff"],["ff_ultimecia","Ultimecia",5,9,7,5,10,0,"ff"],["ff_chocobo","Chocobo",1,4,4,2,3,0,"ff"],["ff_tonberry_king","Tonberry King",4,8,1,7,9,0,"ff"],["ff_yuna","Yuna",3,7,8,6,2,0,"ff"],["ff_lightning","Lightning",4,5,9,8,5,0,"ff"],["dq_bubble_slime","Bubble Slime",1,5,4,2,4,0,"dq"],["dq_drakee","Drakee",1,1,3,4,5,0,"dq"],["dq_sabrecub","Sabrecub",1,3,6,4,2,0,"dq"],["dq_mimic","Mimic",2,5,3,4,5,0,"dq"],["dq_slime_knight","Slime Knight",2,7,2,7,1,0,"dq"],["dq_killer_armor","Killer Armor",2,6,4,6,3,0,"dq"],["dq_great_sabrecat","Great Sabrecat",3,3,8,7,5,0,"dq"],["dq_dhoulmagus","Dhoulmagus",3,1,7,8,5,0,"dq"],["dq_hell_gladiator","Hell Gladiator",3,8,4,3,6,0,"dq"],["dq_baramos","Baramos",4,8,8,2,8,0,"dq"],["dq_hargon","Hargon",4,3,9,9,4,0,"dq"],["dq_psaro","Psaro",4,5,8,3,9,0,"dq"],["dq_zoma","Zoma",5,10,4,8,7,0,"dq"],["dq_orgodemir","Orgodemir",5,6,8,5,10,0,"dq"],["dq_estark","Estark",5,9,10,10,1,1,"dq"],["dq_malroth","Malroth",5,10,7,6,8,1,"dq"],["dq_erdrick","Erdrick",5,9,7,4,9,0,"dq"],["dq_terry","Terry",3,4,7,4,7,0,"dq"],["db_saibaman","Saibaman",1,2,3,6,2,0,"db"],["db_mr_satan","Mr. Satan",1,4,3,2,5,0,"db"],["db_raditz","Raditz",2,6,1,4,6,0,"db"],["db_nappa","Nappa",2,2,7,5,4,0,"db"],["db_zarbon","Zarbon",2,4,6,1,6,0,"db"],["db_dodoria","Dodoria",2,6,4,4,3,0,"db"],["db_recoome","Recoome",2,6,6,1,4,0,"db"],["db_krillin","Krillin",2,6,6,1,5,0,"db"],["db_captain_ginyu","Captain Ginyu",3,5,7,1,8,0,"db"],["db_piccolo","Piccolo",3,5,3,6,7,0,"db"],["db_gohan","Gohan",3,6,7,6,4,0,"db"],["db_android_17","Android 17",3,7,5,5,4,0,"db"],["db_android_18","Android 18",3,5,8,2,7,0,"db"],["db_great_ape","Great Ape",3,5,1,8,7,0,"db"],["db_cooler","Cooler",4,7,7,7,4,0,"db"],["db_cell","Cell",4,7,7,9,3,0,"db"],["db_frieza","Frieza",4,9,3,4,9,0,"db"],["db_majin_buu","Majin Buu",4,9,7,1,8,0,"db"],["db_vegeta","Vegeta",5,10,3,9,9,0,"db"],["db_broly","Broly",5,8,9,3,10,0,"db"],["db_goku","Goku",5,8,9,4,8,1,"db"],["db_shenron","Shenron",5,9,1,9,10,1,"db"],["db_beerus","Beerus",5,9,5,9,6,1,"db"],["db_whis","Whis",5,10,5,10,4,1,"db"],["db_trunks","Trunks",4,9,9,2,6,0,"db"],["db_yamcha","Yamcha",1,2,1,5,6,0,"db"],["db_tien","Tien",2,4,7,3,5,0,"db"],["nr_rock_lee","Rock Lee",2,7,6,2,2,0,"nr"],["nr_sakura","Sakura",2,4,7,3,5,0,"nr"],["nr_haku","Haku",2,6,3,4,5,0,"nr"],["nr_zabuza","Zabuza",2,5,5,5,3,0,"nr"],["nr_kakashi","Kakashi",3,3,4,6,8,0,"nr"],["nr_gaara","Gaara",3,8,5,4,5,0,"nr"],["nr_neji","Neji",3,7,8,3,4,0,"nr"],["nr_jiraiya","Jiraiya",3,6,4,4,8,0,"nr"],["nr_naruto","Naruto",4,5,9,8,5,0,"nr"],["nr_sasuke","Sasuke",4,9,8,5,5,0,"nr"],["nr_itachi","Itachi",4,9,3,6,7,0,"nr"],["nr_orochimaru","Orochimaru",4,6,9,4,8,0,"nr"],["nr_pain","Pain",4,9,5,5,7,0,"nr"],["nr_madara","Madara",5,10,8,9,2,0,"nr"],["nr_hashirama","Hashirama",5,3,9,10,8,0,"nr"],["nr_kurama","Kurama",5,9,10,10,2,1,"nr"],["nr_konan","Konan",3,4,8,7,3,0,"nr"],["nr_deidara","Deidara",3,2,5,8,7,0,"nr"],["op_chopper","Chopper",1,1,2,5,5,0,"op"],["op_buggy","Buggy",1,5,3,2,5,0,"op"],["op_usopp","Usopp",2,5,7,3,2,0,"op"],["op_nami","Nami",2,2,2,6,7,0,"op"],["op_robin","Robin",2,4,3,5,7,0,"op"],["op_franky","Franky",2,6,1,3,7,0,"op"],["op_brook","Brook",2,2,7,6,4,0,"op"],["op_sanji","Sanji",3,7,5,4,7,0,"op"],["op_ace","Ace",3,5,3,7,7,0,"op"],["op_crocodile","Crocodile",3,7,7,3,5,0,"op"],["op_law","Law",3,6,7,8,2,0,"op"],["op_zoro","Zoro",4,7,7,8,5,0,"op"],["op_luffy","Luffy",4,8,2,8,8,0,"op"],["op_blackbeard","Blackbeard",4,5,7,5,9,0,"op"],["op_mihawk","Mihawk",4,6,4,9,8,0,"op"],["op_shanks","Shanks",5,4,9,10,6,0,"op"],["op_whitebeard","Whitebeard",5,8,3,9,9,0,"op"],["op_kaido","Kaido",5,8,7,6,9,0,"op"],["op_gol_d_roger","Gol D. Roger",5,10,8,6,7,1,"op"],["op_hancock","Hancock",4,5,4,8,9,0,"op"],["op_jinbe","Jinbe",3,8,2,8,5,0,"op"]];
 const C = RAW.map((r, i) => ({ i, id: r[0], name: r[1], lv: r[2], s: [r[3], r[4], r[5], r[6]], ex: !!r[7], grp: r[8] }));
 const BY = Object.fromEntries(C.map(c => [c.id, c]));
@@ -451,7 +459,7 @@ const TABS = [["summon", "Summon", "summon"], ["cards", "Cards", "cards"], ["pla
 function chrome() {
   if (!P) { $("#hud").innerHTML = ""; return; }
   const pct = Math.floor(100 * P.xp / need(P.lv));
-  $("#hud").innerHTML = `<div class="hexw"><div class="hex"><span>♠</span></div><b class="lvbadge">${P.lv}</b></div><div class="who"><b class="fat">${esc(playerName())}</b><div class="xp"><i style="width:${pct}%"></i><small>${P.xp} / ${need(P.lv)}${saveMode === "local" ? " · on this device" : ""}</small></div></div><div class="pills"><span class="pill">${ic("ticket", "")}${P.tickets}</span><span class="pill">${ic("gem", "")}${P.dust}</span></div>`;
+  $("#hud").innerHTML = `<div class="hexw"><div class="hex"><span>♠</span></div><b class="lvbadge">${P.lv}</b></div><div class="who"><b class="fat">${esc(playerName())}</b><div class="xp"><i style="width:${pct}%"></i><small>${P.xp} / ${need(P.lv)}${saveMode === "local" ? " · on this device" : ""}</small></div></div><div class="pills"><span class="pill">${ic("ticket", "")}${P.tickets}</span><span class="pill">${ic("gem", "")}${P.dust}</span></div><button class="mute" data-act="muteAll" aria-label="Sound">${AU.sfx || AU.bgm ? "🔊" : "🔇"}</button>`;
   const claimable = !P.login || missions().some(m => m.have >= m.need && !P.mis.claimed[m.id]);
   $("#nav").innerHTML = TABS.map(([k, n, i]) => `<button data-act="tab" data-k="${k}" class="${tab === k ? "on" : ""}"><span class="dia">${ic(i, "")}</span><span class="lb">${n.toUpperCase()}</span>${k === "daily" && claimable ? '<i class="dot"></i>' : ""}</button>`).join("");
 }
@@ -523,7 +531,7 @@ function playFx(fx, ownersBefore, me) {
     const [cellS, kind, whoS] = f.slice(1).split(":"), cell = board.children[+cellS], who = +whoS;
     setTimeout(() => {
       const cd = cell.querySelector(".card"); if (!cd) return;
-      cd.classList.remove("me", "foe"); cd.classList.add(who === me ? "me" : "foe"); cd.classList.remove("flip"); void cd.offsetWidth; cd.classList.add("flip");
+      sfx("flip", k); if (kind !== "b") sfx(kind === "s" ? "same" : kind === "p" ? "plus" : "chain"); cd.classList.remove("me", "foe"); cd.classList.add(who === me ? "me" : "foe"); cd.classList.remove("flip"); void cd.offsetWidth; cd.classList.add("flip");
       const w = document.createElement("div"); w.className = "word " + (kind === "b" ? (who === me ? "cap" : "ouch") : kind);
       w.textContent = kind === "s" ? "SAME!" : kind === "p" ? "PLUS!" : kind === "c" ? "CHAIN!" : who === me ? "CAPTURE" : "OUCH"; cell.appendChild(w); setTimeout(() => w.remove(), 1000);
       if (k === 2) { board.classList.remove("shake"); void board.offsetWidth; board.classList.add("shake"); }
@@ -536,7 +544,7 @@ async function applyMove(who, handIdx, cell) {
   place(g, card, cell, who); st.board = g.board; st.owner = g.owner; st.fx = g.fx; st.seq++; st.turn = 1 - who;
   if (who === M.me) M.captured += g.fx.filter(f => f[0] === "F" && f.endsWith(":" + who)).length;
   if (st.board.every(c => c >= 0)) { st.over = true; st.status = "over"; }
-  M.busy = true; const ov = before.slice(); ov[cell] = who; drawMatch(ov); await playFx(g.fx, before, M.me); M.busy = false;
+  M.busy = true; const ov = before.slice(); ov[cell] = who; drawMatch(ov); sfx("place"); await playFx(g.fx, before, M.me); M.busy = false;
   if (!M) return; drawMatch();
 }
 async function aiTurn() {
@@ -569,7 +577,7 @@ function endMatch() {
   const canPick = win && oppDeck.length && !(claimKey && P.claims.includes(claimKey));
   M.claimKey = claimKey;
   setTimeout(() => {
-    if (!M) return; const tail = `<div class="row c" style="margin-top:12px">${M.kind === "ai" ? '<button class="btn yellow" data-act="again">Again</button>' : (M.host ? '<button class="btn yellow" data-act="rematch">Rematch</button>' : "")}<button class="btn dark" data-act="leave">Done</button></div>`;
+    if (!M) return; sfx(win ? "win" : draw ? "draw" : "lose"); if (ups.length) setTimeout(() => sfx("level"), 1100); const tail = `<div class="row c" style="margin-top:12px">${M.kind === "ai" ? '<button class="btn yellow" data-act="again">Again</button>' : (M.host ? '<button class="btn yellow" data-act="rematch">Rematch</button>' : "")}<button class="btn dark" data-act="leave">Done</button></div>`;
     $("#match").insertAdjacentHTML("beforeend", `<div class="over" id="modal2"><div class="sheet"><span class="ribbon ${win ? "gold" : ""}" style="font-size:30px">${win ? "VICTORY!" : draw ? "DRAW" : "DEFEAT"}</span><p class="note" style="text-align:center;margin:0">${a} – ${b}${win ? "" : " · you keep every card"}</p><div class="rw">${chips.join("")}</div>${ups.length ? `<p class="note" style="text-align:center">${ups.map(esc).join(" · ")}</p>` : ""}${canPick ? `<div class="pickbox"><p style="text-align:center;margin:6px 0">Take a copy of one of their cards</p><div class="grid" style="grid-template-columns:repeat(5,1fr)">${oppDeck.map(id => cardHtml(BY[id], { attr: `data-act="take" data-id="${id}"` })).join("")}</div></div>` : ""}${tail}</div></div>`);
   }, 700);
 }
@@ -621,7 +629,7 @@ async function applyRemote(r) {
   const theirMove = fx.some(f => f[0] === "L" && +f.split(":")[1] !== me);
   if (theirMove && !fresh) {
     const lay = fx.find(f => f[0] === "L").slice(1).split(":"), ov = before.slice(); ov[+lay[0]] = +lay[1];
-    M.busy = true; drawMatch(ov); await playFx(fx, before, me); M.busy = false; if (!M) return;
+    M.busy = true; drawMatch(ov); sfx("place"); await playFx(fx, before, me); M.busy = false; if (!M) return;
   }
   drawMatch(); if (st.over && !M.done) endMatch();
 }
@@ -643,16 +651,29 @@ const ICE = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }, { urls: "st
 let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
-async function pack(o) {
-  let bytes = new TextEncoder().encode(JSON.stringify(o)), tag = "0";
-  if (window.CompressionStream) { const cs = new CompressionStream("deflate-raw"), w = cs.writable.getWriter(); w.write(bytes); w.close(); bytes = new Uint8Array(await new Response(cs.readable).arrayBuffer()); tag = "1"; }
-  return "TS" + tag + b64u(bytes);
+/* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
+const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
+function sdpPack(role, sdp) {
+  const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
+  const u = get("a=ice-ufrag:"), p = get("a=ice-pwd:"), hex = get("a=fingerprint:sha-256 ").replace(/:/g, "");
+  if (!u || !p || hex.length !== 64) throw new Error("Could not read the connection details.");
+  let v4 = [], v6 = [];
+  for (const l of L) {
+    if (!l.startsWith("a=candidate:")) continue; const t = l.slice(12).split(" ");
+    if (t[2].toLowerCase() !== "udp" || t[1] !== "1" || (t[7] !== "host" && t[7] !== "srflx")) continue;
+    const c = [t[4], t[5], t[7] === "host" ? "h" : "s"].join(","); (t[4].includes(":") ? v6 : v4).push(c);
+  }
+  const keep = (v4.length ? v4 : v6).filter((c, i, a) => a.indexOf(c) === i).sort((a, b) => (a.endsWith("s") ? 1 : 0) - (b.endsWith("s") ? 1 : 0)).slice(0, 6);
+  return "TS2" + role + "|" + u + "|" + p + "|" + b64u(FP_BYTES(hex)) + "|" + keep.join(";");
 }
-async function unpack(s) {
-  s = (s || "").replace(/\s+/g, ""); if (!/^TS[01]/.test(s)) throw new Error("That is not a Triad code.");
-  let bytes = unb64u(s.slice(3));
-  if (s[2] === "1") { const ds = new DecompressionStream("deflate-raw"), w = ds.writable.getWriter(); w.write(bytes); w.close(); bytes = new Uint8Array(await new Response(ds.readable).arrayBuffer()); }
-  return JSON.parse(new TextDecoder().decode(bytes));
+function sdpUnpack(code) {
+  const s = (code || "").replace(/\s+/g, ""); if (!/^TS2[oa]\|/.test(s)) throw new Error("That is not a Triad code. Copy the whole code.");
+  const [head, u, p, fp, cs] = s.split("|"), role = head[3]; if (!u || !p || !fp) throw new Error("That code is cut short. Copy the whole code.");
+  const hex = Array.from(unb64u(fp)).map(b => b.toString(16).padStart(2, "0")).join("").toUpperCase().match(/../g).join(":");
+  const cands = (cs || "").split(";").filter(Boolean).map((c, i) => { const [ip, port, k] = c.split(","); return k === "h" ? `a=candidate:${i + 1} 1 udp ${2130706431 - i} ${ip} ${port} typ host generation 0` : `a=candidate:${i + 1} 1 udp ${1694498815 - i} ${ip} ${port} typ srflx raddr 0.0.0.0 rport 0 generation 0`; });
+  const sdp = ["v=0", "o=- 4611731400430051336 2 IN IP4 127.0.0.1", "s=-", "t=0 0", "a=group:BUNDLE 0", "a=msid-semantic: WMS", "m=application 9 UDP/DTLS/SCTP webrtc-datachannel", "c=IN IP4 0.0.0.0",
+    "a=ice-ufrag:" + u, "a=ice-pwd:" + p, "a=fingerprint:sha-256 " + hex, "a=setup:" + (role === "o" ? "actpass" : "active"), "a=mid:0", "a=sctp-port:5000", "a=max-message-size:262144", ...cands, "a=end-of-candidates"].join("\r\n") + "\r\n";
+  return { role, sdp };
 }
 const waitIce = pc => new Promise(res => { if (pc.iceGatheringState === "complete") return res(); const t = setTimeout(res, 6000); pc.addEventListener("icegatheringstatechange", () => { if (pc.iceGatheringState === "complete") { clearTimeout(t); res(); } }); });
 function netMake(host) {
@@ -683,27 +704,27 @@ function netGot(m) {
 }
 async function netSend(m) { try { NET.dc.send(JSON.stringify(m)); } catch (e) { toast("Connection lost."); } }
 function netClose() { try { NET.dc && NET.dc.close(); NET.pc && NET.pc.close(); } catch (_) {} NET = null; }
-function codeBox(id, text) { return `<textarea id="${id}" rows="5" readonly>${esc(text)}</textarea><div class="row" style="margin-top:6px"><button class="btn sm yellow" data-act="copy" data-id="${id}">Copy</button>${navigator.share ? `<button class="btn sm" data-act="share" data-id="${id}">Share</button>` : ""}</div>`; }
+function codeBox(id, text) { return `<textarea id="${id}" rows="3" readonly>${esc(text)}</textarea><div class="row" style="margin-top:6px"><button class="btn sm yellow" data-act="copy" data-id="${id}">Copy</button>${navigator.share ? `<button class="btn sm" data-act="share" data-id="${id}">Share</button>` : ""}</div>`; }
 async function hostStart() {
   if (!deckOk(P.decks[P.deck])) return toast("Choose a complete deck first.");
   openSheet(`<h2 class="fat">HOST A MATCH</h2><p class="note" style="text-align:center">Making your code…</p>`);
   try {
     if (NET) netClose(); netMake(true); netWire(NET.pc.createDataChannel("game"));
     await NET.pc.setLocalDescription(await NET.pc.createOffer()); await waitIce(NET.pc);
-    const code = await pack({ s: NET.pc.localDescription.sdp });
-    openSheet(`<h2 class="fat">HOST A MATCH</h2><p class="note">1. Send this code to your friend (any chat app).</p>${codeBox("c1", code)}<p class="note" style="margin-top:12px">2. Paste the reply code they send back.</p><textarea id="c2" rows="4" placeholder="Paste reply code"></textarea><div class="row c" style="margin-top:10px"><button class="btn yellow" data-act="hostFinish">Connect</button><button class="btn dark" data-act="closeModal">Cancel</button></div>`);
+    const code = sdpPack("o", NET.pc.localDescription.sdp);
+    openSheet(`<h2 class="fat">HOST A MATCH</h2><p class="note">1. Send this code to your friend (any chat app).</p>${codeBox("c1", code)}<p class="note" style="margin-top:12px">2. Paste the reply code they send back.</p><textarea id="c2" rows="4" placeholder="Paste reply code"></textarea><p class="note">Won't connect? Use the same Wi-Fi, turn off any VPN, and on iPhone allow Settings → Privacy & Security → Local Network → Safari (or this app).</p><div class="row c" style="margin-top:10px"><button class="btn yellow" data-act="hostFinish">Connect</button><button class="btn dark" data-act="closeModal">Cancel</button></div>`);
   } catch (e) { closeModal(); toast(e.message || "Could not start."); }
 }
 async function hostFinish() {
-  try { const a = await unpack($("#c2").value); await NET.pc.setRemoteDescription({ type: "answer", sdp: a.s }); toast("Connecting…"); } catch (e) { toast(e.message || "That reply code did not work."); }
+  try { const a = sdpUnpack($("#c2").value); if (a.role !== "a") throw new Error("That is the host code. Paste the reply code your friend makes."); await NET.pc.setRemoteDescription({ type: "answer", sdp: a.sdp }); toast("Connecting…"); setTimeout(() => { if (NET && !NET.open) toast("Still connecting. Same Wi-Fi? VPN off? Local Network allowed?"); }, 12000); } catch (e) { toast(e.message || "That reply code did not work."); }
 }
 function joinSheet() { openSheet(`<h2 class="fat">JOIN A MATCH</h2><p class="note">1. Paste the code your friend sent.</p><textarea id="c1" rows="4" placeholder="Paste host code"></textarea><div class="row c" style="margin-top:10px"><button class="btn yellow" data-act="joinMake">Make reply code</button><button class="btn dark" data-act="closeModal">Cancel</button></div>`); }
 async function joinMake() {
   if (!deckOk(P.decks[P.deck])) return toast("Choose a complete deck first.");
   try {
-    const off = await unpack($("#c1").value); if (NET) netClose(); netMake(false); NET.pc.ondatachannel = e => netWire(e.channel);
-    await NET.pc.setRemoteDescription({ type: "offer", sdp: off.s }); await NET.pc.setLocalDescription(await NET.pc.createAnswer()); await waitIce(NET.pc);
-    const code = await pack({ s: NET.pc.localDescription.sdp });
+    const off = sdpUnpack($("#c1").value); if (off.role !== "o") throw new Error("That is a reply code. Join needs the host code first."); if (NET) netClose(); netMake(false); NET.pc.ondatachannel = e => netWire(e.channel);
+    await NET.pc.setRemoteDescription({ type: "offer", sdp: off.sdp }); await NET.pc.setLocalDescription(await NET.pc.createAnswer()); await waitIce(NET.pc);
+    const code = sdpPack("a", NET.pc.localDescription.sdp);
     openSheet(`<h2 class="fat">JOIN A MATCH</h2><p class="note">2. Send this reply code back to your friend. The match starts by itself.</p>${codeBox("c3", code)}<div class="row c" style="margin-top:10px"><button class="btn dark" data-act="closeModal">Cancel</button></div>`);
   } catch (e) { toast(e.message || "That code did not work."); }
 }
@@ -740,9 +761,9 @@ function doPull(n) {
 }
 async function reveal() {
   if (!PENDING) return; const { n, res } = PENDING; PENDING = null; const m = $("#modal");
-  const one = n === 1, c0 = res[0].c, r0 = res[0].r;
+  const one = n === 1, c0 = res[0].c, r0 = res[0].r; sfx("reveal", Math.max(...res.map(x => rarOf(x.c))));
   m.innerHTML = `<div class="sheet"><span class="ribbon gold" style="font-size:26px">YOU SUMMONED</span><div class="reveal" style="grid-template-columns:repeat(${one ? 1 : 5},${one ? "minmax(0,170px)" : "1fr"});justify-content:center;padding-bottom:8px">${res.map(x => `<div class="wrap">${cardHtml(x.c, { tilt: one })}<div class="tg ${x.r.dup ? "d" : ""}">${x.r.dup ? "+" + x.r.dust : x.r.isNew ? "NEW" : ""}</div></div>`).join("")}</div>${one ? `<p class="fat" style="text-align:center;font-size:22px;margin:10px 0 0">${esc(c0.name)}</p><p class="note" style="text-align:center;margin:2px 0 0"><span class="rtag r${rarOf(c0)}">${RNAME[rarOf(c0)].toUpperCase()}</span> ${esc(GROUPS[c0.grp] || c0.grp)}${r0.dup ? " · already at 3 copies, +" + r0.dust + " dust" : ""}</p>` : ""}<div class="row c" style="margin-top:14px"><button class="btn dark" data-act="closeModal">Close</button>${P.tickets >= n ? `<button class="btn yellow" data-act="pull" data-n="${n}">Again</button>` : ""}</div></div>`;
-  const cards = m.querySelectorAll(".reveal .card"); for (let i = 0; i < cards.length; i++) { await sleep(n === 1 ? 100 : 170); if (m.hidden) return; cards[i].classList.add("in"); }
+  const cards = m.querySelectorAll(".reveal .card"); for (let i = 0; i < cards.length; i++) { await sleep(n === 1 ? 100 : 170); if (m.hidden) return; cards[i].classList.add("in"); if (n > 1) sfx("ping", rarOf(res[i].c)); }
   if (tab === "summon") show("summon");
 }
 function oddsModal() {
@@ -786,12 +807,77 @@ function viewDaily(v) {
   v.innerHTML = `<span class="ribbon">DAILY</span><div class="list"><div class="panel item"><div class="t"><b>Daily ticket</b><small>1 ${ic("ticket")} for dropping in</small></div><button class="btn sm yellow" data-act="login" ${P.login ? "disabled" : ""}>${P.login ? "Claimed" : "Claim"}</button></div>` +
     ms.map(m => `<div class="panel item"><div class="t"><b>${m.t}</b><small>${Math.min(m.have, m.need)} / ${m.need} · reward ${m.tk ? m.tk + " " + ic("ticket") : m.dust + " " + ic("gem")}</small><div class="bar" style="margin-top:5px"><i style="width:${Math.min(100, 100 * m.have / m.need)}%"></i></div></div><button class="btn sm ${m.have >= m.need && !P.mis.claimed[m.id] ? "yellow" : ""}" data-act="claimM" data-id="${m.id}" ${m.have >= m.need && !P.mis.claimed[m.id] ? "" : "disabled"}>${P.mis.claimed[m.id] ? "Done" : "Claim"}</button></div>`).join("") +
     `<div class="panel item"><div class="t"><b>All four</b><small>+2 ${ic("ticket")} bonus</small></div><span class="tag ${all ? "ok" : ""}">${all ? "EARNED" : "FINISH THE LIST"}</span></div></div>` +
-    `<span class="ribbon green">YOU</span><div class="panel"><div class="row"><input type="text" id="pname" maxlength="14" value="${esc(P.name || "")}" placeholder="${esc(myName || "Your name")}" style="flex:1"><button class="btn sm" data-act="saveName">Save name</button></div><p class="note" style="margin:10px 0 0">Matches played ${P.plays} · won ${P.wins} · cards ${ownedList().length}/${C.length} · summons ${P.pulls} · campaign ${Object.keys(P.cleared).length}/16</p></div>`;
+    `<span class="ribbon green">YOU</span><div class="panel"><div class="row"><input type="text" id="pname" maxlength="14" value="${esc(P.name || "")}" placeholder="${esc(myName || "Your name")}" style="flex:1"><button class="btn sm" data-act="saveName">Save name</button></div><p class="note" style="margin:10px 0 0">Matches played ${P.plays} · won ${P.wins} · cards ${ownedList().length}/${C.length} · summons ${P.pulls} · campaign ${Object.keys(P.cleared).length}/16</p></div>` + soundPanel();
+}
+
+/* ===== sound: effects are synthesized (nothing to download); music is whatever songs you add from your own phone ===== */
+const AU = { ctx: null, out: null, sfx: true, bgm: true, sv: .8, mv: .6, tracks: [], idx: -1, el: null, url: "" };
+try { const a = JSON.parse(localStorage.getItem("triad.audio") || "{}"); ["sfx", "bgm", "sv", "mv"].forEach(k => { if (a[k] !== undefined) AU[k] = a[k]; }); } catch (_) {}
+const auSave = () => { try { localStorage.setItem("triad.audio", JSON.stringify({ sfx: AU.sfx, bgm: AU.bgm, sv: AU.sv, mv: AU.mv })); } catch (_) {} };
+function auCtx() {
+  if (!AU.ctx) { const K = window.AudioContext || window.webkitAudioContext; if (!K) return null; try { AU.ctx = new K(); AU.out = AU.ctx.createGain(); AU.out.connect(AU.ctx.destination); } catch (_) { return null; } }
+  if (AU.ctx.state === "suspended") AU.ctx.resume(); return AU.ctx;
+}
+function envl(g, t, a, d, v) { g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(Math.max(.0002, v), t + a); g.gain.exponentialRampToValueAtTime(.0001, t + a + d); }
+function tone(c, f, t, d, o = {}) { const os = c.createOscillator(), g = c.createGain(); os.type = o.type || "sine"; os.frequency.setValueAtTime(f, t); if (o.to) os.frequency.exponentialRampToValueAtTime(o.to, t + d); envl(g, t, o.a || .005, d, (o.v ?? .2) * AU.sv); os.connect(g); g.connect(AU.out); os.start(t); os.stop(t + d + (o.a || .005) + .06); }
+function hiss(c, t, d, o = {}) { const n = Math.max(1, Math.floor(c.sampleRate * d)), buf = c.createBuffer(1, n, c.sampleRate), ch = buf.getChannelData(0); for (let i = 0; i < n; i++) ch[i] = Math.random() * 2 - 1; const s = c.createBufferSource(); s.buffer = buf; const f = c.createBiquadFilter(); f.type = o.type || "bandpass"; f.frequency.setValueAtTime(o.f || 1500, t); if (o.to) f.frequency.exponentialRampToValueAtTime(o.to, t + d); f.Q.value = o.q || 1; const g = c.createGain(); envl(g, t, o.a || .004, d, (o.v ?? .3) * AU.sv); s.connect(f); f.connect(g); g.connect(AU.out); s.start(t); s.stop(t + d + .06); }
+const NOTE = (n, o = 0) => 440 * Math.pow(2, (n - 9 + 12 * o) / 12);   // n: semitones above C in the octave (0 = C4 when o = 0)
+const SFX = {
+  tap: (c, t) => { tone(c, 1250, t, .05, { type: "triangle", v: .22, to: 900 }); },
+  select: (c, t) => { tone(c, 660, t, .07, { type: "triangle", v: .25 }); tone(c, 990, t + .05, .1, { type: "triangle", v: .2 }); },
+  back: (c, t) => { tone(c, 540, t, .08, { type: "triangle", v: .2, to: 320 }); },
+  go: (c, t) => { [0, 4, 7, 12].forEach((s, i) => tone(c, NOTE(s), t + i * .06, .1, { type: "square", v: .1 })); },
+  place: (c, t) => { hiss(c, t, .09, { f: 1100, to: 300, q: .8, v: .55 }); tone(c, 160, t, .14, { v: .55, to: 55 }); },
+  flip: (c, t, k = 0) => { hiss(c, t, .13, { f: 3200, to: 7500, type: "highpass", q: .5, v: .16 }); tone(c, 520 + k * 120, t, .13, { type: "triangle", v: .2, to: 760 + k * 120 }); },
+  same: (c, t) => { [0, 4, 7].forEach(s => tone(c, NOTE(s, 1), t, .3, { type: "triangle", v: .2 })); },
+  plus: (c, t) => { tone(c, NOTE(7, 1), t, .12, { type: "square", v: .12 }); tone(c, NOTE(12, 1), t + .09, .22, { type: "square", v: .12 }); },
+  chain: (c, t) => { [0, 4, 7, 11, 14].forEach((s, i) => tone(c, NOTE(s, 1), t + i * .055, .16, { type: "triangle", v: .2 })); },
+  win: (c, t) => { [0, 4, 7, 12, 7, 12, 16].forEach((s, i) => tone(c, NOTE(s, 1), t + i * .11, .28, { type: "square", v: .11 })); tone(c, NOTE(0, 2), t + .8, .6, { type: "triangle", v: .2 }); },
+  lose: (c, t) => { [7, 3, 0, -5].forEach((s, i) => tone(c, NOTE(s), t + i * .17, .4, { type: "sawtooth", v: .09, to: NOTE(s - 1) })); },
+  draw: (c, t) => { tone(c, NOTE(4), t, .25, { type: "triangle", v: .2 }); tone(c, NOTE(4), t + .25, .35, { type: "triangle", v: .2 }); },
+  charge: (c, t) => { tone(c, 110, t, 1.2, { type: "sawtooth", v: .1, to: 1100 }); tone(c, 220, t, 1.2, { type: "sine", v: .15, to: 2200 }); hiss(c, t, 1.2, { f: 300, to: 6000, q: 2, v: .22 }); },
+  reveal: (c, t, r = 1) => {
+    hiss(c, t, .35, { f: 2500, to: 9000, type: "highpass", v: .25 });
+    for (let i = 0; i < Math.min(r, 5); i++) tone(c, NOTE([0, 4, 7, 12, 16][i], 1), t + .04 + i * .07, .6, { type: "triangle", v: .2 });
+    if (r >= 5) for (let i = 0; i < 10; i++) tone(c, 1800 + Math.random() * 2600, t + .2 + i * .06, .25, { v: .09 });
+    if (r >= 6) { tone(c, NOTE(0, -1), t, 1.2, { type: "sawtooth", v: .2, to: NOTE(0, -1) * 1.5 }); tone(c, NOTE(7, 0), t, 1.2, { type: "sawtooth", v: .12 }); hiss(c, t, 1, { f: 400, to: 7000, v: .3 }); }
+  },
+  ping: (c, t, r = 1) => { tone(c, 880 + r * 170, t, .25, { v: .22 }); tone(c, 1760 + r * 340, t + .02, .3, { v: .09 }); },
+  coin: (c, t) => { tone(c, 1318, t, .08, { type: "square", v: .1 }); tone(c, 1976, t + .07, .22, { type: "square", v: .1 }); },
+  level: (c, t) => { [0, 4, 7, 12, 16, 19, 24].forEach((s, i) => tone(c, NOTE(s, 1), t + i * .07, .3, { type: "triangle", v: .2 })); },
+  err: (c, t) => { tone(c, 150, t, .2, { type: "sawtooth", v: .2, to: 110 }); },
+};
+function sfx(name, arg) { if (!name || !AU.sfx) return; const c = auCtx(); if (!c || !SFX[name]) return; try { SFX[name](c, c.currentTime + .01, arg); } catch (_) {} }
+const SFXMAP = { cell: null, reveal: null, deckSel: null, filt: null, hand: "select", deckAdd: "select", deckRemove: "back", closeModal: "back", leave: "back", pull: "charge", stageGo: "go", again: "go", rematch: "go", login: "coin", claimM: "coin", craft: "coin", deckSave: "coin", take: "coin", muteAll: null, sfxT: null, bgmT: null };
+const IDB = {
+  db: null,
+  open() { return this.db ? Promise.resolve(this.db) : new Promise((res, rej) => { const q = indexedDB.open("triad-music", 1); q.onupgradeneeded = () => q.result.createObjectStore("songs", { keyPath: "id", autoIncrement: true }); q.onsuccess = () => res(this.db = q.result); q.onerror = () => rej(q.error); }); },
+  async all() { const d = await this.open(); return new Promise((res, rej) => { const r = d.transaction("songs").objectStore("songs").getAll(); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); }); },
+  async add(name, blob) { const d = await this.open(); return new Promise((res, rej) => { const t = d.transaction("songs", "readwrite"); t.objectStore("songs").add({ name, blob }); t.oncomplete = () => res(); t.onerror = () => rej(t.error); }); },
+  async del(id) { const d = await this.open(); return new Promise((res, rej) => { const t = d.transaction("songs", "readwrite"); t.objectStore("songs").delete(id); t.oncomplete = () => res(); t.onerror = () => rej(t.error); }); },
+  async clear() { const d = await this.open(); return new Promise((res, rej) => { const t = d.transaction("songs", "readwrite"); t.objectStore("songs").clear(); t.oncomplete = () => res(); t.onerror = () => rej(t.error); }); },
+};
+async function bgmLoad() { try { AU.tracks = await IDB.all(); } catch (_) { AU.tracks = []; } if (tab === "daily" && P) show("daily"); }
+function bgmNext() {
+  if (!AU.tracks.length) return; let i; do { i = Math.floor(Math.random() * AU.tracks.length); } while (i === AU.idx && AU.tracks.length > 1); AU.idx = i;
+  if (AU.url) URL.revokeObjectURL(AU.url); AU.url = URL.createObjectURL(AU.tracks[i].blob); AU.el.src = AU.url; AU.el.volume = AU.mv; AU.el.play().catch(() => {});
+}
+function bgmStart() {
+  if (!AU.bgm || !AU.tracks.length) return;
+  if (!AU.el) { AU.el = new Audio(); AU.el.onended = bgmNext; AU.el.preload = "auto"; }
+  AU.el.volume = AU.mv; if (!AU.el.src) bgmNext(); else if (AU.el.paused) AU.el.play().catch(() => {});
+}
+function bgmStop() { if (AU.el) AU.el.pause(); }
+function soundPanel() {
+  const list = AU.tracks.map(t => `<div class="row" style="justify-content:space-between;flex-wrap:nowrap"><span class="note" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(t.name.replace(/\.[a-z0-9]+$/i, ""))}</span><button class="btn sm dark" data-act="songDel" data-id="${t.id}">✕</button></div>`).join("");
+  return `<span class="ribbon">SOUND</span><div class="panel"><div class="row" style="flex-wrap:nowrap"><button class="btn sm ${AU.sfx ? "yellow" : "dark"}" data-act="sfxT" style="min-width:128px">Effects ${AU.sfx ? "ON" : "OFF"}</button><input id="svol" class="rng" type="range" min="0" max="100" value="${Math.round(AU.sv * 100)}"></div>` +
+    `<div class="row" style="flex-wrap:nowrap;margin-top:10px"><button class="btn sm ${AU.bgm ? "yellow" : "dark"}" data-act="bgmT" style="min-width:128px">Music ${AU.bgm ? "ON" : "OFF"}</button><input id="mvol" class="rng" type="range" min="0" max="100" value="${Math.round(AU.mv * 100)}"></div>` +
+    `<div style="margin-top:10px">${list || '<p class="note" style="margin:0 0 8px">No songs yet. Add your own audio files (mp3, m4a or wav) from your phone. They stay on this device and are never uploaded.</p>'}</div><div class="row"><label class="btn sm" style="position:relative">Add songs<input id="songs" type="file" accept="audio/*" multiple style="position:absolute;inset:0;opacity:0;width:100%;height:100%"></label>${AU.tracks.length ? '<button class="btn sm red" data-act="songsClear">Remove all</button>' : ""}</div><p class="note" style="margin:8px 0 0">On iPhone the music volume follows the volume buttons.</p></div>`;
 }
 
 /* ===== one place for every tap ===== */
 document.addEventListener("click", async e => {
-  const el = e.target.closest("[data-act]"); if (!el || !P && el.dataset.act !== "tab") return; const a = el.dataset.act, d = el.dataset;
+  const el = e.target.closest("[data-act]"); if (!el || !P && el.dataset.act !== "tab") return; const a = el.dataset.act, d = el.dataset; const sn = SFXMAP[a]; sfx(sn === undefined ? "tap" : sn);
   switch (a) {
     case "tab": return show(d.k);
     case "quick": return startAi({ tier: +d.t });
@@ -827,18 +913,27 @@ document.addEventListener("click", async e => {
     case "deckDel": { P.decks.splice(DE.i, 1); P.deck = Math.min(P.deck, P.decks.length - 1); scheduleSave(); closeModal(); return show("cards"); }
     case "login": P.login = true; P.tickets++; scheduleSave(); toast("+1 ticket"); return show("daily");
     case "claimM": { const m = missions().find(x => x.id === d.id); if (m && m.have >= m.need && !P.mis.claimed[m.id]) { P.mis.claimed[m.id] = 1; if (m.tk) P.tickets += m.tk; else P.dust += m.dust; if (missions().every(x => P.mis.claimed[x.id])) { P.tickets += 2; toast("All four done: +2 tickets"); } scheduleSave(); } return show("daily"); }
+    case "muteAll": { const on = !(AU.sfx || AU.bgm); AU.sfx = on; AU.bgm = on; auSave(); if (on) { sfx("tap"); bgmStart(); } else bgmStop(); chrome(); if (tab === "daily") show("daily"); return; }
+    case "sfxT": AU.sfx = !AU.sfx; auSave(); sfx("tap"); chrome(); return show("daily");
+    case "bgmT": AU.bgm = !AU.bgm; auSave(); if (AU.bgm) bgmStart(); else bgmStop(); chrome(); return show("daily");
+    case "songDel": try { await IDB.del(+d.id); } catch (_) {} AU.tracks = AU.tracks.filter(t => t.id !== +d.id); if (!AU.tracks.length) { bgmStop(); if (AU.el) AU.el.removeAttribute("src"); } return show("daily");
+    case "songsClear": try { await IDB.clear(); } catch (_) {} AU.tracks = []; bgmStop(); if (AU.el) AU.el.removeAttribute("src"); return show("daily");
     case "saveName": P.name = ($("#pname").value || "").trim().slice(0, 14); scheduleSave(); toast("Name saved"); return chrome();
   }
 });
-document.addEventListener("change", e => {
+document.addEventListener("change", async e => {
+  if (e.target.id === "songs") { let n = 0; for (const f of e.target.files) { try { await IDB.add(f.name, f); n++; } catch (_) { toast("Could not save " + f.name); } } await bgmLoad(); if (n) { toast(n + " song" + (n > 1 ? "s" : "") + " added"); bgmStart(); } return show("daily"); }
   if (e.target.id === "deckSel") { P.deck = +e.target.value; scheduleSave(); }
   if (e.target.dataset.act === "filt") { F.own = $("#fown").value; F.lv = +$("#flv").value; F.grp = $("#fgrp").value; fillColl(); }
 });
 function closeModal() { const m = $("#modal"); m.hidden = true; m.innerHTML = ""; }
 $("#modal").addEventListener("click", e => { if (e.target.id === "modal") closeModal(); });
+document.addEventListener("input", e => { if (e.target.id === "svol") { AU.sv = e.target.value / 100; auSave(); } if (e.target.id === "mvol") { AU.mv = e.target.value / 100; auSave(); if (AU.el) AU.el.volume = AU.mv; } });
+const unlockAudio = () => { auCtx(); bgmStart(); };
+document.addEventListener("pointerup", unlockAudio, true); document.addEventListener("touchend", unlockAudio, true);
 window.addEventListener("pagehide", () => { dirty = true; flush(); });
 document.addEventListener("pointermove", tiltMove); document.addEventListener("pointerup", tiltEnd); document.addEventListener("pointerleave", tiltEnd, true);
-chrome();
+chrome(); bgmLoad();
 (async () => { const t0 = Date.now(); await loadProfile(); await sleep(Math.max(0, 1100 - (Date.now() - t0))); $("#splash").classList.add("gone"); setTimeout(() => { const s = $("#splash"); if (s) s.remove(); }, 600); })();
 </script>
 <script>if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) navigator.serviceWorker.register('sw.js');</script>
