@@ -1,0 +1,844 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Triad Summons</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#032b19">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Triad Summons">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@700;800&display=swap">
+<style>
+/* Layout: a one-screen phone game. Hex player badge and currency pills on top, the current tab in the middle, a five-button bar with a raised diamond PLAY at the bottom; matches, sheets and the splash lay over it.
+   Look: a casino at night. Felt green, gold-yellow, signal red and near-black, chunky outlined type, bevelled buttons with a hard bottom edge, ribbon banners. One committed dark theme. */
+:root {
+  --felt: #12834f; --felt-d: #07562f; --felt-dd: #032b19; --black: #070a08; --panel: #0c2218; --panel-hi: #134230; --edge: #1f8a58;
+  --yellow: #ffd23f; --yellow-d: #c98a0c; --red: #ec3d4c; --red-d: #8f1624; --ink: #ffffff; --muted: #9fd0b4; --ok: #6df09a;
+  --lv1: #b09274; --lv2: #d0d8de; --lv3: #46e0c4; --lv4: #c58bff; --lv5: #ffd23f;
+  --display: "Lilita One", "Arial Rounded MT Bold", "Trebuchet MS", system-ui, sans-serif; --body: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: dark;
+}
+[hidden] { display: none !important; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; }
+body { margin: 0; color: var(--ink); font: 800 15px/1.35 var(--body); padding-left: max(14px, env(safe-area-inset-left, 0px)); padding-right: max(14px, env(safe-area-inset-right, 0px)); overflow: hidden; user-select: none; -webkit-user-select: none;
+  background: radial-gradient(ellipse at 50% -10%, #1aa664 0%, var(--felt) 22%, var(--felt-d) 58%, var(--felt-dd) 100%); }
+body::before { content: ""; position: fixed; inset: 0; pointer-events: none; opacity: .07; background-size: 120px 120px; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><text x='12' y='40' font-size='34' fill='white'>♠</text><text x='72' y='44' font-size='34' fill='white'>♥</text><text x='16' y='104' font-size='34' fill='white'>♦</text><text x='72' y='108' font-size='34' fill='white'>♣</text></svg>"); }
+body::after { content: ""; position: fixed; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 50% 45%, transparent 55%, #000a 100%); }
+button { font: inherit; color: inherit; cursor: pointer; }
+.fat { font-family: var(--display); font-weight: 400; letter-spacing: .02em; -webkit-text-stroke: .14em #000; paint-order: stroke fill; text-shadow: 0 .09em 0 #000; }
+h1, h2, h3 { margin: 0; font-family: var(--display); font-weight: 400; }
+#app { height: 100%; display: flex; flex-direction: column; max-width: 560px; margin: 0 auto; position: relative; z-index: 1; }
+
+/* top bar */
+#hud { display: flex; align-items: center; gap: 10px; padding: 8px 0 6px; }
+.hexw { position: relative; flex: none; }
+.hex { position: relative; width: 54px; height: 60px; flex: none; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); background: var(--yellow); display: grid; place-items: center; }
+.hex::before { content: ""; position: absolute; inset: 3px; clip-path: inherit; background: radial-gradient(circle at 40% 30%, #2b2f2d, #080a09); }
+.hex span { position: relative; font-size: 26px; color: var(--yellow); line-height: 1; }
+.lvbadge { position: absolute; left: -2px; bottom: -3px; background: #000; color: #fff; font: 400 13px var(--display); border: 2px solid var(--yellow); border-radius: 8px; padding: 0 6px; z-index: 2; }
+.who { flex: 1; min-width: 0; }
+.who b { font: 400 15px var(--display); display: block; letter-spacing: .03em; }
+.xp { height: 12px; border: 2px solid #000; border-radius: 7px; background: #031a10; overflow: hidden; position: relative; margin-top: 3px; }
+.xp i { display: block; height: 100%; background: linear-gradient(#ffe57a, var(--yellow-d)); }
+.xp small { position: absolute; inset: 0; text-align: center; font: 800 9px/10px var(--body); color: #fff; text-shadow: 0 1px 0 #000, 0 0 3px #000; }
+.pills { display: flex; gap: 6px; }
+.pill { display: flex; align-items: center; gap: 4px; background: linear-gradient(#000d, #0a1a12); clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 0 100%); padding: 3px 16px 3px 6px; font: 400 17px var(--display); font-variant-numeric: tabular-nums; }
+.pill svg { width: 22px; height: 22px; }
+.ico { width: 1em; height: 1em; display: inline-block; vertical-align: -.15em; }
+main { flex: 1; overflow-y: auto; overflow-x: hidden; min-height: 0; padding: 4px 0 14px; scrollbar-width: none; }
+main::-webkit-scrollbar { display: none; }
+
+/* bottom bar: a dark bar of diamond icons; the selected one rises into a notched tab and shows its name */
+nav { display: grid; grid-template-columns: repeat(5, 1fr); align-items: end; padding: 0 0 max(0px, env(safe-area-inset-bottom, 0px)); background: linear-gradient(#0c2217, #040a07); border-top: 3px solid #000; box-shadow: 0 -3px 0 var(--edge); min-height: 62px; margin: 0 -14px; padding-left: 14px; padding-right: 14px; }
+nav button { background: none; border: 0; padding: 7px 0 6px; color: var(--yellow); font: 400 12px var(--display); letter-spacing: .05em; position: relative; display: flex; flex-direction: column; align-items: center; gap: 0; height: 62px; justify-content: center; }
+nav .dia { width: 40px; height: 40px; transform: rotate(45deg); border-radius: 9px; background: linear-gradient(135deg, #1f4636, #0a1812); border: 3px solid #000; box-shadow: inset 0 0 0 2px #2d7352; display: grid; place-items: center; }
+nav .dia svg { transform: rotate(-45deg); width: 24px; height: 24px; opacity: .8; }
+nav .lb { display: none; margin-top: 1px; text-shadow: 0 2px 0 #000; -webkit-text-stroke: .1em #000; paint-order: stroke fill; color: #fff; }
+nav button.on { height: 76px; margin-top: -14px; padding-top: 10px; background: linear-gradient(#1d5039, #0d2a1d); clip-path: polygon(0 12px, 12px 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%); box-shadow: inset 0 3px 0 var(--yellow); }
+nav button.on .dia { width: 44px; height: 44px; background: linear-gradient(135deg, #ff6372, var(--red) 55%, var(--red-d)); box-shadow: inset 0 0 0 3px var(--yellow), 0 0 14px #ffd23f88; }
+nav button.on .dia svg { opacity: 1; width: 28px; height: 28px; }
+nav button.on .lb { display: block; }
+nav .dot { position: absolute; top: 8px; right: 22%; width: 13px; height: 13px; border-radius: 50%; background: var(--red); border: 2px solid #000; }
+
+/* buttons, panels, ribbons */
+.btn { font: 400 17px var(--display); letter-spacing: .03em; color: #fff; background: linear-gradient(#2f9e68, #146c42); border: 3px solid #000; border-radius: 14px; padding: 9px 16px; box-shadow: inset 0 2px 0 #ffffff55, 0 5px 0 #000; -webkit-text-stroke: .1em #000; paint-order: stroke fill; text-shadow: 0 2px 0 #000; transition: transform .06s, box-shadow .06s; }
+.btn:active:not(:disabled) { transform: translateY(4px); box-shadow: inset 0 2px 0 #ffffff55, 0 1px 0 #000; }
+.btn.yellow { background: linear-gradient(#fff08a, var(--yellow) 45%, var(--yellow-d)); color: #fff; }
+.btn.red { background: linear-gradient(#ff7886, var(--red) 50%, var(--red-d)); }
+.btn.dark { background: linear-gradient(#34413a, #151d19); }
+.btn.big { font-size: 24px; padding: 13px 26px; border-radius: 18px; }
+.btn.sm { font-size: 14px; padding: 6px 12px; border-radius: 11px; box-shadow: inset 0 2px 0 #ffffff55, 0 3px 0 #000; }
+.btn:disabled { filter: grayscale(1) brightness(.6); cursor: default; }
+.panel { background: linear-gradient(#0f2e21, var(--panel)); border: 3px solid #000; border-radius: 16px; box-shadow: inset 0 0 0 2px var(--edge), 0 4px 0 #000a; padding: 12px; }
+.ribbon { display: block; margin: 14px auto 10px; width: max-content; max-width: 100%; padding: 5px 34px 6px; font: 400 20px var(--display); letter-spacing: .04em; color: #fff; -webkit-text-stroke: .1em #000; paint-order: stroke fill; text-shadow: 0 2px 0 #000; background: linear-gradient(#ff6372, var(--red) 55%, var(--red-d)); clip-path: polygon(0 0, 100% 0, calc(100% - 14px) 50%, 100% 100%, 0 100%, 14px 50%); text-align: center; filter: drop-shadow(0 3px 0 #000); }
+.ribbon.gold { background: linear-gradient(#fff08a, var(--yellow) 50%, var(--yellow-d)); }
+.ribbon.green { background: linear-gradient(#3fcb83, var(--felt) 55%, var(--felt-d)); }
+.row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.row.c { justify-content: center; }
+.note { color: var(--muted); font-size: 13px; font-weight: 700; }
+.list { display: flex; flex-direction: column; gap: 10px; }
+.item { display: flex; gap: 10px; align-items: center; text-align: left; width: 100%; }
+.item .t { flex: 1; min-width: 0; }
+.item .t b { display: block; font: 400 17px var(--display); letter-spacing: .02em; }
+.item .t small { color: var(--muted); font-weight: 700; }
+.tag { font: 400 12px var(--display); padding: 2px 9px; border-radius: 9px; background: #000a; border: 2px solid #000; color: var(--muted); white-space: nowrap; }
+.tag.ok { color: var(--ok); } .tag.gold { color: var(--yellow); }
+select, input[type=text], input[type=search], textarea { background: #05150d; color: #fff; border: 3px solid #000; box-shadow: inset 0 0 0 2px var(--edge); border-radius: 12px; padding: 9px 10px; font: 800 15px var(--body); min-width: 0; user-select: text; -webkit-user-select: text; }
+textarea { width: 100%; resize: none; font: 700 11px/1.3 ui-monospace, Menlo, Consolas, monospace; word-break: break-all; }
+.bar { height: 14px; border: 2px solid #000; border-radius: 8px; background: #031a10; overflow: hidden; }
+.bar i { display: block; height: 100%; background: linear-gradient(#ffe57a, var(--yellow-d)); }
+
+/* play tab: the hero scene, the next-stage badge, the PLAY button */
+.hero { position: relative; height: 388px; margin: 0 -14px; overflow: hidden; }
+.hero::before { content: ""; position: absolute; left: 50%; top: -20px; width: 300px; height: 380px; transform: translateX(-50%); background: linear-gradient(#fff6c8cc, #ffe27a33 60%, transparent); clip-path: polygon(34% 0, 66% 0, 100% 100%, 0 100%); filter: blur(3px); }
+.fan { position: absolute; left: 50%; bottom: 74px; width: 0; height: 0; }
+.fan .card { position: absolute; width: 92px; left: -46px; bottom: 0; transform-origin: 50% 130%; animation: float 3.4s ease-in-out infinite; }
+.fan .card:nth-child(1) { transform: rotate(-16deg) translateX(-34px); animation-delay: -.4s; }
+.fan .card:nth-child(2) { transform: rotate(0deg) translateY(-14px); z-index: 2; animation-delay: -1.4s; }
+.fan .card:nth-child(3) { transform: rotate(16deg) translateX(34px); animation-delay: -2.4s; }
+@keyframes float { 50% { margin-bottom: 8px; } }
+.badge { position: absolute; left: 50%; top: 10px; transform: translateX(-50%); width: 168px; padding: 22px 0 16px; text-align: center; background: linear-gradient(#143c2b, #072316); clip-path: polygon(50% 0, 100% 14%, 100% 86%, 50% 100%, 0 86%, 0 14%); }
+.badge::before { content: ""; position: absolute; inset: 4px; clip-path: inherit; background: linear-gradient(#18523a, #0a2a1c); }
+.badge::after { content: ""; position: absolute; inset: 0; clip-path: inherit; box-shadow: inset 0 0 0 3px var(--yellow); pointer-events: none; }
+.badge > * { position: relative; z-index: 1; display: block; }
+.badge small { font: 400 12px var(--display); color: var(--muted); letter-spacing: .06em; }
+.badge b { font: 400 17px/1.05 var(--display); padding: 2px 12px; }
+.badge i { font: 400 38px/1 var(--display); font-style: normal; color: var(--yellow); }
+.playwrap { position: absolute; left: 0; right: 0; bottom: 4px; display: flex; justify-content: center; }
+.nodes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 8px; }
+.node { position: relative; aspect-ratio: 1; border: 0; padding: 0; display: grid; place-items: center; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); background: var(--yellow); }
+.node::before { content: ""; position: absolute; inset: 3px; clip-path: inherit; background: linear-gradient(#164a34, #0a2a1c); }
+.node.done::before { background: linear-gradient(#2fbf74, #137042); }
+.node.lock { background: #2a3a32; } .node.lock::before { background: #101a15; }
+.node.next { background: #fff; animation: glow 1.4s ease-in-out infinite; }
+@keyframes glow { 50% { filter: drop-shadow(0 0 8px #ffd23f); } }
+.node span { position: relative; font: 400 24px var(--display); -webkit-text-stroke: .1em #000; paint-order: stroke fill; }
+.node small { position: absolute; bottom: 12%; z-index: 1; font: 400 10px var(--display); color: var(--yellow); }
+.node.lock span { color: #6b8274; }
+.node.boss span { color: var(--red); }
+
+/* cards: a trading-card frame in the rarity's colour. Common white, uncommon green, rare blue, epic purple, legendary orange, secret rare red (summon-only). Foil gets stronger up the tiers. */
+:root { --r1: #f4f4f4; --r1d: #8f949a; --r2: #52e57a; --r2d: #187a36; --r3: #4fadff; --r3d: #1650a6; --r4: #bc8aff; --r4d: #582bb8; --r5: #ffa933; --r5d: #b04c00; --r6: #ff3f50; --r6d: #70040f; }
+.card { position: relative; aspect-ratio: 5 / 7; container-type: inline-size; border-radius: 6.5cqw; overflow: hidden; user-select: none; background: linear-gradient(135deg, var(--c) 0%, var(--cd) 26%, var(--c) 48%, var(--cd) 72%, var(--c) 100%); box-shadow: 0 0 0 .9cqw #000, 0 1.4cqw 0 .9cqw #000a, 0 0 var(--glow, 0) var(--c); }
+.card.r1 { --c: var(--r1); --cd: var(--r1d); --ho: 0; --glow: 0; } .card.r2 { --c: var(--r2); --cd: var(--r2d); --ho: .12; --glow: 1.5cqw; }
+.card.r3 { --c: var(--r3); --cd: var(--r3d); --ho: .3; --glow: 3.5cqw; } .card.r4 { --c: var(--r4); --cd: var(--r4d); --ho: .5; --glow: 5cqw; }
+.card.r5 { --c: var(--r5); --cd: var(--r5d); --ho: .7; --glow: 7cqw; } .card.r6 { --c: var(--r6); --cd: var(--r6d); --ho: .95; --glow: 9cqw; }
+.card .win { position: absolute; left: 3.6cqw; right: 3.6cqw; top: 3.6cqw; bottom: 17cqw; border-radius: 3cqw; overflow: hidden; background: #000; box-shadow: inset 0 0 0 .8cqw #000, 0 0 0 .6cqw #0009; }
+.card .win::after { content: ""; position: absolute; inset: 0; box-shadow: inset 0 0 5cqw #000c; pointer-events: none; }
+.card .art { position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: cover; }
+.card .holo { position: absolute; inset: 0; pointer-events: none; opacity: var(--ho, 0); mix-blend-mode: color-dodge; background: linear-gradient(115deg, transparent 18%, #ff2d95aa 30%, #ffe600aa 38%, #00ffc3aa 46%, #1f8bffaa 54%, #b300ffaa 62%, transparent 76%); background-size: 320% 320%; background-position: var(--mx, 20%) var(--my, 20%); animation: holo 6s ease-in-out infinite; }
+.card.tilt .holo { animation: none; }
+@keyframes holo { 0% { background-position: 0% 0%; } 50% { background-position: 100% 100%; } 100% { background-position: 0% 0%; } }
+.card.r3 .win::before, .card.r4 .win::before, .card.r5 .win::before, .card.r6 .win::before { content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none; mix-blend-mode: screen; opacity: .8; animation: twinkle 2.6s steps(1) infinite; background-image: radial-gradient(circle, #fff 0 .5cqw, transparent .7cqw), radial-gradient(circle, #fff 0 .4cqw, transparent .6cqw), radial-gradient(circle, #fff 0 .6cqw, transparent .8cqw); background-size: 31cqw 27cqw, 23cqw 37cqw, 41cqw 33cqw; background-position: 4cqw 7cqw, 13cqw 19cqw, 26cqw 3cqw; }
+@keyframes twinkle { 50% { opacity: .15; } }
+.card.r6 .holo::after { content: ""; position: absolute; inset: 0; mix-blend-mode: overlay; background: repeating-conic-gradient(from 20deg at 50% 42%, #ffffff55 0 5deg, transparent 5deg 10deg); }
+.card.r6::before, .card.r5::before { content: ""; position: absolute; inset: 0; z-index: 4; pointer-events: none; background: linear-gradient(105deg, transparent 38%, #ffffff66 49%, transparent 60%); background-size: 280% 100%; animation: sheen 3.4s linear infinite; mix-blend-mode: overlay; }
+@keyframes sheen { from { background-position: 160% 0; } to { background-position: -110% 0; } }
+.card .gems { position: absolute; left: 6.5cqw; top: 6.5cqw; display: flex; flex-direction: column; gap: 1.2cqw; z-index: 3; }
+.card .gems i { width: 4.2cqw; height: 4.2cqw; transform: rotate(45deg); background: linear-gradient(135deg, #fff, var(--c) 60%, var(--cd)); border: .6cqw solid #000; box-shadow: 0 0 1.6cqw var(--c); }
+.card .cnt { position: absolute; top: 5cqw; right: 6cqw; z-index: 4; background: #000d; color: var(--r5); border-radius: 999px; font: 400 9cqw var(--display); padding: .5cqw 3cqw; }
+.card .n { position: absolute; z-index: 3; width: 16cqw; height: 16cqw; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle at 35% 28%, #3a424a, #090c0f 75%); border: 1cqw solid var(--c); box-shadow: 0 0 0 .6cqw #000, 0 .8cqw 1.4cqw #000a; font: 400 11.5cqw/1 var(--display); color: #fff; text-shadow: 0 .7cqw 0 #000; }
+.card .n.t { top: 6cqw; left: 50%; transform: translateX(-50%); } .card .n.b { bottom: 21cqw; left: 50%; transform: translateX(-50%); }
+.card .n.r { right: 6.6cqw; top: 50cqw; } .card .n.l { left: 6.6cqw; top: 50cqw; }
+.card .plate { position: absolute; left: 3.6cqw; right: 3.6cqw; bottom: 3.6cqw; height: 12.4cqw; z-index: 3; background: linear-gradient(#141a20, #04070a); border: .7cqw solid #000; border-radius: 2.6cqw; box-shadow: inset 0 .7cqw 0 var(--c); display: flex; flex-direction: column; justify-content: center; text-align: center; padding: 0 2cqw; }
+.card .plate .nm { font: 400 8.2cqw/1.05 var(--display); color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: .02em; }
+.card .plate .sub { font: 400 4.2cqw/1.3 var(--display); color: var(--c); letter-spacing: .1em; text-transform: uppercase; white-space: nowrap; overflow: hidden; }
+@container (max-width: 112px) {
+  .card .plate .sub { display: none; } .card .plate { height: 10.5cqw; } .card .plate .nm { font-size: 9.6cqw; }
+  .card .win { bottom: 15cqw; } .card .n { width: 21cqw; height: 21cqw; font-size: 15.5cqw; } .card .n.t { top: 3cqw; } .card .n.b { bottom: 17cqw; } .card .n.r { right: 3.4cqw; top: 45cqw; } .card .n.l { left: 3.4cqw; top: 45cqw; }
+  .card .gems { left: 5cqw; top: 25cqw; } .card .gems i { width: 5cqw; height: 5cqw; }
+}
+.card .tint { position: absolute; inset: 0; z-index: 5; background: transparent; transition: background .25s; border-radius: inherit; pointer-events: none; }
+.card.me .tint { background: #ffd23f40; box-shadow: inset 0 0 0 2.6cqw #ffd23f; } .card.foe .tint { background: #ec3d4c4d; box-shadow: inset 0 0 0 2.6cqw #ec3d4c; }
+.card.miss { filter: grayscale(1) brightness(.32); }
+.card.sel { transform: translateY(-12px) scale(1.04); z-index: 6; box-shadow: 0 0 0 .9cqw #000, 0 0 0 2cqw var(--yellow), 0 0 16px var(--yellow); }
+.card.pop { animation: pop .35s ease-out; }
+@keyframes pop { 0% { transform: scale(1.6); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+.card.flip { animation: flipc .5s ease-in-out; }
+@keyframes flipc { 0% { transform: rotateY(0); } 50% { transform: rotateY(90deg); } 100% { transform: rotateY(0); } }
+.card.tilt { transition: transform .12s ease-out; will-change: transform; }
+.rtag { display: inline-block; font: 400 12px var(--display); letter-spacing: .08em; padding: 1px 9px; border-radius: 8px; border: 2px solid #000; color: #fff; background: linear-gradient(var(--c), var(--cd)); -webkit-text-stroke: .08em #000; paint-order: stroke fill; }
+.rtag.r1 { --c: var(--r1); --cd: var(--r1d); } .rtag.r2 { --c: var(--r2); --cd: var(--r2d); } .rtag.r3 { --c: var(--r3); --cd: var(--r3d); } .rtag.r4 { --c: var(--r4); --cd: var(--r4d); } .rtag.r5 { --c: var(--r5); --cd: var(--r5d); } .rtag.r6 { --c: var(--r6); --cd: var(--r6d); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 9px; }
+.grid .card { width: 100%; }
+
+/* match */
+#match { position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column; padding: calc(env(safe-area-inset-top, 0px) + 8px) max(12px, env(safe-area-inset-left, 0px)) calc(env(safe-area-inset-bottom, 0px) + 10px) max(12px, env(safe-area-inset-right, 0px));
+  background: radial-gradient(ellipse at 50% 38%, #1aa664 0%, var(--felt) 30%, var(--felt-d) 70%, var(--felt-dd) 100%); }
+#match::before { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(#ffffff30, transparent 40%); clip-path: polygon(30% 0, 70% 0, 100% 60%, 0 60%); opacity: .5; }
+#match .inner { width: 100%; max-width: 480px; margin: 0 auto; flex: 1; display: flex; flex-direction: column; min-height: 0; gap: 8px; position: relative; }
+.mtop { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; }
+.mtop > :last-child { justify-self: end; }
+.score { display: flex; gap: 6px; align-items: stretch; }
+.score .a, .score .b { min-width: 62px; text-align: center; font: 400 28px/1 var(--display); padding: 3px 10px 5px; border: 3px solid #000; border-radius: 12px; -webkit-text-stroke: .1em #000; paint-order: stroke fill; text-shadow: 0 2px 0 #000; box-shadow: 0 3px 0 #000; }
+.score .a { background: linear-gradient(#fff08a, var(--yellow-d)); } .score .b { background: linear-gradient(#ff7886, var(--red-d)); }
+.score small { display: block; font: 400 9px var(--display); letter-spacing: .06em; -webkit-text-stroke: 0; text-shadow: none; color: #000a; }
+.turn { text-align: center; min-height: 28px; font: 400 20px var(--display); letter-spacing: .06em; color: var(--yellow); -webkit-text-stroke: .12em #000; paint-order: stroke fill; text-shadow: 0 2px 0 #000; }
+.turn.foe { color: #ff8d98; }
+.tray { background: linear-gradient(#10261b, #07140d); border: 3px solid #000; border-radius: 16px; box-shadow: inset 0 0 0 2px var(--edge), 0 4px 0 #000a; padding: 8px 8px 6px; }
+.hand { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; }
+.hand .card { width: 100%; }
+.hand.mine .card { cursor: pointer; transition: transform .12s; }
+#board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; width: min(100%, calc((100dvh - 340px) / 1.55)); margin: 0 auto; padding: 9px; background: #00000040; border: 3px solid #000; border-radius: 16px; box-shadow: inset 0 0 0 2px #ffd23f66, 0 4px 0 #000a; }
+#board.shake { animation: shake .4s; }
+@keyframes shake { 20% { transform: translate(-5px, 2px); } 40% { transform: translate(5px, -2px); } 60% { transform: translate(-3px, -3px); } 80% { transform: translate(3px, 2px); } }
+.cell { aspect-ratio: 5 / 7; border-radius: 10px; background: #0000004d; border: 2px dashed #ffffff40; position: relative; }
+.cell.hint { background: #ffd23f33; border: 3px solid var(--yellow); box-shadow: 0 0 14px #ffd23f99; animation: glow 1.2s ease-in-out infinite; }
+.cell.hint2 { background: #ffd23f77; box-shadow: 0 0 22px #ffd23f; }
+.cell .card { position: absolute; inset: 0; width: 100%; height: 100%; }
+.word { position: absolute; left: 50%; top: 38%; transform: translate(-50%, 0); font: 400 26px var(--display); color: #fff; -webkit-text-stroke: .14em #000; paint-order: stroke fill; text-shadow: 0 3px 0 #000; pointer-events: none; animation: rise 1s ease-out forwards; z-index: 3; white-space: nowrap; }
+.word.s { color: #ffe066; } .word.p { color: #7be0ff; } .word.c { color: #ff9ad5; } .word.ouch { color: #ff7b86; } .word.cap { color: #9dffae; }
+@keyframes rise { 0% { opacity: 0; transform: translate(-50%, 10px) scale(.5); } 20% { opacity: 1; transform: translate(-50%, 0) scale(1.2); } 100% { opacity: 0; transform: translate(-50%, -30px) scale(1); } }
+
+/* sheets, splash, toast */
+#modal { position: fixed; inset: 0; z-index: 40; background: #000c; display: flex; align-items: flex-end; justify-content: center; }
+.sheet { width: 100%; max-width: 560px; max-height: 90dvh; overflow-y: auto; background: linear-gradient(#103325, #07170f); border: 3px solid #000; border-bottom: 0; border-radius: 22px 22px 0 0; box-shadow: inset 0 0 0 3px var(--yellow); padding: 18px max(18px, env(safe-area-inset-left, 0px)) calc(18px + env(safe-area-inset-bottom, 0px)); }
+.sheet h2 { text-align: center; margin-bottom: 8px; }
+.over { position: absolute; inset: 0; background: #000b; display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 5; }
+.over .sheet { border-radius: 22px; border-bottom: 3px solid #000; max-width: 440px; }
+.rw { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin: 8px 0; }
+.rwi { position: relative; width: 62px; height: 62px; display: grid; place-items: center; border: 3px solid #000; border-radius: 8px; box-shadow: 0 3px 0 #000a; }
+.rwi svg { width: 38px; height: 38px; }
+.rwi b { position: absolute; right: 4px; bottom: 0; font: 400 14px var(--display); color: #fff; -webkit-text-stroke: .14em #000; paint-order: stroke fill; }
+.rwi.p { background: linear-gradient(#a56bff, #5a2bb0); box-shadow: inset 0 0 0 2px #d9bcff, 0 3px 0 #000a; }
+.rwi.b { background: linear-gradient(#5cc8ff, #1f6fb5); box-shadow: inset 0 0 0 2px #bfe8ff, 0 3px 0 #000a; }
+.rwi.g { background: linear-gradient(#ffe57a, var(--yellow-d)); box-shadow: inset 0 0 0 2px #fff3b0, 0 3px 0 #000a; }
+.hexgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 6px 0 14px; }
+.hx { position: relative; aspect-ratio: 0.9; clip-path: polygon(50% 0, 100% 24%, 100% 76%, 50% 100%, 0 76%, 0 24%); background: #c7ced4; display: grid; place-items: center; }
+.hx::before { content: ""; position: absolute; inset: 4px; clip-path: inherit; background: linear-gradient(#8e979e, #6d767d); }
+.hx.q span { position: relative; font: 400 40px var(--display); color: #c7ced4; opacity: .8; }
+.hx.f { background: var(--c); } .hx.f::before { background: #08150f; }
+.hx.f img { position: absolute; inset: 6px; width: calc(100% - 12px); height: calc(100% - 12px); clip-path: polygon(50% 0, 100% 24%, 100% 76%, 50% 100%, 0 76%, 0 24%); object-fit: cover; image-rendering: pixelated; }
+.hx.f small { position: absolute; bottom: 14%; left: 0; right: 0; text-align: center; font: 400 11px var(--display); color: #fff; -webkit-text-stroke: .16em #000; paint-order: stroke fill; }
+.hx.r1 { --c: var(--r1); } .hx.r2 { --c: var(--r2); } .hx.r3 { --c: var(--r3); } .hx.r4 { --c: var(--r4); } .hx.r5 { --c: var(--r5); } .hx.r6 { --c: var(--r6); }
+.bighex { position: relative; width: 240px; height: 270px; margin: 20px auto; clip-path: polygon(50% 0, 100% 24%, 100% 76%, 50% 100%, 0 76%, 0 24%); background: #c7ced4; display: grid; place-items: center; animation: shk .5s ease-in-out infinite; }
+.bighex::before { content: ""; position: absolute; inset: 7px; clip-path: inherit; background: linear-gradient(#aeb7be, #7d868d); }
+.bighex span { position: relative; font: 400 120px var(--display); color: #e4e9ec; opacity: .85; }
+@keyframes shk { 25% { transform: rotate(-2deg); } 75% { transform: rotate(2deg); } }
+.stagehint { text-align: center; font: 400 22px var(--display); color: #b8c8ff; -webkit-text-stroke: .1em #000; paint-order: stroke fill; animation: glow 1.2s ease-in-out infinite; }
+#toast { position: fixed; left: 50%; top: calc(14px + env(safe-area-inset-top, 0px)); transform: translate(-50%, -20px); background: linear-gradient(#fff, #cfe9ff); color: #123; border: 3px solid #000; box-shadow: 0 4px 0 #000; padding: 8px 18px; border-radius: 999px; z-index: 80; pointer-events: none; opacity: 0; transition: opacity .25s, transform .25s; max-width: 92%; text-align: center; font: 400 15px var(--display); }
+#toast.on { opacity: 1; transform: translate(-50%, 0); }
+#splash { position: fixed; inset: 0; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: radial-gradient(ellipse at 50% 30%, #1aa664, var(--felt-d) 55%, var(--felt-dd)); transition: opacity .5s; }
+#splash.gone { opacity: 0; pointer-events: none; }
+#splash .logo { font-size: 66px; line-height: .9; color: #fff; text-align: center; transform: rotate(-3deg); }
+#splash .logo i { display: block; font-style: normal; color: var(--yellow); font-size: 50px; }
+#splash small { position: absolute; bottom: calc(40px + env(safe-area-inset-bottom, 0px)); font: 400 18px var(--display); color: #fff; -webkit-text-stroke: .12em #000; paint-order: stroke fill; }
+
+/* summon */
+.mach { position: relative; margin: 6px auto 0; width: min(100%, 360px); padding: 22px 14px 18px; border-radius: 26px; background: linear-gradient(#1b1f1d, #060807); border: 4px solid #000; box-shadow: inset 0 0 0 3px var(--yellow), 0 6px 0 #000a; text-align: center; }
+.bulbs { position: absolute; inset: 7px; border-radius: 20px; pointer-events: none; border: 5px dotted var(--yellow); opacity: .9; animation: bulbs 1s steps(1) infinite; }
+@keyframes bulbs { 50% { border-color: var(--red); } }
+.orb { position: relative; width: 168px; height: 168px; margin: 8px auto 14px; border-radius: 50%; background: radial-gradient(circle at 35% 28%, #fff7c2, var(--yellow) 30%, var(--red) 66%, #2a0509); border: 5px solid #000; box-shadow: 0 0 36px #ffd23faa, 0 0 80px #ec3d4c66, inset 0 -10px 20px #0006; animation: orb 2.6s ease-in-out infinite; display: grid; place-items: center; }
+.orb::after { content: ""; position: absolute; width: 56px; height: 28px; left: 24px; top: 20px; border-radius: 50%; background: #fff9; transform: rotate(-30deg); filter: blur(2px); }
+.orb b { font: 400 28px var(--display); color: #fff; -webkit-text-stroke: .14em #000; paint-order: stroke fill; text-shadow: 0 3px 0 #000; position: relative; z-index: 1; }
+@keyframes orb { 50% { transform: scale(1.05); box-shadow: 0 0 56px #ffd23f, 0 0 110px #ec3d4c99, inset 0 -10px 20px #0006; } }
+.pity { text-align: left; margin: 12px 0 4px; }
+.pity small { display: flex; justify-content: space-between; font: 400 12px var(--display); color: var(--muted); margin-bottom: 3px; }
+.reveal { display: grid; gap: 9px; }
+.reveal .card { opacity: 0; width: 100%; }
+.reveal .card.in { animation: pop .45s ease-out forwards; }
+.reveal .wrap { position: relative; }
+.reveal .tg { position: absolute; left: 0; right: 0; bottom: -4px; text-align: center; font: 400 12px var(--display); color: var(--ok); -webkit-text-stroke: .14em #000; paint-order: stroke fill; z-index: 3; }
+.reveal .tg.d { color: #ffb0b8; }
+table.odds { width: 100%; border-collapse: collapse; } table.odds td { padding: 5px 0; border-bottom: 2px solid #ffffff22; } table.odds td:last-child { text-align: right; font-family: var(--display); font-variant-numeric: tabular-nums; }
+.slots { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; margin: 8px 0; }
+.slots .card, .slots .empty { width: 100%; aspect-ratio: 5 / 7; }
+.slots .empty { border: 3px dashed #ffffff44; border-radius: 10px; background: #0003; }
+.filters { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 9px; }
+.filters select, .filters input { flex: 1 1 100px; }
+@media (prefers-reduced-motion: reduce) { * { animation-duration: .01s !important; } }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-ticket" viewBox="0 0 24 24"><path d="M2.5 6.5h19v3.5a2.2 2.2 0 0 0 0 4.4v3.1h-19v-3.1a2.2 2.2 0 0 0 0-4.4Z" fill="#ffd23f" stroke="#000" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 7.5v9" stroke="#000" stroke-width="1.4" stroke-dasharray="2 1.6"/><path d="M15.5 10.5l.7 1.4 1.5.2-1.1 1 .3 1.5-1.4-.8-1.4.8.3-1.5-1.1-1 1.5-.2Z" fill="#ec3d4c"/></symbol>
+  <symbol id="i-gem" viewBox="0 0 24 24"><path d="M12 3l8.5 6.2L12 21 3.5 9.2Z" fill="#ff5468" stroke="#000" stroke-width="1.8" stroke-linejoin="round"/><path d="M3.8 9.4h16.4M8.5 9.4 12 3l3.5 6.4M8.5 9.4 12 20.6l3.5-11.2" fill="none" stroke="#000" stroke-width="1" opacity=".45"/><path d="M8 7.2l2-1.6" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></symbol>
+  <symbol id="i-xp" viewBox="0 0 32 32"><path d="M16 2l12 7v14l-12 7L4 23V9Z" fill="#ffd23f" stroke="#000" stroke-width="2.4" stroke-linejoin="round"/><path d="M16 6l8.5 5v10L16 26l-8.5-5V11Z" fill="#f0a91a"/><text x="16" y="20" text-anchor="middle" font-family="Lilita One,Arial" font-size="10" fill="#fff" stroke="#000" stroke-width="2" paint-order="stroke">EXP</text></symbol>
+  <symbol id="i-cards" viewBox="0 0 32 32"><rect x="4" y="7" width="15" height="21" rx="3" transform="rotate(-12 11 17)" fill="#ec3d4c" stroke="#000" stroke-width="2.4"/><rect x="12" y="5" width="15" height="21" rx="3" transform="rotate(10 19 15)" fill="#ffd23f" stroke="#000" stroke-width="2.4"/><path d="M19.5 10.5l1.6 3.3 3.6.5-2.6 2.5.6 3.6-3.2-1.7-3.2 1.7.6-3.6-2.6-2.5 3.6-.5Z" fill="#ec3d4c" stroke="#000" stroke-width="1.2"/></symbol>
+  <symbol id="i-summon" viewBox="0 0 32 32"><circle cx="16" cy="16" r="11" fill="#ffd23f" stroke="#000" stroke-width="2.6"/><circle cx="16" cy="16" r="6.5" fill="#ec3d4c" stroke="#000" stroke-width="2"/><path d="M16 1v5M16 26v5M1 16h5M26 16h5M5.5 5.5l3.5 3.5M23 23l3.5 3.5M26.5 5.5L23 9M9 23l-3.5 3.5" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></symbol>
+  <symbol id="i-swords" viewBox="0 0 32 32"><g stroke="#000" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5l11 11M27 5L16 16" fill="none" stroke="#fff"/><path d="M5 5l11 11M27 5L16 16" fill="none" stroke-width="1" stroke="#000"/><path d="M9 19l-4 4M23 19l4 4M13 15l-4 4M19 15l4 4" fill="none" stroke="#ffd23f"/><path d="M6 27l4-4M26 27l-4-4" stroke="#ec3d4c"/></g></symbol>
+  <symbol id="i-daily" viewBox="0 0 32 32"><rect x="4" y="6" width="24" height="22" rx="4" fill="#fff" stroke="#000" stroke-width="2.6"/><rect x="4" y="6" width="24" height="7" rx="3" fill="#ec3d4c" stroke="#000" stroke-width="2.6"/><path d="M10 20l4 4 8-9" fill="none" stroke="#12834f" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-vs" viewBox="0 0 32 32"><circle cx="11" cy="12" r="6" fill="#ffd23f" stroke="#000" stroke-width="2.4"/><circle cx="21" cy="12" r="6" fill="#ec3d4c" stroke="#000" stroke-width="2.4"/><path d="M2 28c0-6 4-9 9-9s9 3 9 9M12 28c0-6 4-9 9-9s9 3 9 9" fill="#12834f" stroke="#000" stroke-width="2.4" stroke-linejoin="round"/></symbol>
+</svg>
+
+<div id="app">
+  <header id="hud"></header>
+  <main id="view"></main>
+  <nav id="nav"></nav>
+</div>
+<div id="match" hidden></div>
+<div id="modal" hidden></div>
+<div id="toast"></div>
+<div id="splash"><div class="logo fat">TRIAD<i>SUMMONS</i></div><small>Loading…</small></div>
+
+<script>
+/* ===== the card table (triad_app/gen_cards.py): id, name, level, top, right, bottom, left, summon-only, group ===== */
+const RAW = [["goblin","Goblin",1,2,6,4,3,0,"monster"],["slime","Slime",1,2,2,5,6,0,"monster"],["dracky","Dracky",1,2,2,5,4,0,"monster"],["she_slime","She-slime",1,4,3,1,5,0,"monster"],["cactuar","Cactuar",1,4,4,6,1,0,"monster"],["shadow","Shadow",1,2,4,6,2,0,"monster"],["bomb","Bomb",1,1,5,2,6,0,"monster"],["healslime","Healslime",1,6,3,3,2,0,"monster"],["flan","Flan",1,5,1,4,3,0,"monster"],["soldier","Soldier",1,2,2,6,4,0,"monster"],["coeurl","Coeurl",2,7,3,7,1,0,"monster"],["zu","Zu",2,6,2,6,5,0,"monster"],["black_mage","Black Mage",2,6,1,6,4,0,"monster"],["metal_slime","Metal Slime",2,6,2,5,4,0,"monster"],["dusk","Dusk",2,7,6,1,3,0,"monster"],["neoshadow","Neoshadow",2,2,6,5,4,0,"monster"],["large_body","Large Body",2,7,6,2,2,0,"monster"],["golem","Golem",2,7,5,2,5,0,"monster"],["killing_machine","Killing Machine",2,4,6,3,6,0,"monster"],["malboro","Malboro",2,7,4,1,7,0,"monster"],["tonberry","Tonberry",3,6,6,7,2,0,"monster"],["iron_giant","Iron Giant",3,8,4,2,7,0,"monster"],["king_slime","King Slime",3,7,6,2,6,0,"monster"],["behemoth","Behemoth",3,2,7,6,8,0,"monster"],["darkside","Darkside",3,3,7,6,6,0,"monster"],["ultros","Ultros",3,4,8,4,6,0,"monster"],["thornmother","Thornmother",3,3,4,8,8,0,"monster"],["frost_queen","Frost Queen",3,7,2,8,4,0,"monster"],["forgemaster","Forgemaster",3,5,3,8,7,0,"monster"],["oracle","The Oracle",3,6,4,6,5,0,"monster"],["archmage","Archmage",4,9,7,5,6,0,"monster"],["blaze_lord","Blaze Lord",4,5,4,8,9,0,"monster"],["herald","The Herald",4,3,8,5,9,0,"monster"],["juggernaut","Juggernaut",4,8,4,9,6,0,"monster"],["oathbound","Oathbound",4,4,7,6,8,0,"monster"],["voidwalker","Voidwalker",4,6,6,8,5,0,"monster"],["warlord","Warlord",4,7,3,9,7,0,"monster"],["withered_king","Withered King",4,3,5,9,8,0,"monster"],["garuda","Garuda",4,9,6,2,8,0,"monster"],["ifrit","Ifrit",5,8,7,9,7,0,"monster"],["shiva","Shiva",5,7,6,7,9,0,"monster"],["ramuh","Ramuh",5,3,10,7,10,0,"monster"],["titan","Titan",5,9,6,7,9,0,"monster"],["phoenix","Phoenix",5,7,8,6,8,0,"monster"],["odin","Odin",5,8,9,7,7,0,"monster"],["bahamut","Bahamut",5,10,9,4,7,0,"monster"],["ultima","Ultima",5,9,3,9,10,0,"monster"],["bandit","Bandit",1,6,1,3,5,0,"folk"],["bandit_lieutenant","Bandit Lieutenant",2,2,4,5,7,0,"folk"],["bandit_chief","Bandit Chief",3,8,8,4,1,0,"folk"],["hollow_soldier","Hollow Soldier",2,3,6,5,3,0,"folk"],["hollow_captain","Hollow Captain",3,6,6,5,4,0,"folk"],["hollow_warden","Hollow Warden",4,5,7,6,7,0,"folk"],["gilgamesh","Gilgamesh",5,9,4,7,9,0,"monster"],["dominant_bahamut","Dominant of Bahamut",4,8,5,5,7,0,"dominant"],["dominant_garuda","Dominant of Garuda",4,8,2,8,7,0,"dominant"],["dominant_odin","Dominant of Odin",4,7,8,4,7,0,"dominant"],["dominant_phoenix","Dominant of Phoenix",4,9,2,8,7,0,"dominant"],["dominant_ramuh","Dominant of Ramuh",4,5,6,7,7,0,"dominant"],["dominant_shiva","Dominant of Shiva",4,9,7,9,1,0,"dominant"],["dominant_titan","Dominant of Titan",4,4,7,6,9,0,"dominant"],["hero_bard","Bard",2,4,5,3,7,0,"hero"],["hero_beastmaster","Beastmaster",2,2,7,3,5,0,"hero"],["hero_berserker","Berserker",3,5,6,2,8,0,"hero"],["hero_black_mage","Black Mage",2,1,5,7,4,0,"hero"],["hero_blue_mage","Blue Mage",2,5,4,7,2,0,"hero"],["hero_chemist","Chemist",2,7,3,7,1,0,"hero"],["hero_dancer","Dancer",2,6,3,2,6,0,"hero"],["hero_dragoon","Dragoon",3,4,6,3,8,0,"hero"],["hero_freelancer","Freelancer",2,5,3,6,3,0,"hero"],["hero_geomancer","Geomancer",2,6,4,4,4,0,"hero"],["hero_knight","Knight",3,5,6,8,4,0,"hero"],["hero_mime","Mime",2,6,5,5,2,0,"hero"],["hero_monk","Monk",2,7,2,3,7,0,"hero"],["hero_mystic_knight","Mystic Knight",3,2,7,7,7,0,"hero"],["hero_ninja","Ninja",3,4,8,8,1,0,"hero"],["hero_ranger","Ranger",2,6,3,5,4,0,"hero"],["hero_red_mage","Red Mage",2,5,3,5,5,0,"hero"],["hero_samurai","Samurai",3,3,4,8,8,0,"hero"],["hero_summoner","Summoner",2,5,7,1,6,0,"hero"],["hero_thief","Thief",2,5,2,6,4,0,"hero"],["hero_time_mage","Time Mage",2,7,4,5,3,0,"hero"],["hero_white_mage","White Mage",2,6,3,2,6,0,"hero"],["folk_alchemist","Alchemist",1,2,5,4,3,0,"folk"],["folk_angler","Angler",1,3,4,5,3,0,"folk"],["folk_armorer","Armorer",1,6,4,2,1,0,"folk"],["folk_barkeep","Barkeep",1,3,1,5,6,0,"folk"],["folk_blacksmith","Blacksmith",1,6,1,4,3,0,"folk"],["folk_captain","Captain",1,6,3,1,5,0,"folk"],["folk_clothier","Clothier",1,4,4,1,5,0,"folk"],["folk_cook","Cook",1,4,2,3,4,0,"folk"],["folk_decorator","Decorator",1,1,5,3,5,0,"folk"],["folk_demolitionist","Demolitionist",1,1,5,3,5,0,"folk"],["folk_elder","Elder",1,4,1,3,6,0,"folk"],["folk_gardener","Gardener",1,2,2,3,6,0,"folk"],["folk_guide","Guide",1,1,6,4,3,0,"folk"],["folk_innkeeper","Innkeeper",1,2,6,4,2,0,"folk"],["folk_merchant","Merchant",1,2,4,6,1,0,"folk"],["folk_nurse","Nurse",1,5,5,3,2,0,"folk"],["folk_outrider","Outrider",1,2,6,4,3,0,"folk"],["folk_priestess","Priestess",1,5,1,3,6,0,"folk"],["folk_scholar","Scholar",1,3,4,2,5,0,"folk"],["folk_shopkeeper","Shopkeeper",1,1,4,4,4,0,"folk"],["folk_spell_merchant","Spell Merchant",1,2,5,5,1,0,"folk"],["folk_storekeeper","Storekeeper",1,1,1,5,6,0,"folk"],["folk_summoner","Summoner",1,3,2,4,4,0,"folk"],["folk_tinkerer","Tinkerer",1,4,1,3,5,0,"folk"],["folk_traveling_merchant","Traveling Merchant",1,5,2,5,1,0,"folk"],["folk_weaponsmith","Weaponsmith",1,5,2,3,3,0,"folk"],["w_mythril_sword","Mythril Sword",1,2,4,5,2,0,"weapon"],["w_flametongue","Flametongue",2,2,5,7,3,0,"weapon"],["w_icebrand","Icebrand",2,2,6,5,4,0,"weapon"],["w_blood_sword","Blood Sword",3,6,8,8,1,0,"weapon"],["w_defender","Defender",3,7,8,6,2,0,"weapon"],["w_save_the_queen","Save the Queen",3,4,4,5,8,0,"weapon"],["w_excalibur","Excalibur",4,7,5,6,9,0,"weapon"],["w_excalipoor","Excalipoor",1,2,1,5,5,0,"weapon"],["w_ragnarok","Ragnarok",4,8,8,6,5,0,"weapon"],["w_apocalypse","Apocalypse",4,7,8,8,3,0,"weapon"],["w_ultima_weapon","Ultima Weapon",5,5,6,9,9,0,"weapon"],["w_kotetsu","Kotetsu",1,5,2,4,2,0,"weapon"],["w_kiku_ichimonji","Kiku-ichimonji",2,2,4,5,7,0,"weapon"],["w_murasame","Murasame",3,1,7,7,8,0,"weapon"],["w_muramasa","Muramasa",4,8,6,7,5,0,"weapon"],["w_masamune","Masamune",5,10,10,5,5,0,"weapon"],["w_mage_masher","Mage Masher",1,1,3,6,3,0,"weapon"],["w_gungnir","Gungnir",4,8,6,4,9,0,"weapon"],["w_longinus","Longinus",5,8,9,5,9,0,"weapon"],["w_zodiac_spear","Zodiac Spear",5,9,4,8,8,0,"weapon"],["w_yoichi_bow","Yoichi Bow",4,3,8,8,8,0,"weapon"],["w_artemis_bow","Artemis Bow",3,8,7,1,6,0,"weapon"],["w_nirvana","Nirvana",5,10,7,10,4,0,"weapon"],["w_mace_of_zeus","Mace of Zeus",4,8,6,8,3,0,"weapon"],["w_princess_guard","Princess Guard",4,8,7,7,4,0,"weapon"],["w_onion_sword","Onion Sword",2,5,7,6,1,0,"weapon"],["w_brave_blade","Brave Blade",4,5,6,6,9,0,"weapon"],["w_valiant_knife","Valiant Knife",3,2,6,8,6,0,"weapon"],["w_buster_sword","Buster Sword",3,6,6,4,5,0,"weapon"],["w_premium_heart","Premium Heart",4,3,8,9,6,0,"weapon"],["w_revolver","Revolver",2,6,5,5,2,0,"weapon"],["w_hyperion","Hyperion",4,7,8,7,4,0,"weapon"],["w_lionheart","Lionheart",5,9,10,6,5,0,"weapon"],["w_orichalcon","Orichalcon",4,7,7,3,8,0,"weapon"],["w_excalibur_ii","Excalibur II",5,8,10,2,10,0,"weapon"],["w_brotherhood","Brotherhood",3,8,4,2,7,0,"weapon"],["w_caladbolg","Caladbolg",5,8,3,8,10,0,"weapon"],["w_curtana","Curtana",4,6,6,8,5,0,"weapon"],["w_blazefire_saber","Blazefire Saber",4,5,3,9,8,0,"weapon"],["w_engine_blade","Engine Blade",3,8,5,1,7,0,"weapon"],["w_gotterdammerung","Gotterdammerung",5,7,6,8,9,0,"weapon"],["w_blade_of_dawn","Blade of Dawn",4,2,9,8,7,0,"weapon"],["w_ultima_blade","Ultima Blade",5,9,7,8,7,0,"weapon"],["w_deathbringer","Deathbringer",3,8,4,2,7,0,"weapon"],["w_holy_lance","Holy Lance",4,9,6,9,2,0,"weapon"],["w_kingdom_key","Kingdom Key",1,4,5,5,1,0,"weapon"],["w_oathkeeper","Oathkeeper",3,3,8,2,8,0,"weapon"],["w_oblivion","Oblivion",3,5,3,5,8,0,"weapon"],["w_star_seeker","Star Seeker",4,8,5,8,6,0,"weapon"],["w_way_to_the_dawn","Way to the Dawn",4,6,9,2,9,0,"weapon"],["w_ultima_keyblade","Ultima Keyblade",5,5,10,6,8,0,"weapon"],["w_zenithian_sword","Zenithian Sword",5,8,2,10,9,0,"weapon"],["w_erdricks_sword","Erdrick's Sword",4,5,7,8,5,0,"weapon"],["w_metal_king_sword","Metal King Sword",5,8,9,9,4,0,"weapon"],["w_falcon_blade","Falcon Blade",3,1,8,5,7,0,"weapon"],["w_dragon_slayer","Dragon Slayer",3,8,4,7,4,0,"weapon"],["w_staff_of_divine_wrath","Staff of Divine Wrath",3,8,3,4,8,0,"weapon"],["a_mythril","Mythril Armour",2,7,4,5,3,0,"armor"],["a_adamant","Adamant Armour",3,6,6,5,4,0,"armor"],["a_maximillian","Maximillian Armour",4,8,2,7,9,0,"armor"],["a_dragon","Dragon Armour",4,2,5,9,9,0,"armor"],["a_crystal","Crystal Armour",5,5,9,10,7,0,"armor"],["a_genji","Genji Armour",5,10,8,7,5,0,"armor"],["a_ninja","Ninja Armour",3,7,7,2,6,0,"armor"],["a_white_robe","White Mage's Armour",3,6,1,7,7,0,"armor"],["a_black_robe","Black Mage's Armour",3,7,6,7,3,0,"armor"],["r_ribbon","Ribbon",4,6,9,5,7,0,"relic"],["r_hermes_sandals","Hermes Sandals",3,3,2,8,8,0,"relic"],["r_sprint_shoes","Sprint Shoes",2,3,5,2,7,0,"relic"],["r_genji_gloves","Genji Gloves",4,2,9,9,6,0,"relic"],["r_power_wrist","Power Wrist",2,6,5,7,1,0,"relic"],["r_protect_ring","Protect Ring",2,7,1,4,6,0,"relic"],["r_magic_armlet","Magic Armlet",2,6,2,7,4,0,"relic"],["r_rune_bracelet","Rune Bracelet",3,5,7,7,2,0,"relic"],["r_star_pendant","Star Pendant",2,6,6,2,4,0,"relic"],["r_cat_ear_hood","Cat-Ear Hood",3,5,6,4,8,0,"relic"],["r_phoenix_pinion","Phoenix Pinion",4,8,7,6,4,0,"relic"],["x_esper_fenrir","Fenrir",5,8,8,7,10,1,"esper"],["x_esper_sylph","Sylph",5,7,10,8,7,1,"esper"],["x_esper_fat_chocobo","Fat Chocobo",5,6,5,10,10,1,"esper"],["x_esper_moogle","Moogle",5,8,8,8,9,1,"esper"],["x_esper_anima","Anima",5,7,9,9,7,1,"esper"],["x_esper_siren","Siren",5,7,7,9,9,1,"esper"],["x_esper_stone_golem","Stone Golem",5,9,7,8,7,1,"esper"],["x_esper_diabolos","Diabolos",5,10,5,10,7,1,"esper"],["x_esper_carbuncle","Carbuncle",5,9,8,7,8,1,"esper"],["x_esper_leviathan","Leviathan",5,8,7,8,8,1,"esper"],["x_hunt_griffin","Griffin",5,9,7,8,8,1,"esper"],["x_hunt_wyvern","Wyvern",5,9,10,8,6,1,"esper"],["x_hunt_hill_giant","Hill Giant",5,7,7,8,9,1,"esper"],["ff_ahriman","Ahriman",2,6,5,5,1,0,"ff"],["ff_cockatrice","Cockatrice",2,5,3,6,5,0,"ff"],["ff_sahagin","Sahagin",1,6,6,1,1,0,"ff"],["ff_goblin_shaman","Goblin Shaman",1,1,5,2,6,0,"ff"],["ff_cerberus","Cerberus",3,7,6,8,1,0,"ff"],["ff_ochu","Ochu",2,3,5,7,3,0,"ff"],["ff_adamantoise","Adamantoise",4,8,9,3,7,0,"ff"],["ff_omega_weapon","Omega Weapon",5,6,10,6,9,1,"ff"],["ff_shinryu","Shinryu",5,7,7,6,9,1,"ff"],["ff_kefka","Kefka",5,7,6,6,10,0,"ff"],["ff_sephiroth","Sephiroth",5,5,6,9,10,0,"ff"],["ff_exdeath","Exdeath",4,7,9,5,5,0,"ff"],["ff_ultimecia","Ultimecia",5,9,7,5,10,0,"ff"],["ff_chocobo","Chocobo",1,4,4,2,3,0,"ff"],["ff_tonberry_king","Tonberry King",4,8,1,7,9,0,"ff"],["ff_yuna","Yuna",3,7,8,6,2,0,"ff"],["ff_lightning","Lightning",4,5,9,8,5,0,"ff"],["dq_bubble_slime","Bubble Slime",1,5,4,2,4,0,"dq"],["dq_drakee","Drakee",1,1,3,4,5,0,"dq"],["dq_sabrecub","Sabrecub",1,3,6,4,2,0,"dq"],["dq_mimic","Mimic",2,5,3,4,5,0,"dq"],["dq_slime_knight","Slime Knight",2,7,2,7,1,0,"dq"],["dq_killer_armor","Killer Armor",2,6,4,6,3,0,"dq"],["dq_great_sabrecat","Great Sabrecat",3,3,8,7,5,0,"dq"],["dq_dhoulmagus","Dhoulmagus",3,1,7,8,5,0,"dq"],["dq_hell_gladiator","Hell Gladiator",3,8,4,3,6,0,"dq"],["dq_baramos","Baramos",4,8,8,2,8,0,"dq"],["dq_hargon","Hargon",4,3,9,9,4,0,"dq"],["dq_psaro","Psaro",4,5,8,3,9,0,"dq"],["dq_zoma","Zoma",5,10,4,8,7,0,"dq"],["dq_orgodemir","Orgodemir",5,6,8,5,10,0,"dq"],["dq_estark","Estark",5,9,10,10,1,1,"dq"],["dq_malroth","Malroth",5,10,7,6,8,1,"dq"],["dq_erdrick","Erdrick",5,9,7,4,9,0,"dq"],["dq_terry","Terry",3,4,7,4,7,0,"dq"],["db_saibaman","Saibaman",1,2,3,6,2,0,"db"],["db_mr_satan","Mr. Satan",1,4,3,2,5,0,"db"],["db_raditz","Raditz",2,6,1,4,6,0,"db"],["db_nappa","Nappa",2,2,7,5,4,0,"db"],["db_zarbon","Zarbon",2,4,6,1,6,0,"db"],["db_dodoria","Dodoria",2,6,4,4,3,0,"db"],["db_recoome","Recoome",2,6,6,1,4,0,"db"],["db_krillin","Krillin",2,6,6,1,5,0,"db"],["db_captain_ginyu","Captain Ginyu",3,5,7,1,8,0,"db"],["db_piccolo","Piccolo",3,5,3,6,7,0,"db"],["db_gohan","Gohan",3,6,7,6,4,0,"db"],["db_android_17","Android 17",3,7,5,5,4,0,"db"],["db_android_18","Android 18",3,5,8,2,7,0,"db"],["db_great_ape","Great Ape",3,5,1,8,7,0,"db"],["db_cooler","Cooler",4,7,7,7,4,0,"db"],["db_cell","Cell",4,7,7,9,3,0,"db"],["db_frieza","Frieza",4,9,3,4,9,0,"db"],["db_majin_buu","Majin Buu",4,9,7,1,8,0,"db"],["db_vegeta","Vegeta",5,10,3,9,9,0,"db"],["db_broly","Broly",5,8,9,3,10,0,"db"],["db_goku","Goku",5,8,9,4,8,1,"db"],["db_shenron","Shenron",5,9,1,9,10,1,"db"],["db_beerus","Beerus",5,9,5,9,6,1,"db"],["db_whis","Whis",5,10,5,10,4,1,"db"],["db_trunks","Trunks",4,9,9,2,6,0,"db"],["db_yamcha","Yamcha",1,2,1,5,6,0,"db"],["db_tien","Tien",2,4,7,3,5,0,"db"],["nr_rock_lee","Rock Lee",2,7,6,2,2,0,"nr"],["nr_sakura","Sakura",2,4,7,3,5,0,"nr"],["nr_haku","Haku",2,6,3,4,5,0,"nr"],["nr_zabuza","Zabuza",2,5,5,5,3,0,"nr"],["nr_kakashi","Kakashi",3,3,4,6,8,0,"nr"],["nr_gaara","Gaara",3,8,5,4,5,0,"nr"],["nr_neji","Neji",3,7,8,3,4,0,"nr"],["nr_jiraiya","Jiraiya",3,6,4,4,8,0,"nr"],["nr_naruto","Naruto",4,5,9,8,5,0,"nr"],["nr_sasuke","Sasuke",4,9,8,5,5,0,"nr"],["nr_itachi","Itachi",4,9,3,6,7,0,"nr"],["nr_orochimaru","Orochimaru",4,6,9,4,8,0,"nr"],["nr_pain","Pain",4,9,5,5,7,0,"nr"],["nr_madara","Madara",5,10,8,9,2,0,"nr"],["nr_hashirama","Hashirama",5,3,9,10,8,0,"nr"],["nr_kurama","Kurama",5,9,10,10,2,1,"nr"],["nr_konan","Konan",3,4,8,7,3,0,"nr"],["nr_deidara","Deidara",3,2,5,8,7,0,"nr"],["op_chopper","Chopper",1,1,2,5,5,0,"op"],["op_buggy","Buggy",1,5,3,2,5,0,"op"],["op_usopp","Usopp",2,5,7,3,2,0,"op"],["op_nami","Nami",2,2,2,6,7,0,"op"],["op_robin","Robin",2,4,3,5,7,0,"op"],["op_franky","Franky",2,6,1,3,7,0,"op"],["op_brook","Brook",2,2,7,6,4,0,"op"],["op_sanji","Sanji",3,7,5,4,7,0,"op"],["op_ace","Ace",3,5,3,7,7,0,"op"],["op_crocodile","Crocodile",3,7,7,3,5,0,"op"],["op_law","Law",3,6,7,8,2,0,"op"],["op_zoro","Zoro",4,7,7,8,5,0,"op"],["op_luffy","Luffy",4,8,2,8,8,0,"op"],["op_blackbeard","Blackbeard",4,5,7,5,9,0,"op"],["op_mihawk","Mihawk",4,6,4,9,8,0,"op"],["op_shanks","Shanks",5,4,9,10,6,0,"op"],["op_whitebeard","Whitebeard",5,8,3,9,9,0,"op"],["op_kaido","Kaido",5,8,7,6,9,0,"op"],["op_gol_d_roger","Gol D. Roger",5,10,8,6,7,1,"op"],["op_hancock","Hancock",4,5,4,8,9,0,"op"],["op_jinbe","Jinbe",3,8,2,8,5,0,"op"]];
+const C = RAW.map((r, i) => ({ i, id: r[0], name: r[1], lv: r[2], s: [r[3], r[4], r[5], r[6]], ex: !!r[7], grp: r[8] }));
+const BY = Object.fromEntries(C.map(c => [c.id, c]));
+const TIERS = ["Novice", "Adept", "Master", "Champion"];
+const STARTER = ["goblin", "slime", "dracky", "cactuar", "shadow", "bomb", "flan", "soldier", "healslime", "she_slime"];
+const DUST = { 1: 5, 2: 10, 3: 25, 4: 60, 5: 150, ex: 250 };
+const CRAFT = { 1: 20, 2: 50, 3: 120, 4: 300, 5: 700 };
+const GROUPS = { all: "All", monster: "Monsters", hero: "Heroes", folk: "Folk", weapon: "Weapons", armor: "Armour", relic: "Relics", esper: "Espers", dominant: "Dominants", ff: "Final Fantasy", dq: "Dragon Quest", db: "Dragon Ball", nr: "Naruto", op: "One Piece" };
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const sideTxt = n => (n >= 10 ? "A" : n);
+const ic = (n, cls = "ico") => `<svg class="${cls}"><use href="#i-${n}"/></svg>`;
+
+/* ===== the rules (a port of saucer/Triad.java): basic, Same, Plus, Combo ===== */
+const NB = (cell, d) => { const x = cell % 3, y = (cell / 3) | 0; return d === 0 ? (y > 0 ? cell - 3 : -1) : d === 1 ? (x < 2 ? cell + 1 : -1) : d === 2 ? (y < 2 ? cell + 3 : -1) : (x > 0 ? cell - 1 : -1); };
+function place(g, card, cell, who) {
+  g.board[cell] = card; g.owner[cell] = who; g.fx.push("L" + cell + ":" + who);
+  let turned = 0; const sums = {}, same = [], combo = [];
+  const turn = (n, kind) => { if (g.owner[n] === who) return false; g.owner[n] = who; g.fx.push("F" + n + ":" + kind + ":" + who); return true; };
+  for (let d = 0; d < 4; d++) {
+    const n = NB(cell, d); if (n < 0 || g.board[n] < 0) continue;
+    const mine = C[card].s[d], theirs = C[g.board[n]].s[(d + 2) % 4];
+    if (mine === theirs) same.push(n);
+    (sums[mine + theirs] = sums[mine + theirs] || []).push(n);
+  }
+  if (same.length >= 2) for (const n of same) if (turn(n, "s")) { turned++; combo.push(n); }
+  for (const grp of Object.values(sums)) if (grp.length >= 2) for (const n of grp) if (turn(n, "p")) { turned++; combo.push(n); }
+  for (let d = 0; d < 4; d++) { const n = NB(cell, d); if (n >= 0 && g.board[n] >= 0 && g.owner[n] !== who && C[card].s[d] > C[g.board[n]].s[(d + 2) % 4] && turn(n, "b")) turned++; }
+  while (combo.length) {
+    const c = combo.shift();
+    for (let d = 0; d < 4; d++) { const n = NB(c, d); if (n >= 0 && g.board[n] >= 0 && g.owner[n] !== who && C[g.board[c]].s[d] > C[g.board[n]].s[(d + 2) % 4] && turn(n, "c")) { turned++; combo.push(n); } }
+  }
+  return turned;
+}
+const canMove = () => M && !M.busy && !M.state.over && M.state.status !== "wait" && M.state.turn === M.me;
+const sim = st => ({ board: st.board.slice(), owner: st.owner.slice(), fx: [] });
+const preview = (st, card, cell, who) => place(sim(st), card, cell, who);
+function aiPick(st, hand, tier) {
+  let best = -1e9, bh = 0, bc = -1;
+  hand.forEach((card, h) => {
+    for (let cell = 0; cell < 9; cell++) {
+      if (st.board[cell] >= 0) continue;
+      const t = place(sim(st), card, cell, 1); let exposed = 0;
+      for (let d = 0; d < 4; d++) { const n = NB(cell, d); if (n >= 0 && st.board[n] < 0) exposed += 10 - C[card].s[d]; }
+      const sc = t * 10 - exposed * (tier >= 2 ? 1 : .3) + Math.random() * (tier === 0 ? 8 : 1);
+      if (sc > best) { best = sc; bh = h; bc = cell; }
+    }
+  });
+  return { h: bh, cell: bc };
+}
+const scoreOf = (st, side) => st.hands[side].length + st.owner.filter((o, i) => st.board[i] >= 0 && o === side).length;
+
+/* ===== card art: generated emblems seeded by the card, drawn small and scaled up crisp like pixel art (a stand-in until painted art) ===== */
+const HUE = { monster: 165, hero: 235, folk: 38, weapon: 205, armor: 215, relic: 320, esper: 190, dominant: 355, ff: 255, dq: 150, db: 28, nr: 45, op: 5 };
+const PEOPLE = new Set(["dq_erdrick", "dq_terry", "dq_hargon", "dq_psaro", "dq_dhoulmagus", "dq_estark", "dq_malroth", "ff_kefka", "ff_sephiroth", "ff_exdeath", "ff_ultimecia", "ff_yuna", "ff_lightning"]);
+function rngOf(str) { let h = 2166136261; for (let i = 0; i < str.length; i++) h = Math.imul(h ^ str.charCodeAt(i), 16777619) >>> 0; return () => { h = Math.imul(h ^ (h >>> 15), 2246822507) >>> 0; h = Math.imul(h ^ (h >>> 13), 3266489909) >>> 0; h ^= h >>> 16; return (h >>> 0) / 4294967296; }; }
+const RNAME = ["", "Common", "Uncommon", "Rare", "Epic", "Legendary", "Secret Rare"];
+const rarOf = c => (c.ex ? 6 : c.lv);
+const ARTMAP = {};   // painted/generated art dropped in triad_app/art/<card id>.png|jpg|webp is embedded by build.py and wins over the stand-in below
+const ART = {};
+function artUri(c) {
+  if (ART[c.id]) return ART[c.id];
+  const r = rngOf(c.id), H = (HUE[c.grp] ?? 200) + Math.floor(r() * 44 - 22), L = c.lv, X = c.ex ? 1 : 0;
+  const hs = (h, s, l, a = 1) => `hsla(${(H + h + 360) % 360},${s}%,${l}%,${a})`, ga = hs(40, 90, 62);
+  let g = `<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${hs(-15, 62, 16 + L * 5)}"/><stop offset=".55" stop-color="${hs(10, 55, 24 + L * 3)}"/><stop offset="1" stop-color="${hs(30, 50, 7)}"/></linearGradient>
+<radialGradient id="gl" cx="50%" cy="46%" r="52%"><stop offset="0" stop-color="${hs(35, 95, 70, .85)}"/><stop offset=".5" stop-color="${hs(20, 90, 55, .25)}"/><stop offset="1" stop-color="${hs(0, 80, 40, 0)}"/></radialGradient>
+<linearGradient id="sh" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${hs(8, 72, 80)}"/><stop offset=".45" stop-color="${hs(0, 66, 56)}"/><stop offset="1" stop-color="${hs(-14, 62, 24)}"/></linearGradient>
+<linearGradient id="sh2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${hs(30, 80, 82)}"/><stop offset="1" stop-color="${hs(20, 70, 42)}"/></linearGradient>
+<linearGradient id="mt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${hs(10, 40, 30)}"/><stop offset="1" stop-color="${hs(0, 45, 12)}"/></linearGradient>
+<radialGradient id="vg" cx="50%" cy="48%" r="75%"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".62"/></radialGradient>
+<filter id="blur"><feGaussianBlur stdDeviation="2.2"/></filter><filter id="blur2"><feGaussianBlur stdDeviation="5"/></filter>
+</defs><rect width="100" height="124" fill="url(#bg)"/>`;
+  // a distant sun or moon, mountain ridges, light shafts
+  g += `<circle cx="${30 + r() * 40}" cy="${22 + r() * 14}" r="${9 + r() * 6}" fill="${hs(40, 95, 82, .55)}" filter="url(#blur)"/>`;
+  for (let k = 0; k < 2; k++) { let p = `M0 ${92 - k * 8} `; for (let x = 0; x <= 100; x += 12 + r() * 8) p += `L${x} ${70 - k * 10 + r() * 22 - 10} `; g += `<path d="${p}L100 124 L0 124Z" fill="url(#mt)" opacity="${.55 + k * .25}"/>`; }
+  for (let i = 0; i < 4; i++) { const a = 60 + i * 22 + r() * 10; g += `<path d="M${a} 0 L${a + 9} 0 L${a - 32} 112 L${a - 48} 112Z" fill="${hs(40, 90, 80, .06)}"/>`; }
+  g += `<rect y="98" width="100" height="26" fill="${hs(10, 45, 9, .85)}"/><ellipse cx="50" cy="100" rx="30" ry="5" fill="#000" opacity=".45" filter="url(#blur)"/><ellipse cx="50" cy="62" rx="48" ry="52" fill="url(#gl)"/>`;
+  const rim = (d, w = 1.2) => `<path d="${d}" fill="none" stroke="${hs(35, 95, 92, .75)}" stroke-width="${w}" stroke-linecap="round"/>`;
+  const dk = hs(-10, 60, 8), sw = 1.7, grp = c.grp, person = ["hero", "folk", "dominant", "db", "nr", "op"].includes(grp) || PEOPLE.has(c.id);
+  if (grp === "weapon") {
+    const a = r() * 36 - 18, len = 78 + L * 2;
+    g += `<g transform="rotate(${a} 50 62)"><path d="M50 8 L58 ${len - 6} L50 ${len} L42 ${len - 6}Z" fill="${ga}" opacity=".6" filter="url(#blur2)"/><path d="M50 8 L57 ${len - 8} L50 ${len - 2} L43 ${len - 8}Z" fill="url(#sh2)" stroke="${dk}" stroke-width="${sw}"/><path d="M50 12 L50 ${len - 10}" stroke="${hs(10, 60, 95, .8)}" stroke-width="1.4"/><path d="M50 8 L57 ${len - 8}" stroke="#fff" stroke-width="1" opacity=".7"/><path d="M33 ${len - 4} Q50 ${len - 12} 67 ${len - 4} L63 ${len + 3} Q50 ${len - 3} 37 ${len + 3}Z" fill="url(#sh)" stroke="${dk}" stroke-width="${sw}"/><circle cx="50" cy="${len - 3}" r="3.4" fill="${hs(150, 90, 62)}" stroke="${dk}" stroke-width="1.2"/><rect x="46.5" y="${len + 2}" width="7" height="15" rx="2" fill="${hs(30, 40, 28)}" stroke="${dk}" stroke-width="${sw}"/><circle cx="50" cy="${len + 20}" r="4.4" fill="url(#sh)" stroke="${dk}" stroke-width="${sw}"/></g>`;
+  } else if (grp === "armor") {
+    g += `<path d="M22 24 Q50 14 78 24 L77 62 Q73 90 50 104 Q27 90 23 62Z" fill="${ga}" opacity=".5" filter="url(#blur2)"/><path d="M24 26 Q50 17 76 26 L74.5 62 Q71 88 50 100 Q29 88 25.5 62Z" fill="url(#sh)" stroke="${dk}" stroke-width="2"/><path d="M50 21 L50 98 M27 46 Q50 54 73 46" fill="none" stroke="${hs(30, 70, 86, .6)}" stroke-width="2.2"/><path d="M50 36 L60 50 L50 64 L40 50Z" fill="url(#sh2)" stroke="${dk}" stroke-width="1.6"/>${[[31, 34], [69, 34], [33, 70], [67, 70]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2" fill="${hs(35, 70, 90)}" stroke="${dk}" stroke-width=".8"/>`).join("")}${rim("M27 30 Q27 56 33 78", 1.4)}`;
+  } else if (grp === "relic") {
+    g += `<circle cx="50" cy="62" r="30" fill="${ga}" opacity=".5" filter="url(#blur2)"/><circle cx="50" cy="66" r="25" fill="none" stroke="${dk}" stroke-width="11"/><circle cx="50" cy="66" r="25" fill="none" stroke="url(#sh2)" stroke-width="7"/><circle cx="50" cy="66" r="25" fill="none" stroke="#fff" stroke-width="1.2" stroke-dasharray="10 150" opacity=".8"/><path d="M50 22 L63 36 L50 52 L37 36Z" fill="${hs(160, 90, 62)}" stroke="${dk}" stroke-width="1.8"/><path d="M50 22 L56 36 L50 52 L44 36Z" fill="${hs(160, 90, 80, .7)}"/><path d="M37 36 L63 36" stroke="#fff" stroke-width=".8" opacity=".6"/>`;
+  } else if (grp === "esper") {
+    g += `<path d="M50 14 L70 56 L50 104 L30 56Z" fill="${ga}" opacity=".6" filter="url(#blur2)"/><path d="M50 14 L68 56 L50 100 L32 56Z" fill="url(#sh)" stroke="${dk}" stroke-width="${sw}"/><path d="M50 14 L50 100 M32 56 L68 56" stroke="${hs(35, 80, 92, .55)}" stroke-width="1.2"/><path d="M50 14 L68 56 L50 56Z" fill="#fff" opacity=".25"/><path d="M32 58 Q8 46 4 20 Q28 28 36 50Z M68 58 Q92 46 96 20 Q72 28 64 50Z" fill="url(#sh2)" stroke="${dk}" stroke-width="1.6" opacity=".95"/>`;
+    for (let i = 0; i < 6; i++) g += `<path d="M${10 + i * 3} ${24 + i * 4} Q${22 + i * 2} ${34 + i * 3} ${34} ${50 + i}" fill="none" stroke="#fff" stroke-width=".6" opacity=".5"/>`;
+  } else if (person) {
+    const hair = hs(-40 + Math.floor(r() * 80), 58, 22 + Math.floor(r() * 36)), hl = hs(-30 + Math.floor(r() * 60), 70, 66), skin = `hsl(${22 + Math.floor(r() * 12)},${50 + Math.floor(r() * 25)}%,${66 + Math.floor(r() * 14)}%)`, skd = `hsl(20,45%,48%)`;
+    if (L >= 4) g += `<circle cx="50" cy="46" r="24" fill="none" stroke="${hs(40, 95, 78, .8)}" stroke-width="2.2" filter="url(#blur)"/><circle cx="50" cy="46" r="24" fill="none" stroke="${hs(40, 95, 88, .9)}" stroke-width=".9"/>`;
+    if (grp === "hero" || grp === "dominant" || L >= 3) g += `<path d="M26 74 L16 116 L50 104 L84 116 L74 74 L50 86Z" fill="${hs(-60, 70, 34)}" stroke="${dk}" stroke-width="1.6"/>`;
+    g += `<path d="M14 116 Q14 78 50 74 Q86 78 86 116Z" fill="url(#sh)" stroke="${dk}" stroke-width="${sw}"/><path d="M34 76 L50 94 L66 76" fill="none" stroke="${hs(35, 70, 86, .8)}" stroke-width="2.4"/><path d="M14 116 Q14 90 30 79 M86 116 Q86 90 70 79" fill="none" stroke="${hs(35, 80, 90, .5)}" stroke-width="1.2"/>`;
+    if (L >= 3) g += `<ellipse cx="22" cy="82" rx="9" ry="6" fill="url(#sh2)" stroke="${dk}" stroke-width="1.4"/><ellipse cx="78" cy="82" rx="9" ry="6" fill="url(#sh2)" stroke="${dk}" stroke-width="1.4"/>`;
+    g += `<rect x="43" y="64" width="14" height="14" fill="${skd}"/><ellipse cx="50" cy="52" rx="15.5" ry="18" fill="${skin}" stroke="${dk}" stroke-width="${sw}"/><path d="M36 56 Q40 70 50 71 Q60 70 64 56 Q58 64 50 64 Q42 64 36 56Z" fill="${skd}" opacity=".5"/>`;
+    const st = Math.floor(r() * 4);
+    if (st === 0) g += `<path d="M33 52 L35 22 L43 38 L48 12 L54 36 L62 18 L67 52 Q50 36 33 52Z" fill="${hair}" stroke="${dk}" stroke-width="1.6"/><path d="M40 36 L46 18 M56 34 L61 22" stroke="${hl}" stroke-width="1.2" opacity=".8"/>`;
+    else if (st === 1) g += `<path d="M33 58 Q28 26 50 26 Q72 26 67 58 Q66 40 50 38 Q34 40 33 58Z" fill="${hair}" stroke="${dk}" stroke-width="1.6"/><path d="M33 58 L28 94 L40 80Z M67 58 L72 94 L60 80Z" fill="${hair}" stroke="${dk}" stroke-width="1.4"/><path d="M38 32 Q50 28 62 32" stroke="${hl}" stroke-width="1.4" fill="none" opacity=".8"/>`;
+    else if (st === 2) g += `<path d="M32 52 Q50 14 68 52 Q50 34 32 52Z" fill="${hair}" stroke="${dk}" stroke-width="1.6"/><path d="M34 40 Q50 22 66 40" stroke="${hl}" stroke-width="1.4" fill="none" opacity=".7"/><path d="M30 50 L70 50" stroke="${hs(35, 80, 70)}" stroke-width="3.4" stroke-linecap="round"/>`;
+    else g += `<path d="M31 58 Q26 18 50 20 Q74 18 69 58 L63 42 Q50 30 37 42Z" fill="${hair}" stroke="${dk}" stroke-width="1.6"/><path d="M36 28 Q50 20 64 28" stroke="${hl}" stroke-width="1.4" fill="none" opacity=".8"/>`;
+    g += `<path d="M38 50 Q42 47 47 50 M53 50 Q58 47 62 50" fill="none" stroke="${dk}" stroke-width="1.8" stroke-linecap="round"/><ellipse cx="42.5" cy="54.5" rx="3.3" ry="3.8" fill="#fff" stroke="${dk}" stroke-width="1"/><ellipse cx="57.5" cy="54.5" rx="3.3" ry="3.8" fill="#fff" stroke="${dk}" stroke-width="1"/><circle cx="43" cy="55" r="2.1" fill="${hs(160, 85, 40)}"/><circle cx="58" cy="55" r="2.1" fill="${hs(160, 85, 40)}"/><circle cx="43.6" cy="54.2" r=".8" fill="#fff"/><circle cx="58.6" cy="54.2" r=".8" fill="#fff"/><path d="M45 63 Q50 66 55 63" fill="none" stroke="${dk}" stroke-width="1.4" stroke-linecap="round"/><path d="M50 56 L48.6 60.4 L51 60.4" fill="none" stroke="${skd}" stroke-width="1"/>${rim("M35 50 Q34 60 41 69", 1)}`;
+  } else {
+    const v = Math.floor(r() * 5), eye = hs(120 + Math.floor(r() * 80), 100, 60), tooth = "#f6f2e4";
+    if (v === 3) g += `<path d="M24 74 Q2 54 4 22 Q28 30 38 54Z M76 74 Q98 54 96 22 Q72 30 62 54Z" fill="${hs(-30, 55, 30)}" stroke="${dk}" stroke-width="1.8"/><path d="M12 30 Q22 42 34 56 M88 30 Q78 42 66 56" stroke="${hs(-20, 60, 50)}" stroke-width="1" fill="none"/>`;
+    if (v === 1) g += `<path d="M30 48 L16 12 L44 36Z M70 48 L84 12 L56 36Z" fill="url(#sh2)" stroke="${dk}" stroke-width="1.8"/>`;
+    if (v === 4) g += `<path d="M50 20 Q86 52 84 82 Q82 102 50 102 Q18 102 16 82 Q14 52 50 20Z" fill="url(#sh)" stroke="${dk}" stroke-width="2"/><ellipse cx="34" cy="48" rx="6" ry="12" fill="#fff" opacity=".35" transform="rotate(24 34 48)"/><ellipse cx="38" cy="68" rx="6" ry="8.5" fill="#fff" stroke="${dk}" stroke-width="1.4"/><ellipse cx="62" cy="68" rx="6" ry="8.5" fill="#fff" stroke="${dk}" stroke-width="1.4"/><circle cx="39" cy="69" r="3.6" fill="${dk}"/><circle cx="63" cy="69" r="3.6" fill="${dk}"/><circle cx="40" cy="67.5" r="1.3" fill="#fff"/><circle cx="64" cy="67.5" r="1.3" fill="#fff"/><path d="M38 86 Q50 96 62 86" fill="none" stroke="${dk}" stroke-width="2.6" stroke-linecap="round"/>${rim("M24 70 Q22 54 34 38", 1.6)}`;
+    else {
+      g += `<path d="M16 84 Q12 34 50 28 Q88 34 84 84 Q66 76 50 78 Q34 76 16 84Z" fill="url(#sh)" stroke="${dk}" stroke-width="2"/>${rim("M20 74 Q18 46 40 34", 1.6)}<path d="M26 62 Q50 56 74 62 L72 70 Q50 64 28 70Z" fill="${hs(-10, 60, 20, .5)}"/>`;
+      if (v === 2) g += `<ellipse cx="50" cy="56" rx="19" ry="13" fill="#fff" stroke="${dk}" stroke-width="1.8"/><circle cx="50" cy="56" r="9" fill="${eye}"/><circle cx="50" cy="56" r="4" fill="${dk}"/><circle cx="53" cy="52.5" r="2" fill="#fff"/>`;
+      else g += `<path d="M26 56 Q36 46 46 56 Q36 62 26 56Z M54 56 Q64 46 74 56 Q64 62 54 56Z" fill="${eye}" stroke="${dk}" stroke-width="1.6"/><ellipse cx="36" cy="55.5" rx="2" ry="4.4" fill="${dk}"/><ellipse cx="64" cy="55.5" rx="2" ry="4.4" fill="${dk}"/><circle cx="37" cy="53.6" r=".9" fill="#fff"/><circle cx="65" cy="53.6" r=".9" fill="#fff"/>`;
+      g += v === 1 ? `<path d="M30 78 Q50 96 70 78" fill="none" stroke="${dk}" stroke-width="2.6" stroke-linecap="round"/>` : `<path d="M22 80 Q50 98 78 80 Q50 84 22 80Z" fill="${hs(-20, 70, 14)}" stroke="${dk}" stroke-width="1.6"/><path d="M30 82 L34 92 L38 84 M44 85 L50 97 L56 85 M62 84 L66 92 L70 82" fill="${tooth}" stroke="${dk}" stroke-width="1.1"/>`;
+    }
+  }
+  for (let i = 0; i < 10 + L * 2; i++) { const x = r() * 100, y = 10 + r() * 90, s = .5 + r() * (X ? 2 : 1.4); g += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${s.toFixed(2)}" fill="${hs(40, 95, 88)}" opacity="${(.35 + r() * .5).toFixed(2)}"/>`; }
+  g += `<rect width="100" height="124" fill="url(#vg)"/>`;
+  return (ART[c.id] = "data:image/svg+xml;utf8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="248" viewBox="0 0 100 124" preserveAspectRatio="xMidYMid slice">${g}</svg>`));
+}
+const artSrc = c => ARTMAP[c.id] || artUri(c);
+function cardHtml(c, o = {}) {
+  const rr = rarOf(c), cls = ["card", "r" + rr, "lv" + c.lv, c.ex ? "ex" : "", o.cls || "", o.miss ? "miss" : "", o.tilt ? "tilt" : ""].join(" ");
+  return `<div class="${cls}" ${o.attr || ""}><div class="win"><img class="art" data-id="${c.id}" alt="" src="${artSrc(c)}"></div><div class="holo"></div><div class="gems">${"<i></i>".repeat(c.lv)}</div>` +
+    (o.count > 1 ? `<span class="cnt">×${o.count}</span>` : "") +
+    `<span class="n t">${sideTxt(c.s[0])}</span><span class="n r">${sideTxt(c.s[1])}</span><span class="n b">${sideTxt(c.s[2])}</span><span class="n l">${sideTxt(c.s[3])}</span>` +
+    `<div class="plate"><b class="nm">${esc(c.name)}</b><small class="sub">${RNAME[rr]} · #${String(c.i + 1).padStart(3, "0")}</small></div><div class="tint"></div></div>`;
+}
+/* tilt: a card in a sheet follows the finger, and its foil slides with it */
+function tiltMove(e) {
+  const cd = e.target.closest && e.target.closest(".card.tilt"); if (!cd) return; const b = cd.getBoundingClientRect(), x = (e.clientX - b.left) / b.width, y = (e.clientY - b.top) / b.height;
+  cd.style.setProperty("--mx", (x * 100).toFixed(0) + "%"); cd.style.setProperty("--my", (y * 100).toFixed(0) + "%");
+  cd.style.transform = `perspective(500px) rotateY(${((x - .5) * 22).toFixed(1)}deg) rotateX(${((.5 - y) * 22).toFixed(1)}deg)`;
+}
+function tiltEnd(e) { const cd = e.target.closest && e.target.closest(".card.tilt"); if (cd) cd.style.transform = ""; }
+
+/* ===== the player's profile: private per person in the db (data/users/<id>/profile) when on claude.ai, else this device ===== */
+let P = null, db = null, uid = null, myName = "", saveMode = "wait", saving = false, dirty = false, saveTimer = 0;
+const today = () => { const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); };
+function newProfile() {
+  const own = {}; STARTER.forEach(id => own[id] = 1);
+  return { v: 1, tickets: 10, dust: 0, xp: 0, lv: 1, own, decks: [{ name: "Starter", cards: STARTER.slice(0, 5) }], deck: 0, pityHi: 0, pityTop: 0, pulls: 0, cleared: {}, day: "", login: false, mis: { win: 0, play: 0, cap: 0, sum: 0, claimed: {} }, claims: [], wins: 0, plays: 0, name: "", recent: [] };
+}
+const need = lv => 80 + lv * 30;
+function rollover() { if (P.day !== today()) { P.day = today(); P.login = false; P.mis = { win: 0, play: 0, cap: 0, sum: 0, claimed: {} }; } }
+function scheduleSave() { dirty = true; clearTimeout(saveTimer); saveTimer = setTimeout(flush, 600); }
+async function flush() {
+  if (saving || !dirty || !P) return; saving = true; dirty = false;
+  try {
+    if (db && uid && saveMode === "db") await db.doc("data/users/" + uid + "/profile").set(JSON.parse(JSON.stringify(P)));
+    else localStorage.setItem("triad.profile", JSON.stringify(P));
+  } catch (e) { saveMode = "local"; try { localStorage.setItem("triad.profile", JSON.stringify(P)); } catch (_) {} }
+  saving = false; if (dirty) scheduleSave();
+}
+async function loadProfile() {
+  try { db = await claude.use("db"); const u = await claude.use("user"); if (u) { uid = await u.id(); try { myName = (await u.me()).name || ""; } catch (_) {} } } catch (e) { db = null; }
+  if (db && uid) {
+    try { const s = await db.doc("data/users/" + uid + "/profile").get(); saveMode = "db"; if (s.exists) P = JSON.parse(JSON.stringify(s.data())); } catch (e) { saveMode = "local"; }
+  } else saveMode = "local";
+  if (!P) { try { const t = localStorage.getItem("triad.profile"); if (t) P = JSON.parse(t); } catch (_) {} }
+  if (!P) { P = newProfile(); scheduleSave(); }
+  rollover(); chrome(); show(tab);
+}
+function playerName() { return (P && P.name) || myName || "Player"; }
+function toast(m) { const t = $("#toast"); t.textContent = m; t.classList.add("on"); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove("on"), 2400); }
+function gainXp(x) { P.xp += x; const ups = []; while (P.xp >= need(P.lv)) { P.xp -= need(P.lv); P.lv++; const t = 2 + (P.lv % 5 === 0 ? 3 : 0); P.tickets += t; ups.push("Level " + P.lv + ": +" + t + " tickets"); } return ups; }
+function addCard(id) { const n = P.own[id] || 0, c = BY[id]; if (n >= 3) { const d = DUST[c.ex ? "ex" : c.lv]; P.dust += d; return { dup: true, dust: d }; } P.own[id] = n + 1; return { isNew: n === 0 }; }
+const ownedList = () => C.filter(c => (P.own[c.id] || 0) > 0);
+function deckOk(d) { return d && d.cards.length === 5 && d.cards.every(id => (P.own[id] || 0) > 0); }
+
+/* ===== chrome: top bar and the five-button bar ===== */
+let tab = "play";
+const TABS = [["summon", "Summon", "summon"], ["cards", "Cards", "cards"], ["play", "Play", "swords"], ["daily", "Daily", "daily"], ["versus", "Versus", "vs"]];
+function chrome() {
+  if (!P) { $("#hud").innerHTML = ""; return; }
+  const pct = Math.floor(100 * P.xp / need(P.lv));
+  $("#hud").innerHTML = `<div class="hexw"><div class="hex"><span>♠</span></div><b class="lvbadge">${P.lv}</b></div><div class="who"><b class="fat">${esc(playerName())}</b><div class="xp"><i style="width:${pct}%"></i><small>${P.xp} / ${need(P.lv)}${saveMode === "local" ? " · on this device" : ""}</small></div></div><div class="pills"><span class="pill">${ic("ticket", "")}${P.tickets}</span><span class="pill">${ic("gem", "")}${P.dust}</span></div>`;
+  const claimable = !P.login || missions().some(m => m.have >= m.need && !P.mis.claimed[m.id]);
+  $("#nav").innerHTML = TABS.map(([k, n, i]) => `<button data-act="tab" data-k="${k}" class="${tab === k ? "on" : ""}"><span class="dia">${ic(i, "")}</span><span class="lb">${n.toUpperCase()}</span>${k === "daily" && claimable ? '<i class="dot"></i>' : ""}</button>`).join("");
+}
+function show(k) { tab = k; chrome(); const v = $("#view"); v.scrollTop = 0; if (!P) { v.innerHTML = ""; return; } ({ play: viewPlay, summon: viewSummon, cards: viewCards, daily: viewDaily, versus: viewVersus })[k](v); }
+function deckSelect() { return `<select id="deckSel" data-act="deckSel">${P.decks.map((d, i) => `<option value="${i}" ${i === P.deck ? "selected" : ""}>${esc(d.name)}${deckOk(d) ? "" : " (incomplete)"}</option>`).join("")}</select>`; }
+
+/* ===== play: the campaign map and quick matches ===== */
+const CAMPAIGN = [
+  { name: "Novice Road", tier: 0, stages: [["Roadside Goblins", "goblin"], ["Slime Meadow", "slime"], ["Cactuar Crossing", "cactuar"], ["Bandit Camp", "bandit_chief"]], tickets: [2, 2, 2, 3] },
+  { name: "Adept Trail", tier: 1, stages: [["Hollow Scouts", "hollow_captain"], ["Moogle Market", "hero_ninja"], ["Dragoon Pass", "hero_dragoon"], ["Tonberry Cellar", "tonberry"]], tickets: [3, 3, 3, 4] },
+  { name: "Master Keep", tier: 2, stages: [["Iron Gate", "iron_giant"], ["Frost Spire", "frost_queen"], ["The Withered Court", "withered_king"], ["Dominant's Hall", "dominant_odin"]], tickets: [4, 4, 4, 5] },
+  { name: "Champion's Table", tier: 3, stages: [["Saucer Arena", "garuda"], ["Eikon's Trial", "odin"], ["The Gilgamesh Bet", "gilgamesh"], ["The Final Table", "ultima"]], tickets: [5, 5, 5, 8] },
+];
+const stageKey = (ci, si) => ci + "-" + si;
+function stageOpen(ci, si) { if (ci === 0 && si === 0) return true; const [pc, ps] = si > 0 ? [ci, si - 1] : [ci - 1, 3]; return !!P.cleared[stageKey(pc, ps)]; }
+function nextStage() { for (let ci = 0; ci < 4; ci++) for (let si = 0; si < 4; si++) if (!P.cleared[stageKey(ci, si)]) return [ci, si]; return null; }
+function viewPlay(v) {
+  const ns = nextStage(), d = P.decks[P.deck], fan = (deckOk(d) ? d.cards : STARTER).slice(0, 3).map(id => cardHtml(BY[id])).join(""), cleared = Object.keys(P.cleared).length;
+  let h = `<div class="hero"><div class="badge"><small>${ns ? esc(CAMPAIGN[ns[0]].name).toUpperCase() : "CAMPAIGN"}</small><b class="fat">${ns ? esc(CAMPAIGN[ns[0]].stages[ns[1]][0]) : "All cleared!"}</b><i class="fat">${cleared}/16</i></div><div class="fan">${fan}</div><div class="playwrap"><button class="btn yellow big" data-act="${ns ? "stage" : "quick"}" ${ns ? `data-c="${ns[0]}" data-s="${ns[1]}"` : 'data-t="3"'}>${ns ? "BATTLE" : "PLAY"}</button></div></div>`;
+  h += `<div class="row" style="margin:10px 0 0"><span class="note">Deck</span>${deckSelect()}<button class="btn sm dark" data-act="tab" data-k="cards">Edit</button></div>`;
+  h += `<span class="ribbon green">QUICK MATCH</span><div class="row c">${TIERS.map((t, i) => `<button class="btn sm ${i === 3 ? "red" : ""}" data-act="quick" data-t="${i}">${t}</button>`).join("")}</div><p class="note" style="text-align:center;margin:6px 0 0">Quick matches pay XP only.</p>`;
+  CAMPAIGN.forEach((ch, ci) => {
+    h += `<span class="ribbon">${esc(ch.name).toUpperCase()}</span><div class="nodes">`;
+    ch.stages.forEach((st, si) => {
+      const open = stageOpen(ci, si), done = P.cleared[stageKey(ci, si)], next = ns && ns[0] === ci && ns[1] === si;
+      h += `<button class="node ${done ? "done" : ""} ${!open ? "lock" : ""} ${next ? "next" : ""} ${si === 3 ? "boss" : ""}" ${open ? `data-act="stage" data-c="${ci}" data-s="${si}"` : "disabled"}><span>${open ? (si === 3 ? "☠" : si + 1) : "🔒"}</span>${done ? "<small>✓</small>" : ""}</button>`;
+    });
+    h += "</div>";
+  });
+  v.innerHTML = h;
+}
+function foeHand(tier, sig, boss) {
+  const lo = Math.min(5, tier + 1), hi = Math.min(5, tier + 2), pool = C.filter(c => !c.ex && c.lv >= (boss ? hi : lo) && c.lv <= hi), out = [];
+  if (sig) out.push(BY[sig].i);
+  while (out.length < 5) out.push(pool[Math.floor(Math.random() * pool.length)].i);
+  return out;
+}
+
+/* ===== a match (against the house, a friend's room on claude.ai, or a direct phone-to-phone link) ===== */
+let M = null;
+function freshState(a, b, first) { return { board: Array(9).fill(-1), owner: Array(9).fill(0), hands: [a.slice(), b.slice()], decks: [a.slice(), b.slice()], turn: first, over: false, seq: 0, fx: [] }; }
+function startAi(o) {
+  const d = P.decks[P.deck]; if (!deckOk(d)) { toast("Choose a complete deck first (Cards tab)."); return; }
+  const mine = d.cards.map(id => BY[id].i), foe = o.stage ? foeHand(o.tier, o.stage.sig, o.stage.boss) : foeHand(o.tier);
+  M = { kind: "ai", me: 0, tier: o.tier, stage: o.stage || null, state: freshState(mine, foe, Math.random() < .5 ? 0 : 1), sel: null, hints: o.tier < 3, captured: 0, done: false, oppName: "House" };
+  openMatch(); if (M.state.turn === 1) setTimeout(aiTurn, 800);
+}
+function openMatch() { $("#match").hidden = false; drawMatch(); }
+function closeMatch() { if (M) { if (M.unsub) { try { M.unsub(); } catch (_) {} } if (M.net) netClose(); } M = null; $("#match").hidden = true; chrome(); show(tab); }
+function drawMatch(ownerOverride) {
+  if (!M) return; const st = M.state, me = M.me, myTurn = !st.over && st.status !== "wait" && st.turn === me;
+  const hint = M.hints && myTurn && M.sel !== null && M.tier !== 3, rel = o => (o === me ? "me" : "foe"), cells = [];
+  for (let i = 0; i < 9; i++) {
+    let inner = ""; if (st.board[i] >= 0) inner = cardHtml(C[st.board[i]], { cls: rel((ownerOverride || st.owner)[i]) });
+    let cls = "cell"; if (hint && st.board[i] < 0) { const t = preview(st, st.hands[me][M.sel], i, me); if (t > 0) cls += " hint" + (t > 1 ? " hint2" : ""); }
+    cells.push(`<div class="${cls}" data-act="cell" data-i="${i}">${inner}</div>`);
+  }
+  const foeSide = 1 - me, waiting = st.status === "wait";
+  $("#match").innerHTML = `<div class="inner"><div class="mtop"><button class="btn sm red" data-act="leave">✕</button><div class="score"><div class="a"><small>${esc(playerName()).slice(0, 8).toUpperCase()}</small>${scoreOf(st, me)}</div><div class="b"><small>${esc(M.oppName || "FOE").slice(0, 8).toUpperCase()}</small>${scoreOf(st, foeSide)}</div></div><button class="btn sm ${M.hints && M.tier !== 3 ? "yellow" : "dark"}" data-act="hints">Hints</button></div>` +
+    `<div class="tray"><div class="hand foe">${st.hands[foeSide].map(i => cardHtml(C[i], { cls: "foe" })).join("") || '<div style="grid-column:1/-1;height:40px"></div>'}</div></div>` +
+    `<div class="turn ${myTurn ? "" : "foe"}">${st.over ? "" : waiting ? "WAITING FOR A FRIEND…" : myTurn ? "YOUR MOVE" : esc((M.oppName || "Foe").toUpperCase()) + "'S TURN"}</div><div id="board">${cells.join("")}</div>` +
+    `<div class="tray"><div class="hand mine">${st.hands[me].map((i, k) => cardHtml(C[i], { cls: "me" + (M.sel === k ? " sel" : ""), attr: `data-act="hand" data-k="${k}"` })).join("") || '<div style="grid-column:1/-1;height:40px"></div>'}</div></div></div>`;
+}
+function playFx(fx, ownersBefore, me) {
+  const board = $("#board"); if (!board) return Promise.resolve();
+  const flips = fx.filter(f => f[0] === "F"), t0 = 380;
+  fx.filter(f => f[0] === "L").forEach(f => { const cell = board.children[+f.slice(1).split(":")[0]], cd = cell && cell.querySelector(".card"); if (cd) cd.classList.add("pop"); });
+  flips.forEach((f, k) => {
+    const [cellS, kind, whoS] = f.slice(1).split(":"), cell = board.children[+cellS], who = +whoS;
+    setTimeout(() => {
+      const cd = cell.querySelector(".card"); if (!cd) return;
+      cd.classList.remove("me", "foe"); cd.classList.add(who === me ? "me" : "foe"); cd.classList.remove("flip"); void cd.offsetWidth; cd.classList.add("flip");
+      const w = document.createElement("div"); w.className = "word " + (kind === "b" ? (who === me ? "cap" : "ouch") : kind);
+      w.textContent = kind === "s" ? "SAME!" : kind === "p" ? "PLUS!" : kind === "c" ? "CHAIN!" : who === me ? "CAPTURE" : "OUCH"; cell.appendChild(w); setTimeout(() => w.remove(), 1000);
+      if (k === 2) { board.classList.remove("shake"); void board.offsetWidth; board.classList.add("shake"); }
+    }, t0 + k * 340);
+  });
+  return sleep(t0 + flips.length * 340 + 300);
+}
+async function applyMove(who, handIdx, cell) {
+  const st = M.state, before = st.owner.slice(), card = st.hands[who].splice(handIdx, 1)[0], g = sim(st);
+  place(g, card, cell, who); st.board = g.board; st.owner = g.owner; st.fx = g.fx; st.seq++; st.turn = 1 - who;
+  if (who === M.me) M.captured += g.fx.filter(f => f[0] === "F" && f.endsWith(":" + who)).length;
+  if (st.board.every(c => c >= 0)) { st.over = true; st.status = "over"; }
+  M.busy = true; const ov = before.slice(); ov[cell] = who; drawMatch(ov); await playFx(g.fx, before, M.me); M.busy = false;
+  if (!M) return; drawMatch();
+}
+async function aiTurn() {
+  if (!M || M.kind !== "ai" || M.state.over || M.state.turn !== 1) return;
+  const st = M.state, pick = aiPick(st, st.hands[1], M.tier);
+  await applyMove(1, pick.h, pick.cell); if (M && M.state.over) return endMatch();
+}
+async function onCell(i) {
+  if (!canMove() || M.sel === null || M.state.board[i] >= 0) return;
+  const k = M.sel; M.sel = null;
+  await applyMove(M.me, k, i); if (!M) return;
+  if (M.kind === "ai") { if (M.state.over) return endMatch(); setTimeout(aiTurn, 500); }
+  else { await pushRoom(); if (M && M.state.over) endMatch(); }
+}
+
+/* ===== the end of a match: result, rewards, the card taken ===== */
+function endMatch() {
+  if (!M || M.done) return; M.done = true; const st = M.state, me = M.me, a = scoreOf(st, me), b = scoreOf(st, 1 - me), win = a > b, draw = a === b;
+  rollover(); P.plays++; P.mis.play++; P.mis.cap += M.captured; if (win) { P.wins++; P.mis.win++; }
+  const tile = (i, n, t) => `<div class="rwi ${t}">${ic(i, "")}<b>×${n}</b></div>`, chips = []; let ups = [];
+  if (M.kind === "ai") {
+    if (win) {
+      let xp = 20 + 15 * M.tier; if (M.stage) { xp += 10; const k = stageKey(M.stage.c, M.stage.s); if (!P.cleared[k]) { P.cleared[k] = 1; const tk = CAMPAIGN[M.stage.c].tickets[M.stage.s]; P.tickets += tk; chips.push(tile("ticket", tk, "p")); } }
+      ups = gainXp(xp); chips.unshift(tile("xp", xp, "b"));
+    } else { ups = gainXp(5); chips.push(tile("xp", 5, "b")); }
+  } else { const xp = win ? 25 : 10; ups = gainXp(xp); chips.push(tile("xp", xp, "b")); }
+  scheduleSave(); chrome();
+  const oppDeck = M.kind === "ai" ? st.decks[1].map(i => C[i].id) : M.oppDeck || [];
+  const claimKey = M.kind === "vs" ? M.room + ":" + (M.created || 0) + ":" + (M.round || 0) : null;
+  const canPick = win && oppDeck.length && !(claimKey && P.claims.includes(claimKey));
+  M.claimKey = claimKey;
+  setTimeout(() => {
+    if (!M) return; const tail = `<div class="row c" style="margin-top:12px">${M.kind === "ai" ? '<button class="btn yellow" data-act="again">Again</button>' : (M.host ? '<button class="btn yellow" data-act="rematch">Rematch</button>' : "")}<button class="btn dark" data-act="leave">Done</button></div>`;
+    $("#match").insertAdjacentHTML("beforeend", `<div class="over" id="modal2"><div class="sheet"><span class="ribbon ${win ? "gold" : ""}" style="font-size:30px">${win ? "VICTORY!" : draw ? "DRAW" : "DEFEAT"}</span><p class="note" style="text-align:center;margin:0">${a} – ${b}${win ? "" : " · you keep every card"}</p><div class="rw">${chips.join("")}</div>${ups.length ? `<p class="note" style="text-align:center">${ups.map(esc).join(" · ")}</p>` : ""}${canPick ? `<div class="pickbox"><p style="text-align:center;margin:6px 0">Take a copy of one of their cards</p><div class="grid" style="grid-template-columns:repeat(5,1fr)">${oppDeck.map(id => cardHtml(BY[id], { attr: `data-act="take" data-id="${id}"` })).join("")}</div></div>` : ""}${tail}</div></div>`);
+  }, 700);
+}
+function takeCard(id) {
+  if (!M || M.took) return; M.took = true; const r = addCard(id); if (M.claimKey) { P.claims.push(M.claimKey); P.claims = P.claims.slice(-20); } scheduleSave(); chrome();
+  const box = $("#modal2 .pickbox"); if (box) box.innerHTML = `<p style="text-align:center"><b>${esc(BY[id].name)}</b> ${r.dup ? "is at 3 copies: +" + r.dust + " dust" : r.isNew ? "joins your collection!" : "(another copy) added."}</p>`;
+}
+
+/* ===== versus: one shared state, from a room on claude.ai or over a direct connection ===== */
+const roomRef = code => db.doc("rooms/" + code);
+const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+const rOf = () => { const s = M.state; return { status: s.over ? "over" : "play", round: M.round, created: M.created, board: s.board, owner: s.owner, hands: s.hands, turn: s.turn, seq: s.seq, fx: s.fx }; };
+async function pushRoom() {
+  if (M.net) return netSend({ t: "state", r: rOf() });
+  const r = rOf(); try { await roomRef(M.room).update({ board: r.board, owner: r.owner, hands: r.hands, turn: r.turn, seq: r.seq, fx: r.fx, status: r.status }); } catch (e) { toast("Move not saved (" + (e.code || "error") + ")."); }
+}
+function newVsMatch(o) { return Object.assign({ kind: "vs", hints: true, captured: 0, done: false, sel: null, tier: 0, round: 0, state: Object.assign(freshState([], [], 0), { status: "wait" }) }, o); }
+async function vsCreate() {
+  if (!db || !uid) return toast("Rooms work on the claude.ai version. Use Direct connect here.");
+  const d = P.decks[P.deck]; if (!deckOk(d)) return toast("Choose a complete deck first.");
+  let code = ""; for (let i = 0; i < 4; i++) code += CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)];
+  const created = Date.now();
+  try { await roomRef(code).set({ status: "wait", created, round: 0, host: { id: uid, name: playerName(), deck: d.cards.slice() }, guest: null, board: Array(9).fill(-1), owner: Array(9).fill(0), hands: [[], []], turn: 0, seq: 0, fx: [] }); }
+  catch (e) { return toast("Could not make a room (" + (e.code || "error") + "). Friends need Contributor access."); }
+  M = newVsMatch({ me: 0, host: true, room: code, created, oppName: "Friend" });
+  M.unsub = roomRef(code).onSnapshot(s => { if (s.exists) applyRemote(s.data()); else { toast("The room was closed."); closeMatch(); } }, () => toast("Lost the room connection."));
+  openMatch(); toast("Room " + code);
+}
+async function vsJoin() {
+  if (!db || !uid) return toast("Rooms work on the claude.ai version. Use Direct connect here.");
+  const code = ($("#vsCode").value || "").trim().toUpperCase(); if (code.length !== 4) return toast("Enter the 4-letter room code.");
+  const d = P.decks[P.deck]; if (!deckOk(d)) return toast("Choose a complete deck first.");
+  let snap; try { snap = await roomRef(code).get(); } catch (e) { return toast("Could not reach the room."); }
+  if (!snap.exists) return toast("No room with that code."); const r = snap.data();
+  if (r.host.id === uid) return toast("That is your own room."); if (r.guest || r.status !== "wait") return toast("That room is full.");
+  const hostDeck = r.host.deck.map(id => BY[id].i), myDeck = d.cards.map(id => BY[id].i), first = Math.random() < .5 ? 0 : 1;
+  try { await roomRef(code).update({ guest: { id: uid, name: playerName(), deck: d.cards.slice() }, status: "play", hands: [hostDeck, myDeck], turn: first, seq: 1, fx: [] }); } catch (e) { return toast("Could not join (" + (e.code || "error") + ")."); }
+  M = newVsMatch({ me: 1, host: false, room: code, created: r.created, round: r.round || 0, oppName: r.host.name || "Host", oppDeck: r.host.deck.slice(), state: Object.assign(freshState(hostDeck, myDeck, first), { status: "play" }) });
+  M.unsub = roomRef(code).onSnapshot(s => { if (s.exists) applyRemote(s.data()); else { toast("The room was closed."); closeMatch(); } }, () => toast("Lost the room connection.")); openMatch();
+}
+async function applyRemote(r) {
+  if (!M || M.kind !== "vs") return; const me = M.me, st = M.state;
+  if (me === 0 && r.guest) { M.oppName = r.guest.name || "Friend"; M.oppDeck = r.guest.deck.slice(); }
+  if ((r.round || 0) !== M.round) { M.round = r.round || 0; M.done = false; M.took = false; M.captured = 0; const m2 = $("#modal2"); if (m2) m2.remove(); st.seq = -1; }
+  if (r.status === "wait") { st.status = "wait"; drawMatch(); return; }
+  if (r.seq <= st.seq) return;
+  const before = st.owner.slice(), fresh = r.board.every(c => c < 0), fx = r.fx || [];
+  st.board = r.board.slice(); st.owner = r.owner.slice(); st.hands = r.hands.map(h => h.slice()); st.turn = r.turn; st.seq = r.seq; st.status = r.status; st.over = r.status === "over"; st.fx = fx;
+  const theirMove = fx.some(f => f[0] === "L" && +f.split(":")[1] !== me);
+  if (theirMove && !fresh) {
+    const lay = fx.find(f => f[0] === "L").slice(1).split(":"), ov = before.slice(); ov[+lay[0]] = +lay[1];
+    M.busy = true; drawMatch(ov); await playFx(fx, before, me); M.busy = false; if (!M) return;
+  }
+  drawMatch(); if (st.over && !M.done) endMatch();
+}
+async function rematch() {
+  if (!M || !M.host) return;
+  if (M.net) { const a = M.hostDeck.map(id => BY[id].i), b = M.guestDeck.map(id => BY[id].i), r = { status: "play", round: M.round + 1, created: M.created, board: Array(9).fill(-1), owner: Array(9).fill(0), hands: [a, b], turn: Math.random() < .5 ? 0 : 1, seq: M.state.seq + 1, fx: [] }; await applyRemote(r); await netSend({ t: "state", r }); return; }
+  const r = (await roomRef(M.room).get()).data(); if (!r || !r.guest) return;
+  const a = r.host.deck.map(id => BY[id].i), b = r.guest.deck.map(id => BY[id].i);
+  await roomRef(M.room).update({ round: (r.round || 0) + 1, status: "play", board: Array(9).fill(-1), owner: Array(9).fill(0), hands: [a, b], turn: Math.random() < .5 ? 0 : 1, seq: r.seq + 1, fx: [] });
+}
+async function leaveMatch() {
+  const m = M; if (m && m.kind === "vs" && !m.net && m.host && db) { try { await roomRef(m.room).delete(); } catch (_) {} }
+  if (m && m.net) { try { m.net.dc && m.net.dc.send(JSON.stringify({ t: "bye" })); } catch (_) {} }
+  closeMatch();
+}
+
+/* ===== direct connect: two phones, no server. One makes a code, the other answers it, a peer-to-peer link carries the match ===== */
+const ICE = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }, { urls: "stun:stun1.l.google.com:19302" }] };
+let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
+const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
+const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
+async function pack(o) {
+  let bytes = new TextEncoder().encode(JSON.stringify(o)), tag = "0";
+  if (window.CompressionStream) { const cs = new CompressionStream("deflate-raw"), w = cs.writable.getWriter(); w.write(bytes); w.close(); bytes = new Uint8Array(await new Response(cs.readable).arrayBuffer()); tag = "1"; }
+  return "TS" + tag + b64u(bytes);
+}
+async function unpack(s) {
+  s = (s || "").replace(/\s+/g, ""); if (!/^TS[01]/.test(s)) throw new Error("That is not a Triad code.");
+  let bytes = unb64u(s.slice(3));
+  if (s[2] === "1") { const ds = new DecompressionStream("deflate-raw"), w = ds.writable.getWriter(); w.write(bytes); w.close(); bytes = new Uint8Array(await new Response(ds.readable).arrayBuffer()); }
+  return JSON.parse(new TextDecoder().decode(bytes));
+}
+const waitIce = pc => new Promise(res => { if (pc.iceGatheringState === "complete") return res(); const t = setTimeout(res, 6000); pc.addEventListener("icegatheringstatechange", () => { if (pc.iceGatheringState === "complete") { clearTimeout(t); res(); } }); });
+function netMake(host) {
+  let pc; try { pc = new RTCPeerConnection(ICE); } catch (e) { throw new Error("Direct connect is not available in this view. Use the installed app or the downloaded file."); }
+  const d = P.decks[P.deck]; NET = { pc, dc: null, host, open: false, name: playerName(), deck: d.cards.slice() };
+  pc.onconnectionstatechange = () => { if (pc.connectionState === "failed") toast("Could not connect. Try the same Wi-Fi, or swap codes again."); };
+  return NET;
+}
+function netWire(dc) {
+  NET.dc = dc;
+  dc.onopen = () => { NET.open = true; dc.send(JSON.stringify({ t: "hello", name: NET.name, deck: NET.deck })); netMaybeStart(); };
+  dc.onmessage = e => { let m; try { m = JSON.parse(e.data); } catch (_) { return; } netGot(m); };
+  dc.onclose = () => { if (M && M.net && !M.state.over) toast("Your friend disconnected."); };
+}
+function netMaybeStart() {
+  if (!NET || !NET.open || !NET.theirDeck || M || !NET.host) return; closeModal();
+  const mine = NET.deck, theirs = NET.theirDeck, a = mine.map(id => BY[id].i), b = theirs.map(id => BY[id].i), first = Math.random() < .5 ? 0 : 1, created = Date.now();
+  M = newVsMatch({ me: 0, host: true, net: NET, room: "direct", created, oppName: NET.theirName, oppDeck: theirs.slice(), hostDeck: mine.slice(), guestDeck: theirs.slice() });
+  openMatch(); const r = { status: "play", round: 0, created, board: Array(9).fill(-1), owner: Array(9).fill(0), hands: [a, b], turn: first, seq: 1, fx: [] };
+  applyRemote(r); netSend({ t: "state", r });
+}
+function netGot(m) {
+  if (m.t === "hello") { NET.theirName = m.name || "Friend"; NET.theirDeck = m.deck; if (M && M.net) M.oppName = NET.theirName; netMaybeStart(); }
+  else if (m.t === "state") {
+    if (!M && NET && !NET.host && NET.theirDeck) { closeModal(); M = newVsMatch({ me: 1, host: false, net: NET, room: "direct", created: m.r.created, oppName: NET.theirName, oppDeck: NET.theirDeck.slice() }); openMatch(); }
+    applyRemote(m.r);
+  } else if (m.t === "bye") { toast("Your friend left."); if (M && !M.state.over) closeMatch(); }
+}
+async function netSend(m) { try { NET.dc.send(JSON.stringify(m)); } catch (e) { toast("Connection lost."); } }
+function netClose() { try { NET.dc && NET.dc.close(); NET.pc && NET.pc.close(); } catch (_) {} NET = null; }
+function codeBox(id, text) { return `<textarea id="${id}" rows="5" readonly>${esc(text)}</textarea><div class="row" style="margin-top:6px"><button class="btn sm yellow" data-act="copy" data-id="${id}">Copy</button>${navigator.share ? `<button class="btn sm" data-act="share" data-id="${id}">Share</button>` : ""}</div>`; }
+async function hostStart() {
+  if (!deckOk(P.decks[P.deck])) return toast("Choose a complete deck first.");
+  openSheet(`<h2 class="fat">HOST A MATCH</h2><p class="note" style="text-align:center">Making your code…</p>`);
+  try {
+    if (NET) netClose(); netMake(true); netWire(NET.pc.createDataChannel("game"));
+    await NET.pc.setLocalDescription(await NET.pc.createOffer()); await waitIce(NET.pc);
+    const code = await pack({ s: NET.pc.localDescription.sdp });
+    openSheet(`<h2 class="fat">HOST A MATCH</h2><p class="note">1. Send this code to your friend (any chat app).</p>${codeBox("c1", code)}<p class="note" style="margin-top:12px">2. Paste the reply code they send back.</p><textarea id="c2" rows="4" placeholder="Paste reply code"></textarea><div class="row c" style="margin-top:10px"><button class="btn yellow" data-act="hostFinish">Connect</button><button class="btn dark" data-act="closeModal">Cancel</button></div>`);
+  } catch (e) { closeModal(); toast(e.message || "Could not start."); }
+}
+async function hostFinish() {
+  try { const a = await unpack($("#c2").value); await NET.pc.setRemoteDescription({ type: "answer", sdp: a.s }); toast("Connecting…"); } catch (e) { toast(e.message || "That reply code did not work."); }
+}
+function joinSheet() { openSheet(`<h2 class="fat">JOIN A MATCH</h2><p class="note">1. Paste the code your friend sent.</p><textarea id="c1" rows="4" placeholder="Paste host code"></textarea><div class="row c" style="margin-top:10px"><button class="btn yellow" data-act="joinMake">Make reply code</button><button class="btn dark" data-act="closeModal">Cancel</button></div>`); }
+async function joinMake() {
+  if (!deckOk(P.decks[P.deck])) return toast("Choose a complete deck first.");
+  try {
+    const off = await unpack($("#c1").value); if (NET) netClose(); netMake(false); NET.pc.ondatachannel = e => netWire(e.channel);
+    await NET.pc.setRemoteDescription({ type: "offer", sdp: off.s }); await NET.pc.setLocalDescription(await NET.pc.createAnswer()); await waitIce(NET.pc);
+    const code = await pack({ s: NET.pc.localDescription.sdp });
+    openSheet(`<h2 class="fat">JOIN A MATCH</h2><p class="note">2. Send this reply code back to your friend. The match starts by itself.</p>${codeBox("c3", code)}<div class="row c" style="margin-top:10px"><button class="btn dark" data-act="closeModal">Cancel</button></div>`);
+  } catch (e) { toast(e.message || "That code did not work."); }
+}
+function viewVersus(v) {
+  const online = !!(db && uid);
+  v.innerHTML = `<span class="ribbon">DIRECT CONNECT</span><div class="panel"><p class="note" style="margin:0 0 10px">Play a friend phone to phone, with no account and no server. You swap two short codes in any chat app. Works on shared Wi-Fi and usually on mobile data too.</p><div class="row c"><button class="btn yellow" data-act="hostStart">Host a match</button><button class="btn" data-act="joinSheet">Join a match</button></div></div>` +
+    `<span class="ribbon green">ROOM CODE</span><div class="panel"><p class="note" style="margin:0 0 10px">${online ? "A 4-letter room code. Both players need this page open on claude.ai with Contributor access." : "Room codes only work on the claude.ai version of this page."}</p><div class="row c"><button class="btn yellow" data-act="vsCreate" ${online ? "" : "disabled"}>Create room</button><input type="text" id="vsCode" maxlength="4" placeholder="CODE" style="width:90px;text-transform:uppercase;text-align:center" ${online ? "" : "disabled"}><button class="btn" data-act="vsJoin" ${online ? "" : "disabled"}>Join</button></div></div>` +
+    `<div class="row" style="margin:14px 0 0"><span class="note">Deck</span>${deckSelect()}</div><p class="note" style="text-align:center">The winner takes a copy of one of the loser's cards. Nobody loses a card.</p>`;
+}
+
+/* ===== summon ===== */
+function pullOne() {
+  P.pulls++; const r = Math.random() * 100; let pool;
+  if (P.pityTop >= 59) pool = Math.random() < .2 ? "ex" : 5;
+  else if (P.pityHi >= 9) { const q = Math.random(); pool = q < .05 ? "ex" : q < .3 ? 5 : 4; }
+  else pool = r < 1 ? "ex" : r < 5 ? 5 : r < 15 ? 4 : r < 34 ? 3 : r < 62 ? 2 : 1;
+  const list = pool === "ex" ? C.filter(c => c.ex) : C.filter(c => !c.ex && c.lv === pool), c = list[Math.floor(Math.random() * list.length)];
+  if (pool === "ex" || pool === 5) { P.pityHi = 0; P.pityTop = 0; } else if (pool === 4) { P.pityHi = 0; P.pityTop++; } else { P.pityHi++; P.pityTop++; }
+  return c;
+}
+function viewSummon(v) {
+  const rec = (P.recent || []).slice(0, 16), tiles = [];
+  for (let k = 0; k < 16; k++) { const c = rec[k] && BY[rec[k]]; tiles.push(c ? `<div class="hx f r${rarOf(c)}" data-act="detail" data-id="${c.id}"><img data-id="${c.id}" src="${artSrc(c)}" alt=""><small>${esc(c.name.length > 9 ? c.name.slice(0, 8) + "." : c.name)}</small></div>` : '<div class="hx q"><span>?</span></div>'); }
+  v.innerHTML = `<span class="ribbon">SUMMON</span><div class="hexgrid">${tiles.join("")}</div><div class="row c"><button class="btn yellow big" data-act="pull" data-n="1" ${P.tickets < 1 ? "disabled" : ""}>Summon · 1 ${ic("ticket")}</button><button class="btn red big" data-act="pull" data-n="10" ${P.tickets < 10 ? "disabled" : ""}>×10 · 10 ${ic("ticket")}</button></div>` +
+    `<div class="panel" style="margin-top:14px"><div class="pity" style="margin:0"><small><span>LEGENDARY OR SECRET RARE</span><span>${P.pityTop} / 60</span></small><div class="bar"><i style="width:${Math.min(100, 100 * P.pityTop / 60)}%"></i></div><small style="margin-top:8px"><span>EPIC OR BETTER</span><span>${P.pityHi} / 10</span></small><div class="bar"><i style="width:${Math.min(100, 100 * P.pityHi / 10)}%"></i></div></div></div>` +
+    `<div class="row c" style="margin-top:12px"><button class="btn sm dark" data-act="odds">Odds</button></div><p class="note" style="text-align:center">The board shows your latest summons. Tickets come from levelling up, daily missions and the campaign. Copies past 3 turn into dust, which crafts any card that is not summon-only.</p>`;
+}
+let PENDING = null;
+function doPull(n) {
+  if (P.tickets < n) return; P.tickets -= n; rollover(); P.mis.sum += n; const res = [];
+  for (let i = 0; i < n; i++) { const c = pullOne(), r = addCard(c.id); res.push({ c, r }); P.recent = [c.id].concat((P.recent || []).filter(x => x !== c.id)).slice(0, 16); }
+  scheduleSave(); chrome(); PENDING = { n, res };
+  const m = $("#modal"); m.hidden = false; m.innerHTML = `<div class="sheet" data-act="reveal" style="text-align:center;padding-bottom:30px"><div class="bighex"><span>?</span></div><div class="stagehint">${n > 1 ? "TAP TO REVEAL ×" + n : "TAP TO REVEAL"}</div></div>`;
+}
+async function reveal() {
+  if (!PENDING) return; const { n, res } = PENDING; PENDING = null; const m = $("#modal");
+  const one = n === 1, c0 = res[0].c, r0 = res[0].r;
+  m.innerHTML = `<div class="sheet"><span class="ribbon gold" style="font-size:26px">YOU SUMMONED</span><div class="reveal" style="grid-template-columns:repeat(${one ? 1 : 5},${one ? "minmax(0,170px)" : "1fr"});justify-content:center;padding-bottom:8px">${res.map(x => `<div class="wrap">${cardHtml(x.c, { tilt: one })}<div class="tg ${x.r.dup ? "d" : ""}">${x.r.dup ? "+" + x.r.dust : x.r.isNew ? "NEW" : ""}</div></div>`).join("")}</div>${one ? `<p class="fat" style="text-align:center;font-size:22px;margin:10px 0 0">${esc(c0.name)}</p><p class="note" style="text-align:center;margin:2px 0 0"><span class="rtag r${rarOf(c0)}">${RNAME[rarOf(c0)].toUpperCase()}</span> ${esc(GROUPS[c0.grp] || c0.grp)}${r0.dup ? " · already at 3 copies, +" + r0.dust + " dust" : ""}</p>` : ""}<div class="row c" style="margin-top:14px"><button class="btn dark" data-act="closeModal">Close</button>${P.tickets >= n ? `<button class="btn yellow" data-act="pull" data-n="${n}">Again</button>` : ""}</div></div>`;
+  const cards = m.querySelectorAll(".reveal .card"); for (let i = 0; i < cards.length; i++) { await sleep(n === 1 ? 100 : 170); if (m.hidden) return; cards[i].classList.add("in"); }
+  if (tab === "summon") show("summon");
+}
+function oddsModal() {
+  const ex = C.filter(c => c.ex).length, cnt = l => C.filter(c => !c.ex && c.lv === l).length, row = (r, n, pct) => `<tr><td><span class="rtag r${r}">${RNAME[r].toUpperCase()}</span> ${n} cards</td><td>${pct}</td></tr>`;
+  openSheet(`<h2 class="fat">SUMMON ODDS</h2><table class="odds">${row(1, cnt(1), "38%")}${row(2, cnt(2), "28%")}${row(3, cnt(3), "19%")}${row(4, cnt(4), "10%")}${row(5, cnt(5), "4%")}${row(6, ex, "1%")}</table><p class="note">Every card of a rarity is equally likely. Secret Rares can only come from the summon. The 10th summon without an Epic or better is an Epic or better (5% Secret Rare). After 59 summons without a Legendary or Secret Rare, the 60th is one.</p><div class="row c"><button class="btn dark" data-act="closeModal">Close</button></div>`);
+}
+
+/* ===== cards: collection, detail, decks ===== */
+let F = { q: "", own: "all", lv: 0, grp: "all" };
+function viewCards(v) {
+  const have = ownedList().length;
+  v.innerHTML = `<span class="ribbon">DECKS</span><div class="list">${P.decks.map((d, i) => `<button class="panel item" data-act="editDeck" data-i="${i}" style="${i === P.deck ? "box-shadow: inset 0 0 0 3px var(--yellow), 0 4px 0 #000a" : ""}"><div class="t"><b>${esc(d.name)}</b><small>${d.cards.map(id => esc(BY[id] ? BY[id].name : "?")).join(", ") || "empty"}</small></div><span class="tag ${i === P.deck ? "gold" : ""}">${i === P.deck ? "ACTIVE" : deckOk(d) ? "READY" : "INCOMPLETE"}</span></button>`).join("")}</div><div class="row c" style="margin-top:10px"><button class="btn sm yellow" data-act="newDeck" ${P.decks.length >= 10 ? "disabled" : ""}>New deck</button></div>` +
+    `<span class="ribbon green">COLLECTION ${have}/${C.length}</span><div class="filters"><input type="search" id="fq" placeholder="Search" value="${esc(F.q)}"><select id="fown" data-act="filt"><option value="all">All</option><option value="own" ${F.own === "own" ? "selected" : ""}>Owned</option><option value="miss" ${F.own === "miss" ? "selected" : ""}>Missing</option><option value="ex" ${F.own === "ex" ? "selected" : ""}>Secret Rare</option></select><select id="flv" data-act="filt"><option value="0">Any rarity</option>${[1, 2, 3, 4, 5].map(l => `<option value="${l}" ${F.lv === l ? "selected" : ""}>${RNAME[l]}</option>`).join("")}</select><select id="fgrp" data-act="filt">${Object.entries(GROUPS).map(([k, n]) => `<option value="${k}" ${F.grp === k ? "selected" : ""}>${n}</option>`).join("")}</select></div><div class="grid" id="coll"></div>`;
+  fillColl(); const q = $("#fq"); q.oninput = () => { F.q = q.value; fillColl(); };
+}
+function fillColl() {
+  const q = F.q.toLowerCase(), list = C.filter(c => (!q || c.name.toLowerCase().includes(q)) && (F.lv === 0 || c.lv === F.lv) && (F.grp === "all" || c.grp === F.grp) && (F.own === "all" || (F.own === "own" ? (P.own[c.id] || 0) > 0 : F.own === "miss" ? !(P.own[c.id] > 0) : c.ex)))
+    .sort((a, b) => b.lv - a.lv || a.name.localeCompare(b.name));
+  $("#coll").innerHTML = list.map(c => cardHtml(c, { count: P.own[c.id] || 0, miss: !(P.own[c.id] > 0), attr: `data-act="detail" data-id="${c.id}"` })).join("") || '<p class="note">No cards match.</p>';
+}
+function openSheet(h) { const m = $("#modal"); m.hidden = false; m.innerHTML = `<div class="sheet">${h}</div>`; }
+function detail(id) {
+  const c = BY[id], n = P.own[id] || 0, cost = c.ex ? 0 : CRAFT[c.lv];
+  openSheet(`<div class="row" style="align-items:flex-start;flex-wrap:nowrap"><div style="width:42%;flex:none">${cardHtml(c, { miss: !n, tilt: true })}</div><div style="min-width:0"><h2 class="fat" style="text-align:left;font-size:26px;margin:0 0 4px">${esc(c.name)}</h2><p class="note"><span class="rtag r${rarOf(c)}">${RNAME[rarOf(c)].toUpperCase()}</span> ${esc(GROUPS[c.grp] || c.grp)}<br>Top ${sideTxt(c.s[0])} · Right ${sideTxt(c.s[1])} · Bottom ${sideTxt(c.s[2])} · Left ${sideTxt(c.s[3])}<br>Owned: ${n} / 3</p>${c.ex ? '<p class="note">Only the summon gives this card.</p>' : `<button class="btn yellow sm" data-act="craft" data-id="${id}" ${P.dust < cost || n >= 3 ? "disabled" : ""}>Craft · ${cost} ${ic("gem")}</button>`}</div></div><div class="row c" style="margin-top:14px"><button class="btn dark" data-act="closeModal">Close</button></div>`);
+}
+let DE = null;
+function editDeck(i) { DE = { i, name: P.decks[i].name, cards: P.decks[i].cards.slice() }; deckSheet(); }
+function deckSheet() {
+  const slots = [0, 1, 2, 3, 4].map(k => DE.cards[k] ? cardHtml(BY[DE.cards[k]], { attr: `data-act="deckRemove" data-k="${k}"` }) : '<div class="empty"></div>').join("");
+  const pool = ownedList().filter(c => !DE.cards.includes(c.id) || (P.own[c.id] > DE.cards.filter(x => x === c.id).length)).sort((a, b) => b.lv - a.lv || a.name.localeCompare(b.name));
+  openSheet(`<h2 class="fat">EDIT DECK</h2><input type="text" id="deckName" value="${esc(DE.name)}" maxlength="20" style="width:100%;margin-bottom:6px"><div class="slots">${slots}</div><p class="note">Tap a slot to remove. Tap a card below to add. ${DE.cards.length}/5</p><div class="grid" style="max-height:34dvh;overflow:auto;padding:4px 2px">${pool.map(c => cardHtml(c, { count: P.own[c.id] - DE.cards.filter(x => x === c.id).length, attr: `data-act="deckAdd" data-id="${c.id}"` })).join("")}</div><div class="row c" style="margin-top:14px"><button class="btn yellow" data-act="deckSave" ${DE.cards.length === 5 ? "" : "disabled"}>Save & use</button><button class="btn sm" data-act="deckAuto">Best 5</button><button class="btn sm red" data-act="deckDel" ${P.decks.length < 2 ? "disabled" : ""}>Delete</button><button class="btn sm dark" data-act="closeModal">Close</button></div>`);
+  $("#deckName").oninput = e => DE.name = e.target.value;
+}
+
+/* ===== daily: login ticket and missions ===== */
+function missions() {
+  return [{ id: "win", t: "Win a match", have: P.mis.win, need: 1, tk: 1 }, { id: "play", t: "Play 3 matches", have: P.mis.play, need: 3, tk: 1 }, { id: "cap", t: "Capture 10 cards", have: P.mis.cap, need: 10, tk: 1 }, { id: "sum", t: "Make a summon", have: P.mis.sum, need: 1, dust: 30 }];
+}
+function viewDaily(v) {
+  rollover(); const ms = missions(), all = ms.every(m => P.mis.claimed[m.id]);
+  v.innerHTML = `<span class="ribbon">DAILY</span><div class="list"><div class="panel item"><div class="t"><b>Daily ticket</b><small>1 ${ic("ticket")} for dropping in</small></div><button class="btn sm yellow" data-act="login" ${P.login ? "disabled" : ""}>${P.login ? "Claimed" : "Claim"}</button></div>` +
+    ms.map(m => `<div class="panel item"><div class="t"><b>${m.t}</b><small>${Math.min(m.have, m.need)} / ${m.need} · reward ${m.tk ? m.tk + " " + ic("ticket") : m.dust + " " + ic("gem")}</small><div class="bar" style="margin-top:5px"><i style="width:${Math.min(100, 100 * m.have / m.need)}%"></i></div></div><button class="btn sm ${m.have >= m.need && !P.mis.claimed[m.id] ? "yellow" : ""}" data-act="claimM" data-id="${m.id}" ${m.have >= m.need && !P.mis.claimed[m.id] ? "" : "disabled"}>${P.mis.claimed[m.id] ? "Done" : "Claim"}</button></div>`).join("") +
+    `<div class="panel item"><div class="t"><b>All four</b><small>+2 ${ic("ticket")} bonus</small></div><span class="tag ${all ? "ok" : ""}">${all ? "EARNED" : "FINISH THE LIST"}</span></div></div>` +
+    `<span class="ribbon green">YOU</span><div class="panel"><div class="row"><input type="text" id="pname" maxlength="14" value="${esc(P.name || "")}" placeholder="${esc(myName || "Your name")}" style="flex:1"><button class="btn sm" data-act="saveName">Save name</button></div><p class="note" style="margin:10px 0 0">Matches played ${P.plays} · won ${P.wins} · cards ${ownedList().length}/${C.length} · summons ${P.pulls} · campaign ${Object.keys(P.cleared).length}/16</p></div>`;
+}
+
+/* ===== one place for every tap ===== */
+document.addEventListener("click", async e => {
+  const el = e.target.closest("[data-act]"); if (!el || !P && el.dataset.act !== "tab") return; const a = el.dataset.act, d = el.dataset;
+  switch (a) {
+    case "tab": return show(d.k);
+    case "quick": return startAi({ tier: +d.t });
+    case "stage": { const ci = +d.c, si = +d.s, ch = CAMPAIGN[ci], st = ch.stages[si]; return openSheet(`<span class="ribbon">${esc(st[0]).toUpperCase()}</span><div class="row" style="flex-wrap:nowrap;align-items:flex-start"><div style="width:96px;flex:none">${cardHtml(BY[st[1]])}</div><p class="note" style="margin:0">${TIERS[ch.tier]} foes${si === 3 ? " · boss" : ""}. They hold ${esc(BY[st[1]].name)} and four more.<br>First clear: ${ch.tickets[si]} ${ic("ticket")}. Every win lets you take a copy of one of their cards.</p></div><div class="row c" style="margin-top:14px"><button class="btn yellow big" data-act="stageGo" data-c="${ci}" data-s="${si}">FIGHT</button><button class="btn dark" data-act="closeModal">Back</button></div>`); }
+    case "stageGo": { closeModal(); const ci = +d.c, si = +d.s; return startAi({ tier: CAMPAIGN[ci].tier, stage: { c: ci, s: si, sig: CAMPAIGN[ci].stages[si][1], boss: si === 3 } }); }
+    case "vsCreate": return vsCreate();
+    case "vsJoin": return vsJoin();
+    case "hostStart": return hostStart();
+    case "hostFinish": return hostFinish();
+    case "joinSheet": return joinSheet();
+    case "joinMake": return joinMake();
+    case "copy": { const t = $("#" + d.id); t.select(); try { await navigator.clipboard.writeText(t.value); toast("Copied"); } catch (_) { document.execCommand && document.execCommand("copy"); toast("Copied"); } return; }
+    case "share": try { await navigator.share({ text: $("#" + d.id).value }); } catch (_) {} return;
+    case "hand": if (canMove()) { M.sel = M.sel === +d.k ? null : +d.k; drawMatch(); } return;
+    case "cell": return onCell(+d.i);
+    case "hints": if (M) { M.hints = !M.hints; drawMatch(); } return;
+    case "leave": return leaveMatch();
+    case "again": { const m = M, o = { tier: m.tier, stage: m.stage }; closeMatch(); return startAi(o); }
+    case "rematch": return rematch();
+    case "take": return takeCard(d.id);
+    case "pull": closeModal(); return doPull(+d.n);
+    case "reveal": return reveal();
+    case "odds": return oddsModal();
+    case "closeModal": return closeModal();
+    case "detail": return detail(d.id);
+    case "craft": { const c = BY[d.id], cost = CRAFT[c.lv]; if (P.dust >= cost && (P.own[c.id] || 0) < 3) { P.dust -= cost; P.own[c.id] = (P.own[c.id] || 0) + 1; scheduleSave(); chrome(); toast(c.name + " crafted"); detail(c.id); if ($("#coll")) fillColl(); } return; }
+    case "newDeck": { P.decks.push({ name: "Deck " + (P.decks.length + 1), cards: [] }); scheduleSave(); return editDeck(P.decks.length - 1); }
+    case "editDeck": return editDeck(+d.i);
+    case "deckRemove": DE.cards.splice(+d.k, 1); return deckSheet();
+    case "deckAdd": if (DE.cards.length < 5) { DE.cards.push(d.id); deckSheet(); } return;
+    case "deckAuto": { DE.cards = ownedList().sort((a, b) => (b.s[0] + b.s[1] + b.s[2] + b.s[3]) - (a.s[0] + a.s[1] + a.s[2] + a.s[3])).slice(0, 5).map(c => c.id); return deckSheet(); }
+    case "deckSave": { P.decks[DE.i] = { name: (DE.name || "Deck").trim() || "Deck", cards: DE.cards.slice() }; P.deck = DE.i; scheduleSave(); closeModal(); toast("Deck saved"); return show("cards"); }
+    case "deckDel": { P.decks.splice(DE.i, 1); P.deck = Math.min(P.deck, P.decks.length - 1); scheduleSave(); closeModal(); return show("cards"); }
+    case "login": P.login = true; P.tickets++; scheduleSave(); toast("+1 ticket"); return show("daily");
+    case "claimM": { const m = missions().find(x => x.id === d.id); if (m && m.have >= m.need && !P.mis.claimed[m.id]) { P.mis.claimed[m.id] = 1; if (m.tk) P.tickets += m.tk; else P.dust += m.dust; if (missions().every(x => P.mis.claimed[x.id])) { P.tickets += 2; toast("All four done: +2 tickets"); } scheduleSave(); } return show("daily"); }
+    case "saveName": P.name = ($("#pname").value || "").trim().slice(0, 14); scheduleSave(); toast("Name saved"); return chrome();
+  }
+});
+document.addEventListener("change", e => {
+  if (e.target.id === "deckSel") { P.deck = +e.target.value; scheduleSave(); }
+  if (e.target.dataset.act === "filt") { F.own = $("#fown").value; F.lv = +$("#flv").value; F.grp = $("#fgrp").value; fillColl(); }
+});
+function closeModal() { const m = $("#modal"); m.hidden = true; m.innerHTML = ""; }
+$("#modal").addEventListener("click", e => { if (e.target.id === "modal") closeModal(); });
+window.addEventListener("pagehide", () => { dirty = true; flush(); });
+document.addEventListener("pointermove", tiltMove); document.addEventListener("pointerup", tiltEnd); document.addEventListener("pointerleave", tiltEnd, true);
+chrome();
+(async () => { const t0 = Date.now(); await loadProfile(); await sleep(Math.max(0, 1100 - (Date.now() - t0))); $("#splash").classList.add("gone"); setTimeout(() => { const s = $("#splash"); if (s) s.remove(); }, 600); })();
+</script>
+<script>if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) navigator.serviceWorker.register('sw.js');</script>
