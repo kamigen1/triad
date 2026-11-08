@@ -361,6 +361,24 @@ table.odds { width: 100%; border-collapse: collapse; } table.odds td { padding: 
 .ut .uart canvas { transform: scale(1.32); transform-origin: 50% 88%; }
 .ut.foe .uart canvas { transform: scaleX(-1) scale(1.32); }
 
+/* ----- illustrated units: one picture each, moved by CSS ----- */
+.ut .uart.pic { overflow: visible; }
+.ut.foe .uart.pic { transform: scaleX(-1); }
+.ut .uart.pic img { position: absolute; left: -14%; bottom: 0; width: 128%; height: 128%; object-fit: contain; object-position: 50% 100%; transform-origin: 50% 100%; animation: breathe 2.8s ease-in-out infinite; filter: drop-shadow(0 3px 0 #000a); image-rendering: auto; }
+.ut:nth-child(2n) .uart.pic img { animation-delay: -.9s; } .ut:nth-child(3n) .uart.pic img { animation-delay: -1.7s; }
+@keyframes breathe { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.02, .965); } }
+.ut[data-st="attack"] .pic img { animation: pAtk var(--d) ease-out; }
+@keyframes pAtk { 0% { transform: translateX(0); } 22% { transform: translateX(-10%) rotate(-4deg) scale(1.02); } 42% { transform: translateX(28%) rotate(7deg) scale(1.1); filter: drop-shadow(0 3px 0 #000a) brightness(1.3); } 70% { transform: translateX(30%) rotate(2deg) scale(1.06); } 100% { transform: translateX(0); } }
+.ut[data-st="burst"] .pic img { animation: pBurst var(--d) ease-out; }
+@keyframes pBurst { 0% { transform: scale(1); } 30% { transform: translateY(-8%) scale(1.12); filter: drop-shadow(0 0 14px var(--c)) brightness(1.5); } 70% { transform: translateY(-12%) scale(1.18); filter: drop-shadow(0 0 22px var(--c)) brightness(1.7); } 100% { transform: scale(1); } }
+.ut[data-st="hurt"] .pic img { animation: pHurt var(--d) ease-out; }
+@keyframes pHurt { 0% { transform: translateX(-8%) scale(.96, 1.04); filter: brightness(2.4) saturate(.3); } 40% { transform: translateX(5%); filter: brightness(1.6) sepia(1) hue-rotate(-40deg) saturate(3); } 100% { transform: translateX(0); } }
+.ut[data-st="dead"] .pic img { animation: pDead var(--d) ease-in forwards; }
+@keyframes pDead { 0% { transform: none; filter: brightness(2); } 100% { transform: translateY(14%) rotate(-24deg) scale(.9); filter: grayscale(1) brightness(.5); opacity: .25; } }
+.ut.ready .uart.pic img { filter: drop-shadow(0 0 6px var(--yellow)) drop-shadow(0 0 12px var(--yellow)); }
+#bcut .who2 img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 0 18px var(--c)); animation: none; }
+img.uspr { object-fit: contain; }
+
 .bfield { position: relative; }
 /* landscape phones: the tab bar becomes a rail on the left, the hero shrinks, and a match lays out as foe hand | board | your hand */
 @media (orientation: landscape) and (max-height: 540px) {
@@ -873,7 +891,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.11.09-c";
+const VER = "2026.11.09-d";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -1185,6 +1203,7 @@ function soundPanel() {
 const SW = 128, SORDER = ["idle", "attack", "burst", "hurt", "dead"], SFR = { idle: 4, attack: 5, burst: 5, hurt: 2, dead: 3 }, SOFF = {}, SMS = { idle: [210, 210, 210, 210], attack: [110, 110, 90, 110, 140], burst: [130, 130, 170, 170, 220], hurt: [130, 170], dead: [150, 170, 450] };
 { let o = 0; for (const k of SORDER) { SOFF[k] = o; o += SFR[k]; } }
 const SPRMAP = {};   // sprites/<id>.png dropped in triad_app/sprites/ is embedded by build.py and wins over the generated sprite
+const UNITMAP = {};   // illustrated units: triad_app/units/<card id>.png, cut out and shrunk by build.py. A unit with one is drawn as that picture, animated by motion, instead of the generated sprite
 const SGY = 118;             // the ground line inside a cell
 /* ----- pixel drawing: masks, painted with a light rim, a shade rim and a base tone ----- */
 const hsl2 = (h, s, l) => { h = ((h % 360) + 360) % 360 / 360; s = Math.max(0, Math.min(1, s)); l = Math.max(0, Math.min(1, l)); const f = (p, q, t) => { t = (t + 1) % 1; return t < 1 / 6 ? p + (q - p) * 6 * t : t < .5 ? q : t < 2 / 3 ? p + (q - p) * (2 / 3 - t) * 6 : p; }; const q = l < .5 ? l * (1 + s) : l + s - l * s, p = 2 * l - q; return [Math.round(255 * f(p, q, h + 1 / 3)), Math.round(255 * f(p, q, h)), Math.round(255 * f(p, q, h - 1 / 3))]; };
@@ -1437,7 +1456,7 @@ const qW = ms => (B && B.ui ? sleep(ms / B.speed) : null);
 const qAlive = a => a.filter(u => u.alive);
 function qHtmlTile(u, i) {
   const ally = u.side === 0, r = rarOf(u.c);
-  return `<div class="ut r${r} ${ally ? "ally" : "foe"} ${u.boss ? "boss" : ""}" id="t-${u.side}-${i}" ${ally ? `data-act="qburst" data-i="${i}"` : ""}><div class="uart"><canvas class="spr" width="128" height="128"></canvas></div><div class="uhp"><i></i></div>${ally ? '<div class="ubc"><i></i></div><b class="rdy">BURST</b>' : ""}<small>${esc(u.name.length > 11 ? u.name.slice(0, 10) + "." : u.name)}${ally && u.stars > 1 ? " ★" + u.stars : ""}</small></div>`;
+  return `<div class="ut r${r} ${ally ? "ally" : "foe"} ${u.boss ? "boss" : ""}" id="t-${u.side}-${i}" ${ally ? `data-act="qburst" data-i="${i}"` : ""}>${UNITMAP[u.c.id] ? `<div class="uart pic"><img src="${UNITMAP[u.c.id]}" alt=""></div>` : '<div class="uart"><canvas class="spr" width="128" height="128"></canvas></div>'}<div class="uhp"><i></i></div>${ally ? '<div class="ubc"><i></i></div><b class="rdy">BURST</b>' : ""}<small>${esc(u.name.length > 11 ? u.name.slice(0, 10) + "." : u.name)}${ally && u.stars > 1 ? " ★" + u.stars : ""}</small></div>`;
 }
 function qDraw() {
   const m = $("#bt"); m.hidden = false;
@@ -1446,12 +1465,18 @@ function qDraw() {
     `<button class="lbbtn" id="blb" data-act="qlb"><i id="blbf"></i><span>LIMIT BURST</span></button></div><div id="bfx"></div><div id="bcut" hidden></div>`;
   qFoeRow(); qSync(); requestAnimationFrame(qAnimLoop);
 }
-function qBind() { B.party.forEach((u, i) => { const t = $("#t-0-" + i); u.cv = t && t.querySelector("canvas"); }); B.foes.forEach((u, i) => { const t = $("#t-1-" + i); u.cv = t && t.querySelector("canvas"); }); }
-function qPlay(u, st, hold) { u.an = { st, t0: performance.now(), hold: !!hold }; }
+function qBind() { [B.party, B.foes].forEach((arr, s) => arr.forEach((u, i) => { const t = $("#t-" + s + "-" + i); u.cv = t && t.querySelector("canvas"); u.pic = !!(t && t.querySelector(".pic")); })); }
+function qPlay(u, st, hold) {
+  u.an = { st, t0: performance.now(), hold: !!hold };
+  if (u.pic) {   // an illustrated unit: the state is a class the stylesheet turns into motion
+    const t = qTile(u); if (!t) return; clearTimeout(u.pt); t.removeAttribute("data-st"); void t.offsetWidth; t.style.setProperty("--d", sprTotal(st) / B.speed + "ms"); t.dataset.st = st;
+    if (!hold && st !== "idle") u.pt = setTimeout(() => { if (t.isConnected) { if (u.alive) t.removeAttribute("data-st"); else t.dataset.st = "dead"; } }, sprTotal(st) / B.speed);
+  }
+}
 function qAnimLoop() {
   if (!B || !B.ui) return; const now = performance.now();
   for (const u of B.party.concat(B.foes)) {
-    if (!u.cv) continue; let a = u.an || (u.an = { st: u.alive ? "idle" : "dead", t0: now, hold: !u.alive }), t = (now - a.t0) * B.speed;
+    if (!u.cv || u.pic) continue; let a = u.an || (u.an = { st: u.alive ? "idle" : "dead", t0: now, hold: !u.alive }), t = (now - a.t0) * B.speed;
     if (!a.hold && a.st !== "idle" && t >= sprTotal(a.st)) { a = u.an = u.alive ? { st: "idle", t0: now } : { st: "dead", t0: now, hold: true }; t = 0; }
     sprDraw(u.cv, u.c, a.st, a.hold ? 1e9 : t);
   }
@@ -1485,8 +1510,8 @@ async function qStrike(a, t, kind) {
 }
 async function qCut(u, name) {   // the Burst cut-in: the unit's portrait sweeps across the screen under its skill name
   if (!B.ui) return; const c = $("#bcut"), col = qCol(u); c.hidden = false; c.style.setProperty("--c", col);
-  c.innerHTML = `<div class="rays"></div><div class="who2"><canvas width="128" height="128"></canvas></div><div class="sk fat">${esc(name)}</div><div class="un fat">${esc(u.name)}</div>`;
-  sprDraw(c.querySelector("canvas"), u.c, "burst", 300); sfx("charge"); await qAnim(c, [{ opacity: 0 }, { opacity: 1, offset: .12 }, { opacity: 1, offset: .82 }, { opacity: 0 }], 1050, { easing: "linear" }); c.hidden = true; c.style.opacity = "";
+  c.innerHTML = `<div class="rays"></div><div class="who2">${UNITMAP[u.c.id] ? `<img src="${UNITMAP[u.c.id]}" alt="">` : '<canvas width="128" height="128"></canvas>'}</div><div class="sk fat">${esc(name)}</div><div class="un fat">${esc(u.name)}</div>`;
+  if (!UNITMAP[u.c.id]) sprDraw(c.querySelector("canvas"), u.c, "burst", 300); sfx("charge"); await qAnim(c, [{ opacity: 0 }, { opacity: 1, offset: .12 }, { opacity: 1, offset: .82 }, { opacity: 0 }], 1050, { easing: "linear" }); c.hidden = true; c.style.opacity = "";
 }
 function qRing(u, col, big) { if (!B.ui) return; const p = qPt(u); if (!p) return; const r = qFxEl("ring", p.x - 12, p.y - 12, 24, 24); r.style.setProperty("--c", col); qAnim(r, [{ transform: "scale(.4)", opacity: 1 }, { transform: `scale(${big || 5})`, opacity: 0 }], 520); }
 function qSpark(u, col) { if (!B.ui) return; const p = qPt(u); if (!p) return; for (let k = 0; k < 6; k++) { const e = qFxEl("spark", p.x - 4 + (k - 2.5) * p.w * .14, p.y + p.h * .2, 8, 8); e.style.setProperty("--c", col); qAnim(e, [{ transform: "translateY(0) scale(1)", opacity: 1 }, { transform: `translateY(${-p.h * .8}px) scale(.3)`, opacity: 0 }], 700, { delay: k * 60 / B.speed }); } }
@@ -1602,7 +1627,7 @@ function qPick(id) {
 const QTRAIN = { dust: 10, xp: 90 };
 function qUnitPanel(id) {
   if (!(P.own[id] > 0)) return ""; qInit(); const c = BY[id], u = qUnit(id), st = qStars(id), cap = qLvCap(c, st), t = qStats(c, u.lv, st), k = qSkill(c);
-  return `<div class="panel" style="margin-top:12px;text-align:left"><canvas class="spr uspr" data-spr="${id}" width="128" height="128"></canvas><b class="fat" style="font-size:17px">UNIT</b> <span class="tag gold">Lv ${u.lv} / ${cap}</span> <span class="tag gold">${"★".repeat(st)}${"☆".repeat(5 - st)}</span><div class="bar" style="margin:6px 0"><i style="width:${u.lv >= cap ? 100 : 100 * u.xp / qNeed(u.lv)}%"></i></div><p class="note" style="margin:0">HP ${t.hp} · ATK ${t.atk} · DEF ${t.def} · SPD ${t.spd}<br><b>${QSKILL[k][0]}</b>: ${QSKILL[k][1]}${st > 1 ? " (+" + 12 * (st - 1) + "%)" : ""}<br>Attack: ${qFxOf(c)}${st < 5 ? ". Summon duplicates to fuse stars." : ". Fully fused."}</p><div class="row c" style="margin-top:8px"><button class="btn sm yellow" data-act="qtrain" data-id="${id}" ${P.dust < QTRAIN.dust || u.lv >= cap ? "disabled" : ""}>Train · ${QTRAIN.dust} ${ic("gem")} → ${QTRAIN.xp} XP</button></div></div>`;
+  return `<div class="panel" style="margin-top:12px;text-align:left">${UNITMAP[id] ? `<img class="uspr" src="${UNITMAP[id]}" alt="">` : `<canvas class="spr uspr" data-spr="${id}" width="128" height="128"></canvas>`}<b class="fat" style="font-size:17px">UNIT</b> <span class="tag gold">Lv ${u.lv} / ${cap}</span> <span class="tag gold">${"★".repeat(st)}${"☆".repeat(5 - st)}</span><div class="bar" style="margin:6px 0"><i style="width:${u.lv >= cap ? 100 : 100 * u.xp / qNeed(u.lv)}%"></i></div><p class="note" style="margin:0">HP ${t.hp} · ATK ${t.atk} · DEF ${t.def} · SPD ${t.spd}<br><b>${QSKILL[k][0]}</b>: ${QSKILL[k][1]}${st > 1 ? " (+" + 12 * (st - 1) + "%)" : ""}<br>Attack: ${qFxOf(c)}${st < 5 ? ". Summon duplicates to fuse stars." : ". Fully fused."}</p><div class="row c" style="margin-top:8px"><button class="btn sm yellow" data-act="qtrain" data-id="${id}" ${P.dust < QTRAIN.dust || u.lv >= cap ? "disabled" : ""}>Train · ${QTRAIN.dust} ${ic("gem")} → ${QTRAIN.xp} XP</button></div></div>`;
 }
 /* Used to tune the missions: plays them as a bot, no screen. Party: the best four non-secret cards up to a rarity, at the on-curve level and star count. */
 async function qSim(g0, g1, n = 12) {
