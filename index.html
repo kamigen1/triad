@@ -536,7 +536,7 @@ const ownedList = () => C.filter(c => (P.own[c.id] || 0) > 0);
 /* A deck's cost is the sum of its cards' costs (Common 1 up to Legendary 5, Secret Rare 6). The cap starts low and grows with your level and the chapters you clear, so early summons can't carry the whole game. */
 const costOf = c => (c.ex ? 6 : c.lv);
 const chaptersCleared = () => CAMPAIGN.filter((ch, ci) => P.cleared[stageKey(ci, 3)]).length;
-const deckCap = () => Math.min(25, 8 + P.lv + 2 * chaptersCleared());
+const deckCap = () => Math.min(35, 8 + P.lv + 2 * chaptersCleared());
 const deckCost = d => d.cards.reduce((a, id) => a + (BY[id] ? costOf(BY[id]) : 9), 0);
 function deckWhy(d) {
   if (!d || d.cards.length !== 5) return "Choose five cards for your deck first.";
@@ -592,7 +592,7 @@ function viewPlay(v) {
 }
 /* A foe's hand is built to a deck cost, so every stage asks for about the same strength from you: cheap stages early, near the cap at the bosses. Bosses take the strongest cards of each rarity. */
 const STAGE_COST = [8, 9, 10, 12, 13, 14, 16, 18, 16, 18, 19, 21, 20, 21, 22, 24];
-const quickCost = t => Math.max(5, Math.min(25, Math.round(deckCap() * [.6, .8, 1, 1.08][t])));
+const quickCost = t => Math.max(5, Math.min(30, Math.round(deckCap() * [.6, .8, 1, 1.08][t])));
 const power = c => c.s[0] + c.s[1] + c.s[2] + c.s[3];
 function foeBuild(T, boss, sig) {
   const pool = C.filter(c => !c.ex), out = []; let have = 0;
@@ -761,7 +761,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.11.08-b";
+const VER = "2026.11.08-c";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
