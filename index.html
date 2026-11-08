@@ -130,10 +130,10 @@ textarea { width: 100%; resize: none; font: 700 11px/1.3 ui-monospace, Menlo, Co
 
 /* cards: a trading-card frame in the rarity's colour. Common white, uncommon green, rare blue, epic purple, legendary orange, secret rare red (summon-only). Foil gets stronger up the tiers. */
 :root { --r1: #f4f4f4; --r1d: #8f949a; --r2: #52e57a; --r2d: #187a36; --r3: #4fadff; --r3d: #1650a6; --r4: #bc8aff; --r4d: #582bb8; --r5: #ffa933; --r5d: #b04c00; --r6: #ff3f50; --r6d: #70040f; }
-.card { position: relative; aspect-ratio: 5 / 7; container-type: inline-size; border-radius: 6.5cqw; overflow: hidden; user-select: none; background: linear-gradient(135deg, var(--c) 0%, var(--cd) 26%, var(--c) 48%, var(--cd) 72%, var(--c) 100%); box-shadow: 0 0 0 .9cqw #000, 0 1.4cqw 0 .9cqw #000a, 0 0 var(--glow, 0) var(--c); }
-.card.r1 { --c: var(--r1); --cd: var(--r1d); --ho: 0; --glow: 0; } .card.r2 { --c: var(--r2); --cd: var(--r2d); --ho: .12; --glow: 1.5cqw; }
-.card.r3 { --c: var(--r3); --cd: var(--r3d); --ho: .3; --glow: 3.5cqw; } .card.r4 { --c: var(--r4); --cd: var(--r4d); --ho: .5; --glow: 5cqw; }
-.card.r5 { --c: var(--r5); --cd: var(--r5d); --ho: .7; --glow: 7cqw; } .card.r6 { --c: var(--r6); --cd: var(--r6d); --ho: .95; --glow: 9cqw; }
+.card { position: relative; aspect-ratio: 5 / 7; container-type: inline-size; border-radius: 6.5% / 4.65%; overflow: hidden; user-select: none; background: linear-gradient(135deg, var(--c) 0%, var(--cd) 26%, var(--c) 48%, var(--cd) 72%, var(--c) 100%); box-shadow: 0 0 0 2px #000, 0 3px 0 2px #000a, 0 0 var(--glow, 0) var(--c); }
+.card.r1 { --c: var(--r1); --cd: var(--r1d); --ho: 0; --glow: 0; } .card.r2 { --c: var(--r2); --cd: var(--r2d); --ho: .12; --glow: 4px; }
+.card.r3 { --c: var(--r3); --cd: var(--r3d); --ho: .3; --glow: 7px; } .card.r4 { --c: var(--r4); --cd: var(--r4d); --ho: .5; --glow: 10px; }
+.card.r5 { --c: var(--r5); --cd: var(--r5d); --ho: .7; --glow: 14px; } .card.r6 { --c: var(--r6); --cd: var(--r6d); --ho: .95; --glow: 18px; }
 .card .win { position: absolute; left: 3.6cqw; right: 3.6cqw; top: 3.6cqw; bottom: 17cqw; border-radius: 3cqw; overflow: hidden; background: #000; box-shadow: inset 0 0 0 .8cqw #000, 0 0 0 .6cqw #0009; }
 .card .win::after { content: ""; position: absolute; inset: 0; box-shadow: inset 0 0 5cqw #000c; pointer-events: none; }
 .card .art { position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: cover; }
@@ -163,7 +163,7 @@ textarea { width: 100%; resize: none; font: 700 11px/1.3 ui-monospace, Menlo, Co
 .card .tint { position: absolute; inset: 0; z-index: 5; background: transparent; transition: background .25s; border-radius: inherit; pointer-events: none; }
 .card.me .tint { background: #ffd23f40; box-shadow: inset 0 0 0 2.6cqw #ffd23f; } .card.foe .tint { background: #ec3d4c4d; box-shadow: inset 0 0 0 2.6cqw #ec3d4c; }
 .card.miss { filter: grayscale(1) brightness(.32); }
-.card.sel { transform: translateY(-12px) scale(1.04); z-index: 6; box-shadow: 0 0 0 .9cqw #000, 0 0 0 2cqw var(--yellow), 0 0 16px var(--yellow); }
+.card.sel { transform: translateY(-12px) scale(1.04); z-index: 6; box-shadow: 0 0 0 2px #000, 0 0 0 5px var(--yellow), 0 0 16px var(--yellow); }
 .card.pop { animation: pop .35s ease-out; }
 @keyframes pop { 0% { transform: scale(1.6); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 .card.flip { animation: flipc .5s ease-in-out; }
@@ -260,6 +260,45 @@ table.odds { width: 100%; border-collapse: collapse; } table.odds td { padding: 
 .filters select, .filters input { flex: 1 1 100px; }
 .mute { flex: none; width: 36px; height: 36px; border-radius: 50%; border: 3px solid #000; background: linear-gradient(#34413a, #151d19); box-shadow: inset 0 2px 0 #ffffff44, 0 3px 0 #000; font-size: 16px; line-height: 1; padding: 0; }
 .rng { flex: 1; min-width: 0; accent-color: var(--yellow); height: 28px; }
+/* landscape phones: the tab bar becomes a rail on the left, the hero shrinks, and a match lays out as foe hand | board | your hand */
+@media (orientation: landscape) and (max-height: 540px) {
+  body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
+  #app, .sa #app { max-width: 980px; padding-top: 0; display: grid; grid-template-columns: 84px minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
+  #hud { grid-column: 2; grid-row: 1; padding: 6px 12px 4px; }
+  main { grid-column: 2; grid-row: 2; padding: 4px 12px 10px; }
+  nav { grid-column: 1; grid-row: 1 / 3; grid-template-columns: 1fr; grid-auto-rows: 1fr; align-items: stretch; margin: 0; padding: max(6px, env(safe-area-inset-top, 0px)) 0 max(6px, env(safe-area-inset-bottom, 0px)); min-height: 0; border-top: 0; border-right: 3px solid #000; box-shadow: 3px 0 0 var(--edge); background: linear-gradient(90deg, #0c2217, #040a07); }
+  nav button { height: auto; min-height: 0; }
+  nav button.on { height: auto; margin: 0; padding-top: 7px; clip-path: none; background: linear-gradient(90deg, #1d5039, #0d2a1d); box-shadow: inset 4px 0 0 var(--yellow); }
+  nav .dia { width: 34px; height: 34px; } nav button.on .dia { width: 38px; height: 38px; } nav .dia svg { width: 20px; height: 20px; } nav button.on .dia svg { width: 24px; height: 24px; }
+  nav button.on .lb { font-size: 10px; } nav .dot { top: 6px; right: 18%; }
+  .hex { width: 44px; height: 49px; } .hex span { font-size: 22px; }
+  .hero { height: 250px; margin: 0 -12px; }
+  .hero::before { width: 240px; height: 250px; top: -10px; }
+  .fan { bottom: 52px; } .fan .card { width: 74px; left: -37px; }
+  .badge { width: 138px; padding: 16px 0 12px; top: 4px; left: 22%; } .badge i { font-size: 30px; } .badge b { font-size: 14px; }
+  .sheet { max-width: 640px; max-height: 96dvh; border-radius: 18px; }
+  #modal { align-items: center; }
+  #match { padding: max(6px, env(safe-area-inset-top, 0px)) max(14px, env(safe-area-inset-right, 0px)) max(6px, env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px)); --lh: calc(100dvh - 104px); }
+  #match .inner { max-width: none; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); grid-template-rows: 38px minmax(0, 1fr); column-gap: 14px; row-gap: 6px; align-items: center; }
+  .mtop { display: contents; }
+  .mtop > button:first-child { grid-column: 1; grid-row: 1; justify-self: start; }
+  .mtop .score { grid-column: 2; grid-row: 1; } .score .a, .score .b { font-size: 20px; min-width: 52px; padding: 1px 8px 3px; } .score small { font-size: 8px; }
+  .mtop > button:last-child { grid-column: 3; grid-row: 1; justify-self: end; }
+  .turn { grid-column: 1; grid-row: 1; font-size: 15px; min-height: 0; padding-left: 52px; text-align: left; white-space: nowrap; overflow: hidden; }
+  #board { grid-column: 2; grid-row: 2; width: calc(var(--lh) / 1.4 + 32px); padding: 8px; gap: 6px; }
+  .tray { grid-row: 2; align-self: center; padding: 6px; width: min(100%, calc(var(--lh) / 3 / 1.4 * 2 + 28px)); }
+  .tray:has(.hand.foe) { grid-column: 1; justify-self: end; } .tray:has(.hand.mine) { grid-column: 3; justify-self: start; }
+  .hand { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+  .hand.mine .card.sel { transform: translateX(-10px) scale(1.04); }
+  /* summon + reveal */
+  .ribbon { margin: 6px auto 6px; font-size: 17px; padding: 3px 28px 4px; }
+  .hexgrid { grid-template-columns: repeat(8, 1fr); gap: 6px; margin: 4px 0 8px; } .hx.q span { font-size: 26px; } .hx.f small { font-size: 8px; }
+  .bighex { width: 150px; height: 170px; margin: 6px auto; } .bighex span { font-size: 80px; }
+  .reveal:has(.wrap:nth-child(2)) { grid-template-columns: repeat(10, 1fr) !important; gap: 6px; }
+  .sheet:has(.reveal .wrap:nth-child(2)) { max-width: 860px; }
+  .nodes { max-width: 380px; margin-left: auto; margin-right: auto; }
+  .sheet { width: calc(100% - 24px); }
+}
 @media (prefers-reduced-motion: reduce) { * { animation-duration: .01s !important; } }
 </style>
 
@@ -722,7 +761,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.11.08-a";
+const VER = "2026.11.08-b";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
