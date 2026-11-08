@@ -309,6 +309,40 @@ table.odds { width: 100%; border-collapse: collapse; } table.odds td { padding: 
   .team { max-width: 330px; margin: 6px auto 0; } .team .slot small { font-size: 10px; margin-top: 2px; }
   .ut { width: min(15vw, 104px); } .ut.boss { width: min(24vw, 160px); }
 }
+/* ----- world map ----- */
+.qsta { margin: 8px 0 0; }
+.region { margin-top: 12px; border: 3px solid #000; border-radius: 16px; overflow: hidden; background: linear-gradient(135deg, color-mix(in srgb, var(--rc) 55%, #06140d), #07170f 70%); box-shadow: inset 0 0 0 2px var(--rc), 0 4px 0 #000a; }
+.region .rh { padding: 8px 12px 4px; } .region .rh b { display: block; font-size: 20px; } .region .rh small { color: var(--muted); font-weight: 700; }
+.region .rc { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 6px 10px 10px; }
+.chap { text-align: left; background: #000a; border: 2px solid #000; border-radius: 12px; padding: 8px 10px; position: relative; box-shadow: inset 0 0 0 2px #ffffff22; }
+.chap small { display: block; font: 400 10px var(--display); color: var(--rc); letter-spacing: .06em; } .chap b { display: block; font: 400 15px/1.1 var(--display); } .chap span { position: absolute; right: 8px; top: 8px; font: 400 14px var(--display); color: var(--yellow); }
+.chap.done { box-shadow: inset 0 0 0 2px var(--ok); } .chap.lock { opacity: .55; } .region.lock { opacity: .6; }
+.ribbon[style*="--rc"] { background: linear-gradient(color-mix(in srgb, var(--rc) 70%, #fff), var(--rc) 55%, color-mix(in srgb, var(--rc) 55%, #000)); }
+.nodes.six { grid-template-columns: repeat(3, 1fr); max-width: 420px; margin-left: auto; margin-right: auto; }
+/* ----- effects ----- */
+#bfx { position: absolute; inset: 0; pointer-events: none; z-index: 8; overflow: hidden; }
+.fx { position: absolute; display: block; transform-origin: 50% 50%; pointer-events: none; }
+.fx.slash { background: linear-gradient(90deg, transparent, #fff 30%, var(--c) 70%, transparent); border-radius: 4px; box-shadow: 0 0 14px var(--c); }
+.fx.claw { background: linear-gradient(#fff, #ff5468); border-radius: 3px; box-shadow: 0 0 8px #ff5468; transform-origin: 50% 0; }
+.fx.orb { border-radius: 50%; background: radial-gradient(circle, #fff, var(--c) 60%, transparent 72%); box-shadow: 0 0 18px var(--c); }
+.fx.bolt { background: linear-gradient(90deg, #fff, var(--c)); border-radius: 3px; box-shadow: 0 0 12px var(--c); }
+.fx.ring { border-radius: 50%; border: 4px solid var(--c); box-shadow: 0 0 12px var(--c), inset 0 0 8px var(--c); }
+.fx.spark { border-radius: 50%; background: var(--c); box-shadow: 0 0 8px var(--c); }
+#bcut { position: absolute; inset: 0; z-index: 12; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #000a; pointer-events: none; }
+#bcut[hidden] { display: none; }
+#bcut .rays { position: absolute; inset: -50%; background: repeating-conic-gradient(var(--c) 0 6deg, transparent 6deg 14deg); opacity: .45; animation: spin 1.6s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+#bcut .who2 { position: relative; width: min(46vw, 230px); aspect-ratio: 5 / 6; border: 4px solid #000; border-radius: 16px; overflow: hidden; box-shadow: 0 0 0 4px var(--c), 0 0 40px var(--c); animation: cutin .5s cubic-bezier(.2, 1.3, .4, 1); transform: rotate(-4deg); }
+#bcut .who2 img { width: 100%; height: 100%; object-fit: cover; }
+@keyframes cutin { 0% { transform: translateX(-120%) rotate(-12deg) scale(.8); } 100% { transform: translateX(0) rotate(-4deg) scale(1); } }
+#bcut .sk { position: absolute; left: 0; right: 0; bottom: 18%; text-align: center; font-size: 34px; color: #fff; text-shadow: 0 4px 0 #000; animation: skin .45s ease-out; }
+#bcut .un { position: absolute; left: 0; right: 0; top: 14%; text-align: center; font-size: 18px; color: var(--yellow); }
+@keyframes skin { 0% { transform: translateX(110%); } 100% { transform: translateX(0); } }
+.bfield.rock { animation: shake .45s; }
+.ut .uart { animation: idle 2.6s ease-in-out infinite; } .ut:nth-child(2n) .uart { animation-delay: -.8s; } .ut:nth-child(3n) .uart { animation-delay: -1.5s; }
+@keyframes idle { 50% { transform: translateY(-3px); } }
+.ut.hurt .uart, .ut.burst .uart { animation: none; }
+@media (orientation: landscape) and (max-height: 540px) { #bcut .sk { font-size: 24px; bottom: 8%; } #bcut .who2 { width: min(26vw, 150px); } .nodes.six { grid-template-columns: repeat(6, 1fr); max-width: 520px; } }
 
 .bfield { position: relative; }
 /* landscape phones: the tab bar becomes a rail on the left, the hero shrinks, and a match lays out as foe hand | board | your hand */
@@ -386,6 +420,7 @@ const C = RAW.map((r, i) => ({ i, id: r[0], name: r[1], lv: r[2], s: [r[3], r[4]
 const BY = Object.fromEntries(C.map(c => [c.id, c]));
 const TIERS = ["Novice", "Adept", "Master", "Champion"];
 const STARTER = ["goblin", "slime", "dracky", "cactuar", "shadow", "bomb", "flan", "soldier", "healslime", "she_slime"];
+const SUM_CAP = 20;   // summons per day
 const DUST = { 1: 5, 2: 10, 3: 25, 4: 60, 5: 150, ex: 250 };
 const CRAFT = { 1: 20, 2: 50, 3: 120, 4: 300, 5: 700 };
 const GROUPS = { all: "All", monster: "Monsters", hero: "Heroes", folk: "Folk", weapon: "Weapons", armor: "Armour", relic: "Relics", esper: "Espers", dominant: "Dominants", ff: "Final Fantasy", dq: "Dragon Quest", db: "Dragon Ball", nr: "Naruto", op: "One Piece" };
@@ -583,8 +618,15 @@ function nameSheet(first) {
 }
 function playerName() { return (P && P.name) || myName || "Player"; }
 function toast(m) { const t = $("#toast"); t.textContent = m; t.classList.add("on"); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove("on"), 2400); }
-function gainXp(x) { P.xp += x; const ups = []; while (P.xp >= need(P.lv)) { P.xp -= need(P.lv); P.lv++; const t = 2 + (P.lv % 5 === 0 ? 3 : 0); P.tickets += t; ups.push("Level " + P.lv + ": +" + t + " tickets"); } return ups; }
-function addCard(id) { const n = P.own[id] || 0, c = BY[id]; if (n >= 3) { const d = DUST[c.ex ? "ex" : c.lv]; P.dust += d; return { dup: true, dust: d }; } P.own[id] = n + 1; return { isNew: n === 0 }; }
+function gainXp(x) { P.xp += x; const ups = []; while (P.xp >= need(P.lv)) { P.xp -= need(P.lv); P.lv++; const t = 1 + (P.lv % 5 === 0 ? 2 : 0); P.tickets += t; ups.push("Level " + P.lv + ": +" + t + " tickets"); } return ups; }
+/* A new card joins the collection. A duplicate fuses into that unit as a star (up to 5 stars); Triad decks still hold at most 3 copies. Past 5 stars a duplicate becomes dust, which trains units. */
+function addCard(id) {
+  const n = P.own[id] || 0, c = BY[id]; if (!P.fz) P.fz = {};
+  if (n === 0) { P.own[id] = 1; P.fz[id] = 0; return { isNew: true }; }
+  const f = P.fz[id] != null ? P.fz[id] : n - 1;
+  if (f < 4) { P.fz[id] = f + 1; if (n < 3) P.own[id] = n + 1; return { star: f + 2 }; }
+  const d = DUST[c.ex ? "ex" : c.lv]; P.dust += d; return { dup: true, dust: d };
+}
 const ownedList = () => C.filter(c => (P.own[c.id] || 0) > 0);
 /* A deck's cost is the sum of its cards' costs (Common 1 up to Legendary 5, Secret Rare 6). The cap starts low and grows with your level and the chapters you clear, so early summons can't carry the whole game. */
 const costOf = c => (c.ex ? 6 : c.lv);
@@ -620,10 +662,10 @@ function deckSelect() { return `<select id="deckSel" data-act="deckSel">${P.deck
 
 /* ===== play: the campaign map and quick matches ===== */
 const CAMPAIGN = [
-  { name: "Novice Road", tier: 0, stages: [["Roadside Goblins", "goblin"], ["Slime Meadow", "slime"], ["Cactuar Crossing", "cactuar"], ["Bandit Camp", "bandit_chief"]], tickets: [2, 2, 2, 3] },
-  { name: "Adept Trail", tier: 1, stages: [["Hollow Scouts", "hollow_captain"], ["Moogle Market", "hero_ninja"], ["Dragoon Pass", "hero_dragoon"], ["Tonberry Cellar", "tonberry"]], tickets: [3, 3, 3, 4] },
-  { name: "Master Keep", tier: 2, stages: [["Iron Gate", "iron_giant"], ["Frost Spire", "frost_queen"], ["The Withered Court", "withered_king"], ["Dominant's Hall", "dominant_odin"]], tickets: [4, 4, 4, 5] },
-  { name: "Champion's Table", tier: 3, stages: [["Saucer Arena", "garuda"], ["Eikon's Trial", "odin"], ["The Gilgamesh Bet", "gilgamesh"], ["The Final Table", "ultima"]], tickets: [5, 5, 5, 8] },
+  { name: "Novice Road", tier: 0, stages: [["Roadside Goblins", "goblin"], ["Slime Meadow", "slime"], ["Cactuar Crossing", "cactuar"], ["Bandit Camp", "bandit_chief"]], tickets: [1, 1, 1, 2] },
+  { name: "Adept Trail", tier: 1, stages: [["Hollow Scouts", "hollow_captain"], ["Moogle Market", "hero_ninja"], ["Dragoon Pass", "hero_dragoon"], ["Tonberry Cellar", "tonberry"]], tickets: [1, 1, 1, 2] },
+  { name: "Master Keep", tier: 2, stages: [["Iron Gate", "iron_giant"], ["Frost Spire", "frost_queen"], ["The Withered Court", "withered_king"], ["Dominant's Hall", "dominant_odin"]], tickets: [2, 2, 2, 3] },
+  { name: "Champion's Table", tier: 3, stages: [["Saucer Arena", "garuda"], ["Eikon's Trial", "odin"], ["The Gilgamesh Bet", "gilgamesh"], ["The Final Table", "ultima"]], tickets: [2, 2, 2, 4] },
 ];
 const stageKey = (ci, si) => ci + "-" + si;
 function stageOpen(ci, si) { if (ci === 0 && si === 0) return true; const [pc, ps] = si > 0 ? [ci, si - 1] : [ci - 1, 3]; return !!P.cleared[stageKey(pc, ps)]; }
@@ -745,7 +787,7 @@ function endMatch() {
 }
 function takeCard(id) {
   if (!M || M.took) return; M.took = true; const r = addCard(id); if (M.claimKey) { P.claims.push(M.claimKey); P.claims = P.claims.slice(-20); } scheduleSave(); chrome();
-  const box = $("#modal2 .pickbox"); if (box) box.innerHTML = `<p style="text-align:center"><b>${esc(BY[id].name)}</b> ${r.dup ? "is at 3 copies: +" + r.dust + " dust" : r.isNew ? "joins your collection!" : "(another copy) added."}</p>`;
+  const box = $("#modal2 .pickbox"); if (box) box.innerHTML = `<p style="text-align:center"><b>${esc(BY[id].name)}</b> ${r.dup ? "is fully fused: +" + r.dust + " dust" : r.isNew ? "joins your collection!" : "(another copy) added."}</p>`;
 }
 
 /* ===== versus: one shared state, from a room on claude.ai or over a direct connection ===== */
@@ -814,7 +856,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.11.09-a";
+const VER = "2026.11.09-b";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -914,13 +956,13 @@ function pullOne() {
 function viewSummon(v) {
   const rec = (P.recent || []).slice(0, 16), tiles = [];
   for (let k = 0; k < 16; k++) { const c = rec[k] && BY[rec[k]]; tiles.push(c ? `<div class="hx f r${rarOf(c)}" data-act="detail" data-id="${c.id}"><img data-id="${c.id}" src="${artSrc(c)}" alt=""><small>${esc(c.name.length > 9 ? c.name.slice(0, 8) + "." : c.name)}</small></div>` : '<div class="hx q"><span>?</span></div>'); }
-  v.innerHTML = `<span class="ribbon">SUMMON</span><div class="hexgrid">${tiles.join("")}</div><div class="row c"><button class="btn yellow big" data-act="pull" data-n="1" ${P.tickets < 1 ? "disabled" : ""}>Summon · 1 ${ic("ticket")}</button><button class="btn red big" data-act="pull" data-n="10" ${P.tickets < 10 ? "disabled" : ""}>×10 · 10 ${ic("ticket")}</button></div>` +
+  v.innerHTML = `<span class="ribbon">SUMMON</span><div class="hexgrid">${tiles.join("")}</div><div class="row c"><button class="btn yellow big" data-act="pull" data-n="1" ${P.tickets < 1 || P.mis.sum + 1 > SUM_CAP ? "disabled" : ""}>Summon · 1 ${ic("ticket")}</button><button class="btn red big" data-act="pull" data-n="10" ${P.tickets < 10 || P.mis.sum + 10 > SUM_CAP ? "disabled" : ""}>×10 · 10 ${ic("ticket")}</button></div>` +
     `<div class="panel" style="margin-top:14px"><div class="pity" style="margin:0"><small><span>LEGENDARY OR SECRET RARE</span><span>${P.pityTop} / 60</span></small><div class="bar"><i style="width:${Math.min(100, 100 * P.pityTop / 60)}%"></i></div><small style="margin-top:8px"><span>EPIC OR BETTER</span><span>${P.pityHi} / 10</span></small><div class="bar"><i style="width:${Math.min(100, 100 * P.pityHi / 10)}%"></i></div></div></div>` +
-    `<div class="row c" style="margin-top:12px"><button class="btn sm dark" data-act="odds">Odds</button></div><p class="note" style="text-align:center">The board shows your latest summons. Tickets come from levelling up, daily missions and the campaign. Copies past 3 turn into dust, which crafts any card that is not summon-only.</p>`;
+    `<div class="row c" style="margin-top:12px"><button class="btn sm dark" data-act="odds">Odds</button></div><p class="note" style="text-align:center">The board shows your latest summons. Today: ${P.mis.sum} / ${SUM_CAP} summons (resets daily). Tickets come from first clears, level-ups and daily missions. A duplicate fuses into that unit as a star (up to 5); past that it turns into dust, which trains units and crafts cards that are not summon-only.</p>`;
 }
 let PENDING = null;
 function doPull(n) {
-  if (P.tickets < n) return; P.tickets -= n; rollover(); P.mis.sum += n; const res = [];
+  rollover(); if (P.tickets < n) return; if (P.mis.sum + n > SUM_CAP) return toast("Daily summon limit: " + P.mis.sum + " / " + SUM_CAP + " used. It resets tomorrow."); P.tickets -= n; P.mis.sum += n; const res = [];
   for (let i = 0; i < n; i++) { const c = pullOne(), r = addCard(c.id); res.push({ c, r }); P.recent = [c.id].concat((P.recent || []).filter(x => x !== c.id)).slice(0, 16); }
   scheduleSave(); chrome(); PENDING = { n, res };
   const m = $("#modal"); m.hidden = false; m.innerHTML = `<div class="sheet" data-act="reveal" style="text-align:center;padding-bottom:30px"><div class="bighex"><span>?</span></div><div class="stagehint">${n > 1 ? "TAP TO REVEAL ×" + n : "TAP TO REVEAL"}</div></div>`;
@@ -928,7 +970,7 @@ function doPull(n) {
 async function reveal() {
   if (!PENDING) return; const { n, res } = PENDING; PENDING = null; const m = $("#modal");
   const one = n === 1, c0 = res[0].c, r0 = res[0].r; sfx("reveal", Math.max(...res.map(x => rarOf(x.c))));
-  m.innerHTML = `<div class="sheet"><span class="ribbon gold" style="font-size:26px">YOU SUMMONED</span><div class="reveal" style="grid-template-columns:repeat(${one ? 1 : 5},${one ? "minmax(0,170px)" : "1fr"});justify-content:center;padding-bottom:8px">${res.map(x => `<div class="wrap">${cardHtml(x.c, { tilt: one })}<div class="tg ${x.r.dup ? "d" : ""}">${x.r.dup ? "+" + x.r.dust : x.r.isNew ? "NEW" : ""}</div></div>`).join("")}</div>${one ? `<p class="fat" style="text-align:center;font-size:22px;margin:10px 0 0">${esc(c0.name)}</p><p class="note" style="text-align:center;margin:2px 0 0"><span class="rtag r${rarOf(c0)}">${RNAME[rarOf(c0)].toUpperCase()}</span> ${esc(GROUPS[c0.grp] || c0.grp)}${r0.dup ? " · already at 3 copies, +" + r0.dust + " dust" : ""}</p>` : ""}<div class="row c" style="margin-top:14px"><button class="btn dark" data-act="closeModal">Close</button>${P.tickets >= n ? `<button class="btn yellow" data-act="pull" data-n="${n}">Again</button>` : ""}</div></div>`;
+  m.innerHTML = `<div class="sheet"><span class="ribbon gold" style="font-size:26px">YOU SUMMONED</span><div class="reveal" style="grid-template-columns:repeat(${one ? 1 : 5},${one ? "minmax(0,170px)" : "1fr"});justify-content:center;padding-bottom:8px">${res.map(x => `<div class="wrap">${cardHtml(x.c, { tilt: one })}<div class="tg ${x.r.dup ? "d" : ""}">${x.r.dup ? "+" + x.r.dust : x.r.isNew ? "NEW" : x.r.star ? "★" + x.r.star : ""}</div></div>`).join("")}</div>${one ? `<p class="fat" style="text-align:center;font-size:22px;margin:10px 0 0">${esc(c0.name)}</p><p class="note" style="text-align:center;margin:2px 0 0"><span class="rtag r${rarOf(c0)}">${RNAME[rarOf(c0)].toUpperCase()}</span> ${esc(GROUPS[c0.grp] || c0.grp)}${r0.dup ? " · already at 3 copies, +" + r0.dust + " dust" : ""}</p>` : ""}<div class="row c" style="margin-top:14px"><button class="btn dark" data-act="closeModal">Close</button>${P.tickets >= n ? `<button class="btn yellow" data-act="pull" data-n="${n}">Again</button>` : ""}</div></div>`;
   const cards = m.querySelectorAll(".reveal .card"); for (let i = 0; i < cards.length; i++) { await sleep(n === 1 ? 100 : 170); if (m.hidden) return; cards[i].classList.add("in"); if (n > 1) sfx("ping", rarOf(res[i].c)); }
   if (tab === "summon") show("summon");
 }
@@ -953,7 +995,7 @@ function fillColl() {
 function openSheet(h) { const m = $("#modal"); m.hidden = false; m.innerHTML = `<div class="sheet">${h}</div>`; }
 function detail(id) {
   const c = BY[id], n = P.own[id] || 0, cost = c.ex ? 0 : CRAFT[c.lv];
-  openSheet(`<div class="row" style="align-items:flex-start;flex-wrap:nowrap"><div style="width:42%;flex:none">${cardHtml(c, { miss: !n, tilt: true })}</div><div style="min-width:0"><h2 class="fat" style="text-align:left;font-size:26px;margin:0 0 4px">${esc(c.name)}</h2><p class="note"><span class="rtag r${rarOf(c)}">${RNAME[rarOf(c)].toUpperCase()}</span> ${esc(GROUPS[c.grp] || c.grp)}<br>Top ${sideTxt(c.s[0])} · Right ${sideTxt(c.s[1])} · Bottom ${sideTxt(c.s[2])} · Left ${sideTxt(c.s[3])}<br>Owned: ${n} / 3</p>${c.ex ? '<p class="note">Only the summon gives this card.</p>' : `<button class="btn yellow sm" data-act="craft" data-id="${id}" ${P.dust < cost || n >= 3 ? "disabled" : ""}>Craft · ${cost} ${ic("gem")}</button>`}</div></div><div class="row c" style="margin-top:14px"><button class="btn dark" data-act="closeModal">Close</button></div>`);
+  openSheet(`<div class="row" style="align-items:flex-start;flex-wrap:nowrap"><div style="width:42%;flex:none">${cardHtml(c, { miss: !n, tilt: true })}</div><div style="min-width:0"><h2 class="fat" style="text-align:left;font-size:26px;margin:0 0 4px">${esc(c.name)}</h2><p class="note"><span class="rtag r${rarOf(c)}">${RNAME[rarOf(c)].toUpperCase()}</span> ${esc(GROUPS[c.grp] || c.grp)}<br>Top ${sideTxt(c.s[0])} · Right ${sideTxt(c.s[1])} · Bottom ${sideTxt(c.s[2])} · Left ${sideTxt(c.s[3])}<br>Owned: ${n} / 3</p>${c.ex ? '<p class="note">Only the summon gives this card.</p>' : `<button class="btn yellow sm" data-act="craft" data-id="${id}" ${P.dust < cost || n >= 3 ? "disabled" : ""}>Craft · ${cost} ${ic("gem")}</button>`}</div></div>${qUnitPanel(id)}<div class="row c" style="margin-top:14px"><button class="btn dark" data-act="closeModal">Close</button></div>`);
 }
 let DE = null;
 function editDeck(i) { DE = { i, name: P.decks[i].name, cards: P.decks[i].cards.slice() }; deckSheet(); }
@@ -967,7 +1009,7 @@ function deckSheet() {
 
 /* ===== daily: login ticket and missions ===== */
 function missions() {
-  return [{ id: "win", t: "Win a match", have: P.mis.win, need: 1, tk: 1 }, { id: "play", t: "Play 3 matches", have: P.mis.play, need: 3, tk: 1 }, { id: "cap", t: "Capture 10 cards", have: P.mis.cap, need: 10, tk: 1 }, { id: "sum", t: "Make a summon", have: P.mis.sum, need: 1, dust: 30 }];
+  return [{ id: "win", t: "Win a match", have: P.mis.win, need: 1, tk: 1 }, { id: "play", t: "Play 3 matches", have: P.mis.play, need: 3, dust: 25 }, { id: "cap", t: "Capture 10 cards", have: P.mis.cap, need: 10, dust: 25 }, { id: "sum", t: "Make a summon", have: P.mis.sum, need: 1, dust: 30 }];
 }
 function viewDaily(v) {
   rollover(); const ms = missions(), all = ms.every(m => P.mis.claimed[m.id]);
@@ -1122,11 +1164,13 @@ function soundPanel() {
 }
 
 /* ===== QUEST: the main mode. A team of 4 units (your cards), auto-battle, tap a ready unit for its Burst, fill the gauge for a Limit Burst.
-   Brave Frontier / Final Fantasy style. Triple Triad (the Triad tab, Versus) uses the same collection. ===== */
+   Five regions of two chapters of six missions. Duplicates fuse into a unit's stars; dust trains levels. Triple Triad (Triad tab, Versus) uses the same collection. ===== */
 const QSTA_REGEN = 120000;                          // 1 stamina per 2 minutes
 const qStaMax = () => 25 + Math.floor(P.lv / 2);
 function qInit() {
   if (!P.ul) P.ul = {}; if (!P.qcl) P.qcl = {}; if (!P.sta) P.sta = { v: qStaMax(), t: Date.now() };
+  if (!P.fz) { P.fz = {}; for (const id in P.own) P.fz[id] = Math.max(0, (P.own[id] || 1) - 1); }
+  for (const k of Object.keys(P.qcl)) if (k.startsWith("0-")) { P.qcl["g" + k.slice(2)] = true; delete P.qcl[k]; }   // the first build's stages are now the first missions
   P.team = (P.team || []).filter((id, i, a) => BY[id] && (P.own[id] || 0) > 0 && a.indexOf(id) === i);
   if (P.team.length < 4) { for (const c of ownedList().slice().sort((a, b) => qPower(b) - qPower(a))) { if (P.team.length >= 4) break; if (!P.team.includes(c.id)) P.team.push(c.id); } }
 }
@@ -1136,47 +1180,66 @@ function qSta() {
   return P.sta.v;
 }
 const qUnit = id => P.ul[id] || (P.ul[id] = { lv: 1, xp: 0 });
-const qLvCap = c => 15 + 5 * rarOf(c), qNeed = L => 40 + 15 * L, qStars = id => Math.min(3, P.own[id] || 1);
-/* A card's four numbers become its fighting stats: top and right feed attack, bottom and left feed defence, right and left feed speed. Rarity sets the base. Levels add 9% each; each extra copy (up to 3) adds 10%. */
+const qStars = id => 1 + Math.min(4, P.fz && P.fz[id] != null ? P.fz[id] : Math.max(0, (P.own[id] || 1) - 1));
+const qLvCap = (c, st) => 15 + 5 * rarOf(c) + 5 * ((st || 1) - 1), qNeed = L => 40 + 15 * L;
+/* A card's four numbers become its fighting stats: top and right feed attack, bottom and left feed defence, right and left feed speed. Rarity sets the base.
+   Each level adds 9%. Each star (a fused duplicate, up to 5) adds 15%, raises the level cap by 5 and makes the Burst 12% stronger. */
 function qStats(c, L, stars) {
-  const r = rarOf(c), s = c.s, f = (1 + .09 * (L - 1)) * (1 + .1 * (stars - 1));
+  const r = rarOf(c), s = c.s, f = (1 + .09 * (L - 1)) * (1 + .15 * (stars - 1));
   return { hp: Math.round((100 + 40 * r + 9 * (s[0] + s[1] + s[2] + s[3])) * f), atk: Math.round((24 + 10 * r + 2.2 * (s[0] + s[1])) * f), def: Math.round((8 + 3 * r + 1.1 * (s[2] + s[3])) * f), spd: 50 + 3 * (s[1] + s[3]) };
 }
 const qPower = c => { const t = qStats(c, 1, 1); return t.hp / 8 + t.atk * 2 + t.def; };
 const QSKILL = { smash: ["Heavy Strike", "One foe takes 350% damage"], wave: ["Shockwave", "Every foe takes 170% damage"], heal: ["Mending Light", "Heals the whole team"], rally: ["Battle Cry", "Team attack +35% for 3 turns"] };
 const QGRP = { weapon: "smash", hero: "smash", dominant: "smash", monster: "wave", esper: "wave", folk: "heal", relic: "heal", armor: "rally" };
 function qSkill(c) { if (QGRP[c.grp]) return QGRP[c.grp]; let h = 0; for (const ch of c.id) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return ["smash", "wave", "heal", "rally"][h % 4]; }
+/* How a unit attacks on screen: a slash, claws, a magic orb or a bolt. */
+const QFX = { weapon: "slash", hero: "slash", armor: "slash", dominant: "slash", op: "slash", nr: "slash", monster: "claw", esper: "orb", relic: "orb", ff: "orb", dq: "orb", folk: "bolt", db: "bolt" };
+const qFxOf = c => QFX[c.grp] || "slash";
 
-const QUESTS = [{ name: "Verdant Reach", stages: [
-  { n: "Meadow Gate", lv: 1, waves: [["slime", "goblin"], ["goblin", "slime", "goblin"]], tk: 1 },
-  { n: "Roadside Ambush", lv: 2, waves: [["goblin", "dracky"], ["dracky", "cactuar"], ["goblin", "dracky", "slime"]], tk: 1 },
-  { n: "Cactus Flats", lv: 3, waves: [["cactuar", "cactuar"], ["dracky", "flan"], ["cactuar", "shadow", "cactuar"]], tk: 1 },
-  { n: "Shadow Hollow", lv: 4, waves: [["shadow", "bomb"], ["flan", "shadow"], ["bomb", "shadow", "dracky"]], tk: 2 },
-  { n: "Bomb Quarry", lv: 5, waves: [["bomb", "bomb"], ["cactuar", "bomb", "flan"], ["shadow", "bomb", "shadow"]], tk: 1 },
-  { n: "Hollow Camp", lv: 6, waves: [["shadow", "flan"], ["hollow_captain", "shadow"], ["bomb", "hollow_captain", "cactuar"]], tk: 1 },
-  { n: "Tonberry Cellar", lv: 7, waves: [["flan", "bomb", "shadow"], ["tonberry", "hollow_captain"], ["tonberry", "shadow", "tonberry"]], tk: 2 },
-  { n: "The Chief's Keep", lv: 8, boss: true, waves: [["hollow_captain", "tonberry"], ["bomb", "shadow", "hollow_captain"], ["bandit_chief"]], tk: 5 },
-] }];
-const qStage = i => QUESTS[0].stages[i], qCost = i => (qStage(i).boss ? 5 : 3);
-const qOpen = i => i === 0 || !!P.qcl["0-" + (i - 1)], qDone = i => !!P.qcl["0-" + i];
-const qXp = i => 26 + 14 * i, qPxp = i => 22 + 10 * i;
+/* ----- the world: five regions, two chapters each, six missions a chapter (the sixth is a boss) ----- */
+const REGIONS = [
+  { name: "Verdant Reach", sub: "Meadows, roads and a bandit keep", col: "#2fbf74", ch: ["Meadow Road", "The Bandit Keep"] },
+  { name: "Ashen Wastes", sub: "Cinder plains under a red sky", col: "#e8693a", ch: ["Cinder Plains", "The Smouldering Gate"] },
+  { name: "Frostmere", sub: "A frozen pass and a silent court", col: "#5fb8ff", ch: ["The White Pass", "The Frozen Court"] },
+  { name: "Tidal Ruins", sub: "Drowned stairs and a sunken throne", col: "#3fd0c9", ch: ["Drowned Steps", "The Tide Throne"] },
+  { name: "The Hollow Crown", sub: "The last road, and the last table", col: "#b574ff", ch: ["Crownfall Road", "The Final Table"] },
+];
+const PER = 6, NCH = REGIONS.length * 2, NM = NCH * PER;
+let _qpool = null;
+const qPool = () => _qpool || (_qpool = C.filter(c => ["monster", "dominant", "esper", "hero", "ff", "dq", "db", "nr", "op"].includes(c.grp)).sort((a, b) => qPower(a) - qPower(b)));
+const QT = { hp: 1.7, atk: 1.9, bhp: 4.5, batk: 1.9, grow: 0.02, cen: 0.8 };   // foe tuning: normal foes' HP/ATK multipliers, the boss's
+const _qm = {};
+function qMission(g) {
+  if (_qm[g]) return _qm[g];
+  const ch = Math.floor(g / PER), m = g % PER, boss = m === PER - 1, pool = qPool(), N = pool.length;
+  let seed = (g + 1) * 2654435761 >>> 0; const rnd = () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296;
+  const centre = Math.round(g / (NM - 1) * N * QT.cen), spread = Math.max(3, Math.round(N * .06));
+  const pick = () => pool[Math.max(0, Math.min(N - 1, centre + Math.round((rnd() * 2 - 1) * spread)))].id;
+  const waves = [[pick(), pick()], [pick(), pick(), pick()]]; if (!boss && m >= 2) waves.splice(1, 0, [pick(), pick()]);
+  let bossId = null; if (boss) { bossId = pool[Math.min(N - 1, centre + Math.round(N * .09))].id; waves.push([bossId]); }
+  const mo = { n: boss ? BY[bossId].name : REGIONS[Math.floor(ch / 2)].ch[ch % 2] + " " + (m + 1), g, ch, m, lv: 1 + Math.round(g * .72), boss, bossId, waves, tk: boss ? 3 : m % 2 ? 1 : 0 };
+  return (_qm[g] = mo);
+}
+const qCost = g => (qMission(g).boss ? 5 : 3);
+const qDone = g => !!P.qcl["g" + g], qOpen = g => g === 0 || (qDone(g - 1) && g < NM), qChOpen = ch => ch === 0 || qDone(ch * PER - 1);
+const qXp = g => 20 + 10 * g, qPxp = g => 15 + 4 * g;
+const qChDone = ch => { let n = 0; for (let m = 0; m < PER; m++) if (qDone(ch * PER + m)) n++; return n; };
 
 /* ----- units ----- */
 function qMk(c, side, L, stars, o = {}) {
   const t = qStats(c, L, stars), m = o.hp || 1, a = o.atk || 1;
-  return { c, side, name: c.name, lv: L, max: Math.round(t.hp * m), hp: Math.round(t.hp * m), atk: Math.round(t.atk * a), def: t.def, spd: t.spd, bc: 0, sk: qSkill(c), buff: 0, alive: true, boss: !!o.boss, n: 0 };
+  return { c, side, name: c.name, lv: L, stars, max: Math.round(t.hp * m), hp: Math.round(t.hp * m), atk: Math.round(t.atk * a), def: t.def, spd: t.spd, bc: 0, sk: qSkill(c), buff: 0, alive: true, boss: !!o.boss, n: 0 };
 }
 const qParty = () => P.team.map(id => qMk(BY[id], 0, qUnit(id).lv, qStars(id)));
-const QT = { hp: 1.7, atk: 1.9, bhp: 4.5, batk: 1.9 };   // foe tuning: normal foes' HP/ATK multipliers, the boss's
-function qFoes(si, w) {
-  const st = qStage(si); return st.waves[w].map(id => { const c = BY[id] || BY.goblin, boss = st.boss && w === st.waves.length - 1 && id === "bandit_chief"; return qMk(c, 1, st.lv, 1, boss ? { hp: QT.bhp, atk: QT.batk, boss: true } : { hp: QT.hp, atk: QT.atk }); });
+function qFoes(g, w) {
+  const st = qMission(g); return st.waves[w].map(id => { const c = BY[id] || BY.goblin, boss = st.boss && w === st.waves.length - 1 && id === st.bossId; const gr = 1 + QT.grow * g; return qMk(c, 1, st.lv, 1, boss ? { hp: QT.bhp * gr, atk: QT.batk * gr, boss: true } : { hp: QT.hp * gr, atk: QT.atk * gr }); });
 }
 
 /* ----- the fight ----- */
 let B = null;
-function qStart(si, ui = true, party) {
-  B = { si, ui, party: party || qParty(), wave: 0, foes: null, lb: 0, lbQ: false, auto: false, speed: 1, round: 0, done: false, out: null };
-  B.foes = qFoes(si, 0);
+function qStart(g, ui = true, party) {
+  B = { g, ui, party: party || qParty(), wave: 0, foes: null, lb: 0, lbQ: false, auto: false, speed: 1, round: 0, done: false, out: null };
+  B.foes = qFoes(g, 0);
   if (ui) { qDraw(); musicMode("match"); }
   return qLoop();
 }
@@ -1184,16 +1247,16 @@ const qW = ms => (B && B.ui ? sleep(ms / B.speed) : null);
 const qAlive = a => a.filter(u => u.alive);
 function qHtmlTile(u, i) {
   const ally = u.side === 0, r = rarOf(u.c);
-  return `<div class="ut r${r} ${ally ? "ally" : "foe"} ${u.boss ? "boss" : ""}" id="t-${u.side}-${i}" ${ally ? `data-act="qburst" data-i="${i}"` : ""}><div class="uart"><img src="${artSrc(u.c)}" alt=""></div><div class="uhp"><i></i></div>${ally ? '<div class="ubc"><i></i></div><b class="rdy">BURST</b>' : ""}<small>${esc(u.name.length > 11 ? u.name.slice(0, 10) + "." : u.name)}</small></div>`;
+  return `<div class="ut r${r} ${ally ? "ally" : "foe"} ${u.boss ? "boss" : ""}" id="t-${u.side}-${i}" ${ally ? `data-act="qburst" data-i="${i}"` : ""}><div class="uart"><img src="${artSrc(u.c)}" alt=""></div><div class="uhp"><i></i></div>${ally ? '<div class="ubc"><i></i></div><b class="rdy">BURST</b>' : ""}<small>${esc(u.name.length > 11 ? u.name.slice(0, 10) + "." : u.name)}${ally && u.stars > 1 ? " ★" + u.stars : ""}</small></div>`;
 }
 function qDraw() {
   const m = $("#bt"); m.hidden = false;
   m.innerHTML = `<div class="inner"><div class="btop"><button class="btn sm red" data-act="qleave">✕</button><div class="bwave" id="bwave"></div><button class="btn sm dark" id="bauto" data-act="qauto">Auto</button><button class="btn sm dark" id="bspd" data-act="qspeed">1×</button></div>` +
     `<div class="bfield"><div class="brow foes" id="bfoes"></div><div class="bmsg" id="bmsg"></div><div class="brow allies" id="ballies">${B.party.map((u, i) => qHtmlTile(u, i)).join("")}</div></div>` +
-    `<button class="lbbtn" id="blb" data-act="qlb"><i id="blbf"></i><span>LIMIT BURST</span></button></div>`;
+    `<button class="lbbtn" id="blb" data-act="qlb"><i id="blbf"></i><span>LIMIT BURST</span></button></div><div id="bfx"></div><div id="bcut" hidden></div>`;
   qFoeRow(); qSync();
 }
-function qFoeRow() { if (!B.ui) return; $("#bfoes").innerHTML = B.foes.map((u, i) => qHtmlTile(u, i)).join(""); $("#bwave").textContent = "WAVE " + (B.wave + 1) + " / " + qStage(B.si).waves.length; }
+function qFoeRow() { if (!B.ui) return; $("#bfoes").innerHTML = B.foes.map((u, i) => qHtmlTile(u, i)).join(""); $("#bwave").textContent = "WAVE " + (B.wave + 1) + " / " + qMission(B.g).waves.length; }
 function qSync() {
   if (!B.ui) return;
   [[B.party, 0], [B.foes, 1]].forEach(([arr, s]) => arr.forEach((u, i) => { const t = $("#t-" + s + "-" + i); if (!t) return; t.classList.toggle("dead", !u.alive); t.querySelector(".uhp i").style.width = Math.max(0, 100 * u.hp / u.max) + "%"; const bc = t.querySelector(".ubc i"); if (bc) { bc.style.width = Math.min(100, u.bc) + "%"; t.classList.toggle("ready", u.alive && u.bc >= 100); t.classList.toggle("queued", !!u.q); } t.classList.toggle("buffed", u.buff > 0); }));
@@ -1206,6 +1269,28 @@ function qPop(u, text, cls) {
 }
 function qTile(u) { const arr = u.side === 0 ? B.party : B.foes; return B.ui ? $("#t-" + u.side + "-" + arr.indexOf(u)) : null; }
 function qMsg(t) { if (B.ui) { const m = $("#bmsg"); m.textContent = t; m.classList.remove("in"); void m.offsetWidth; m.classList.add("in"); } }
+
+/* ----- the show: slashes, claws, orbs, bolts, the Burst cut-in, rings and sparkles. All of it is skipped in the bot's silent fights. ----- */
+const qCol = u => getComputedStyle(document.documentElement).getPropertyValue("--r" + rarOf(u.c)).trim() || "#fff";
+function qPt(u) { const t = qTile(u); if (!t) return null; const a = t.querySelector(".uart").getBoundingClientRect(), r = $("#bt").getBoundingClientRect(); return { x: a.left - r.left + a.width / 2, y: a.top - r.top + a.height / 2, w: a.width, h: a.height }; }
+function qFxEl(cls, x, y, w, h) { const e = document.createElement("i"); e.className = "fx " + cls; Object.assign(e.style, { left: x + "px", top: y + "px", width: w + "px", height: h + "px" }); $("#bfx").appendChild(e); setTimeout(() => e.remove(), 1400); return e; }
+function qAnim(e, frames, ms, opt) { const a = e.animate(frames, Object.assign({ duration: ms / B.speed, easing: "ease-out", fill: "forwards" }, opt || {})); return a.finished.catch(() => 0); }
+async function qStrike(a, t, kind) {
+  if (!B.ui) return; const p = qPt(t), q = qPt(a); if (!p) return; const col = qCol(a);
+  if (kind === "slash") { const e = qFxEl("slash", p.x - p.w * .6, p.y - 4, p.w * 1.2, 8); e.style.setProperty("--c", col); qAnim(e, [{ transform: "rotate(-38deg) scaleX(0)", opacity: 1 }, { transform: "rotate(-38deg) scaleX(1)", opacity: 1, offset: .5 }, { transform: "rotate(-38deg) scaleX(1)", opacity: 0 }], 320); }
+  else if (kind === "claw") { for (let k = -1; k <= 1; k++) { const e = qFxEl("claw", p.x + k * p.w * .22 - 3, p.y - p.h * .4, 6, p.h * .8); qAnim(e, [{ transform: "rotate(-18deg) scaleY(0)", opacity: 1 }, { transform: "rotate(-18deg) scaleY(1)", opacity: 1, offset: .4 }, { transform: "rotate(-18deg) scaleY(1)", opacity: 0 }], 340, { delay: (k + 1) * 50 / B.speed }); } }
+  else if (kind === "orb" && q) { const e = qFxEl("orb", q.x - 14, q.y - 14, 28, 28); e.style.setProperty("--c", col); await qAnim(e, [{ transform: "translate(0,0) scale(.6)" }, { transform: `translate(${p.x - q.x}px,${p.y - q.y}px) scale(1.2)` }], 260); const r = qFxEl("ring", p.x - 10, p.y - 10, 20, 20); r.style.setProperty("--c", col); qAnim(r, [{ transform: "scale(.4)", opacity: 1 }, { transform: "scale(3.2)", opacity: 0 }], 360); e.remove(); }
+  else if (kind === "bolt" && q) { const dx = p.x - q.x, dy = p.y - q.y, len = Math.hypot(dx, dy), e = qFxEl("bolt", q.x, q.y - 3, len, 6); e.style.setProperty("--c", col); e.style.transformOrigin = "0 50%"; await qAnim(e, [{ transform: `rotate(${Math.atan2(dy, dx)}rad) scaleX(0)`, opacity: 1 }, { transform: `rotate(${Math.atan2(dy, dx)}rad) scaleX(1)`, opacity: 1, offset: .5 }, { transform: `rotate(${Math.atan2(dy, dx)}rad) scaleX(1)`, opacity: 0 }], 280); }
+}
+async function qCut(u, name) {   // the Burst cut-in: the unit's portrait sweeps across the screen under its skill name
+  if (!B.ui) return; const c = $("#bcut"), col = qCol(u); c.hidden = false; c.style.setProperty("--c", col);
+  c.innerHTML = `<div class="rays"></div><div class="who2"><img src="${artSrc(u.c)}" alt=""></div><div class="sk fat">${esc(name)}</div><div class="un fat">${esc(u.name)}</div>`;
+  sfx("charge"); await qAnim(c, [{ opacity: 0 }, { opacity: 1, offset: .12 }, { opacity: 1, offset: .82 }, { opacity: 0 }], 1050, { easing: "linear" }); c.hidden = true; c.style.opacity = "";
+}
+function qRing(u, col, big) { if (!B.ui) return; const p = qPt(u); if (!p) return; const r = qFxEl("ring", p.x - 12, p.y - 12, 24, 24); r.style.setProperty("--c", col); qAnim(r, [{ transform: "scale(.4)", opacity: 1 }, { transform: `scale(${big || 5})`, opacity: 0 }], 520); }
+function qSpark(u, col) { if (!B.ui) return; const p = qPt(u); if (!p) return; for (let k = 0; k < 6; k++) { const e = qFxEl("spark", p.x - 4 + (k - 2.5) * p.w * .14, p.y + p.h * .2, 8, 8); e.style.setProperty("--c", col); qAnim(e, [{ transform: "translateY(0) scale(1)", opacity: 1 }, { transform: `translateY(${-p.h * .8}px) scale(.3)`, opacity: 0 }], 700, { delay: k * 60 / B.speed }); } }
+function qShake() { if (!B.ui) return; const f = $("#bt .bfield"); if (f) { f.classList.remove("rock"); void f.offsetWidth; f.classList.add("rock"); } }
+
 function qHit(a, t, mult) {
   const buff = a.buff > 0 ? 1.35 : 1, d = Math.max(1, Math.round(a.atk * buff * mult * (.9 + Math.random() * .2) * 100 / (100 + t.def)));
   t.hp -= d; qPop(t, d, mult > 2 ? "big" : ""); if (B.ui) { const tl = qTile(t); if (tl) { tl.classList.add("hurt"); setTimeout(() => tl.classList.remove("hurt"), 260); } sfx("flip"); }
@@ -1213,29 +1298,29 @@ function qHit(a, t, mult) {
 }
 async function qAttack(u, mult) {
   const tg = u.side === 0 ? qAlive(B.foes)[0] : (a => a[Math.floor(Math.random() * a.length)])(qAlive(B.party)); if (!tg) return;
-  const tl = qTile(u); if (tl) { tl.classList.add(u.side === 0 ? "lunge" : "lungef"); setTimeout(() => tl.classList.remove("lunge", "lungef"), 300); }
-  await qW(220); qHit(u, tg, mult || 1); if (u.side === 0) { u.bc += 25; B.lb += 7; } qSync(); await qW(360);
+  const tl = qTile(u), kind = qFxOf(u.c); if (tl) { tl.classList.add(u.side === 0 ? "lunge" : "lungef"); setTimeout(() => tl.classList.remove("lunge", "lungef"), 300); }
+  await qW(200); const st = qStrike(u, tg, kind); if (kind === "orb" || kind === "bolt") await st; qHit(u, tg, mult || 1); if (u.side === 0) { u.bc += 25; B.lb += 7; } qSync(); await qW(340);
 }
 async function qBurst(u) {
-  u.bc = 0; u.q = false; const k = u.sk; qMsg(u.name + ": " + QSKILL[k][0]); if (B.ui) sfx(k === "heal" ? "level" : "plus");
-  const tl = qTile(u); if (tl) { tl.classList.add("burst"); setTimeout(() => tl.classList.remove("burst"), 700); }
-  await qW(380);
-  if (k === "smash") { const t = qAlive(B.foes)[0]; if (t) qHit(u, t, 3.5); }
-  else if (k === "wave") qAlive(B.foes).forEach(t => qHit(u, t, 1.7));
-  else if (k === "heal") qAlive(B.party).forEach(t => { const h = Math.round(u.atk * 2.2); t.hp = Math.min(t.max, t.hp + h); qPop(t, "+" + h, "heal"); });
-  else qAlive(B.party).forEach(t => { t.buff = 3; qPop(t, "ATK↑", "heal"); });
-  qSync(); await qW(520);
+  u.bc = 0; u.q = false; const k = u.sk, pw = 1 + .12 * ((u.stars || 1) - 1); qMsg(u.name + ": " + QSKILL[k][0]);
+  const tl = qTile(u); if (tl) { tl.classList.add("burst"); setTimeout(() => tl.classList.remove("burst"), 900); }
+  await qCut(u, QSKILL[k][0]); const col = qCol(u);
+  if (k === "smash") { const t = qAlive(B.foes)[0]; if (t) { qRing(t, col, 6); qShake(); sfx("plus"); qHit(u, t, 3.5 * pw); } }
+  else if (k === "wave") { qShake(); sfx("same"); qAlive(B.foes).forEach(t => { qRing(t, col, 4); qHit(u, t, 1.7 * pw); }); }
+  else if (k === "heal") { sfx("level"); qAlive(B.party).forEach(t => { const h = Math.round(u.atk * 2.2 * pw); t.hp = Math.min(t.max, t.hp + h); qPop(t, "+" + h, "heal"); qSpark(t, "#7dff9a"); }); }
+  else { sfx("ping", 4); qAlive(B.party).forEach(t => { t.buff = 3; qPop(t, "ATK↑", "heal"); qRing(t, "#ff9a3a", 3); }); }
+  qSync(); await qW(560);
 }
 async function qLimit() {
-  B.lb = 0; B.lbQ = false; qMsg("LIMIT BURST!"); if (B.ui) { sfx("chain"); $("#bt").classList.add("flash"); setTimeout(() => $("#bt").classList.remove("flash"), 600); }
+  B.lb = 0; B.lbQ = false; qMsg("LIMIT BURST!"); if (B.ui) { sfx("chain"); $("#bt").classList.add("flash"); setTimeout(() => $("#bt").classList.remove("flash"), 700); qShake(); }
   await qW(500); const sum = qAlive(B.party).reduce((a, u) => a + u.atk, 0);
-  qAlive(B.foes).forEach(t => { const d = Math.max(1, Math.round(sum * 1.5 * 100 / (100 + t.def))); t.hp -= d; qPop(t, d, "big"); if (t.hp <= 0) { t.hp = 0; t.alive = false; } });
-  qAlive(B.party).forEach(t => { const h = Math.round(t.max * .25); t.hp = Math.min(t.max, t.hp + h); qPop(t, "+" + h, "heal"); });
-  qSync(); await qW(700);
+  qAlive(B.foes).forEach(t => { const d = Math.max(1, Math.round(sum * 1.5 * 100 / (100 + t.def))); t.hp -= d; qPop(t, d, "big"); qRing(t, "#fff", 5); if (t.hp <= 0) { t.hp = 0; t.alive = false; } });
+  qAlive(B.party).forEach(t => { const h = Math.round(t.max * .25); t.hp = Math.min(t.max, t.hp + h); qPop(t, "+" + h, "heal"); qSpark(t, "#7dff9a"); });
+  qSync(); await qW(750);
 }
 async function qAct(u) {
   if (u.side === 0) { if (u.bc >= 100 && (B.auto || u.q)) await qBurst(u); else await qAttack(u); }
-  else if (u.boss && ++u.n % 3 === 0) { qMsg(u.name + " roars!"); const tl = qTile(u); if (tl) tl.classList.add("burst"); await qW(380); if (tl) tl.classList.remove("burst"); qAlive(B.party).forEach(t => qHit(u, t, .9)); qSync(); await qW(520); }
+  else if (u.boss && ++u.n % 3 === 0) { qMsg(u.name + " roars!"); const tl = qTile(u); if (tl) tl.classList.add("burst"); qShake(); await qW(420); if (tl) tl.classList.remove("burst"); qAlive(B.party).forEach(t => qHit(u, t, .9)); qSync(); await qW(520); }
   else await qAttack(u);
   if (u.buff > 0) u.buff--; qSync();
 }
@@ -1246,12 +1331,12 @@ async function qLoop() {
     for (const u of order) {
       if (!B || B.done) return; if (!u.alive) continue;
       if ((B.lbQ || B.auto && B.lb >= 100) && B.lb >= 100) await qLimit();
-      if (!qAlive(B.foes).length || !qAlive(B.party).length) { /* decided by a Limit Burst or earlier hit */ } else await qAct(u);
+      if (qAlive(B.foes).length && qAlive(B.party).length) await qAct(u);
       if (!B) return;
       if (!qAlive(B.party).length) return qEnd(false);
       if (!qAlive(B.foes).length) {
-        if (B.wave + 1 >= qStage(B.si).waves.length) return qEnd(true);
-        await qW(500); B.wave++; B.foes = qFoes(B.si, B.wave); qFoeRow(); qSync(); await qW(400); break;
+        if (B.wave + 1 >= qMission(B.g).waves.length) return qEnd(true);
+        await qW(500); B.wave++; B.foes = qFoes(B.g, B.wave); qFoeRow(); qSync(); await qW(400); break;
       }
     }
   }
@@ -1260,64 +1345,74 @@ function qEnd(win) {
   const b = B; b.done = true; if (!b.ui) { b.out = win; B = null; return win; }
   setTimeout(() => qResult(win), 500); return win;
 }
+function qGain(id, xp) { const u = qUnit(id), c = BY[id], cap = qLvCap(c, qStars(id)), ups = []; if (u.lv >= cap) return ups; u.xp += xp; while (u.xp >= qNeed(u.lv) && u.lv < cap) { u.xp -= qNeed(u.lv); u.lv++; ups.push(c.name + " → Lv " + u.lv); } if (u.lv >= cap) u.xp = 0; return ups; }
 function qResult(win) {
-  const si = B.si, st = qStage(si), team = B.party.map(u => u.c.id), key = "0-" + si; let h = "";
+  const g = B.g, st = qMission(g), team = B.party.map(u => u.c.id); let h = "";
   if (win) {
-    sfx("win"); const first = !P.qcl[key]; P.qcl[key] = true; const ups = [], ux = qXp(si);
-    team.forEach(id => { const u = qUnit(id), c = BY[id], cap = qLvCap(c); if (u.lv >= cap) return; u.xp += ux; while (u.xp >= qNeed(u.lv) && u.lv < cap) { u.xp -= qNeed(u.lv); u.lv++; ups.push(c.name + " → Lv " + u.lv); } });
-    const lv = gainXp(qPxp(si)); let tk = 0, dust = 4 + si * 2; if (first) tk = st.tk; P.tickets += tk; P.dust += dust; scheduleSave(); chrome();
-    h = `<span class="ribbon gold">VICTORY</span><div class="panel"><p style="margin:0 0 6px">${esc(st.n)}</p><div class="row c"><span class="tag gold">+${ux} unit XP</span><span class="tag gold">+${qPxp(si)} XP</span><span class="tag gold">+${dust} ${ic("gem", "ico")}</span>${tk ? `<span class="tag ok">First clear +${tk} ${ic("ticket", "ico")}</span>` : ""}</div>${ups.length ? `<p class="note" style="margin:8px 0 0;color:var(--yellow)">${ups.map(esc).join("<br>")}</p>` : ""}${lv.length ? `<p class="note" style="margin:6px 0 0;color:var(--yellow)">${lv.map(esc).join("<br>")}</p>` : ""}</div><div class="row c" style="margin-top:12px">${si < 7 && qOpen(si + 1) ? `<button class="btn yellow" data-act="qgo" data-i="${si + 1}">Next</button>` : ""}<button class="btn" data-act="qgo" data-i="${si}">Again</button><button class="btn dark" data-act="qleave2">Done</button></div>`;
+    sfx("win"); const first = !qDone(g); P.qcl["g" + g] = true; let ups = [], ux = qXp(g);
+    team.forEach(id => { ups = ups.concat(qGain(id, ux)); });
+    const lv = gainXp(qPxp(g)); let tk = first ? st.tk : 0, dust = 3 + Math.floor(g / 2); P.tickets += tk; P.dust += dust; scheduleSave(); chrome();
+    const nxt = g + 1 < NM && qOpen(g + 1) && qMission(g + 1).ch === st.ch;
+    h = `<span class="ribbon gold">${st.boss ? "CHAPTER CLEARED" : "VICTORY"}</span><div class="panel"><p style="margin:0 0 6px">${esc(st.n)}</p><div class="row c"><span class="tag gold">+${ux} unit XP</span><span class="tag gold">+${qPxp(g)} XP</span><span class="tag gold">+${dust} ${ic("gem", "ico")}</span>${tk ? `<span class="tag ok">First clear +${tk} ${ic("ticket", "ico")}</span>` : ""}</div>${ups.length ? `<p class="note" style="margin:8px 0 0;color:var(--yellow)">${ups.map(esc).join("<br>")}</p>` : ""}${lv.length ? `<p class="note" style="margin:6px 0 0;color:var(--yellow)">${lv.map(esc).join("<br>")}</p>` : ""}${st.boss && first && g + 1 < NM ? `<p class="note" style="margin:8px 0 0;color:var(--ok)">The next chapter is open.</p>` : ""}</div><div class="row c" style="margin-top:12px">${nxt ? `<button class="btn yellow" data-act="qgo" data-i="${g + 1}">Next</button>` : ""}<button class="btn" data-act="qgo" data-i="${g}">Again</button><button class="btn dark" data-act="qleave2">Done</button></div>`;
   } else {
-    sfx("lose"); h = `<span class="ribbon">DEFEAT</span><div class="panel"><p style="margin:0">Your team fell on ${esc(st.n)}. Replay easier stages to level your units, change who is in your team, or save Burst for the heavy hitters and fire your Limit Burst as soon as it fills.</p></div><div class="row c" style="margin-top:12px"><button class="btn yellow" data-act="qgo" data-i="${si}">Retry</button><button class="btn dark" data-act="qleave2">Back</button></div>`;
+    sfx("lose"); h = `<span class="ribbon">DEFEAT</span><div class="panel"><p style="margin:0">Your team fell at ${esc(st.n)}. Replay earlier missions to level your units, train them with dust, summon duplicates to raise their stars, or change who is in your team. Fire a ready Burst before a heavy hitter acts, and use your Limit Burst as soon as it fills.</p></div><div class="row c" style="margin-top:12px"><button class="btn yellow" data-act="qgo" data-i="${g}">Retry</button><button class="btn dark" data-act="qleave2">Back</button></div>`;
   }
   openSheet(h);
 }
 function qLeave() { B = null; $("#bt").hidden = true; closeModal(); musicMode("menu"); chrome(); show("quest"); }
-function qGo(si) {
-  qInit(); if (!qOpen(si)) return; if (P.team.length < 4) return toast("You need four units. Summon more cards first."); if (qSta() < qCost(si)) return toast("Not enough stamina (" + qSta() + "/" + qStaMax() + ").");
-  P.sta.v -= qCost(si); if (P.sta.v === qStaMax() - qCost(si)) P.sta.t = Date.now(); scheduleSave(); closeModal(); qStart(si);
+function qGo(g) {
+  qInit(); if (!qOpen(g) || !qChOpen(Math.floor(g / PER))) return; if (P.team.length < 4) return toast("You need four units. Summon more cards first."); if (qSta() < qCost(g)) return toast("Not enough stamina (" + qSta() + "/" + qStaMax() + ").");
+  P.sta.v -= qCost(g); if (P.sta.v === qStaMax() - qCost(g)) P.sta.t = Date.now(); scheduleSave(); closeModal(); qStart(g);
 }
 
 /* ----- screens ----- */
+const Q = { ch: null };
 function qTeamStrip() {
-  return `<div class="team">${[0, 1, 2, 3].map(i => { const id = P.team[i]; if (!id) return '<div class="slot empty">+</div>'; const c = BY[id], u = qUnit(id), t = qStats(c, u.lv, qStars(id)); return `<div class="slot" data-act="qteam">${cardHtml(c, { cls: "" })}<small>Lv ${u.lv}${qStars(id) > 1 ? " ★" + qStars(id) : ""}</small></div>`; }).join("")}</div>`;
+  return `<div class="team">${[0, 1, 2, 3].map(i => { const id = P.team[i]; if (!id) return '<div class="slot empty">+</div>'; const c = BY[id], u = qUnit(id); return `<div class="slot" data-act="qteam">${cardHtml(c, { cls: "" })}<small>Lv ${u.lv}${qStars(id) > 1 ? " ★" + qStars(id) : ""}</small></div>`; }).join("")}</div>`;
 }
 function viewQuest(v) {
-  qInit(); const sta = qSta(), m = qStaMax(), ch = QUESTS[0];
-  let h = `<div class="row" style="margin:6px 0 0;justify-content:space-between"><span class="ribbon" style="margin:0">${esc(ch.name).toUpperCase()}</span><div style="flex:1;min-width:120px"><div class="note" style="display:flex;justify-content:space-between"><span>STAMINA</span><span>${sta} / ${m}</span></div><div class="bar"><i style="width:${100 * sta / m}%"></i></div></div></div>`;
-  h += qTeamStrip() + `<div class="row c" style="margin:8px 0"><button class="btn sm yellow" data-act="qteam">Edit team</button></div><div class="nodes">`;
-  ch.stages.forEach((st, i) => { const open = qOpen(i), done = qDone(i), next = open && !done; h += `<button class="node ${done ? "done" : ""} ${!open ? "lock" : ""} ${next ? "next" : ""} ${st.boss ? "boss" : ""}" ${open ? `data-act="qstage" data-i="${i}"` : "disabled"}><span>${open ? (st.boss ? "☠" : i + 1) : "🔒"}</span>${done ? "<small>✓</small>" : ""}</button>`; });
-  h += `</div><p class="note" style="text-align:center">Tap a stage to fight. Your units level up from battles; extra copies of a card make that unit stronger (up to ★3).</p>`;
-  v.innerHTML = h;
+  qInit(); const sta = qSta(), m = qStaMax();
+  const bar = `<div class="qsta"><div class="note" style="display:flex;justify-content:space-between"><span>STAMINA</span><span>${sta} / ${m}</span></div><div class="bar"><i style="width:${100 * sta / m}%"></i></div></div>`;
+  if (Q.ch !== null) {
+    const ch = Q.ch, reg = REGIONS[Math.floor(ch / 2)]; let h = `<div class="row" style="margin:6px 0 0;flex-wrap:nowrap"><button class="btn sm dark" data-act="qworld">← Map</button><span class="ribbon" style="margin:0 auto;--rc:${reg.col}">${esc(reg.ch[ch % 2]).toUpperCase()}</span></div>${bar}${qTeamStrip()}<div class="row c" style="margin:8px 0"><button class="btn sm yellow" data-act="qteam">Edit team</button></div><div class="nodes six">`;
+    for (let k = 0; k < PER; k++) { const g = ch * PER + k, mo = qMission(g), open = qOpen(g) && qChOpen(ch), done = qDone(g), next = open && !done; h += `<button class="node ${done ? "done" : ""} ${!open ? "lock" : ""} ${next ? "next" : ""} ${mo.boss ? "boss" : ""}" ${open ? `data-act="qstage" data-i="${g}"` : "disabled"}><span>${open ? (mo.boss ? "☠" : k + 1) : "🔒"}</span>${done ? "<small>✓</small>" : ""}</button>`; }
+    v.innerHTML = h + `</div><p class="note" style="text-align:center">Foes here are around level ${qMission(ch * PER).lv}–${qMission(ch * PER + PER - 1).lv}. Clear the boss to open the next chapter.</p>`; return;
+  }
+  let h = bar + qTeamStrip() + `<div class="row c" style="margin:8px 0"><button class="btn sm yellow" data-act="qteam">Edit team</button></div>`;
+  REGIONS.forEach((r, ri) => {
+    const open = qChOpen(ri * 2);
+    h += `<div class="region ${open ? "" : "lock"}" style="--rc:${r.col}"><div class="rh"><b class="fat">${esc(r.name)}</b><small>${open ? esc(r.sub) : "🔒 Clear the chapter before"}</small></div><div class="rc">${[0, 1].map(k => { const ch = ri * 2 + k, o = qChOpen(ch), n = qChDone(ch); return `<button class="chap ${o ? "" : "lock"} ${n === PER ? "done" : ""}" ${o ? `data-act="qchap" data-ch="${ch}"` : "disabled"}><small>CHAPTER ${ch + 1}</small><b>${esc(r.ch[k])}</b><span>${o ? n + "/" + PER : "🔒"}</span></button>`; }).join("")}</div></div>`;
+  });
+  v.innerHTML = h + `<p class="note" style="text-align:center">Your units level up from battles. Duplicate summons fuse into a unit's stars. Dust trains levels (open a card in the Cards tab).</p>`;
 }
-function qStageSheet(i) {
-  qInit(); const st = qStage(i), foes = [...new Set(st.waves.flat())].map(id => BY[id]).filter(Boolean);
-  openSheet(`<span class="ribbon">${esc(st.n).toUpperCase()}</span><p class="note" style="text-align:center;margin:0 0 8px">${st.waves.length} waves · foes around Lv ${st.lv}${st.boss ? " · boss" : ""} · costs ${qCost(i)} stamina</p><div class="row c">${foes.map(c => `<div style="width:62px">${cardHtml(c)}</div>`).join("")}</div><p class="note" style="text-align:center;margin:10px 0 0">Wins pay ${qXp(i)} XP to each unit${qDone(i) ? "" : " and " + st.tk + " " + ic("ticket") + " the first time"}.</p><div class="row c" style="margin-top:14px"><button class="btn yellow big" data-act="qgo" data-i="${i}">FIGHT</button><button class="btn dark" data-act="closeModal">Back</button></div>`);
+function qStageSheet(g) {
+  qInit(); const st = qMission(g), foes = [...new Set(st.waves.flat())].map(id => BY[id]).filter(Boolean);
+  openSheet(`<span class="ribbon">${esc(st.n).toUpperCase()}</span><p class="note" style="text-align:center;margin:0 0 8px">${st.waves.length} waves · foes around Lv ${st.lv}${st.boss ? " · boss" : ""} · costs ${qCost(g)} stamina</p><div class="row c">${foes.slice(0, 6).map(c => `<div style="width:58px">${cardHtml(c)}</div>`).join("")}</div><p class="note" style="text-align:center;margin:10px 0 0">Wins pay ${qXp(g)} XP to each unit${qDone(g) || !st.tk ? "" : " and " + st.tk + " " + ic("ticket") + " the first time"}.</p><div class="row c" style="margin-top:14px"><button class="btn yellow big" data-act="qgo" data-i="${g}">FIGHT</button><button class="btn dark" data-act="closeModal">Back</button></div>`);
 }
 function qTeamSheet() {
   qInit(); const list = ownedList().slice().sort((a, b) => qPower(b) - qPower(a));
-  openSheet(`<h2 class="fat">YOUR TEAM</h2><p class="note" style="text-align:center;margin:0 0 8px">Pick four. ${esc(P.team.length)}/4 chosen. Burst: ${P.team.map(id => esc(QSKILL[qSkill(BY[id])][0])).join(", ") || "none yet"}</p><div class="grid pick">${list.map(c => { const u = qUnit(c.id), t = qStats(c, u.lv, qStars(c.id)); return `<div class="pk">${cardHtml(c, { cls: P.team.includes(c.id) ? "sel" : "", attr: `data-act="qpick" data-id="${c.id}"` })}<small>Lv ${u.lv} · ${QSKILL[qSkill(c)][0]}<br>HP ${t.hp} ATK ${t.atk}</small></div>`; }).join("")}</div><div class="row c" style="margin-top:12px"><button class="btn yellow" data-act="closeModal">Done</button></div>`);
+  openSheet(`<h2 class="fat">YOUR TEAM</h2><p class="note" style="text-align:center;margin:0 0 8px">Pick four. ${P.team.length}/4 chosen. Burst: ${P.team.map(id => esc(QSKILL[qSkill(BY[id])][0])).join(", ") || "none yet"}</p><div class="grid pick">${list.map(c => { const u = qUnit(c.id), t = qStats(c, u.lv, qStars(c.id)); return `<div class="pk">${cardHtml(c, { cls: P.team.includes(c.id) ? "sel" : "", attr: `data-act="qpick" data-id="${c.id}"` })}<small>Lv ${u.lv} ★${qStars(c.id)} · ${QSKILL[qSkill(c)][0]}<br>HP ${t.hp} ATK ${t.atk}</small></div>`; }).join("")}</div><div class="row c" style="margin-top:12px"><button class="btn yellow" data-act="closeModal">Done</button></div>`);
 }
 function qPick(id) {
   const k = P.team.indexOf(id); if (k >= 0) P.team.splice(k, 1); else if (P.team.length < 4) P.team.push(id); else return toast("Your team is full: tap a unit to take it out first.");
   scheduleSave(); const sc = $("#modal .sheet").scrollTop; qTeamSheet(); $("#modal .sheet").scrollTop = sc; if (tab === "quest") { const v = $("#view"); const st = v.scrollTop; viewQuest(v); v.scrollTop = st; }
 }
-/* Used to tune the stages: plays the whole mode as a bot, no screen. Returns attempts per stage. */
-async function qSimRun(opts = {}) {
-  const save = { team: P.team, ul: P.ul, qcl: P.qcl, sta: P.sta }; P.ul = {}; P.qcl = {}; P.sta = { v: 999, t: Date.now() };
-  const out = []; try {
-    P.team = opts.team || ownedList().slice().sort((a, b) => qPower(b) - qPower(a)).slice(0, 4).map(c => c.id);
-    for (let si = 0; si < 8; si++) {
-      let tries = 0, won = false; while (!won && tries < 12) {
-        tries++; B = null; const p = qParty(); B = { si, ui: false, party: p, wave: 0, foes: qFoes(si, 0), lb: 0, lbQ: false, auto: true, speed: 1, round: 0, done: false, out: null };
-        const r = await qLoop(); won = r === true; B = null;
-        if (won) P.team.forEach(id => { const u = qUnit(id), cap = qLvCap(BY[id]); u.xp += qXp(si); while (u.xp >= qNeed(u.lv) && u.lv < cap) { u.xp -= qNeed(u.lv); u.lv++; } });
-        else P.team.forEach(id => { const u = qUnit(id), cap = qLvCap(BY[id]); u.xp += Math.round(qXp(0) * .6); while (u.xp >= qNeed(u.lv) && u.lv < cap) { u.xp -= qNeed(u.lv); u.lv++; } });   // farming stage 1 to level up
-      }
-      out.push(tries + (won ? "" : "✕") + "@Lv" + P.team.map(id => qUnit(id).lv).join("/"));
-    }
-  } finally { Object.assign(P, save); B = null; }
-  return out;
+/* The unit panel inside a card's detail sheet: level, stars, stats, Burst and training. */
+const QTRAIN = { dust: 10, xp: 90 };
+function qUnitPanel(id) {
+  if (!(P.own[id] > 0)) return ""; qInit(); const c = BY[id], u = qUnit(id), st = qStars(id), cap = qLvCap(c, st), t = qStats(c, u.lv, st), k = qSkill(c);
+  return `<div class="panel" style="margin-top:12px;text-align:left"><b class="fat" style="font-size:17px">UNIT</b> <span class="tag gold">Lv ${u.lv} / ${cap}</span> <span class="tag gold">${"★".repeat(st)}${"☆".repeat(5 - st)}</span><div class="bar" style="margin:6px 0"><i style="width:${u.lv >= cap ? 100 : 100 * u.xp / qNeed(u.lv)}%"></i></div><p class="note" style="margin:0">HP ${t.hp} · ATK ${t.atk} · DEF ${t.def} · SPD ${t.spd}<br><b>${QSKILL[k][0]}</b>: ${QSKILL[k][1]}${st > 1 ? " (+" + 12 * (st - 1) + "%)" : ""}<br>Attack: ${qFxOf(c)}${st < 5 ? ". Summon duplicates to fuse stars." : ". Fully fused."}</p><div class="row c" style="margin-top:8px"><button class="btn sm yellow" data-act="qtrain" data-id="${id}" ${P.dust < QTRAIN.dust || u.lv >= cap ? "disabled" : ""}>Train · ${QTRAIN.dust} ${ic("gem")} → ${QTRAIN.xp} XP</button></div></div>`;
+}
+/* Used to tune the missions: plays them as a bot, no screen. Party: the best four non-secret cards up to a rarity, at the on-curve level and star count. */
+async function qSim(g0, g1, n = 12) {
+  qInit(); const out = [], all = C.filter(c => !c.ex).sort((a, b) => qPower(a) - qPower(b));
+  for (let g = g0; g <= g1; g++) {
+    const stars = 1 + Math.min(4, Math.floor(g / 15)), lv = 1 + Math.round(g * .72), cut = Math.ceil(all.length * (.1 + .75 * g / (NM - 1)));
+    const team = all.slice(0, cut).slice(-4); let w = 0, hp = 0;
+    for (let k = 0; k < n; k++) { const p = team.map(c => qMk(c, 0, Math.min(lv, qLvCap(c, stars)), stars)); B = { g, ui: false, party: p, wave: 0, foes: qFoes(g, 0), lb: 0, lbQ: false, auto: true, speed: 1, round: 0, done: false }; const r = await qLoop(); B = null; if (r === true) { w++; hp += p.reduce((a, u) => a + u.hp, 0) / p.reduce((a, u) => a + u.max, 0); } }
+    out.push(g + ":" + Math.round(100 * w / n) + "%/" + (w ? Math.round(100 * hp / w) : 0));
+  }
+  return out.join(" ");
 }
 
 
@@ -1327,6 +1422,9 @@ document.addEventListener("click", async e => {
   switch (a) {
     case "tab": return show(d.k);
     case "qstage": return qStageSheet(+d.i);
+    case "qworld": Q.ch = null; return show("quest");
+    case "qchap": Q.ch = +d.ch; return show("quest");
+    case "qtrain": { qInit(); if (P.dust >= QTRAIN.dust) { P.dust -= QTRAIN.dust; const ups = qGain(d.id, QTRAIN.xp); scheduleSave(); chrome(); detail(d.id); if (ups.length) toast(ups[ups.length - 1]); } return; }
     case "qgo": return qGo(+d.i);
     case "qteam": return qTeamSheet();
     case "qpick": return qPick(d.id);
@@ -1358,7 +1456,7 @@ document.addEventListener("click", async e => {
     case "odds": return oddsModal();
     case "closeModal": return closeModal();
     case "detail": return detail(d.id);
-    case "craft": { const c = BY[d.id], cost = CRAFT[c.lv]; if (P.dust >= cost && (P.own[c.id] || 0) < 3) { P.dust -= cost; P.own[c.id] = (P.own[c.id] || 0) + 1; scheduleSave(); chrome(); toast(c.name + " crafted"); detail(c.id); if ($("#coll")) fillColl(); } return; }
+    case "craft": { const c = BY[d.id], cost = CRAFT[c.lv]; if (P.dust >= cost && (P.own[c.id] || 0) < 3) { P.dust -= cost; addCard(c.id); scheduleSave(); chrome(); toast(c.name + " crafted"); detail(c.id); if ($("#coll")) fillColl(); } return; }
     case "newDeck": { P.decks.push({ name: "Deck " + (P.decks.length + 1), cards: [] }); scheduleSave(); return editDeck(P.decks.length - 1); }
     case "editDeck": return editDeck(+d.i);
     case "deckRemove": DE.cards.splice(+d.k, 1); return deckSheet();
@@ -1367,7 +1465,7 @@ document.addEventListener("click", async e => {
     case "deckSave": { P.decks[DE.i] = { name: (DE.name || "Deck").trim() || "Deck", cards: DE.cards.slice() }; P.deck = DE.i; scheduleSave(); closeModal(); toast("Deck saved"); return show("cards"); }
     case "deckDel": { P.decks.splice(DE.i, 1); P.deck = Math.min(P.deck, P.decks.length - 1); scheduleSave(); closeModal(); return show("cards"); }
     case "login": P.login = true; P.tickets++; scheduleSave(); toast("+1 ticket"); return show("daily");
-    case "claimM": { const m = missions().find(x => x.id === d.id); if (m && m.have >= m.need && !P.mis.claimed[m.id]) { P.mis.claimed[m.id] = 1; if (m.tk) P.tickets += m.tk; else P.dust += m.dust; if (missions().every(x => P.mis.claimed[x.id])) { P.tickets += 2; toast("All four done: +2 tickets"); } scheduleSave(); } return show("daily"); }
+    case "claimM": { const m = missions().find(x => x.id === d.id); if (m && m.have >= m.need && !P.mis.claimed[m.id]) { P.mis.claimed[m.id] = 1; if (m.tk) P.tickets += m.tk; else P.dust += m.dust; if (missions().every(x => P.mis.claimed[x.id])) { P.tickets += 1; toast("All four done: +1 ticket"); } scheduleSave(); } return show("daily"); }
     case "muteAll": { const on = !(AU.sfx || AU.bgm); AU.sfx = on; AU.bgm = on; auSave(); if (on) { sfx("tap"); musicStart(); } else musicStop(); chrome(); if (tab === "daily") show("daily"); return; }
     case "sfxT": AU.sfx = !AU.sfx; auSave(); sfx("tap"); chrome(); return show("daily");
     case "bgmT": AU.bgm = !AU.bgm; auSave(); if (AU.bgm) musicStart(); else musicStop(); chrome(); return show("daily");
