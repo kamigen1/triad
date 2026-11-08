@@ -148,6 +148,7 @@ textarea { width: 100%; resize: none; font: 700 11px/1.3 ui-monospace, Menlo, Co
 .card .gems { position: absolute; left: 6.5cqw; top: 6.5cqw; display: flex; flex-direction: column; gap: 1.2cqw; z-index: 3; }
 .card .gems i { width: 4.2cqw; height: 4.2cqw; transform: rotate(45deg); background: linear-gradient(135deg, #fff, var(--c) 60%, var(--cd)); border: .6cqw solid #000; box-shadow: 0 0 1.6cqw var(--c); }
 .card .cnt { position: absolute; top: 5cqw; right: 6cqw; z-index: 4; background: #000d; color: var(--r5); border-radius: 999px; font: 400 9cqw var(--display); padding: .5cqw 3cqw; }
+.card .cost { position: absolute; right: 6.4cqw; bottom: 21cqw; z-index: 4; width: 13cqw; height: 13cqw; display: grid; place-items: center; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); background: linear-gradient(#ffe57a, #c98a0c); font: 400 9cqw/1 var(--display); color: #2a1a00; }
 .card .n { position: absolute; z-index: 3; width: 16cqw; height: 16cqw; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle at 35% 28%, #3a424a, #090c0f 75%); border: 1cqw solid var(--c); box-shadow: 0 0 0 .6cqw #000, 0 .8cqw 1.4cqw #000a; font: 400 11.5cqw/1 var(--display); color: #fff; text-shadow: 0 .7cqw 0 #000; }
 .card .n.t { top: 6cqw; left: 50%; transform: translateX(-50%); } .card .n.b { bottom: 21cqw; left: 50%; transform: translateX(-50%); }
 .card .n.r { right: 6.6cqw; top: 50cqw; } .card .n.l { left: 6.6cqw; top: 50cqw; }
@@ -326,14 +327,44 @@ function place(g, card, cell, who) {
 const canMove = () => M && !M.busy && !M.state.over && M.state.status !== "wait" && M.state.turn === M.me;
 const sim = st => ({ board: st.board.slice(), owner: st.owner.slice(), fx: [] });
 const preview = (st, card, cell, who) => place(sim(st), card, cell, who);
-function aiPick(st, hand, tier) {
+/* The house plays: Novice picks the move that turns most (with some randomness); Adept looks two moves ahead, Master three, Champion four (the whole rest of the game once seven squares are left) (the whole rest of the game once few squares are left). Hands are open, so it knows yours. */
+function aiValue(st, ai) { return scoreOf(st, ai) - scoreOf(st, 1 - ai); }
+function aiSearch(st, side, depth, alpha, beta, ai) {
+  if (depth === 0 || st.board.every(c => c >= 0)) return aiValue(st, ai);
+  const moves = [];
+  st.hands[side].forEach((card, h) => { for (let cell = 0; cell < 9; cell++) { if (st.board[cell] >= 0) continue; const g = sim(st); const t = place(g, card, cell, side); moves.push({ h, g, t }); } });
+  moves.sort((a, b) => b.t - a.t);
+  let best = side === ai ? -1e9 : 1e9;
+  for (const m of moves) {
+    const hands = [st.hands[0].slice(), st.hands[1].slice()]; hands[side].splice(m.h, 1);
+    const v = aiSearch({ board: m.g.board, owner: m.g.owner, hands }, 1 - side, depth - 1, alpha, beta, ai);
+    if (side === ai) { if (v > best) best = v; if (best > alpha) alpha = best; } else { if (v < best) best = v; if (best < beta) beta = best; }
+    if (alpha >= beta) break;
+  }
+  return best;
+}
+function aiPick(st, hand, tier, side = 1) {
+  const empties = st.board.filter(c => c < 0).length;
+  if (tier >= 1) {
+    const depth = tier === 1 ? (empties <= 3 ? empties : 2) : tier === 2 ? (empties <= 5 ? empties : 3) : (empties <= 7 ? empties : 4);
+    let best = -1e9, picks = [];
+    hand.forEach((card, h) => {
+      for (let cell = 0; cell < 9; cell++) {
+        if (st.board[cell] >= 0) continue; const g = sim(st); place(g, card, cell, side);
+        const hands = [st.hands[0].slice(), st.hands[1].slice()]; hands[side].splice(h, 1);
+        const v = aiSearch({ board: g.board, owner: g.owner, hands }, 1 - side, depth - 1, -1e9, 1e9, side);
+        if (v > best + 1e-9) { best = v; picks = [{ h, cell }]; } else if (Math.abs(v - best) < 1e-9) picks.push({ h, cell });
+      }
+    });
+    return picks[Math.floor(Math.random() * picks.length)];
+  }
   let best = -1e9, bh = 0, bc = -1;
   hand.forEach((card, h) => {
     for (let cell = 0; cell < 9; cell++) {
       if (st.board[cell] >= 0) continue;
-      const t = place(sim(st), card, cell, 1); let exposed = 0;
+      const t = place(sim(st), card, cell, side); let exposed = 0;
       for (let d = 0; d < 4; d++) { const n = NB(cell, d); if (n >= 0 && st.board[n] < 0) exposed += 10 - C[card].s[d]; }
-      const sc = t * 10 - exposed * (tier >= 2 ? 1 : .3) + Math.random() * (tier === 0 ? 8 : 1);
+      const sc = t * 10 - exposed * .3 + Math.random() * 8;
       if (sc > best) { best = sc; bh = h; bc = cell; }
     }
   });
@@ -412,7 +443,7 @@ const artSrc = c => ARTMAP[c.id] || artUri(c);
 function cardHtml(c, o = {}) {
   const rr = rarOf(c), cls = ["card", "r" + rr, "lv" + c.lv, c.ex ? "ex" : "", o.cls || "", o.miss ? "miss" : "", o.tilt ? "tilt" : ""].join(" ");
   return `<div class="${cls}" ${o.attr || ""}><div class="win"><img class="art" data-id="${c.id}" alt="" src="${artSrc(c)}"></div><div class="holo"></div><div class="gems">${"<i></i>".repeat(c.lv)}</div>` +
-    (o.count > 1 ? `<span class="cnt">×${o.count}</span>` : "") +
+    (o.count > 1 ? `<span class="cnt">×${o.count}</span>` : "") + (o.cost ? `<span class="cost">${o.cost}</span>` : "") +
     `<span class="n t">${sideTxt(c.s[0])}</span><span class="n r">${sideTxt(c.s[1])}</span><span class="n b">${sideTxt(c.s[2])}</span><span class="n l">${sideTxt(c.s[3])}</span>` +
     `<div class="plate"><b class="nm">${esc(c.name)}</b><small class="sub">${RNAME[rr]} · #${String(c.i + 1).padStart(3, "0")}</small></div><div class="tint"></div></div>`;
 }
@@ -463,7 +494,24 @@ function toast(m) { const t = $("#toast"); t.textContent = m; t.classList.add("o
 function gainXp(x) { P.xp += x; const ups = []; while (P.xp >= need(P.lv)) { P.xp -= need(P.lv); P.lv++; const t = 2 + (P.lv % 5 === 0 ? 3 : 0); P.tickets += t; ups.push("Level " + P.lv + ": +" + t + " tickets"); } return ups; }
 function addCard(id) { const n = P.own[id] || 0, c = BY[id]; if (n >= 3) { const d = DUST[c.ex ? "ex" : c.lv]; P.dust += d; return { dup: true, dust: d }; } P.own[id] = n + 1; return { isNew: n === 0 }; }
 const ownedList = () => C.filter(c => (P.own[c.id] || 0) > 0);
-function deckOk(d) { return d && d.cards.length === 5 && d.cards.every(id => (P.own[id] || 0) > 0); }
+/* A deck's cost is the sum of its cards' costs (Common 1 up to Legendary 5, Secret Rare 6). The cap starts low and grows with your level and the chapters you clear, so early summons can't carry the whole game. */
+const costOf = c => (c.ex ? 6 : c.lv);
+const chaptersCleared = () => CAMPAIGN.filter((ch, ci) => P.cleared[stageKey(ci, 3)]).length;
+const deckCap = () => Math.min(25, 8 + P.lv + 2 * chaptersCleared());
+const deckCost = d => d.cards.reduce((a, id) => a + (BY[id] ? costOf(BY[id]) : 9), 0);
+function deckWhy(d) {
+  if (!d || d.cards.length !== 5) return "Choose five cards for your deck first.";
+  if (!d.cards.every(id => (P.own[id] || 0) > 0)) return "Your deck has a card you don't own.";
+  if (deckCost(d) > deckCap()) return "Your deck costs " + deckCost(d) + " but the cap is " + deckCap() + ". Edit it in the Cards tab.";
+  return "";
+}
+const deckOk = d => !deckWhy(d);
+function bestDeckIds(cap) {
+  const items = []; for (const c of ownedList()) { const n = Math.min(3, P.own[c.id]); for (let k = 0; k < n; k++) items.push(c); }
+  const pw = c => c.s[0] + c.s[1] + c.s[2] + c.s[3], dp = Array.from({ length: 6 }, () => Array(cap + 1).fill(null)); dp[0][0] = { v: 0, ids: [] };
+  for (const c of items) { const w = costOf(c), v = pw(c); for (let j = 4; j >= 0; j--) for (let x = cap - w; x >= 0; x--) { const cur = dp[j][x]; if (!cur) continue; const nx = dp[j + 1][x + w]; if (!nx || cur.v + v > nx.v) dp[j + 1][x + w] = { v: cur.v + v, ids: cur.ids.concat(c.id) }; } }
+  let best = null; for (let x = 0; x <= cap; x++) { const e = dp[5][x]; if (e && (!best || e.v > best.v)) best = e; } return best ? best.ids : [];
+}
 
 /* ===== chrome: top bar and the five-button bar ===== */
 let tab = "play";
@@ -476,7 +524,7 @@ function chrome() {
   $("#nav").innerHTML = TABS.map(([k, n, i]) => `<button data-act="tab" data-k="${k}" class="${tab === k ? "on" : ""}"><span class="dia">${ic(i, "")}</span><span class="lb">${n.toUpperCase()}</span>${k === "daily" && claimable ? '<i class="dot"></i>' : ""}</button>`).join("");
 }
 function show(k) { tab = k; musicMode(k === "summon" ? "summon" : "menu"); chrome(); const v = $("#view"); v.scrollTop = 0; if (!P) { v.innerHTML = ""; return; } ({ play: viewPlay, summon: viewSummon, cards: viewCards, daily: viewDaily, versus: viewVersus })[k](v); }
-function deckSelect() { return `<select id="deckSel" data-act="deckSel">${P.decks.map((d, i) => `<option value="${i}" ${i === P.deck ? "selected" : ""}>${esc(d.name)}${deckOk(d) ? "" : " (incomplete)"}</option>`).join("")}</select>`; }
+function deckSelect() { return `<select id="deckSel" data-act="deckSel">${P.decks.map((d, i) => `<option value="${i}" ${i === P.deck ? "selected" : ""}>${esc(d.name)} · ${deckCost(d)}/${deckCap()}${deckOk(d) ? "" : " ✕"}</option>`).join("")}</select>`; }
 
 /* ===== play: the campaign map and quick matches ===== */
 const CAMPAIGN = [
@@ -491,7 +539,7 @@ function nextStage() { for (let ci = 0; ci < 4; ci++) for (let si = 0; si < 4; s
 function viewPlay(v) {
   const ns = nextStage(), d = P.decks[P.deck], fan = (deckOk(d) ? d.cards : STARTER).slice(0, 3).map(id => cardHtml(BY[id])).join(""), cleared = Object.keys(P.cleared).length;
   let h = `<div class="hero"><div class="badge"><small>${ns ? esc(CAMPAIGN[ns[0]].name).toUpperCase() : "CAMPAIGN"}</small><b class="fat">${ns ? esc(CAMPAIGN[ns[0]].stages[ns[1]][0]) : "All cleared!"}</b><i class="fat">${cleared}/16</i></div><div class="fan">${fan}</div><div class="playwrap"><button class="btn yellow big" data-act="${ns ? "stage" : "quick"}" ${ns ? `data-c="${ns[0]}" data-s="${ns[1]}"` : 'data-t="3"'}>${ns ? "BATTLE" : "PLAY"}</button></div></div>`;
-  h += `<div class="row" style="margin:10px 0 0"><span class="note">Deck</span>${deckSelect()}<button class="btn sm dark" data-act="tab" data-k="cards">Edit</button></div>`;
+  h += `<div class="row" style="margin:10px 0 0"><span class="note">Deck</span>${deckSelect()}<button class="btn sm dark" data-act="tab" data-k="cards">Edit</button></div>${deckOk(d) ? `<p class="note" style="margin:6px 0 0">Deck cost ${deckCost(d)} of ${deckCap()}. The cap grows with your level and each chapter you clear.</p>` : `<p class="note" style="margin:6px 0 0;color:#ff9aa4">${esc(deckWhy(d))}</p>`}`;
   h += `<span class="ribbon green">QUICK MATCH</span><div class="row c">${TIERS.map((t, i) => `<button class="btn sm ${i === 3 ? "red" : ""}" data-act="quick" data-t="${i}">${t}</button>`).join("")}</div><p class="note" style="text-align:center;margin:6px 0 0">Quick matches pay XP only.</p>`;
   CAMPAIGN.forEach((ch, ci) => {
     h += `<span class="ribbon">${esc(ch.name).toUpperCase()}</span><div class="nodes">`;
@@ -503,19 +551,28 @@ function viewPlay(v) {
   });
   v.innerHTML = h;
 }
-function foeHand(tier, sig, boss) {
-  const lo = Math.min(5, tier + 1), hi = Math.min(5, tier + 2), pool = C.filter(c => !c.ex && c.lv >= (boss ? hi : lo) && c.lv <= hi), out = [];
-  if (sig) out.push(BY[sig].i);
-  while (out.length < 5) out.push(pool[Math.floor(Math.random() * pool.length)].i);
+/* A foe's hand is built to a deck cost, so every stage asks for about the same strength from you: cheap stages early, near the cap at the bosses. Bosses take the strongest cards of each rarity. */
+const STAGE_COST = [8, 9, 10, 12, 13, 14, 16, 18, 16, 18, 19, 21, 20, 21, 22, 24];
+const quickCost = t => Math.max(5, Math.min(25, Math.round(deckCap() * [.6, .8, 1, 1.08][t])));
+const power = c => c.s[0] + c.s[1] + c.s[2] + c.s[3];
+function foeBuild(T, boss, sig) {
+  const pool = C.filter(c => !c.ex), out = []; let have = 0;
+  if (sig) { out.push(BY[sig].i); have = BY[sig].lv; }
+  const n = 5 - out.length, lv = Array(n).fill(1); let R = Math.max(0, Math.min(5 * n, T - have) - n);
+  while (R > 0) { const open = lv.map((v, i) => v < 5 ? i : -1).filter(i => i >= 0); if (!open.length) break; lv[open[Math.floor(Math.random() * open.length)]]++; R--; }
+  for (const l of lv) {
+    let cards = pool.filter(c => c.lv === l && !out.includes(c.i)); if (boss) { cards.sort((a, b) => power(b) - power(a)); cards = cards.slice(0, Math.max(4, Math.ceil(cards.length / 2))); }
+    out.push(cards[Math.floor(Math.random() * cards.length)].i);
+  }
   return out;
 }
-
+const foeHand = (tier, sig, boss) => foeBuild(quickCost(tier), boss, sig);
 /* ===== a match (against the house, a friend's room on claude.ai, or a direct phone-to-phone link) ===== */
 let M = null;
 function freshState(a, b, first) { return { board: Array(9).fill(-1), owner: Array(9).fill(0), hands: [a.slice(), b.slice()], decks: [a.slice(), b.slice()], turn: first, over: false, seq: 0, fx: [] }; }
 function startAi(o) {
-  const d = P.decks[P.deck]; if (!deckOk(d)) { toast("Choose a complete deck first (Cards tab)."); return; }
-  const mine = d.cards.map(id => BY[id].i), foe = o.stage ? foeHand(o.tier, o.stage.sig, o.stage.boss) : foeHand(o.tier);
+  const d = P.decks[P.deck]; if (!deckOk(d)) { sfx("err"); toast(deckWhy(d)); return; }
+  const mine = d.cards.map(id => BY[id].i), foe = o.stage ? foeBuild(STAGE_COST[o.stage.c * 4 + o.stage.s], o.stage.boss, o.stage.sig) : foeBuild(quickCost(o.tier), false, null);
   M = { kind: "ai", me: 0, tier: o.tier, stage: o.stage || null, state: freshState(mine, foe, Math.random() < .5 ? 0 : 1), sel: null, hints: o.tier < 3, captured: 0, done: false, oppName: "House" };
   openMatch(); if (M.state.turn === 1) setTimeout(aiTurn, 800);
 }
@@ -575,7 +632,7 @@ async function onCell(i) {
 /* ===== the end of a match: result, rewards, the card taken ===== */
 function endMatch() {
   if (!M || M.done) return; M.done = true; const st = M.state, me = M.me, a = scoreOf(st, me), b = scoreOf(st, 1 - me), win = a > b, draw = a === b;
-  rollover(); P.plays++; P.mis.play++; P.mis.cap += M.captured; if (win) { P.wins++; P.mis.win++; }
+  const cap0 = deckCap(); rollover(); P.plays++; P.mis.play++; P.mis.cap += M.captured; if (win) { P.wins++; P.mis.win++; }
   const tile = (i, n, t) => `<div class="rwi ${t}">${ic(i, "")}<b>×${n}</b></div>`, chips = []; let ups = [];
   if (M.kind === "ai") {
     if (win) {
@@ -583,6 +640,7 @@ function endMatch() {
       ups = gainXp(xp); chips.unshift(tile("xp", xp, "b"));
     } else { ups = gainXp(5); chips.push(tile("xp", 5, "b")); }
   } else { const xp = win ? 25 : 10; ups = gainXp(xp); chips.push(tile("xp", xp, "b")); }
+  if (deckCap() > cap0) ups.push("Deck cost cap is now " + deckCap());
   scheduleSave(); chrome();
   const oppDeck = M.kind === "ai" ? st.decks[1].map(i => C[i].id) : M.oppDeck || [];
   const claimKey = M.kind === "vs" ? M.room + ":" + (M.created || 0) + ":" + (M.round || 0) : null;
@@ -609,7 +667,7 @@ async function pushRoom() {
 function newVsMatch(o) { return Object.assign({ kind: "vs", hints: true, captured: 0, done: false, sel: null, tier: 0, round: 0, state: Object.assign(freshState([], [], 0), { status: "wait" }) }, o); }
 async function vsCreate() {
   if (!db || !uid) return toast("Rooms work on the claude.ai version. Use Direct connect here.");
-  const d = P.decks[P.deck]; if (!deckOk(d)) return toast("Choose a complete deck first.");
+  const d = P.decks[P.deck]; if (!deckOk(d)) return toast(deckWhy(P.decks[P.deck]));
   let code = ""; for (let i = 0; i < 4; i++) code += CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)];
   const created = Date.now();
   try { await roomRef(code).set({ status: "wait", created, round: 0, host: { id: uid, name: playerName(), deck: d.cards.slice() }, guest: null, board: Array(9).fill(-1), owner: Array(9).fill(0), hands: [[], []], turn: 0, seq: 0, fx: [] }); }
@@ -621,7 +679,7 @@ async function vsCreate() {
 async function vsJoin() {
   if (!db || !uid) return toast("Rooms work on the claude.ai version. Use Direct connect here.");
   const code = ($("#vsCode").value || "").trim().toUpperCase(); if (code.length !== 4) return toast("Enter the 4-letter room code.");
-  const d = P.decks[P.deck]; if (!deckOk(d)) return toast("Choose a complete deck first.");
+  const d = P.decks[P.deck]; if (!deckOk(d)) return toast(deckWhy(P.decks[P.deck]));
   let snap; try { snap = await roomRef(code).get(); } catch (e) { return toast("Could not reach the room."); }
   if (!snap.exists) return toast("No room with that code."); const r = snap.data();
   if (r.host.id === uid) return toast("That is your own room."); if (r.guest || r.status !== "wait") return toast("That room is full.");
@@ -664,7 +722,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.11.07-f";
+const VER = "2026.11.08-a";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -722,7 +780,7 @@ async function netSend(m) { try { NET.dc.send(JSON.stringify(m)); } catch (e) { 
 function netClose() { try { NET.dc && NET.dc.close(); NET.pc && NET.pc.close(); } catch (_) {} NET = null; }
 function codeBox(id, text) { return `<textarea id="${id}" rows="3" readonly>${esc(text)}</textarea><div class="row" style="margin-top:6px"><button class="btn sm yellow" data-act="copy" data-id="${id}">Copy</button>${navigator.share ? `<button class="btn sm" data-act="share" data-id="${id}">Share</button>` : ""}</div>`; }
 async function hostStart() {
-  if (!deckOk(P.decks[P.deck])) return toast("Choose a complete deck first.");
+  if (!deckOk(P.decks[P.deck])) return toast(deckWhy(P.decks[P.deck]));
   openSheet(`<h2 class="fat">HOST A MATCH</h2><p class="note" style="text-align:center">Making your code…</p>`);
   try {
     if (NET) netClose(); netMake(true); netWire(NET.pc.createDataChannel("game"));
@@ -736,7 +794,7 @@ async function hostFinish() {
 }
 function joinSheet() { openSheet(`<h2 class="fat">JOIN A MATCH</h2><p class="note">1. Paste the code your friend sent.</p><textarea id="c1" rows="4" placeholder="Paste host code"></textarea><div class="row c" style="margin-top:10px"><button class="btn yellow" data-act="joinMake">Make reply code</button><button class="btn dark" data-act="closeModal">Cancel</button></div>`); }
 async function joinMake() {
-  if (!deckOk(P.decks[P.deck])) return toast("Choose a complete deck first.");
+  if (!deckOk(P.decks[P.deck])) return toast(deckWhy(P.decks[P.deck]));
   try {
     const off = sdpUnpack($("#c1").value); if (off.role !== "o") throw new Error("That is a reply code. Join needs the host code first."); if (NET) netClose(); netMake(false); NET.pc.ondatachannel = e => netWire(e.channel);
     await NET.pc.setRemoteDescription({ type: "offer", sdp: off.sdp }); await NET.pc.setLocalDescription(await NET.pc.createAnswer()); await waitIce(NET.pc);
@@ -791,7 +849,7 @@ function oddsModal() {
 let F = { q: "", own: "all", lv: 0, grp: "all" };
 function viewCards(v) {
   const have = ownedList().length;
-  v.innerHTML = `<span class="ribbon">DECKS</span><div class="list">${P.decks.map((d, i) => `<button class="panel item" data-act="editDeck" data-i="${i}" style="${i === P.deck ? "box-shadow: inset 0 0 0 3px var(--yellow), 0 4px 0 #000a" : ""}"><div class="t"><b>${esc(d.name)}</b><small>${d.cards.map(id => esc(BY[id] ? BY[id].name : "?")).join(", ") || "empty"}</small></div><span class="tag ${i === P.deck ? "gold" : ""}">${i === P.deck ? "ACTIVE" : deckOk(d) ? "READY" : "INCOMPLETE"}</span></button>`).join("")}</div><div class="row c" style="margin-top:10px"><button class="btn sm yellow" data-act="newDeck" ${P.decks.length >= 10 ? "disabled" : ""}>New deck</button></div>` +
+  v.innerHTML = `<span class="ribbon">DECKS</span><div class="list">${P.decks.map((d, i) => `<button class="panel item" data-act="editDeck" data-i="${i}" style="${i === P.deck ? "box-shadow: inset 0 0 0 3px var(--yellow), 0 4px 0 #000a" : ""}"><div class="t"><b>${esc(d.name)}</b><small>${d.cards.map(id => esc(BY[id] ? BY[id].name : "?")).join(", ") || "empty"}</small></div><span class="tag ${i === P.deck ? "gold" : ""}">${i === P.deck ? "ACTIVE" : deckOk(d) ? "READY" : d.cards.length === 5 ? "OVER COST" : "INCOMPLETE"} · ${deckCost(d)}/${deckCap()}</span></button>`).join("")}</div><div class="row c" style="margin-top:10px"><button class="btn sm yellow" data-act="newDeck" ${P.decks.length >= 10 ? "disabled" : ""}>New deck</button></div>` +
     `<span class="ribbon green">COLLECTION ${have}/${C.length}</span><div class="filters"><input type="search" id="fq" placeholder="Search" value="${esc(F.q)}"><select id="fown" data-act="filt"><option value="all">All</option><option value="own" ${F.own === "own" ? "selected" : ""}>Owned</option><option value="miss" ${F.own === "miss" ? "selected" : ""}>Missing</option><option value="ex" ${F.own === "ex" ? "selected" : ""}>Secret Rare</option></select><select id="flv" data-act="filt"><option value="0">Any rarity</option>${[1, 2, 3, 4, 5].map(l => `<option value="${l}" ${F.lv === l ? "selected" : ""}>${RNAME[l]}</option>`).join("")}</select><select id="fgrp" data-act="filt">${Object.entries(GROUPS).map(([k, n]) => `<option value="${k}" ${F.grp === k ? "selected" : ""}>${n}</option>`).join("")}</select></div><div class="grid" id="coll"></div>`;
   fillColl(); const q = $("#fq"); q.oninput = () => { F.q = q.value; fillColl(); };
 }
@@ -808,9 +866,10 @@ function detail(id) {
 let DE = null;
 function editDeck(i) { DE = { i, name: P.decks[i].name, cards: P.decks[i].cards.slice() }; deckSheet(); }
 function deckSheet() {
-  const slots = [0, 1, 2, 3, 4].map(k => DE.cards[k] ? cardHtml(BY[DE.cards[k]], { attr: `data-act="deckRemove" data-k="${k}"` }) : '<div class="empty"></div>').join("");
+  const cap = deckCap(), cost = DE.cards.reduce((a, id) => a + costOf(BY[id]), 0), over = cost > cap;
+  const slots = [0, 1, 2, 3, 4].map(k => DE.cards[k] ? cardHtml(BY[DE.cards[k]], { cost: costOf(BY[DE.cards[k]]), attr: `data-act="deckRemove" data-k="${k}"` }) : '<div class="empty"></div>').join("");
   const pool = ownedList().filter(c => !DE.cards.includes(c.id) || (P.own[c.id] > DE.cards.filter(x => x === c.id).length)).sort((a, b) => b.lv - a.lv || a.name.localeCompare(b.name));
-  openSheet(`<h2 class="fat">EDIT DECK</h2><input type="text" id="deckName" value="${esc(DE.name)}" maxlength="20" style="width:100%;margin-bottom:6px"><div class="slots">${slots}</div><p class="note">Tap a slot to remove. Tap a card below to add. ${DE.cards.length}/5</p><div class="grid" style="max-height:34dvh;overflow:auto;padding:4px 2px">${pool.map(c => cardHtml(c, { count: P.own[c.id] - DE.cards.filter(x => x === c.id).length, attr: `data-act="deckAdd" data-id="${c.id}"` })).join("")}</div><div class="row c" style="margin-top:14px"><button class="btn yellow" data-act="deckSave" ${DE.cards.length === 5 ? "" : "disabled"}>Save & use</button><button class="btn sm" data-act="deckAuto">Best 5</button><button class="btn sm red" data-act="deckDel" ${P.decks.length < 2 ? "disabled" : ""}>Delete</button><button class="btn sm dark" data-act="closeModal">Close</button></div>`);
+  openSheet(`<h2 class="fat">EDIT DECK</h2><input type="text" id="deckName" value="${esc(DE.name)}" maxlength="20" style="width:100%;margin-bottom:8px"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><span class="fat" style="font-size:18px;color:${over ? "#ff8d98" : "var(--yellow)"}">COST ${cost} / ${cap}</span><span class="note">${DE.cards.length}/5 cards</span></div><div class="bar" style="margin:4px 0 6px"><i style="width:${Math.min(100, 100 * cost / cap)}%;${over ? "background:linear-gradient(#ff7886,#8f1624)" : ""}"></i></div><div class="slots">${slots}</div><p class="note">Tap a slot to remove, a card below to add. The gold number is a card's cost. The cap grows as you level up and clear chapters.</p><div class="grid" style="max-height:32dvh;overflow:auto;padding:4px 2px">${pool.map(c => cardHtml(c, { cost: costOf(c), count: P.own[c.id] - DE.cards.filter(x => x === c.id).length, attr: `data-act="deckAdd" data-id="${c.id}"` })).join("")}</div><div class="row c" style="margin-top:14px"><button class="btn yellow" data-act="deckSave" ${DE.cards.length === 5 && !over ? "" : "disabled"}>Save & use</button><button class="btn sm" data-act="deckAuto">Best 5</button><button class="btn sm red" data-act="deckDel" ${P.decks.length < 2 ? "disabled" : ""}>Delete</button><button class="btn sm dark" data-act="closeModal">Close</button></div>`);
   $("#deckName").oninput = e => DE.name = e.target.value;
 }
 
@@ -976,7 +1035,7 @@ document.addEventListener("click", async e => {
   switch (a) {
     case "tab": return show(d.k);
     case "quick": return startAi({ tier: +d.t });
-    case "stage": { const ci = +d.c, si = +d.s, ch = CAMPAIGN[ci], st = ch.stages[si]; return openSheet(`<span class="ribbon">${esc(st[0]).toUpperCase()}</span><div class="row" style="flex-wrap:nowrap;align-items:flex-start"><div style="width:96px;flex:none">${cardHtml(BY[st[1]])}</div><p class="note" style="margin:0">${TIERS[ch.tier]} foes${si === 3 ? " · boss" : ""}. They hold ${esc(BY[st[1]].name)} and four more.<br>First clear: ${ch.tickets[si]} ${ic("ticket")}. Every win lets you take a copy of one of their cards.</p></div><div class="row c" style="margin-top:14px"><button class="btn yellow big" data-act="stageGo" data-c="${ci}" data-s="${si}">FIGHT</button><button class="btn dark" data-act="closeModal">Back</button></div>`); }
+    case "stage": { const ci = +d.c, si = +d.s, ch = CAMPAIGN[ci], st = ch.stages[si]; return openSheet(`<span class="ribbon">${esc(st[0]).toUpperCase()}</span><div class="row" style="flex-wrap:nowrap;align-items:flex-start"><div style="width:96px;flex:none">${cardHtml(BY[st[1]])}</div><p class="note" style="margin:0">${TIERS[ch.tier]} foes${si === 3 ? " · boss" : ""}. They hold ${esc(BY[st[1]].name)} and four more. Their deck costs about ${STAGE_COST[ci * 4 + si]}; yours is ${deckCost(P.decks[P.deck])} of ${deckCap()}.<br>First clear: ${ch.tickets[si]} ${ic("ticket")}. Every win lets you take a copy of one of their cards.</p></div><div class="row c" style="margin-top:14px"><button class="btn yellow big" data-act="stageGo" data-c="${ci}" data-s="${si}">FIGHT</button><button class="btn dark" data-act="closeModal">Back</button></div>`); }
     case "stageGo": { closeModal(); const ci = +d.c, si = +d.s; return startAi({ tier: CAMPAIGN[ci].tier, stage: { c: ci, s: si, sig: CAMPAIGN[ci].stages[si][1], boss: si === 3 } }); }
     case "vsCreate": return vsCreate();
     case "vsJoin": return vsJoin();
@@ -1002,8 +1061,8 @@ document.addEventListener("click", async e => {
     case "newDeck": { P.decks.push({ name: "Deck " + (P.decks.length + 1), cards: [] }); scheduleSave(); return editDeck(P.decks.length - 1); }
     case "editDeck": return editDeck(+d.i);
     case "deckRemove": DE.cards.splice(+d.k, 1); return deckSheet();
-    case "deckAdd": if (DE.cards.length < 5) { DE.cards.push(d.id); deckSheet(); } return;
-    case "deckAuto": { DE.cards = ownedList().sort((a, b) => (b.s[0] + b.s[1] + b.s[2] + b.s[3]) - (a.s[0] + a.s[1] + a.s[2] + a.s[3])).slice(0, 5).map(c => c.id); return deckSheet(); }
+    case "deckAdd": { const cost = DE.cards.reduce((a, id) => a + costOf(BY[id]), 0); if (DE.cards.length >= 5) return; if (cost + costOf(BY[d.id]) > deckCap()) { sfx("err"); return toast("Over the cost cap of " + deckCap() + "."); } DE.cards.push(d.id); return deckSheet(); }
+    case "deckAuto": { DE.cards = bestDeckIds(deckCap()); return deckSheet(); }
     case "deckSave": { P.decks[DE.i] = { name: (DE.name || "Deck").trim() || "Deck", cards: DE.cards.slice() }; P.deck = DE.i; scheduleSave(); closeModal(); toast("Deck saved"); return show("cards"); }
     case "deckDel": { P.decks.splice(DE.i, 1); P.deck = Math.min(P.deck, P.decks.length - 1); scheduleSave(); closeModal(); return show("cards"); }
     case "login": P.login = true; P.tickets++; scheduleSave(); toast("+1 ticket"); return show("daily");
