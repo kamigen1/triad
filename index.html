@@ -344,6 +344,23 @@ table.odds { width: 100%; border-collapse: collapse; } table.odds td { padding: 
 .ut.hurt .uart, .ut.burst .uart { animation: none; }
 @media (orientation: landscape) and (max-height: 540px) { #bcut .sk { font-size: 24px; bottom: 8%; } #bcut .who2 { width: min(26vw, 150px); } .nodes.six { grid-template-columns: repeat(6, 1fr); max-width: 520px; } }
 
+/* ----- pixel sprites in battle ----- */
+.ut .uart { aspect-ratio: 1; border: 0; border-radius: 0; background: none; box-shadow: none; overflow: visible; animation: none; position: relative; }
+.ut.foe .uart, .ut.ready .uart { box-shadow: none; }
+.ut .uart canvas { position: relative; width: 100%; height: 100%; display: block; image-rendering: pixelated; }
+.ut.foe .uart canvas { transform: scaleX(-1); }
+.ut .uart::after { content: ""; position: absolute; left: 12%; right: 12%; bottom: 3%; height: 13%; border-radius: 50%; background: radial-gradient(ellipse, #000a, transparent 72%); }
+.ut .uart::before { content: ""; position: absolute; left: 20%; right: 20%; bottom: 5%; height: 9%; border-radius: 50%; border: 3px solid var(--c); opacity: .85; box-shadow: 0 0 10px var(--c); }
+.ut.foe .uart::before { border-color: #ec3d4c; box-shadow: 0 0 10px #ec3d4c; }
+.ut.ready .uart canvas { filter: drop-shadow(0 0 6px var(--yellow)) drop-shadow(0 0 12px var(--yellow)); }
+.ut.hurt .uart { animation: none; filter: none; }
+.ut.dead { transition: opacity .5s .55s, transform .5s .55s; }
+#bcut .who2 { border: 0; box-shadow: none; background: none; aspect-ratio: 1; border-radius: 0; }
+#bcut .who2 canvas { width: 100%; height: 100%; image-rendering: pixelated; filter: drop-shadow(0 0 18px var(--c)); }
+.uspr { float: right; width: 96px; height: 96px; image-rendering: pixelated; margin: -6px -4px 0 8px; }
+.ut .uart canvas { transform: scale(1.32); transform-origin: 50% 88%; }
+.ut.foe .uart canvas { transform: scaleX(-1) scale(1.32); }
+
 .bfield { position: relative; }
 /* landscape phones: the tab bar becomes a rail on the left, the hero shrinks, and a match lays out as foe hand | board | your hand */
 @media (orientation: landscape) and (max-height: 540px) {
@@ -856,7 +873,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.11.09-b";
+const VER = "2026.11.09-c";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -1163,6 +1180,179 @@ function soundPanel() {
     `<p class="note" style="margin:10px 0 0">${AU.tracks.length && AU.mine ? "Playing your songs." : "Playing the game's own music: a lobby groove, a match beat and a summon shimmer."} Add your own audio files (mp3, m4a or wav) and they play instead. They stay on this device and are never uploaded.</p><div style="margin-top:8px">${list}</div>${AU.tracks.length ? `<div class="row" style="margin:8px 0"><button class="btn sm ${AU.mine ? "yellow" : "dark"}" data-act="mineT">My songs ${AU.mine ? "ON" : "OFF"}</button></div>` : ""}<div class="row"><label class="btn sm" style="position:relative">Add songs<input id="songs" type="file" accept="audio/*" multiple style="position:absolute;inset:0;opacity:0;width:100%;height:100%"></label>${AU.tracks.length ? '<button class="btn sm red" data-act="songsClear">Remove all</button>' : ""}</div><p class="note" style="margin:8px 0 0">On iPhone the music volume follows the volume buttons.</p></div>`;
 }
 
+/* ===== SPRITES: 128x128 pixel units, drawn in code. Every unit's body, colours and gear come from its card id, so a unit always looks the same.
+   Frames per unit: idle 4, attack 5, burst 5, hurt 2, defeat 3 (19 cells in one row). A file sprites/<id>.png in that layout replaces the generated one. ===== */
+const SW = 128, SORDER = ["idle", "attack", "burst", "hurt", "dead"], SFR = { idle: 4, attack: 5, burst: 5, hurt: 2, dead: 3 }, SOFF = {}, SMS = { idle: [210, 210, 210, 210], attack: [110, 110, 90, 110, 140], burst: [130, 130, 170, 170, 220], hurt: [130, 170], dead: [150, 170, 450] };
+{ let o = 0; for (const k of SORDER) { SOFF[k] = o; o += SFR[k]; } }
+const SPRMAP = {};   // sprites/<id>.png dropped in triad_app/sprites/ is embedded by build.py and wins over the generated sprite
+const SGY = 118;             // the ground line inside a cell
+/* ----- pixel drawing: masks, painted with a light rim, a shade rim and a base tone ----- */
+const hsl2 = (h, s, l) => { h = ((h % 360) + 360) % 360 / 360; s = Math.max(0, Math.min(1, s)); l = Math.max(0, Math.min(1, l)); const f = (p, q, t) => { t = (t + 1) % 1; return t < 1 / 6 ? p + (q - p) * 6 * t : t < .5 ? q : t < 2 / 3 ? p + (q - p) * (2 / 3 - t) * 6 : p; }; const q = l < .5 ? l * (1 + s) : l + s - l * s, p = 2 * l - q; return [Math.round(255 * f(p, q, h + 1 / 3)), Math.round(255 * f(p, q, h)), Math.round(255 * f(p, q, h - 1 / 3))]; };
+const pk = (c, a = 255) => ((a << 24) | (c[2] << 16) | (c[1] << 8) | c[0]) >>> 0;
+const mk = () => new Uint8Array(SW * SW);
+function mEll(m, cx, cy, rx, ry) { for (let y = Math.max(0, Math.floor(cy - ry)); y <= Math.min(SW - 1, Math.ceil(cy + ry)); y++) { const dy = (y + .5 - cy) / ry, t = 1 - dy * dy; if (t < 0) continue; const w = rx * Math.sqrt(t); for (let x = Math.max(0, Math.ceil(cx - w - .5)); x <= Math.min(SW - 1, Math.floor(cx + w - .5)); x++) m[y * SW + x] = 1; } return m; }
+function mRect(m, x, y, w, h) { for (let j = Math.max(0, Math.round(y)); j < Math.min(SW, Math.round(y + h)); j++) for (let i = Math.max(0, Math.round(x)); i < Math.min(SW, Math.round(x + w)); i++) m[j * SW + i] = 1; return m; }
+function mPoly(m, pts) { let y0 = 1e9, y1 = -1e9; pts.forEach(p => { y0 = Math.min(y0, p[1]); y1 = Math.max(y1, p[1]); }); for (let y = Math.max(0, Math.floor(y0)); y <= Math.min(SW - 1, Math.ceil(y1)); y++) { const yy = y + .5, xs = []; for (let i = 0; i < pts.length; i++) { const a = pts[i], b = pts[(i + 1) % pts.length]; if ((a[1] <= yy && b[1] > yy) || (b[1] <= yy && a[1] > yy)) xs.push(a[0] + (yy - a[1]) / (b[1] - a[1]) * (b[0] - a[0])); } xs.sort((a, b) => a - b); for (let k = 0; k + 1 < xs.length; k += 2) for (let x = Math.max(0, Math.round(xs[k])); x < Math.min(SW, Math.round(xs[k + 1])); x++) m[y * SW + x] = 1; } return m; }
+function mLine(m, x0, y0, x1, y1, th) { const r = th / 2, dx = x1 - x0, dy = y1 - y0, l2 = dx * dx + dy * dy || 1; for (let y = Math.max(0, Math.floor(Math.min(y0, y1) - r)); y <= Math.min(SW - 1, Math.ceil(Math.max(y0, y1) + r)); y++) for (let x = Math.max(0, Math.floor(Math.min(x0, x1) - r)); x <= Math.min(SW - 1, Math.ceil(Math.max(x0, x1) + r)); x++) { let t = ((x + .5 - x0) * dx + (y + .5 - y0) * dy) / l2; t = Math.max(0, Math.min(1, t)); const px = x0 + t * dx - x - .5, py = y0 + t * dy - y - .5; if (px * px + py * py <= r * r) m[y * SW + x] = 1; } return m; }
+const mClipY = (m, y0, keepAbove) => { for (let y = 0; y < SW; y++) if (keepAbove ? y > y0 : y < y0) m.fill(0, y * SW, y * SW + SW); return m; };
+function paint(L, m, t, d = 3) { const b = pk(t.b), li = pk(t.l), sh = pk(t.s); for (let y = 0; y < SW; y++) for (let x = 0; x < SW; x++) { const i = y * SW + x; if (!m[i]) continue; let c = b; if (x + d >= SW || y + d >= SW || !m[i + d * SW + d]) c = sh; else if (x < d || y < d || !m[i - d * SW - d]) c = li; L[i] = c; } }
+function flat(L, m, c, a = 255) { const v = pk(c, a); for (let i = 0; i < m.length; i++) if (m[i]) L[i] = v; }
+function outline(L, col) { const o = pk(col); for (let pass = 0; pass < 2; pass++) { const add = []; for (let y = 0; y < SW; y++) for (let x = 0; x < SW; x++) { const i = y * SW + x; if (L[i] >>> 24) continue; if ((x > 0 && L[i - 1] >>> 24 >= 200) || (x < SW - 1 && L[i + 1] >>> 24 >= 200) || (y > 0 && L[i - SW] >>> 24 >= 200) || (y < SW - 1 && L[i + SW] >>> 24 >= 200)) add.push(i); } add.forEach(i => L[i] = o); } }
+function tint(L, c, amt) { if (amt <= 0) return; for (let i = 0; i < L.length; i++) { const a = L[i] >>> 24; if (a < 200) continue; const r = L[i] & 255, g = (L[i] >>> 8) & 255, b = (L[i] >>> 16) & 255; L[i] = pk([Math.round(r + (c[0] - r) * amt), Math.round(g + (c[1] - g) * amt), Math.round(b + (c[2] - b) * amt)], a); } }
+const dirv = a => [Math.cos(a * Math.PI / 180), Math.sin(a * Math.PI / 180)];
+
+/* ----- who a unit is: body, palette and gear, all from its id ----- */
+function sprBody(c, R) {
+  const n = (c.name + " " + c.id).toLowerCase();
+  if (/slime|jelly|flan|pudding/.test(n)) return "slime"; if (/dragon|drake|wyrm|bahamut|wyvern|zilant/.test(n)) return "dragon";
+  if (/golem|giant|titan|colossus|behemoth|ogre|iron/.test(n)) return "golem"; if (/\bbat\b|dracky|gremlin|\bimp\b|harpy|bird|wing/.test(n)) return "bat";
+  if (/wolf|cat|lion|tiger|hound|fox|bear|panther|cerberus|\bdog\b/.test(n)) return "beast";
+  const g = c.grp; if (g === "weapon") return "blade"; if (g === "armor" || g === "relic") return "suit"; if (g === "esper" || g === "dominant") return "spirit";
+  if (g === "monster") return ["beast", "bat", "slime", "golem"][Math.floor(R() * 4)]; return "human";
+}
+function sprPal(c, R) {
+  const r = rarOf(c), spread = c.grp === "monster" || c.grp === "folk" ? 360 : 90, base = (HUE[c.grp] ?? 200) + Math.floor(R() * spread - spread / 2), sat = .42 + .05 * r;
+  const T = (h, s, l) => ({ b: hsl2(h, s, l), s: hsl2(h + 10, Math.min(1, s * 1.08), l - .15), l: hsl2(h - 8, s * .85, l + .14) });
+  const skin = [[28, .55, .74], [24, .5, .62], [20, .45, .48], [32, .6, .82], [140, .35, .6], [260, .3, .66]][Math.floor(R() * (c.grp === "monster" ? 6 : 4))];
+  return { base, pri: T(base, sat, .46), sec: T(base + 150 + R() * 50, sat, .42), acc: T(base + 50, .8, .58), metal: T(215, .12, .64), dark: T(base, .3, .22), wood: T(28, .5, .34), skin: T(skin[0], skin[1], skin[2]), hair: T(R() * 360, .5, .28 + R() * .25), boot: T(base, .25, .2), glow: hsl2(base + 30, .9, .68), ol: [22, 16, 30] };
+}
+function sprFeat(c, R, body) {
+  const r = rarOf(c), job = body === "suit" ? "suit" : ["knight", "mage", "rogue", "folk"][Math.floor(R() * 4)];
+  return { job, hair: Math.floor(R() * 3), hat: R() < .55, cape: R() < .25 + .1 * r, shield: job === "knight" && R() < .6, wep: job === "mage" ? "staff" : job === "folk" ? ["axe", "spear", "staff"][Math.floor(R() * 3)] : job === "rogue" ? "dagger" : ["sword", "sword", "spear", "axe"][Math.floor(R() * 4)], horn: R() < .4, crown: R() < .3, stripe: R() < .5, eye2: R() < .3, aura: r >= 5, spikes: R() < .5, blade: ["sword", "axe", "spear"][Math.floor(R() * 3)] };
+}
+function sprWeapon(L, pal, kind, hx, hy, ang) {
+  const [dx, dy] = dirv(ang), [px, py] = [-dy, dx]; let k;
+  if (kind === "sword") { k = mk(); mLine(k, hx - dx * 8, hy - dy * 8, hx + dx * 8, hy + dy * 8, 6); paint(L, k, pal.wood, 2); k = mk(); mLine(k, hx + px * 9, hy + py * 9, hx - px * 9, hy - py * 9, 5); paint(L, k, pal.acc, 2); k = mk(); mLine(k, hx + dx * 8, hy + dy * 8, hx + dx * 50, hy + dy * 50, 7); mLine(k, hx + dx * 50, hy + dy * 50, hx + dx * 56, hy + dy * 56, 3); paint(L, k, { b: [226, 232, 240], s: [150, 160, 180], l: [255, 255, 255] }, 2); }
+  else if (kind === "dagger") { k = mk(); mLine(k, hx - dx * 5, hy - dy * 5, hx + dx * 4, hy + dy * 4, 5); paint(L, k, pal.wood, 2); k = mk(); mLine(k, hx + dx * 4, hy + dy * 4, hx + dx * 30, hy + dy * 30, 6); paint(L, k, { b: [226, 232, 240], s: [150, 160, 180], l: [255, 255, 255] }, 2); }
+  else if (kind === "staff") { k = mk(); mLine(k, hx - dx * 18, hy - dy * 18, hx + dx * 44, hy + dy * 44, 5); paint(L, k, pal.wood, 2); k = mk(); mEll(k, hx + dx * 50, hy + dy * 50, 8, 8); paint(L, k, pal.acc, 2); k = mk(); mEll(k, hx + dx * 48, hy + dy * 48, 3, 3); flat(L, k, [255, 255, 255]); }
+  else if (kind === "axe") { k = mk(); mLine(k, hx - dx * 10, hy - dy * 10, hx + dx * 40, hy + dy * 40, 5); paint(L, k, pal.wood, 2); k = mk(); mPoly(k, [[hx + dx * 34 + px * 16, hy + dy * 34 + py * 16], [hx + dx * 48, hy + dy * 48], [hx + dx * 34 - px * 16, hy + dy * 34 - py * 16], [hx + dx * 26, hy + dy * 26]]); paint(L, k, pal.metal, 2); }
+  else { k = mk(); mLine(k, hx - dx * 14, hy - dy * 14, hx + dx * 50, hy + dy * 50, 5); paint(L, k, pal.wood, 2); k = mk(); mPoly(k, [[hx + dx * 66, hy + dy * 66], [hx + dx * 48 + px * 6, hy + dy * 48 + py * 6], [hx + dx * 48 - px * 6, hy + dy * 48 - py * 6]]); paint(L, k, pal.metal, 2); }
+}
+function sprEyes(L, x, y, shut, col = [14, 10, 20]) { let k = mk(); if (shut) { mRect(k, x, y + 3, 7, 2); flat(L, k, col); return; } mRect(k, x, y, 6, 8); flat(L, k, col); k = mk(); mRect(k, x + 1, y + 1, 2, 3); flat(L, k, [255, 255, 255]); }
+function sprGlow(L, pal, g, cx = 64, cy = 70, rx = 46, ry = 54) { if (g <= 0) return; let k = mk(); mEll(k, cx, cy, rx * (.7 + .3 * g), ry * (.7 + .3 * g)); flat(L, k, pal.glow, Math.round(60 * g)); k = mk(); mEll(k, cx, cy, rx * .6 * (.7 + .3 * g), ry * .6 * (.7 + .3 * g)); flat(L, k, [255, 255, 255], Math.round(50 * g)); }
+
+/* ----- the bodies. Facing right. p = { arm, wp (degrees), shut, glow, flap, sq } ----- */
+const SBODY = {
+  human(L, pal, f, p) {
+    let k; sprGlow(L, pal, p.glow);
+    if (f.cape) { k = mk(); mPoly(k, [[50, 56], [80, 56], [88, 106], [38, 110]]); paint(L, k, pal.sec); }
+    const suit = f.job === "suit", bodyT = suit ? pal.metal : pal.pri;
+    k = mk(); mLine(k, 52, 64, 46, 86, 8); paint(L, k, bodyT, 2); k = mk(); mEll(k, 45, 89, 5, 5); paint(L, k, suit ? pal.metal : pal.skin, 2);
+    if (f.shield) { k = mk(); mEll(k, 40, 84, 11, 15); paint(L, k, pal.sec); k = mk(); mEll(k, 40, 84, 4, 4); paint(L, k, pal.acc, 2); }
+    k = mk(); mLine(k, 57, 88, 54, 112, 10); mLine(k, 71, 88, 74, 112, 10); paint(L, k, suit ? pal.metal : pal.dark, 2); k = mk(); mRect(k, 45, 108, 17, 10); mRect(k, 66, 108, 19, 10); paint(L, k, pal.boot, 2);
+    if (f.job === "mage") { k = mk(); mPoly(k, [[47, 56], [81, 56], [88, 112], [40, 112]]); paint(L, k, pal.pri); k = mk(); mRect(k, 46, 80, 36, 6); paint(L, k, pal.acc, 2); }
+    else { k = mk(); mEll(k, 64, 72, 16, 20); paint(L, k, bodyT); if (f.job === "knight" || suit) { k = mk(); mEll(k, 64, 68, 10, 12); paint(L, k, pal.metal, 2); } k = mk(); mRect(k, 48, 86, 32, 6); paint(L, k, pal.sec, 2); }
+    if (f.job === "rogue") { k = mk(); mRect(k, 48, 56, 32, 9); paint(L, k, pal.sec, 2); k = mk(); mPoly(k, [[48, 58], [34, 74], [44, 78], [52, 64]]); paint(L, k, pal.sec, 2); }
+    k = mk(); mEll(k, 64, 44, 18, 17); paint(L, k, suit ? pal.metal : pal.skin);
+    if (!suit) { k = mk(); mEll(k, 62, 36, 20, 15); mClipY(k, 42, true); mRect(k, 44, 36, 6, 22); if (f.hair === 1) mRect(k, 40, 38, 8, 34); if (f.hair === 2) mPoly(k, [[44, 28], [50, 12], [60, 26], [70, 10], [78, 28]]); paint(L, k, pal.hair, 2); }
+    if (f.job === "mage" && f.hat) { k = mk(); mPoly(k, [[66, 4], [46, 32], [84, 32]]); paint(L, k, pal.pri, 2); k = mk(); mEll(k, 64, 33, 26, 6); paint(L, k, pal.sec, 2); }
+    else if (f.job === "knight" || suit) { k = mk(); mEll(k, 64, 38, 20, 16); mClipY(k, 44, true); paint(L, k, pal.metal, 2); if (suit) { k = mk(); mRect(k, 60, 40, 24, 5); flat(L, k, [10, 8, 16]); } k = mk(); mPoly(k, [[62, 24], [66, 8], [76, 22]]); paint(L, k, pal.acc, 2); }
+    else if (f.hat) { k = mk(); mEll(k, 64, 34, 22, 5); mRect(k, 50, 22, 28, 12); paint(L, k, pal.sec, 2); }
+    if (suit) { k = mk(); mRect(k, 66, 47, 6, 4); mRect(k, 77, 47, 6, 4); flat(L, k, [90, 255, 255]); } else { sprEyes(L, 66, 40, p.shut); sprEyes(L, 77, 40, p.shut); }
+    const sx = 76, sy = 64, [ax, ay] = dirv(p.arm), hx = sx + ax * 26, hy = sy + ay * 26;
+    k = mk(); mLine(k, sx, sy, hx, hy, 9); paint(L, k, bodyT, 2); k = mk(); mEll(k, hx, hy, 6, 6); paint(L, k, suit ? pal.metal : pal.skin, 2); sprWeapon(L, pal, f.wep, hx, hy, p.wp);
+  },
+  slime(L, pal, f, p) {
+    sprGlow(L, pal, p.glow, 64, 84, 44, 40); const sq = p.sq; let k = mk();
+    mEll(k, 64, SGY - 22 * sq, 40 + (1 - sq) * 70, 24 * sq); mEll(k, 64, SGY - 38 * sq, 28 + (1 - sq) * 40, 24 * sq);
+    if (f.spikes) mPoly(k, [[64, SGY - 80 * sq], [57, SGY - 56 * sq], [71, SGY - 56 * sq]]);
+    paint(L, k, pal.pri, 4); k = mk(); mEll(k, 50, SGY - 52 * sq, 7, 5 * sq); flat(L, k, [255, 255, 255], 190);
+    const ey = SGY - 40 * sq; k = mk(); mEll(k, 54, ey, 5, 8 * sq); mEll(k, 76, ey, 5, 8 * sq); flat(L, k, [14, 10, 20]); k = mk(); mEll(k, 55, ey - 3, 2, 2); mEll(k, 77, ey - 3, 2, 2); flat(L, k, [255, 255, 255]);
+    k = mk(); mLine(k, 58, ey + 12 * sq, 66, ey + 15 * sq, 3); mLine(k, 66, ey + 15 * sq, 74, ey + 12 * sq, 3); flat(L, k, [14, 10, 20]);
+    if (f.crown) { k = mk(); mPoly(k, [[48, SGY - 62 * sq], [52, SGY - 76 * sq], [58, SGY - 66 * sq], [64, SGY - 80 * sq], [70, SGY - 66 * sq], [76, SGY - 76 * sq], [80, SGY - 62 * sq]]); paint(L, k, pal.acc, 2); }
+    if (f.horn) { k = mk(); mPoly(k, [[84, SGY - 60 * sq], [100, SGY - 78 * sq], [92, SGY - 54 * sq]]); paint(L, k, pal.acc, 2); }
+  },
+  beast(L, pal, f, p) {
+    sprGlow(L, pal, p.glow, 64, 80, 54, 44); const sw = p.k || 0; let k = mk();
+    mLine(k, 34, 86, 16, 62 + sw * 6, 9); paint(L, k, pal.sec, 3);
+    k = mk(); mLine(k, 44, 96, 40 + sw * 4, SGY - 4, 10); mLine(k, 76, 96, 80 - sw * 4, SGY - 4, 10); paint(L, k, pal.dark, 2);
+    k = mk(); mEll(k, 62, 86, 32, 20); paint(L, k, pal.pri, 4); if (f.stripe) { k = mk(); mRect(k, 46, 70, 5, 26); mRect(k, 60, 68, 5, 30); mRect(k, 74, 70, 5, 26); flat(L, k, pal.dark.s); }
+    k = mk(); mLine(k, 54, 98, 52 - sw * 4, SGY, 10); mLine(k, 86, 98, 88 + sw * 4, SGY, 10); paint(L, k, pal.pri, 2);
+    k = mk(); mEll(k, 92, 70, 17, 15); mEll(k, 106, 76, 10, 8); paint(L, k, pal.pri, 3);
+    k = mk(); mPoly(k, [[80, 58], [84, 42], [92, 58]]); mPoly(k, [[94, 58], [102, 44], [104, 60]]); paint(L, k, pal.sec, 2);
+    if (f.horn) { k = mk(); mPoly(k, [[88, 56], [92, 36], [97, 56]]); paint(L, k, pal.acc, 2); }
+    k = mk(); mRect(k, 90, 64, 5, 8); flat(L, k, [14, 10, 20]); k = mk(); mRect(k, 91, 65, 2, 3); flat(L, k, [255, 255, 255]); k = mk(); mRect(k, 110, 74, 4, 4); flat(L, k, [14, 10, 20]);
+    if (p.arm < -60) { k = mk(); mPoly(k, [[100, 82], [104, 90], [108, 82]]); flat(L, k, [255, 255, 255]); }
+  },
+  bat(L, pal, f, p) {
+    sprGlow(L, pal, p.glow, 64, 66, 46, 44); const fl = p.flap || 0; let k = mk();
+    mPoly(k, [[52, 56], [10, 36 + fl * 24], [16, 62], [28, 56 + fl * 6], [36, 78], [54, 74]]); mPoly(k, [[76, 56], [118, 36 + fl * 24], [112, 62], [100, 56 + fl * 6], [92, 78], [74, 74]]); paint(L, k, pal.sec, 3);
+    k = mk(); mLine(k, 58, 78, 56, 98, 6); mLine(k, 70, 78, 72, 98, 6); paint(L, k, pal.dark, 2);
+    k = mk(); mEll(k, 64, 64, 20, 22); paint(L, k, pal.pri, 4); if (f.horn) { k = mk(); mPoly(k, [[48, 48], [42, 28], [58, 44]]); mPoly(k, [[80, 48], [86, 28], [70, 44]]); paint(L, k, pal.acc, 2); }
+    k = mk(); mEll(k, 64, 60, 12, 12); flat(L, k, [255, 255, 255]); k = mk(); mEll(k, 67, 61, 6, 7); flat(L, k, [200, 30, 60]); k = mk(); mEll(k, 68, 60, 3, 3); flat(L, k, [14, 10, 20]);
+    k = mk(); mPoly(k, [[54, 76], [58, 86], [62, 76]]); mPoly(k, [[66, 76], [70, 86], [74, 76]]); flat(L, k, [255, 255, 255]);
+  },
+  golem(L, pal, f, p) {
+    sprGlow(L, pal, p.glow, 64, 70, 52, 54); let k = mk();
+    mRect(k, 44, 92, 18, 26); mRect(k, 68, 92, 18, 26); paint(L, k, pal.dark, 3);
+    k = mk(); mRect(k, 32, 50, 66, 48); mEll(k, 34, 54, 12, 12); mEll(k, 96, 54, 12, 12); paint(L, k, pal.pri, 4); k = mk(); mRect(k, 52, 62, 26, 20); paint(L, k, pal.sec, 2); k = mk(); mRect(k, 62, 66, 6, 12); mRect(k, 57, 71, 16, 4); flat(L, k, pal.glow);
+    k = mk(); mLine(k, 30, 56, 24, 90, 16); paint(L, k, pal.pri, 3); k = mk(); mEll(k, 23, 96, 11, 11); paint(L, k, pal.sec, 3);
+    const [ax, ay] = dirv(p.arm), hx = 94 + ax * 28, hy = 56 + ay * 28; k = mk(); mLine(k, 94, 56, hx, hy, 16); paint(L, k, pal.pri, 3); k = mk(); mEll(k, hx, hy, 11, 11); paint(L, k, pal.sec, 3);
+    k = mk(); mRect(k, 50, 26, 30, 26); paint(L, k, pal.sec, 3); k = mk(); mRect(k, 58, 34, 20, 5); flat(L, k, p.shut ? [20, 14, 26] : pal.glow);
+    if (f.horn) { k = mk(); mPoly(k, [[52, 28], [48, 12], [60, 26]]); mPoly(k, [[78, 28], [82, 12], [70, 26]]); paint(L, k, pal.acc, 2); }
+    if (f.stripe) { k = mk(); mLine(k, 40, 60, 46, 80, 2); mLine(k, 86, 70, 80, 90, 2); flat(L, k, pal.dark.s); }
+  },
+  dragon(L, pal, f, p) {
+    sprGlow(L, pal, p.glow, 64, 64, 56, 50); const fl = p.flap || 0; let k = mk();
+    mPoly(k, [[56, 62], [24, 20 - fl * 14], [40, 46], [34, 60], [50, 70]]); mPoly(k, [[70, 62], [104, 18 - fl * 14], [90, 46], [96, 60], [78, 72]]); paint(L, k, pal.sec, 3);
+    k = mk(); mLine(k, 40, 90, 14, 104, 12); mLine(k, 14, 104, 8, 92, 8); paint(L, k, pal.pri, 3);
+    k = mk(); mLine(k, 52, 100, 50, SGY - 2, 11); mLine(k, 76, 100, 78, SGY - 2, 11); paint(L, k, pal.dark, 2);
+    k = mk(); mEll(k, 60, 88, 30, 22); paint(L, k, pal.pri, 4); k = mk(); mEll(k, 66, 94, 18, 14); paint(L, k, pal.acc, 3);
+    k = mk(); mLine(k, 76, 78, 90, 52, 15); paint(L, k, pal.pri, 3); k = mk(); mEll(k, 98, 44, 15, 12); mEll(k, 110, 50, 11, 8); paint(L, k, pal.pri, 3);
+    k = mk(); mPoly(k, [[88, 36], [84, 16], [98, 34]]); mPoly(k, [[100, 36], [104, 18], [108, 38]]); paint(L, k, pal.acc, 2);
+    k = mk(); mRect(k, 98, 40, 5, 6); flat(L, k, [255, 230, 80]); k = mk(); mRect(k, 100, 41, 2, 4); flat(L, k, [14, 10, 20]);
+    if (p.arm < -60) { k = mk(); mPoly(k, [[116, 52], [126, 58], [116, 62]]); flat(L, k, [255, 150, 40]); }
+  },
+  spirit(L, pal, f, p) {
+    sprGlow(L, pal, Math.max(.35, p.glow), 64, 66, 54, 56); const fl = p.flap || 0; let k = mk();
+    mPoly(k, [[56, 54], [14, 24 - fl * 12], [26, 52], [20, 70], [42, 66], [54, 76]]); mPoly(k, [[72, 54], [114, 24 - fl * 12], [102, 52], [108, 70], [86, 66], [74, 76]]); paint(L, k, { b: [236, 240, 255], s: pal.glow, l: [255, 255, 255] }, 3);
+    k = mk(); mPoly(k, [[46, 64], [82, 64], [74, 108], [64, 114], [54, 108]]); paint(L, k, pal.pri, 3);
+    k = mk(); mEll(k, 64, 48, 16, 16); paint(L, k, pal.skin, 3); k = mk(); mEll(k, 62, 40, 19, 14); mClipY(k, 44, true); paint(L, k, pal.sec, 2);
+    k = mk(); mEll(k, 66, 18, 20, 5); flat(L, k, pal.acc.b); k = mk(); mEll(k, 66, 18, 14, 2); flat(L, k, [255, 255, 255]);
+    sprEyes(L, 66, 44, p.shut, [40, 20, 80]); sprEyes(L, 76, 44, p.shut, [40, 20, 80]); const [ax, ay] = dirv(p.arm), hx = 76 + ax * 22, hy = 66 + ay * 22;
+    k = mk(); mLine(k, 74, 66, hx, hy, 7); paint(L, k, pal.pri, 2); k = mk(); mEll(k, hx, hy, 8, 8); flat(L, k, pal.glow); k = mk(); mEll(k, hx, hy, 4, 4); flat(L, k, [255, 255, 255]);
+  },
+  blade(L, pal, f, p) {
+    sprGlow(L, pal, Math.max(.45, p.glow), 64, 64, 48, 62); const kd = f.blade; let k = mk(); k = mk(); mRect(k, 59, 92, 10, 24); paint(L, k, pal.wood, 2); k = mk(); mEll(k, 64, 118, 8, 6); paint(L, k, pal.acc, 2);
+    if (kd === "axe") { k = mk(); mRect(k, 60, 20, 8, 80); paint(L, k, pal.wood, 2); k = mk(); mPoly(k, [[68, 22], [112, 10], [106, 56], [68, 52]]); paint(L, k, pal.metal, 3); k = mk(); mPoly(k, [[60, 28], [20, 18], [26, 54], [60, 50]]); paint(L, k, pal.metal, 3); }
+    else if (kd === "spear") { k = mk(); mRect(k, 61, 30, 6, 70); paint(L, k, pal.wood, 2); k = mk(); mPoly(k, [[64, 2], [80, 36], [64, 44], [48, 36]]); paint(L, k, pal.metal, 3); k = mk(); mRect(k, 48, 84, 32, 8); paint(L, k, pal.acc, 2); }
+    else { k = mk(); mPoly(k, [[64, 4], [76, 22], [74, 90], [54, 90], [52, 22]]); paint(L, k, pal.metal, 3); k = mk(); mRect(k, 62, 20, 4, 64); flat(L, k, pal.glow); k = mk(); mRect(k, 36, 88, 56, 9); paint(L, k, pal.acc, 3); }
+    k = mk(); mEll(k, 64, 92, 6, 6); flat(L, k, pal.glow); k = mk(); mEll(k, 64, 92, 3, 3); flat(L, k, [255, 255, 255]);
+  },
+};
+SBODY.suit = SBODY.human;
+
+/* ----- poses: what each of the 19 frames does. dx/dy/tilt/s/a/flash are applied when the frame is placed in the sheet. ----- */
+const SPOSE = [
+  { arm: -8, wp: -20, flap: 0, sq: 1, k: 0 }, { dy: -2, arm: -4, wp: -16, flap: .6, sq: .96, k: .5 }, { dy: -3, arm: -2, wp: -14, flap: 1, sq: .92, k: 1 }, { dy: -1, arm: -6, wp: -18, flap: .3, sq: .97, k: .5 },
+  { dx: -6, arm: -120, wp: -130, flap: -1, sq: 1.03, k: -1 }, { dx: -9, arm: -135, wp: -150, flap: -.6, sq: 1.05, k: -1 }, { dx: 12, arm: -10, wp: 5, flap: 1, sq: .94, k: 1 }, { dx: 20, arm: 30, wp: 45, flap: .5, sq: .98, k: 1 }, { dx: 8, arm: 10, wp: 15, flap: 0, sq: 1, k: 0 },
+  { arm: -90, wp: -100, glow: .3, flap: 0, sq: 1 }, { dy: -3, arm: -95, wp: -100, glow: .6, flap: 1, sq: 1.04 }, { dy: -8, arm: -100, wp: -105, glow: 1, flap: -1, sq: 1.06 }, { dy: -8, arm: -100, wp: -105, glow: 1, flap: 1, sq: 1.06 }, { dy: -4, arm: -80, wp: -90, glow: .5, flap: 0, sq: 1.02 },
+  { dx: -8, arm: 20, wp: 20, shut: 1, flash: .6, tilt: -.08, sq: .96 }, { dx: -4, arm: 10, wp: 10, shut: 1, flash: .25, tilt: -.04, sq: .98 },
+  { dx: -10, dy: 4, arm: 40, wp: 40, shut: 1, flash: .3, tilt: -.3, sq: .9 }, { dx: -14, dy: 12, arm: 60, wp: 60, shut: 1, flash: .3, tilt: -.8, a: .7, sq: .8 }, { dx: -18, dy: 22, arm: 70, wp: 70, shut: 1, flash: .3, tilt: -1.3, a: .35, sq: .7 },
+];
+const SPR = {};   // id -> { sheet: canvas of 19 cells }
+function sprMake(c) {
+  if (SPR[c.id]) return SPR[c.id];
+  const R = rngOf("spr" + c.id), body = sprBody(c, R), pal = sprPal(c, R), f = sprFeat(c, R, body), n = SPOSE.length, sheet = document.createElement("canvas"); sheet.width = SW * n; sheet.height = SW;
+  const ctx = sheet.getContext("2d"), tmp = document.createElement("canvas"); tmp.width = tmp.height = SW; const tc = tmp.getContext("2d"); ctx.imageSmoothingEnabled = false;
+  for (let i = 0; i < n; i++) {
+    const p = SPOSE[i], L = new Uint32Array(SW * SW); SBODY[body](L, pal, f, p); outline(L, pal.ol); if (p.flash) tint(L, p.shut ? [255, 70, 70] : [255, 255, 255], p.flash);
+    tc.putImageData(new ImageData(new Uint8ClampedArray(L.buffer), SW, SW), 0, 0); ctx.save(); ctx.beginPath(); ctx.rect(i * SW, 0, SW, SW); ctx.clip();
+    ctx.globalAlpha = p.a == null ? 1 : p.a; ctx.translate(i * SW + 64 + (p.dx || 0), SGY + (p.dy || 0)); ctx.rotate(p.tilt || 0); ctx.scale(1, p.s || 1); ctx.translate(-64, -SGY); ctx.drawImage(tmp, 0, 0); ctx.restore();
+  }
+  const rec = SPR[c.id] = { sheet, body, f, pal };
+  if (SPRMAP[c.id]) { const im = new Image(); im.onload = () => { const x = sheet.getContext("2d"); x.clearRect(0, 0, sheet.width, SW); x.drawImage(im, 0, 0); }; im.src = SPRMAP[c.id]; }
+  return rec;
+}
+/* draw one frame of a unit's sheet into a canvas */
+function sprDraw(cv, c, st, t) {
+  const rec = sprMake(c), n = SFR[st], ms = SMS[st]; let k = 0, left = t; if (st === "idle") { left = t % 840; } for (k = 0; k < n - 1 && left >= ms[k]; k++) left -= ms[k];
+  const g = cv.getContext("2d"); g.imageSmoothingEnabled = false; g.clearRect(0, 0, cv.width, cv.height); g.drawImage(rec.sheet, (SOFF[st] + k) * SW, 0, SW, SW, 0, 0, cv.width, cv.height);
+}
+const sprTotal = st => SMS[st].reduce((a, b) => a + b, 0);
+/* every canvas marked data-spr="<card id>" plays that unit's idle loop (used in the unit panel and the summon reveal) */
+setInterval(() => { document.querySelectorAll("canvas[data-spr]").forEach(cv => { const c = BY[cv.dataset.spr]; if (c) sprDraw(cv, c, "idle", performance.now()); }); }, 180);
+
 /* ===== QUEST: the main mode. A team of 4 units (your cards), auto-battle, tap a ready unit for its Burst, fill the gauge for a Limit Burst.
    Five regions of two chapters of six missions. Duplicates fuse into a unit's stars; dust trains levels. Triple Triad (Triad tab, Versus) uses the same collection. ===== */
 const QSTA_REGEN = 120000;                          // 1 stamina per 2 minutes
@@ -1247,16 +1437,27 @@ const qW = ms => (B && B.ui ? sleep(ms / B.speed) : null);
 const qAlive = a => a.filter(u => u.alive);
 function qHtmlTile(u, i) {
   const ally = u.side === 0, r = rarOf(u.c);
-  return `<div class="ut r${r} ${ally ? "ally" : "foe"} ${u.boss ? "boss" : ""}" id="t-${u.side}-${i}" ${ally ? `data-act="qburst" data-i="${i}"` : ""}><div class="uart"><img src="${artSrc(u.c)}" alt=""></div><div class="uhp"><i></i></div>${ally ? '<div class="ubc"><i></i></div><b class="rdy">BURST</b>' : ""}<small>${esc(u.name.length > 11 ? u.name.slice(0, 10) + "." : u.name)}${ally && u.stars > 1 ? " ★" + u.stars : ""}</small></div>`;
+  return `<div class="ut r${r} ${ally ? "ally" : "foe"} ${u.boss ? "boss" : ""}" id="t-${u.side}-${i}" ${ally ? `data-act="qburst" data-i="${i}"` : ""}><div class="uart"><canvas class="spr" width="128" height="128"></canvas></div><div class="uhp"><i></i></div>${ally ? '<div class="ubc"><i></i></div><b class="rdy">BURST</b>' : ""}<small>${esc(u.name.length > 11 ? u.name.slice(0, 10) + "." : u.name)}${ally && u.stars > 1 ? " ★" + u.stars : ""}</small></div>`;
 }
 function qDraw() {
   const m = $("#bt"); m.hidden = false;
   m.innerHTML = `<div class="inner"><div class="btop"><button class="btn sm red" data-act="qleave">✕</button><div class="bwave" id="bwave"></div><button class="btn sm dark" id="bauto" data-act="qauto">Auto</button><button class="btn sm dark" id="bspd" data-act="qspeed">1×</button></div>` +
     `<div class="bfield"><div class="brow foes" id="bfoes"></div><div class="bmsg" id="bmsg"></div><div class="brow allies" id="ballies">${B.party.map((u, i) => qHtmlTile(u, i)).join("")}</div></div>` +
     `<button class="lbbtn" id="blb" data-act="qlb"><i id="blbf"></i><span>LIMIT BURST</span></button></div><div id="bfx"></div><div id="bcut" hidden></div>`;
-  qFoeRow(); qSync();
+  qFoeRow(); qSync(); requestAnimationFrame(qAnimLoop);
 }
-function qFoeRow() { if (!B.ui) return; $("#bfoes").innerHTML = B.foes.map((u, i) => qHtmlTile(u, i)).join(""); $("#bwave").textContent = "WAVE " + (B.wave + 1) + " / " + qMission(B.g).waves.length; }
+function qBind() { B.party.forEach((u, i) => { const t = $("#t-0-" + i); u.cv = t && t.querySelector("canvas"); }); B.foes.forEach((u, i) => { const t = $("#t-1-" + i); u.cv = t && t.querySelector("canvas"); }); }
+function qPlay(u, st, hold) { u.an = { st, t0: performance.now(), hold: !!hold }; }
+function qAnimLoop() {
+  if (!B || !B.ui) return; const now = performance.now();
+  for (const u of B.party.concat(B.foes)) {
+    if (!u.cv) continue; let a = u.an || (u.an = { st: u.alive ? "idle" : "dead", t0: now, hold: !u.alive }), t = (now - a.t0) * B.speed;
+    if (!a.hold && a.st !== "idle" && t >= sprTotal(a.st)) { a = u.an = u.alive ? { st: "idle", t0: now } : { st: "dead", t0: now, hold: true }; t = 0; }
+    sprDraw(u.cv, u.c, a.st, a.hold ? 1e9 : t);
+  }
+  requestAnimationFrame(qAnimLoop);
+}
+function qFoeRow() { if (!B.ui) return; $("#bfoes").innerHTML = B.foes.map((u, i) => qHtmlTile(u, i)).join(""); qBind(); $("#bwave").textContent = "WAVE " + (B.wave + 1) + " / " + qMission(B.g).waves.length; }
 function qSync() {
   if (!B.ui) return;
   [[B.party, 0], [B.foes, 1]].forEach(([arr, s]) => arr.forEach((u, i) => { const t = $("#t-" + s + "-" + i); if (!t) return; t.classList.toggle("dead", !u.alive); t.querySelector(".uhp i").style.width = Math.max(0, 100 * u.hp / u.max) + "%"; const bc = t.querySelector(".ubc i"); if (bc) { bc.style.width = Math.min(100, u.bc) + "%"; t.classList.toggle("ready", u.alive && u.bc >= 100); t.classList.toggle("queued", !!u.q); } t.classList.toggle("buffed", u.buff > 0); }));
@@ -1284,8 +1485,8 @@ async function qStrike(a, t, kind) {
 }
 async function qCut(u, name) {   // the Burst cut-in: the unit's portrait sweeps across the screen under its skill name
   if (!B.ui) return; const c = $("#bcut"), col = qCol(u); c.hidden = false; c.style.setProperty("--c", col);
-  c.innerHTML = `<div class="rays"></div><div class="who2"><img src="${artSrc(u.c)}" alt=""></div><div class="sk fat">${esc(name)}</div><div class="un fat">${esc(u.name)}</div>`;
-  sfx("charge"); await qAnim(c, [{ opacity: 0 }, { opacity: 1, offset: .12 }, { opacity: 1, offset: .82 }, { opacity: 0 }], 1050, { easing: "linear" }); c.hidden = true; c.style.opacity = "";
+  c.innerHTML = `<div class="rays"></div><div class="who2"><canvas width="128" height="128"></canvas></div><div class="sk fat">${esc(name)}</div><div class="un fat">${esc(u.name)}</div>`;
+  sprDraw(c.querySelector("canvas"), u.c, "burst", 300); sfx("charge"); await qAnim(c, [{ opacity: 0 }, { opacity: 1, offset: .12 }, { opacity: 1, offset: .82 }, { opacity: 0 }], 1050, { easing: "linear" }); c.hidden = true; c.style.opacity = "";
 }
 function qRing(u, col, big) { if (!B.ui) return; const p = qPt(u); if (!p) return; const r = qFxEl("ring", p.x - 12, p.y - 12, 24, 24); r.style.setProperty("--c", col); qAnim(r, [{ transform: "scale(.4)", opacity: 1 }, { transform: `scale(${big || 5})`, opacity: 0 }], 520); }
 function qSpark(u, col) { if (!B.ui) return; const p = qPt(u); if (!p) return; for (let k = 0; k < 6; k++) { const e = qFxEl("spark", p.x - 4 + (k - 2.5) * p.w * .14, p.y + p.h * .2, 8, 8); e.style.setProperty("--c", col); qAnim(e, [{ transform: "translateY(0) scale(1)", opacity: 1 }, { transform: `translateY(${-p.h * .8}px) scale(.3)`, opacity: 0 }], 700, { delay: k * 60 / B.speed }); } }
@@ -1294,17 +1495,17 @@ function qShake() { if (!B.ui) return; const f = $("#bt .bfield"); if (f) { f.cl
 function qHit(a, t, mult) {
   const buff = a.buff > 0 ? 1.35 : 1, d = Math.max(1, Math.round(a.atk * buff * mult * (.9 + Math.random() * .2) * 100 / (100 + t.def)));
   t.hp -= d; qPop(t, d, mult > 2 ? "big" : ""); if (B.ui) { const tl = qTile(t); if (tl) { tl.classList.add("hurt"); setTimeout(() => tl.classList.remove("hurt"), 260); } sfx("flip"); }
-  if (t.hp <= 0) { t.hp = 0; t.alive = false; t.bc = 0; } else if (t.side === 0) { t.bc += 12; B.lb += 6; } return d;
+  if (t.hp <= 0) { t.hp = 0; t.alive = false; t.bc = 0; if (B.ui) qPlay(t, "dead", true); } else { if (B.ui) qPlay(t, "hurt"); if (t.side === 0) { t.bc += 12; B.lb += 6; } } return d;
 }
 async function qAttack(u, mult) {
   const tg = u.side === 0 ? qAlive(B.foes)[0] : (a => a[Math.floor(Math.random() * a.length)])(qAlive(B.party)); if (!tg) return;
-  const tl = qTile(u), kind = qFxOf(u.c); if (tl) { tl.classList.add(u.side === 0 ? "lunge" : "lungef"); setTimeout(() => tl.classList.remove("lunge", "lungef"), 300); }
-  await qW(200); const st = qStrike(u, tg, kind); if (kind === "orb" || kind === "bolt") await st; qHit(u, tg, mult || 1); if (u.side === 0) { u.bc += 25; B.lb += 7; } qSync(); await qW(340);
+  const kind = qFxOf(u.c); if (B.ui) qPlay(u, "attack");
+  await qW(220); const st = qStrike(u, tg, kind); if (kind === "orb" || kind === "bolt") await st; qHit(u, tg, mult || 1); if (u.side === 0) { u.bc += 25; B.lb += 7; } qSync(); await qW(340);
 }
 async function qBurst(u) {
   u.bc = 0; u.q = false; const k = u.sk, pw = 1 + .12 * ((u.stars || 1) - 1); qMsg(u.name + ": " + QSKILL[k][0]);
   const tl = qTile(u); if (tl) { tl.classList.add("burst"); setTimeout(() => tl.classList.remove("burst"), 900); }
-  await qCut(u, QSKILL[k][0]); const col = qCol(u);
+  await qCut(u, QSKILL[k][0]); const col = qCol(u); if (B.ui) qPlay(u, "burst");
   if (k === "smash") { const t = qAlive(B.foes)[0]; if (t) { qRing(t, col, 6); qShake(); sfx("plus"); qHit(u, t, 3.5 * pw); } }
   else if (k === "wave") { qShake(); sfx("same"); qAlive(B.foes).forEach(t => { qRing(t, col, 4); qHit(u, t, 1.7 * pw); }); }
   else if (k === "heal") { sfx("level"); qAlive(B.party).forEach(t => { const h = Math.round(u.atk * 2.2 * pw); t.hp = Math.min(t.max, t.hp + h); qPop(t, "+" + h, "heal"); qSpark(t, "#7dff9a"); }); }
@@ -1320,7 +1521,7 @@ async function qLimit() {
 }
 async function qAct(u) {
   if (u.side === 0) { if (u.bc >= 100 && (B.auto || u.q)) await qBurst(u); else await qAttack(u); }
-  else if (u.boss && ++u.n % 3 === 0) { qMsg(u.name + " roars!"); const tl = qTile(u); if (tl) tl.classList.add("burst"); qShake(); await qW(420); if (tl) tl.classList.remove("burst"); qAlive(B.party).forEach(t => qHit(u, t, .9)); qSync(); await qW(520); }
+  else if (u.boss && ++u.n % 3 === 0) { qMsg(u.name + " roars!"); const tl = qTile(u); if (tl) tl.classList.add("burst"); if (B.ui) qPlay(u, "burst"); qShake(); await qW(420); if (tl) tl.classList.remove("burst"); qAlive(B.party).forEach(t => qHit(u, t, .9)); qSync(); await qW(520); }
   else await qAttack(u);
   if (u.buff > 0) u.buff--; qSync();
 }
@@ -1401,7 +1602,7 @@ function qPick(id) {
 const QTRAIN = { dust: 10, xp: 90 };
 function qUnitPanel(id) {
   if (!(P.own[id] > 0)) return ""; qInit(); const c = BY[id], u = qUnit(id), st = qStars(id), cap = qLvCap(c, st), t = qStats(c, u.lv, st), k = qSkill(c);
-  return `<div class="panel" style="margin-top:12px;text-align:left"><b class="fat" style="font-size:17px">UNIT</b> <span class="tag gold">Lv ${u.lv} / ${cap}</span> <span class="tag gold">${"★".repeat(st)}${"☆".repeat(5 - st)}</span><div class="bar" style="margin:6px 0"><i style="width:${u.lv >= cap ? 100 : 100 * u.xp / qNeed(u.lv)}%"></i></div><p class="note" style="margin:0">HP ${t.hp} · ATK ${t.atk} · DEF ${t.def} · SPD ${t.spd}<br><b>${QSKILL[k][0]}</b>: ${QSKILL[k][1]}${st > 1 ? " (+" + 12 * (st - 1) + "%)" : ""}<br>Attack: ${qFxOf(c)}${st < 5 ? ". Summon duplicates to fuse stars." : ". Fully fused."}</p><div class="row c" style="margin-top:8px"><button class="btn sm yellow" data-act="qtrain" data-id="${id}" ${P.dust < QTRAIN.dust || u.lv >= cap ? "disabled" : ""}>Train · ${QTRAIN.dust} ${ic("gem")} → ${QTRAIN.xp} XP</button></div></div>`;
+  return `<div class="panel" style="margin-top:12px;text-align:left"><canvas class="spr uspr" data-spr="${id}" width="128" height="128"></canvas><b class="fat" style="font-size:17px">UNIT</b> <span class="tag gold">Lv ${u.lv} / ${cap}</span> <span class="tag gold">${"★".repeat(st)}${"☆".repeat(5 - st)}</span><div class="bar" style="margin:6px 0"><i style="width:${u.lv >= cap ? 100 : 100 * u.xp / qNeed(u.lv)}%"></i></div><p class="note" style="margin:0">HP ${t.hp} · ATK ${t.atk} · DEF ${t.def} · SPD ${t.spd}<br><b>${QSKILL[k][0]}</b>: ${QSKILL[k][1]}${st > 1 ? " (+" + 12 * (st - 1) + "%)" : ""}<br>Attack: ${qFxOf(c)}${st < 5 ? ". Summon duplicates to fuse stars." : ". Fully fused."}</p><div class="row c" style="margin-top:8px"><button class="btn sm yellow" data-act="qtrain" data-id="${id}" ${P.dust < QTRAIN.dust || u.lv >= cap ? "disabled" : ""}>Train · ${QTRAIN.dust} ${ic("gem")} → ${QTRAIN.xp} XP</button></div></div>`;
 }
 /* Used to tune the missions: plays them as a bot, no screen. Party: the best four non-secret cards up to a rarity, at the on-curve level and star count. */
 async function qSim(g0, g1, n = 12) {
