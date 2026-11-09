@@ -381,6 +381,52 @@ img.uspr { object-fit: contain; }
 /* pixel-art units stay crisp when scaled */
 .ut .uart.pic img, #bcut .who2 img, img.uspr { image-rendering: pixelated; }
 
+/* ===== battle layout v2: the scene on top, the command panel below ===== */
+#bt { padding: 0; background: #050d2a; display: flex; flex-direction: column; }
+.sa #bt { bottom: auto; height: var(--app-h, 100%); }
+.scene { position: relative; flex: 0 0 50%; overflow: hidden; border-bottom: 3px solid #000; box-shadow: 0 3px 0 #8fa4d6; padding-top: env(safe-area-inset-top, 0px); }
+.scene .rays { position: absolute; inset: 0; background: repeating-linear-gradient(104deg, #ffffff30 0 5%, transparent 5% 13%); opacity: .35; pointer-events: none; mask-image: linear-gradient(#000, transparent 70%); -webkit-mask-image: linear-gradient(#000, transparent 70%); }
+.scene::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 50% 55%, transparent 55%, #0008 100%); }
+.tophud { position: absolute; left: 10px; right: 10px; top: calc(env(safe-area-inset-top, 0px) + 6px); display: flex; justify-content: space-between; z-index: 40; font: 400 15px var(--display); color: #fff; -webkit-text-stroke: .12em #000; paint-order: stroke fill; }
+.scene .ut { position: absolute; width: 22%; transition: opacity .4s, transform .4s; }
+.scene .ut.boss { width: 38%; }
+.scene .ut .uart::before, .scene .ut .uart::after { display: none; }
+.scene .ut.ally .uart::after { display: block; }
+.ut.foe .uart canvas { transform: scale(1.32); } .ut.ally .uart canvas { transform: scaleX(-1) scale(1.32); }
+.ut.foe .uart.pic { transform: none; } .ut.ally .uart.pic { transform: scaleX(-1); }
+.ut .uhp { margin: 2px 10% 0; }
+.ut.tgt { cursor: pointer; } .ut.tgt .uart { animation: tgtp .8s ease-in-out infinite; } @keyframes tgtp { 50% { filter: drop-shadow(0 0 10px #fff) brightness(1.25); } }
+.ut.cur .uart { filter: drop-shadow(0 0 8px #ffe57a); }
+.foebar { position: absolute; left: 10px; bottom: 8px; width: 52%; z-index: 40; display: flex; flex-direction: column; gap: 2px; }
+.foebar b { font: 400 14px var(--display); color: #fff; -webkit-text-stroke: .12em #000; paint-order: stroke fill; }
+.foebar .fb { position: relative; height: 12px; border: 2px solid #000; border-radius: 4px; background: #072; overflow: hidden; box-shadow: 0 0 0 1px #d6c26a; }
+.foebar .fb i { position: absolute; left: 0; top: 0; bottom: 0; background: linear-gradient(#9dff6a, #35b520); } .foebar .fb em { position: absolute; inset: 0; text-align: center; font: 700 10px/10px var(--body); color: #fff; text-shadow: 0 1px 0 #000; font-style: normal; }
+.scene .bmsg { position: absolute; left: 0; right: 0; top: 40%; z-index: 41; pointer-events: none; }
+.bpanel { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 6px; padding: 8px 8px calc(8px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(#0c1f5e, #050d2a); }
+.cmdnote { text-align: center; font: 400 15px var(--display); color: #bcd0ff; padding: 6px 0; letter-spacing: .06em; }
+.cmds { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.cmd { font: 400 15px/1.05 var(--display); color: #fff; padding: 8px 4px; border: 2px solid #8fa4d6; border-radius: 10px; background: linear-gradient(#2a4cc4, #12257c); box-shadow: inset 0 1px 0 #ffffff66, 0 3px 0 #000; -webkit-text-stroke: .08em #000; paint-order: stroke fill; }
+.cmd small { display: block; font: 400 10px var(--display); color: #ffe57a; -webkit-text-stroke: 0; } .cmd:disabled { filter: grayscale(1) brightness(.55); }
+.cmd.lb { background: linear-gradient(#ff8d3a, #b8310c); } .cmd.lb.ready { animation: glow 1s ease-in-out infinite; border-color: #ffe57a; }
+.bgrid { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 1fr; gap: 6px; }
+.pn { display: flex; gap: 6px; align-items: center; padding: 5px 6px; min-height: 0; border: 2px solid #4a62b0; border-radius: 10px; background: linear-gradient(#142f86, #0a1a52); box-shadow: inset 0 0 0 1px #0007; overflow: hidden; }
+.pn.cur { border-color: #ffe57a; box-shadow: 0 0 10px #ffe57a, inset 0 0 0 1px #0007; } .pn.dead { opacity: .45; }
+.pn .pp { flex: none; width: 44px; height: 44px; border-radius: 8px; overflow: hidden; border: 2px solid #000; background: #000; } .pn .pp img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 15%; image-rendering: auto; }
+.pn .pi { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; } .pn .pi b { font: 400 13px/1.1 var(--display); color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .pn .st { color: #ffe57a; font-style: normal; }
+.pn .lim { position: relative; height: 8px; border: 1px solid #000; border-radius: 4px; background: #101a4a; overflow: hidden; } .pn .lim i { position: absolute; left: 0; top: 0; bottom: 0; background: linear-gradient(#ffb36b, #e0561c); } .pn .lim.full i { background: linear-gradient(#fff08a, #ffa21c); animation: glow 1s ease-in-out infinite; } .pn .lim em { position: absolute; right: 3px; top: -2px; font: 400 7px/10px var(--display); color: #ffd7b0; font-style: normal; }
+.pn .hp, .pn .mp { display: flex; align-items: baseline; gap: 3px; } .pn small { font: 700 9px var(--body); color: #8fa4d6; } .pn .hp b, .pn .mp b { font: 400 15px var(--display); color: #fff; -webkit-text-stroke: 0; }
+.pn .hpbar { height: 4px; background: #0a1030; border-radius: 2px; overflow: hidden; } .pn .hpbar i { display: block; height: 100%; background: linear-gradient(#9dff6a, #35b520); }
+.pn .mp b { color: #ffe57a; } .pn .cm { margin-left: auto; font: 400 10px var(--display); color: #7be0ff; font-style: normal; white-space: nowrap; }
+.bbtns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.bb { font: 400 15px var(--display); color: #fff; padding: 9px 2px; border: 2px solid #8fa4d6; border-radius: 10px; background: linear-gradient(#1f55d8, #0d2a8a); box-shadow: inset 0 1px 0 #ffffff77, 0 3px 0 #000; -webkit-text-stroke: .08em #000; paint-order: stroke fill; }
+.bb.on { background: linear-gradient(#ffe57a, #d19a14); }
+#bcut .lbw { position: absolute; left: 0; right: 0; top: 7%; text-align: center; font-size: 24px; color: #ff9a3a; letter-spacing: .12em; }
+@media (orientation: landscape) and (max-height: 540px) {
+  #bt { flex-direction: row; padding: 0; } .scene { flex: 1.25 1 0; border-bottom: 0; border-right: 3px solid #000; box-shadow: 3px 0 0 #8fa4d6; padding-top: 0; }
+  .bpanel { flex: 1 1 0; padding: 6px 8px; padding-right: max(8px, env(safe-area-inset-right, 0px)); } .pn .pp { width: 34px; height: 34px; } .cmd { padding: 5px 2px; font-size: 13px; } .bb { padding: 5px 2px; font-size: 13px; }
+  .scene .ut { width: 17%; } .scene .ut.boss { width: 30%; } .tophud { top: 6px; }
+}
+
 .bfield { position: relative; }
 /* landscape phones: the tab bar becomes a rail on the left, the hero shrinks, and a match lays out as foe hand | board | your hand */
 @media (orientation: landscape) and (max-height: 540px) {
@@ -893,7 +939,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.11.09-g";
+const VER = "2026.11.10-a";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -1418,7 +1464,7 @@ const REGIONS = [
 const PER = 6, NCH = REGIONS.length * 2, NM = NCH * PER;
 let _qpool = null;
 const qPool = () => _qpool || (_qpool = C.filter(c => ["monster", "dominant", "esper", "hero", "ff", "dq", "db", "nr", "op"].includes(c.grp)).sort((a, b) => qPower(a) - qPower(b)));
-const QT = { hp: 1.7, atk: 1.9, bhp: 4.5, batk: 1.9, grow: 0.02, cen: 0.8 };   // foe tuning: normal foes' HP/ATK multipliers, the boss's
+const QT = { hp: 1.2, atk: 1.25, bhp: 3.4, batk: 1.4, grow: 0.015, cen: 0.8 };   // foe tuning: normal foes' HP/ATK multipliers, the boss's
 const _qm = {};
 function qMission(g) {
   if (_qm[g]) return _qm[g];
@@ -1438,141 +1484,14 @@ const qChDone = ch => { let n = 0; for (let m = 0; m < PER; m++) if (qDone(ch * 
 
 /* ----- units ----- */
 function qMk(c, side, L, stars, o = {}) {
-  const t = qStats(c, L, stars), m = o.hp || 1, a = o.atk || 1;
-  return { c, side, name: c.name, lv: L, stars, max: Math.round(t.hp * m), hp: Math.round(t.hp * m), atk: Math.round(t.atk * a), def: t.def, spd: t.spd, bc: 0, sk: qSkill(c), buff: 0, alive: true, boss: !!o.boss, n: 0 };
+  const t = qStats(c, L, stars), m = o.hp || 1, a = o.atk || 1, mpMax = Math.round((20 + 1.5 * (c.s[0] + c.s[1] + c.s[2] + c.s[3]) + 2 * rarOf(c)) * (1 + .04 * (L - 1)));
+  return { c, side, name: c.name, lv: L, stars, max: Math.round(t.hp * m), hp: Math.round(t.hp * m), atk: Math.round(t.atk * a), def: t.def, spd: t.spd, lb: 0, sk: qSkill(c), buff: 0, alive: true, boss: !!o.boss, n: 0, mp: mpMax, mpMax };
 }
 const qParty = () => P.team.map(id => qMk(BY[id], 0, qUnit(id).lv, qStars(id)));
 function qFoes(g, w) {
   const st = qMission(g); return st.waves[w].map(id => { const c = BY[id] || BY.goblin, boss = st.boss && w === st.waves.length - 1 && id === st.bossId; const gr = 1 + QT.grow * g; return qMk(c, 1, st.lv, 1, boss ? { hp: QT.bhp * gr, atk: QT.batk * gr, boss: true } : { hp: QT.hp * gr, atk: QT.atk * gr }); });
 }
 
-/* ----- the fight ----- */
-let B = null;
-function qStart(g, ui = true, party) {
-  B = { g, ui, party: party || qParty(), wave: 0, foes: null, lb: 0, lbQ: false, auto: false, speed: 1, round: 0, done: false, out: null };
-  B.foes = qFoes(g, 0);
-  if (ui) { qDraw(); musicMode("match"); }
-  return qLoop();
-}
-const qW = ms => (B && B.ui ? sleep(ms / B.speed) : null);
-const qAlive = a => a.filter(u => u.alive);
-function qHtmlTile(u, i) {
-  const ally = u.side === 0, r = rarOf(u.c);
-  return `<div class="ut r${r} ${ally ? "ally" : "foe"} ${u.boss ? "boss" : ""}" id="t-${u.side}-${i}" ${ally ? `data-act="qburst" data-i="${i}"` : ""}>${UNITMAP[u.c.id] ? `<div class="uart pic"><img src="${UNITMAP[u.c.id]}" alt=""></div>` : '<div class="uart"><canvas class="spr" width="128" height="128"></canvas></div>'}<div class="uhp"><i></i></div>${ally ? '<div class="ubc"><i></i></div><b class="rdy">BURST</b>' : ""}<small>${esc(u.name.length > 11 ? u.name.slice(0, 10) + "." : u.name)}${ally && u.stars > 1 ? " ★" + u.stars : ""}</small></div>`;
-}
-function qDraw() {
-  const m = $("#bt"); m.hidden = false;
-  m.innerHTML = `<div class="inner"><div class="btop"><button class="btn sm red" data-act="qleave">✕</button><div class="bwave" id="bwave"></div><button class="btn sm dark" id="bauto" data-act="qauto">Auto</button><button class="btn sm dark" id="bspd" data-act="qspeed">1×</button></div>` +
-    `<div class="bfield"><div class="brow foes" id="bfoes"></div><div class="bmsg" id="bmsg"></div><div class="brow allies" id="ballies">${B.party.map((u, i) => qHtmlTile(u, i)).join("")}</div></div>` +
-    `<button class="lbbtn" id="blb" data-act="qlb"><i id="blbf"></i><span>LIMIT BURST</span></button></div><div id="bfx"></div><div id="bcut" hidden></div>`;
-  qFoeRow(); qSync(); requestAnimationFrame(qAnimLoop);
-}
-function qBind() { [B.party, B.foes].forEach((arr, s) => arr.forEach((u, i) => { const t = $("#t-" + s + "-" + i); u.cv = t && t.querySelector("canvas"); u.pic = !!(t && t.querySelector(".pic")); })); }
-function qPlay(u, st, hold) {
-  u.an = { st, t0: performance.now(), hold: !!hold };
-  if (u.pic) {   // an illustrated unit: the state is a class the stylesheet turns into motion
-    const t = qTile(u); if (!t) return; clearTimeout(u.pt); t.removeAttribute("data-st"); void t.offsetWidth; t.style.setProperty("--d", sprTotal(st) / B.speed + "ms"); t.dataset.st = st;
-    if (!hold && st !== "idle") u.pt = setTimeout(() => { if (t.isConnected) { if (u.alive) t.removeAttribute("data-st"); else t.dataset.st = "dead"; } }, sprTotal(st) / B.speed);
-  }
-}
-function qAnimLoop() {
-  if (!B || !B.ui) return; const now = performance.now();
-  for (const u of B.party.concat(B.foes)) {
-    if (!u.cv || u.pic) continue; let a = u.an || (u.an = { st: u.alive ? "idle" : "dead", t0: now, hold: !u.alive }), t = (now - a.t0) * B.speed;
-    if (!a.hold && a.st !== "idle" && t >= sprTotal(a.st)) { a = u.an = u.alive ? { st: "idle", t0: now } : { st: "dead", t0: now, hold: true }; t = 0; }
-    sprDraw(u.cv, u.c, a.st, a.hold ? 1e9 : t);
-  }
-  requestAnimationFrame(qAnimLoop);
-}
-function qFoeRow() { if (!B.ui) return; $("#bfoes").innerHTML = B.foes.map((u, i) => qHtmlTile(u, i)).join(""); qBind(); $("#bwave").textContent = "WAVE " + (B.wave + 1) + " / " + qMission(B.g).waves.length; }
-function qSync() {
-  if (!B.ui) return;
-  [[B.party, 0], [B.foes, 1]].forEach(([arr, s]) => arr.forEach((u, i) => { const t = $("#t-" + s + "-" + i); if (!t) return; t.classList.toggle("dead", !u.alive); t.querySelector(".uhp i").style.width = Math.max(0, 100 * u.hp / u.max) + "%"; const bc = t.querySelector(".ubc i"); if (bc) { bc.style.width = Math.min(100, u.bc) + "%"; t.classList.toggle("ready", u.alive && u.bc >= 100); t.classList.toggle("queued", !!u.q); } t.classList.toggle("buffed", u.buff > 0); }));
-  const lb = $("#blb"); if (lb) { $("#blbf").style.width = Math.min(100, B.lb) + "%"; lb.classList.toggle("ready", B.lb >= 100); lb.classList.toggle("queued", B.lbQ); }
-  $("#bauto").classList.toggle("on", B.auto); $("#bspd").textContent = B.speed + "×";
-}
-function qPop(u, text, cls) {
-  if (!B.ui) return; const arr = u.side === 0 ? B.party : B.foes, t = $("#t-" + u.side + "-" + arr.indexOf(u)); if (!t) return;
-  const s = document.createElement("span"); s.className = "dmg " + (cls || ""); s.textContent = text; t.appendChild(s); setTimeout(() => s.remove(), 900);
-}
-function qTile(u) { const arr = u.side === 0 ? B.party : B.foes; return B.ui ? $("#t-" + u.side + "-" + arr.indexOf(u)) : null; }
-function qMsg(t) { if (B.ui) { const m = $("#bmsg"); m.textContent = t; m.classList.remove("in"); void m.offsetWidth; m.classList.add("in"); } }
-
-/* ----- the show: slashes, claws, orbs, bolts, the Burst cut-in, rings and sparkles. All of it is skipped in the bot's silent fights. ----- */
-const qCol = u => getComputedStyle(document.documentElement).getPropertyValue("--r" + rarOf(u.c)).trim() || "#fff";
-function qPt(u) { const t = qTile(u); if (!t) return null; const a = t.querySelector(".uart").getBoundingClientRect(), r = $("#bt").getBoundingClientRect(); return { x: a.left - r.left + a.width / 2, y: a.top - r.top + a.height / 2, w: a.width, h: a.height }; }
-function qFxEl(cls, x, y, w, h) { const e = document.createElement("i"); e.className = "fx " + cls; Object.assign(e.style, { left: x + "px", top: y + "px", width: w + "px", height: h + "px" }); $("#bfx").appendChild(e); setTimeout(() => e.remove(), 1400); return e; }
-function qAnim(e, frames, ms, opt) { const a = e.animate(frames, Object.assign({ duration: ms / B.speed, easing: "ease-out", fill: "forwards" }, opt || {})); return a.finished.catch(() => 0); }
-async function qStrike(a, t, kind) {
-  if (!B.ui) return; const p = qPt(t), q = qPt(a); if (!p) return; const col = qCol(a);
-  if (kind === "slash") { const e = qFxEl("slash", p.x - p.w * .6, p.y - 4, p.w * 1.2, 8); e.style.setProperty("--c", col); qAnim(e, [{ transform: "rotate(-38deg) scaleX(0)", opacity: 1 }, { transform: "rotate(-38deg) scaleX(1)", opacity: 1, offset: .5 }, { transform: "rotate(-38deg) scaleX(1)", opacity: 0 }], 320); }
-  else if (kind === "claw") { for (let k = -1; k <= 1; k++) { const e = qFxEl("claw", p.x + k * p.w * .22 - 3, p.y - p.h * .4, 6, p.h * .8); qAnim(e, [{ transform: "rotate(-18deg) scaleY(0)", opacity: 1 }, { transform: "rotate(-18deg) scaleY(1)", opacity: 1, offset: .4 }, { transform: "rotate(-18deg) scaleY(1)", opacity: 0 }], 340, { delay: (k + 1) * 50 / B.speed }); } }
-  else if (kind === "orb" && q) { const e = qFxEl("orb", q.x - 14, q.y - 14, 28, 28); e.style.setProperty("--c", col); await qAnim(e, [{ transform: "translate(0,0) scale(.6)" }, { transform: `translate(${p.x - q.x}px,${p.y - q.y}px) scale(1.2)` }], 260); const r = qFxEl("ring", p.x - 10, p.y - 10, 20, 20); r.style.setProperty("--c", col); qAnim(r, [{ transform: "scale(.4)", opacity: 1 }, { transform: "scale(3.2)", opacity: 0 }], 360); e.remove(); }
-  else if (kind === "bolt" && q) { const dx = p.x - q.x, dy = p.y - q.y, len = Math.hypot(dx, dy), e = qFxEl("bolt", q.x, q.y - 3, len, 6); e.style.setProperty("--c", col); e.style.transformOrigin = "0 50%"; await qAnim(e, [{ transform: `rotate(${Math.atan2(dy, dx)}rad) scaleX(0)`, opacity: 1 }, { transform: `rotate(${Math.atan2(dy, dx)}rad) scaleX(1)`, opacity: 1, offset: .5 }, { transform: `rotate(${Math.atan2(dy, dx)}rad) scaleX(1)`, opacity: 0 }], 280); }
-}
-async function qCut(u, name) {   // the Burst cut-in: the unit's portrait sweeps across the screen under its skill name
-  if (!B.ui) return; const c = $("#bcut"), col = qCol(u); c.hidden = false; c.style.setProperty("--c", col);
-  c.innerHTML = `<div class="rays"></div><div class="who2">${UNITMAP[u.c.id] ? `<img src="${UNITMAP[u.c.id]}" alt="">` : '<canvas width="128" height="128"></canvas>'}</div><div class="sk fat">${esc(name)}</div><div class="un fat">${esc(u.name)}</div>`;
-  if (!UNITMAP[u.c.id]) sprDraw(c.querySelector("canvas"), u.c, "burst", 300); sfx("charge"); await qAnim(c, [{ opacity: 0 }, { opacity: 1, offset: .12 }, { opacity: 1, offset: .82 }, { opacity: 0 }], 1050, { easing: "linear" }); c.hidden = true; c.style.opacity = "";
-}
-function qRing(u, col, big) { if (!B.ui) return; const p = qPt(u); if (!p) return; const r = qFxEl("ring", p.x - 12, p.y - 12, 24, 24); r.style.setProperty("--c", col); qAnim(r, [{ transform: "scale(.4)", opacity: 1 }, { transform: `scale(${big || 5})`, opacity: 0 }], 520); }
-function qSpark(u, col) { if (!B.ui) return; const p = qPt(u); if (!p) return; for (let k = 0; k < 6; k++) { const e = qFxEl("spark", p.x - 4 + (k - 2.5) * p.w * .14, p.y + p.h * .2, 8, 8); e.style.setProperty("--c", col); qAnim(e, [{ transform: "translateY(0) scale(1)", opacity: 1 }, { transform: `translateY(${-p.h * .8}px) scale(.3)`, opacity: 0 }], 700, { delay: k * 60 / B.speed }); } }
-function qShake() { if (!B.ui) return; const f = $("#bt .bfield"); if (f) { f.classList.remove("rock"); void f.offsetWidth; f.classList.add("rock"); } }
-
-function qHit(a, t, mult) {
-  const buff = a.buff > 0 ? 1.35 : 1, d = Math.max(1, Math.round(a.atk * buff * mult * (.9 + Math.random() * .2) * 100 / (100 + t.def)));
-  t.hp -= d; qPop(t, d, mult > 2 ? "big" : ""); if (B.ui) { const tl = qTile(t); if (tl) { tl.classList.add("hurt"); setTimeout(() => tl.classList.remove("hurt"), 260); } sfx("flip"); }
-  if (t.hp <= 0) { t.hp = 0; t.alive = false; t.bc = 0; if (B.ui) qPlay(t, "dead", true); } else { if (B.ui) qPlay(t, "hurt"); if (t.side === 0) { t.bc += 12; B.lb += 6; } } return d;
-}
-async function qAttack(u, mult) {
-  const tg = u.side === 0 ? qAlive(B.foes)[0] : (a => a[Math.floor(Math.random() * a.length)])(qAlive(B.party)); if (!tg) return;
-  const kind = qFxOf(u.c); if (B.ui) qPlay(u, "attack");
-  await qW(220); const st = qStrike(u, tg, kind); if (kind === "orb" || kind === "bolt") await st; qHit(u, tg, mult || 1); if (u.side === 0) { u.bc += 25; B.lb += 7; } qSync(); await qW(340);
-}
-async function qBurst(u) {
-  u.bc = 0; u.q = false; const k = u.sk, pw = 1 + .12 * ((u.stars || 1) - 1); qMsg(u.name + ": " + QSKILL[k][0]);
-  const tl = qTile(u); if (tl) { tl.classList.add("burst"); setTimeout(() => tl.classList.remove("burst"), 900); }
-  await qCut(u, QSKILL[k][0]); const col = qCol(u); if (B.ui) qPlay(u, "burst");
-  if (k === "smash") { const t = qAlive(B.foes)[0]; if (t) { qRing(t, col, 6); qShake(); sfx("plus"); qHit(u, t, 3.5 * pw); } }
-  else if (k === "wave") { qShake(); sfx("same"); qAlive(B.foes).forEach(t => { qRing(t, col, 4); qHit(u, t, 1.7 * pw); }); }
-  else if (k === "heal") { sfx("level"); qAlive(B.party).forEach(t => { const h = Math.round(u.atk * 2.2 * pw); t.hp = Math.min(t.max, t.hp + h); qPop(t, "+" + h, "heal"); qSpark(t, "#7dff9a"); }); }
-  else { sfx("ping", 4); qAlive(B.party).forEach(t => { t.buff = 3; qPop(t, "ATK↑", "heal"); qRing(t, "#ff9a3a", 3); }); }
-  qSync(); await qW(560);
-}
-async function qLimit() {
-  B.lb = 0; B.lbQ = false; qMsg("LIMIT BURST!"); if (B.ui) { sfx("chain"); $("#bt").classList.add("flash"); setTimeout(() => $("#bt").classList.remove("flash"), 700); qShake(); }
-  await qW(500); const sum = qAlive(B.party).reduce((a, u) => a + u.atk, 0);
-  qAlive(B.foes).forEach(t => { const d = Math.max(1, Math.round(sum * 1.5 * 100 / (100 + t.def))); t.hp -= d; qPop(t, d, "big"); qRing(t, "#fff", 5); if (t.hp <= 0) { t.hp = 0; t.alive = false; } });
-  qAlive(B.party).forEach(t => { const h = Math.round(t.max * .25); t.hp = Math.min(t.max, t.hp + h); qPop(t, "+" + h, "heal"); qSpark(t, "#7dff9a"); });
-  qSync(); await qW(750);
-}
-async function qAct(u) {
-  if (u.side === 0) { if (u.bc >= 100 && (B.auto || u.q)) await qBurst(u); else await qAttack(u); }
-  else if (u.boss && ++u.n % 3 === 0) { qMsg(u.name + " roars!"); const tl = qTile(u); if (tl) tl.classList.add("burst"); if (B.ui) qPlay(u, "burst"); qShake(); await qW(420); if (tl) tl.classList.remove("burst"); qAlive(B.party).forEach(t => qHit(u, t, .9)); qSync(); await qW(520); }
-  else await qAttack(u);
-  if (u.buff > 0) u.buff--; qSync();
-}
-async function qLoop() {
-  while (B && !B.done) {
-    if (++B.round > 80) return qEnd(false);
-    const order = qAlive(B.party).sort((a, b) => b.spd - a.spd).concat(qAlive(B.foes).sort((a, b) => b.spd - a.spd));
-    for (const u of order) {
-      if (!B || B.done) return; if (!u.alive) continue;
-      if ((B.lbQ || B.auto && B.lb >= 100) && B.lb >= 100) await qLimit();
-      if (qAlive(B.foes).length && qAlive(B.party).length) await qAct(u);
-      if (!B) return;
-      if (!qAlive(B.party).length) return qEnd(false);
-      if (!qAlive(B.foes).length) {
-        if (B.wave + 1 >= qMission(B.g).waves.length) return qEnd(true);
-        await qW(500); B.wave++; B.foes = qFoes(B.g, B.wave); qFoeRow(); qSync(); await qW(400); break;
-      }
-    }
-  }
-}
-function qEnd(win) {
-  const b = B; b.done = true; if (!b.ui) { b.out = win; B = null; return win; }
-  setTimeout(() => qResult(win), 500); return win;
-}
 function qGain(id, xp) { const u = qUnit(id), c = BY[id], cap = qLvCap(c, qStars(id)), ups = []; if (u.lv >= cap) return ups; u.xp += xp; while (u.xp >= qNeed(u.lv) && u.lv < cap) { u.xp -= qNeed(u.lv); u.lv++; ups.push(c.name + " → Lv " + u.lv); } if (u.lv >= cap) u.xp = 0; return ups; }
 function qResult(win) {
   const g = B.g, st = qMission(g), team = B.party.map(u => u.c.id); let h = "";
@@ -1629,15 +1548,240 @@ function qPick(id) {
 const QTRAIN = { dust: 10, xp: 90 };
 function qUnitPanel(id) {
   if (!(P.own[id] > 0)) return ""; qInit(); const c = BY[id], u = qUnit(id), st = qStars(id), cap = qLvCap(c, st), t = qStats(c, u.lv, st), k = qSkill(c);
-  return `<div class="panel" style="margin-top:12px;text-align:left">${UNITMAP[id] ? `<img class="uspr" src="${UNITMAP[id]}" alt="">` : `<canvas class="spr uspr" data-spr="${id}" width="128" height="128"></canvas>`}<b class="fat" style="font-size:17px">UNIT</b> <span class="tag gold">Lv ${u.lv} / ${cap}</span> <span class="tag gold">${"★".repeat(st)}${"☆".repeat(5 - st)}</span><div class="bar" style="margin:6px 0"><i style="width:${u.lv >= cap ? 100 : 100 * u.xp / qNeed(u.lv)}%"></i></div><p class="note" style="margin:0">HP ${t.hp} · ATK ${t.atk} · DEF ${t.def} · SPD ${t.spd}<br><b>${QSKILL[k][0]}</b>: ${QSKILL[k][1]}${st > 1 ? " (+" + 12 * (st - 1) + "%)" : ""}<br>Attack: ${qFxOf(c)}${st < 5 ? ". Summon duplicates to fuse stars." : ". Fully fused."}</p><div class="row c" style="margin-top:8px"><button class="btn sm yellow" data-act="qtrain" data-id="${id}" ${P.dust < QTRAIN.dust || u.lv >= cap ? "disabled" : ""}>Train · ${QTRAIN.dust} ${ic("gem")} → ${QTRAIN.xp} XP</button></div></div>`;
+  return `<div class="panel" style="margin-top:12px;text-align:left">${UNITMAP[id] ? `<img class="uspr" src="${UNITMAP[id]}" alt="">` : `<canvas class="spr uspr" data-spr="${id}" width="128" height="128"></canvas>`}<b class="fat" style="font-size:17px">UNIT</b> <span class="tag gold">Lv ${u.lv} / ${cap}</span> <span class="tag gold">${"★".repeat(st)}${"☆".repeat(5 - st)}</span><div class="bar" style="margin:6px 0"><i style="width:${u.lv >= cap ? 100 : 100 * u.xp / qNeed(u.lv)}%"></i></div><p class="note" style="margin:0">HP ${t.hp} · ATK ${t.atk} · DEF ${t.def} · SPD ${t.spd}<br><b>${QABL[k].n}</b> (${QABL[k].mp || 0} MP): ${QABL[k].d}<br><b>${QLB[k].n}</b> (Limit Burst): ${QLB[k].d}${st > 1 ? " (+" + 12 * (st - 1) + "%)" : ""}<br>Attack: ${qFxOf(c)}${st < 5 ? ". Summon duplicates to fuse stars." : ". Fully fused."}</p><div class="row c" style="margin-top:8px"><button class="btn sm yellow" data-act="qtrain" data-id="${id}" ${P.dust < QTRAIN.dust || u.lv >= cap ? "disabled" : ""}>Train · ${QTRAIN.dust} ${ic("gem")} → ${QTRAIN.xp} XP</button></div></div>`;
 }
-/* Used to tune the missions: plays them as a bot, no screen. Party: the best four non-secret cards up to a rarity, at the on-curve level and star count. */
+
+/* ===== BATTLE, Brave Exvius style. The scene plays in the top half; the bottom half is where you command. Each turn you pick a command for every unit
+   (Attack, an MP Ability, or its Limit Burst once its gauge is full), then the whole turn plays out in speed order, foes included. ===== */
+const QABL = {   // the MP ability each kind of unit has
+  smash: { n: "Heavy Strike", mp: 12, m: 2.3, d: "One foe takes 230% damage" },
+  wave: { n: "Shockwave", mp: 16, m: 1.35, d: "Every foe takes 135% damage" },
+  heal: { n: "Mending Light", mp: 14, d: "Heals the whole team" },
+  rally: { n: "Battle Cry", mp: 10, d: "Team attack +35% for 3 turns" },
+};
+const QLB = {     // the Limit Burst: a big, cinematic version of the same idea
+  smash: { n: "Final Strike", m: 6.5, d: "One foe takes 650% damage" },
+  wave: { n: "Cataclysm", m: 3, d: "Every foe takes 300% damage" },
+  heal: { n: "Sanctuary", d: "Heals the team to full and raises the fallen" },
+  rally: { n: "War Anthem", d: "Team attack +60% for 4 turns and heals 30%" },
+};
+const QBG = [["#7ad7ff", "#d6f2b8", "#4a9a44", "#245a2a"], ["#ffae6a", "#8a2e1c", "#52291a", "#2b140d"], ["#cfeaff", "#f1f9ff", "#cfe2f2", "#8fb1cc"], ["#37a8c8", "#12506f", "#1f7480", "#0b3d48"], ["#7a36b0", "#1d0b40", "#301652", "#13092c"]];
+const QPOS = { 0: [[62, 14], [77, 34], [55, 46], [70, 62]], 1: [[[24, 38]], [[10, 30], [34, 50]], [[4, 26], [30, 42], [8, 58]], [[4, 22], [28, 36], [4, 50], [30, 62]]], boss: [[6, 14]] };
+
+let B = null;
+const qAlive = a => a.filter(u => u.alive);
+const qW = ms => (B && B.ui ? sleep(ms / B.speed) : null);
+const qLabel = (u, c) => (!c ? "" : c.k === "atk" ? "Attack" : c.k === "abl" ? QABL[u.sk].n : QLB[u.sk].n);
+
+function qStart(g, ui = true, party) {
+  B = { g, ui, party: party || qParty(), wave: 0, foes: null, turn: 0, phase: "select", cmds: {}, cur: 0, tgt: null, tgtMode: null, auto: false, speed: 1, last: null, done: false, out: null, go: null };
+  B.foes = qFoes(g, 0);
+  if (ui) { qDraw(); musicMode("match"); }
+  return qRun();
+}
+
+/* ----- the scene (top half) ----- */
+function qHtmlTile(u, i) {
+  const ally = u.side === 0, pic = UNITMAP[u.c.id];
+  return `<div class="ut r${rarOf(u.c)} ${ally ? "ally" : "foe"} ${u.boss ? "boss" : ""}" id="t-${u.side}-${i}" ${ally ? "" : `data-act="qtgt" data-i="${i}"`}><div class="uart ${pic ? "pic" : ""}">${pic ? `<img src="${pic}" alt="">` : '<canvas class="spr" width="128" height="128"></canvas>'}</div>${ally ? "" : '<div class="uhp"><i></i></div><small>' + esc(u.name.length > 12 ? u.name.slice(0, 11) + "." : u.name) + "</small>"}</div>`;
+}
+function qPlace() {
+  B.party.forEach((u, i) => { const t = $("#t-0-" + i), p = QPOS[0][i] || [70, 40]; if (t) { t.style.left = p[0] + "%"; t.style.top = p[1] + "%"; t.style.zIndex = Math.round(p[1]); } });
+  const bossWave = B.foes.some(f => f.boss), set = bossWave ? QPOS.boss : QPOS[1][Math.min(B.foes.length, 4) - 1];
+  B.foes.forEach((u, i) => { const t = $("#t-1-" + i), p = (bossWave ? QPOS.boss[0] : set[i]) || [20, 40]; if (t) { t.style.left = p[0] + "%"; t.style.top = (bossWave && i > 0 ? p[1] + 30 : p[1]) + "%"; t.style.zIndex = Math.round(p[1]); } });
+}
+function qDraw() {
+  const m = $("#bt"), reg = Math.floor(qMission(B.g).ch / 2), c = QBG[reg];
+  m.hidden = false; m.classList.remove("flash");
+  m.innerHTML = `<div class="scene" id="bscene" style="background:linear-gradient(180deg,${c[0]} 0%,${c[1]} 52%,${c[2]} 52%,${c[3]} 100%)"><div class="rays"></div><div class="tophud"><span id="bwave"></span><span id="bturn"></span></div>${B.party.map((u, i) => qHtmlTile(u, i)).join("")}<div id="bfoes"></div><div class="bmsg" id="bmsg"></div><div class="foebar" id="foebar"></div></div><div class="bpanel" id="bpanel"></div><div id="bfx"></div><div id="bcut" hidden></div>`;
+  qFoeRow(); requestAnimationFrame(qAnimLoop);
+}
+function qBind() { [B.party, B.foes].forEach((arr, s) => arr.forEach((u, i) => { const t = $("#t-" + s + "-" + i); u.cv = t && t.querySelector("canvas"); u.pic = !!(t && t.querySelector(".pic")); })); }
+function qFoeRow() {
+  if (!B.ui) return; $("#bfoes").innerHTML = B.foes.map((u, i) => qHtmlTile(u, i)).join(""); qBind(); qPlace();
+  $("#bwave").textContent = "BATTLE " + (B.wave + 1) + " / " + qMission(B.g).waves.length; qSync();
+}
+function qPlay(u, st, hold) {
+  u.an = { st, t0: performance.now(), hold: !!hold };
+  if (u.pic) {
+    const t = qTile(u); if (!t) return; clearTimeout(u.pt); t.removeAttribute("data-st"); void t.offsetWidth; t.style.setProperty("--d", sprTotal(st) / B.speed + "ms"); t.dataset.st = st;
+    if (!hold && st !== "idle") u.pt = setTimeout(() => { if (t.isConnected) { if (u.alive) t.removeAttribute("data-st"); else t.dataset.st = "dead"; } }, sprTotal(st) / B.speed);
+  }
+}
+function qAnimLoop() {
+  if (!B || !B.ui) return; const now = performance.now();
+  for (const u of B.party.concat(B.foes)) {
+    if (!u.cv || u.pic) continue; let a = u.an || (u.an = { st: u.alive ? "idle" : "dead", t0: now, hold: !u.alive }), t = (now - a.t0) * B.speed;
+    if (!a.hold && a.st !== "idle" && t >= sprTotal(a.st)) { a = u.an = u.alive ? { st: "idle", t0: now } : { st: "dead", t0: now, hold: true }; t = 0; }
+    sprDraw(u.cv, u.c, a.st, a.hold ? 1e9 : t);
+  }
+  requestAnimationFrame(qAnimLoop);
+}
+function qTile(u) { const arr = u.side === 0 ? B.party : B.foes; return B.ui ? $("#t-" + u.side + "-" + arr.indexOf(u)) : null; }
+function qMsg(t) { if (B.ui) { const m = $("#bmsg"); m.textContent = t; m.classList.remove("in"); void m.offsetWidth; m.classList.add("in"); } }
+function qPop(u, text, cls) {
+  if (!B.ui) return; const t = qTile(u); if (!t) return;
+  const s = document.createElement("span"); s.className = "dmg " + (cls || ""); s.textContent = text; t.appendChild(s); setTimeout(() => s.remove(), 900);
+}
+
+/* ----- the bottom half: party panels, the command row, AUTO / REPEAT / RESET / MENU ----- */
+function qPanel(u, i) {
+  const pic = UNITMAP[u.c.id] || artSrc(u.c), c = B.cmds[i], cur = i === B.cur && B.phase === "select" && !B.auto;
+  return `<div class="pn ${cur ? "cur" : ""} ${u.alive ? "" : "dead"} ${c ? "set" : ""}" data-act="qsel" data-i="${i}"><div class="pp"><img src="${pic}" alt=""></div><div class="pi"><b>${esc(u.name.length > 13 ? u.name.slice(0, 12) + "." : u.name)}${u.stars > 1 ? ' <i class="st">★' + u.stars + "</i>" : ""}</b><span class="lim ${u.lb >= 100 ? "full" : ""}"><i style="width:${Math.min(100, u.lb)}%"></i><em>LIMIT</em></span><div class="hp"><small>HP</small><b>${u.hp}</b><small>/${u.max}</small></div><div class="hpbar"><i style="width:${Math.max(0, 100 * u.hp / u.max)}%"></i></div><div class="mp"><small>MP</small><b>${u.mp}</b>${c ? `<em class="cm">${esc(qLabel(u, c))}</em>` : ""}</div></div></div>`;
+}
+function qCmdRow() {
+  if (B.phase !== "select") return `<div class="cmdnote">${B.phase === "exec" ? "…" : "GO"}</div>`;
+  if (B.auto) return '<div class="cmdnote">AUTO BATTLE</div>';
+  if (B.tgtMode) return `<div class="cmdnote">Tap a foe to target <button class="btn sm dark" data-act="qcancel">Cancel</button></div>`;
+  const u = B.party[B.cur]; if (!u || !u.alive) return '<div class="cmdnote">…</div>'; const a = QABL[u.sk], l = QLB[u.sk];
+  return `<div class="cmds"><button class="cmd" data-act="qcmd" data-k="atk">Attack</button><button class="cmd" data-act="qcmd" data-k="abl" ${u.mp < a.mp ? "disabled" : ""}>${esc(a.n)}<small>${a.mp} MP</small></button><button class="cmd lb ${u.lb >= 100 ? "ready" : ""}" data-act="qcmd" data-k="lb" ${u.lb < 100 ? "disabled" : ""}>${esc(l.n)}<small>LIMIT</small></button></div>`;
+}
+function qSync() {
+  if (!B.ui) return;
+  [[B.party, 0], [B.foes, 1]].forEach(([arr, s]) => arr.forEach((u, i) => { const t = $("#t-" + s + "-" + i); if (!t) return; t.classList.toggle("dead", !u.alive); const h = t.querySelector(".uhp i"); if (h) h.style.width = Math.max(0, 100 * u.hp / u.max) + "%"; t.classList.toggle("buffed", u.buff > 0); t.classList.toggle("tgt", s === 1 && u.alive && B.tgtMode != null); t.classList.toggle("cur", s === 0 && i === B.cur && B.phase === "select" && !B.auto); }));
+  $("#bturn").textContent = "TURN " + B.turn;
+  const f = (B.tgt && B.tgt.alive ? B.tgt : qAlive(B.foes)[0]); $("#foebar").innerHTML = f ? `<b>${esc(f.name)}</b><span class="fb"><i style="width:${Math.max(0, 100 * f.hp / f.max)}%"></i><em>${Math.max(0, Math.round(100 * f.hp / f.max))}%</em></span>` : "";
+  $("#bpanel").innerHTML = qCmdRow() + `<div class="bgrid">${B.party.map((u, i) => qPanel(u, i)).join("")}</div><div class="bbtns"><button class="bb ${B.auto ? "on" : ""}" data-act="qauto">AUTO</button><button class="bb" data-act="qrepeat">REPEAT</button><button class="bb" data-act="qreset">RESET</button><button class="bb" data-act="qmenu">MENU</button></div>`;
+}
+
+/* ----- command entry ----- */
+const qNeedsTarget = (u, k) => k === "atk" || u.sk === "smash";
+function qCmd(k) {
+  const u = B.party[B.cur]; if (!u || !u.alive || B.phase !== "select" || B.auto) return;
+  if (k === "abl" && u.mp < QABL[u.sk].mp) return toast("Not enough MP."); if (k === "lb" && u.lb < 100) return;
+  if (qNeedsTarget(u, k) && qAlive(B.foes).length > 1) { B.tgtMode = k; qSync(); return; }
+  qAssign({ k, t: qAlive(B.foes)[0] });
+}
+function qTgt(i) {
+  if (B.phase !== "select") return; const f = B.foes[i]; if (!f || !f.alive) return;
+  if (B.tgtMode == null) { B.tgt = f; qSync(); return; }
+  const k = B.tgtMode; B.tgtMode = null; qAssign({ k, t: f });
+}
+function qAssign(c) {
+  B.cmds[B.cur] = c; if (c.t) B.tgt = c.t; const nx = B.party.findIndex((u, i) => u.alive && !B.cmds[i]);
+  if (nx >= 0) { B.cur = nx; qSync(); return; }
+  B.phase = "locked"; qSync(); if (B.go) B.go();
+}
+function qSel(i) { if (B.phase !== "select" || B.auto || !B.party[i].alive) return; B.cur = i; B.tgtMode = null; delete B.cmds[i]; qSync(); }
+function qReset() { if (B.phase !== "select") return; B.cmds = {}; B.tgtMode = null; B.cur = Math.max(0, B.party.findIndex(u => u.alive)); qSync(); }
+function qRepeat() {
+  if (B.phase !== "select" || !B.last) return;
+  B.party.forEach((u, i) => { if (!u.alive) return; const c = B.last[i]; let k = c ? c.k : "atk"; if (k === "abl" && u.mp < QABL[u.sk].mp) k = "atk"; if (k === "lb" && u.lb < 100) k = "atk"; B.cmds[i] = { k, t: qAlive(B.foes)[Math.min(c ? c.ti : 0, qAlive(B.foes).length - 1)] || qAlive(B.foes)[0] }; });
+  B.phase = "locked"; qSync(); if (B.go) B.go();
+}
+function qAuto() { B.auto = !B.auto; if (B.auto && B.phase === "select") { qAutoCmds(); B.phase = "locked"; B.tgtMode = null; if (B.go) B.go(); } qSync(); }
+function qAutoCmds() {
+  const foes = qAlive(B.foes), hurt = B.party.some(u => u.alive && u.hp < u.max * .6), buffed = B.party.some(u => u.alive && u.buff > 0);
+  B.party.forEach((u, i) => {
+    if (!u.alive) return; const a = QABL[u.sk]; let k = "atk";
+    if (u.lb >= 100) k = "lb";
+    else if (u.mp >= a.mp && ((u.sk === "heal" && hurt) || (u.sk === "rally" && !buffed) || ((u.sk === "smash" || u.sk === "wave") && (B.round = (B.round || 0) + 1) % 3 !== 0))) k = "abl";
+    B.cmds[i] = { k, t: foes.slice().sort((p, q) => p.hp - q.hp)[0] || foes[0] };
+  });
+}
+
+/* ----- the turn ----- */
+async function qRun() {
+  const me = B;
+  while (B === me && !me.done) {
+    B.turn++; B.cmds = {}; B.tgtMode = null; B.cur = Math.max(0, B.party.findIndex(u => u.alive)); B.phase = "select";
+    if (B.ui) qSync();
+    if (B.auto || !B.ui) qAutoCmds(); else await new Promise(r => { B.go = r; });
+    if (B !== me || me.done) return me.out; B.phase = "exec"; B.last = B.party.map((u, i) => { const c = B.cmds[i]; return c ? { k: c.k, ti: Math.max(0, B.foes.indexOf(c.t)) } : null; });
+    if (B.ui) qSync(); await qExecute(); if (B !== me) return me.out;
+    if (!me.done && me.turn >= 60) return qEnd(false);
+  }
+  return me.out;
+}
+async function qExecute() {
+  const acts = []; B.party.forEach((u, i) => { if (u.alive && B.cmds[i]) acts.push({ u, c: B.cmds[i] }); }); B.foes.forEach(u => { if (u.alive) acts.push({ u, c: null }); });
+  acts.sort((a, b) => b.u.spd - a.u.spd);
+  for (const a of acts) {
+    if (!B || B.done) return; if (!a.u.alive) continue; if (!qAlive(B.foes).length || !qAlive(B.party).length) break;
+    await qAct(a.u, a.c); if (!B) return;
+    if (!qAlive(B.party).length) return qEnd(false); if (!qAlive(B.foes).length) break;
+  }
+  if (!B || B.done) return;
+  if (!qAlive(B.foes).length) { if (B.wave + 1 >= qMission(B.g).waves.length) return qEnd(true); await qW(500); B.wave++; B.foes = qFoes(B.g, B.wave); B.tgt = null; qFoeRow(); await qW(400); }
+  B.party.forEach(u => { if (u.alive) { if (u.buff > 0) u.buff--; u.mp = Math.min(u.mpMax, u.mp + 3); } }); qSync();
+}
+async function qAct(u, c) {
+  if (u.side === 1) { if (u.boss && ++u.n % 3 === 0) return qRoar(u); return qAttack(u, 1); }
+  const t = c.t && c.t.alive ? c.t : qAlive(B.foes)[0];
+  if (c.k === "lb" && u.lb >= 100) return qLimit(u, t); if (c.k === "abl" && u.mp >= QABL[u.sk].mp) return qAbility(u, t); return qAttack(u, 1, t);
+}
+function qHit(a, t, mult) {
+  const buff = a.buff > 0 ? (a.buffK || 1.35) : 1, d = Math.max(1, Math.round(a.atk * buff * mult * (.9 + Math.random() * .2) * 100 / (100 + t.def)));
+  t.hp -= d; qPop(t, d, mult > 2 ? "big" : ""); if (a.side === 0) a.lb = Math.min(100, a.lb + 9);
+  if (B.ui) { const tl = qTile(t); if (tl) { tl.classList.add("hurt"); setTimeout(() => tl.classList.remove("hurt"), 260); } sfx("flip"); }
+  if (t.hp <= 0) { t.hp = 0; t.alive = false; t.lb = 0; if (B.ui) qPlay(t, "dead", true); } else { if (B.ui) qPlay(t, "hurt"); if (t.side === 0) t.lb = Math.min(100, t.lb + 12); } return d;
+}
+async function qAttack(u, mult, tg) {
+  tg = tg || (u.side === 0 ? qAlive(B.foes)[0] : (a => a[Math.floor(Math.random() * a.length)])(qAlive(B.party))); if (!tg) return;
+  const kind = qFxOf(u.c); if (B.ui) qPlay(u, "attack"); await qW(220);
+  const st = qStrike(u, tg, kind); if (kind === "orb" || kind === "bolt") await st; qHit(u, tg, mult || 1); if (u.side === 0) u.mp = Math.min(u.mpMax, u.mp + 4); qSync(); await qW(340);
+}
+async function qAbility(u, t) {
+  const k = u.sk, a = QABL[k], pw = 1 + .12 * ((u.stars || 1) - 1); u.mp -= a.mp; qMsg(a.n); if (B.ui) qPlay(u, "burst"); await qW(380); const col = qCol(u);
+  if (k === "smash") { qStrike(u, t, qFxOf(u.c)); qRing(t, col, 4); qHit(u, t, a.m * pw); sfx("plus"); }
+  else if (k === "wave") { sfx("same"); qAlive(B.foes).forEach(f => { qRing(f, col, 3); qHit(u, f, a.m * pw); }); }
+  else if (k === "heal") { sfx("level"); qAlive(B.party).forEach(p => { const h = Math.round(u.atk * 1.6 * pw); p.hp = Math.min(p.max, p.hp + h); qPop(p, "+" + h, "heal"); qSpark(p, "#7dff9a"); }); }
+  else { sfx("ping", 4); qAlive(B.party).forEach(p => { p.buff = 3; p.buffK = 1.35; qPop(p, "ATK↑", "heal"); qRing(p, "#ff9a3a", 3); }); }
+  u.lb = Math.min(100, u.lb + 6); qSync(); await qW(560);
+}
+async function qLimit(u, t) {
+  const k = u.sk, l = QLB[k], pw = 1 + .12 * ((u.stars || 1) - 1); u.lb = 0; qMsg(l.n);
+  await qCut(u, l.n); if (B.ui) { sfx("chain"); $("#bt").classList.add("flash"); setTimeout(() => $("#bt").classList.remove("flash"), 700); qShake(); qPlay(u, "burst"); } const col = qCol(u); await qW(300);
+  if (k === "smash") { qStrike(u, t, qFxOf(u.c)); qRing(t, col, 7); qHit(u, t, l.m * pw); }
+  else if (k === "wave") { qAlive(B.foes).forEach(f => { qRing(f, col, 5); qHit(u, f, l.m * pw); }); }
+  else if (k === "heal") { B.party.forEach(p => { if (!p.alive) { p.alive = true; p.hp = Math.round(p.max * .4); if (B.ui) qPlay(p, "idle"); } else { p.hp = p.max; } qPop(p, "FULL", "heal"); qSpark(p, "#7dff9a"); }); }
+  else { qAlive(B.party).forEach(p => { p.buff = 4; p.buffK = 1.6; p.hp = Math.min(p.max, p.hp + Math.round(p.max * .3)); qPop(p, "ATK↑", "heal"); qRing(p, "#ff9a3a", 4); }); }
+  qSync(); await qW(750);
+}
+async function qRoar(u) {
+  qMsg(u.name + " roars!"); const tl = qTile(u); if (tl) tl.classList.add("burst"); if (B.ui) qPlay(u, "burst"); qShake(); await qW(420); if (tl) tl.classList.remove("burst");
+  qAlive(B.party).forEach(t => qHit(u, t, .9)); qSync(); await qW(520);
+}
+function qEnd(win) {
+  const b = B; b.done = true; b.out = win; if (!b.ui) { B = null; return win; }
+  setTimeout(() => qResult(win), 500); return win;
+}
+
+/* ----- the show: slashes, claws, orbs, bolts, the cut-in, rings and sparkles. Skipped in the bot's silent fights. ----- */
+const qCol = u => getComputedStyle(document.documentElement).getPropertyValue("--r" + rarOf(u.c)).trim() || "#fff";
+function qPt(u) { const t = qTile(u); if (!t) return null; const a = t.querySelector(".uart").getBoundingClientRect(), r = $("#bt").getBoundingClientRect(); return { x: a.left - r.left + a.width / 2, y: a.top - r.top + a.height / 2, w: a.width, h: a.height }; }
+function qFxEl(cls, x, y, w, h) { const e = document.createElement("i"); e.className = "fx " + cls; Object.assign(e.style, { left: x + "px", top: y + "px", width: w + "px", height: h + "px" }); $("#bfx").appendChild(e); setTimeout(() => e.remove(), 1400); return e; }
+function qAnim(e, frames, ms, opt) { const a = e.animate(frames, Object.assign({ duration: ms / B.speed, easing: "ease-out", fill: "forwards" }, opt || {})); return a.finished.catch(() => 0); }
+async function qStrike(a, t, kind) {
+  if (!B.ui) return; const p = qPt(t), q = qPt(a); if (!p) return; const col = qCol(a);
+  if (kind === "slash") { const e = qFxEl("slash", p.x - p.w * .6, p.y - 4, p.w * 1.2, 8); e.style.setProperty("--c", col); qAnim(e, [{ transform: "rotate(-38deg) scaleX(0)", opacity: 1 }, { transform: "rotate(-38deg) scaleX(1)", opacity: 1, offset: .5 }, { transform: "rotate(-38deg) scaleX(1)", opacity: 0 }], 320); }
+  else if (kind === "claw") { for (let k = -1; k <= 1; k++) { const e = qFxEl("claw", p.x + k * p.w * .22 - 3, p.y - p.h * .4, 6, p.h * .8); qAnim(e, [{ transform: "rotate(-18deg) scaleY(0)", opacity: 1 }, { transform: "rotate(-18deg) scaleY(1)", opacity: 1, offset: .4 }, { transform: "rotate(-18deg) scaleY(1)", opacity: 0 }], 340, { delay: (k + 1) * 50 / B.speed }); } }
+  else if (kind === "orb" && q) { const e = qFxEl("orb", q.x - 14, q.y - 14, 28, 28); e.style.setProperty("--c", col); await qAnim(e, [{ transform: "translate(0,0) scale(.6)" }, { transform: `translate(${p.x - q.x}px,${p.y - q.y}px) scale(1.2)` }], 260); const r = qFxEl("ring", p.x - 10, p.y - 10, 20, 20); r.style.setProperty("--c", col); qAnim(r, [{ transform: "scale(.4)", opacity: 1 }, { transform: "scale(3.2)", opacity: 0 }], 360); e.remove(); }
+  else if (kind === "bolt" && q) { const dx = p.x - q.x, dy = p.y - q.y, len = Math.hypot(dx, dy), e = qFxEl("bolt", q.x, q.y - 3, len, 6); e.style.setProperty("--c", col); e.style.transformOrigin = "0 50%"; await qAnim(e, [{ transform: `rotate(${Math.atan2(dy, dx)}rad) scaleX(0)`, opacity: 1 }, { transform: `rotate(${Math.atan2(dy, dx)}rad) scaleX(1)`, opacity: 1, offset: .5 }, { transform: `rotate(${Math.atan2(dy, dx)}rad) scaleX(1)`, opacity: 0 }], 280); }
+}
+async function qCut(u, name) {   // the Limit Burst: the unit's picture sweeps across the whole screen under its name
+  if (!B.ui) return; const c = $("#bcut"), col = qCol(u), pic = UNITMAP[u.c.id]; c.hidden = false; c.style.setProperty("--c", col);
+  c.innerHTML = `<div class="rays"></div><div class="who2">${pic ? `<img src="${pic}" alt="">` : '<canvas width="128" height="128"></canvas>'}</div><div class="sk fat">${esc(name)}</div><div class="un fat">${esc(u.name)}</div><div class="lbw fat">LIMIT BURST</div>`;
+  if (!pic) sprDraw(c.querySelector("canvas"), u.c, "burst", 300); sfx("charge");
+  await qAnim(c, [{ opacity: 0 }, { opacity: 1, offset: .1 }, { opacity: 1, offset: .86 }, { opacity: 0 }], 1500, { easing: "linear" }); c.hidden = true; c.style.opacity = "";
+}
+function qRing(u, col, big) { if (!B.ui) return; const p = qPt(u); if (!p) return; const r = qFxEl("ring", p.x - 12, p.y - 12, 24, 24); r.style.setProperty("--c", col); qAnim(r, [{ transform: "scale(.4)", opacity: 1 }, { transform: `scale(${big || 5})`, opacity: 0 }], 520); }
+function qSpark(u, col) { if (!B.ui) return; const p = qPt(u); if (!p) return; for (let k = 0; k < 6; k++) { const e = qFxEl("spark", p.x - 4 + (k - 2.5) * p.w * .14, p.y + p.h * .2, 8, 8); e.style.setProperty("--c", col); qAnim(e, [{ transform: "translateY(0) scale(1)", opacity: 1 }, { transform: `translateY(${-p.h * .8}px) scale(.3)`, opacity: 0 }], 700, { delay: k * 60 / B.speed }); } }
+function qShake() { if (!B.ui) return; const f = $("#bscene"); if (f) { f.classList.remove("rock"); void f.offsetWidth; f.classList.add("rock"); } }
+
+function qMenu() {
+  if (!B) return; openSheet(`<h2 class="fat">MENU</h2><div class="row c" style="margin-top:10px"><button class="btn" data-act="qspeed">Speed ${B.speed}×</button><button class="btn red" data-act="qleave">Retreat</button><button class="btn yellow" data-act="closeModal">Resume</button></div>`);
+}
+
+/* Used to tune the missions: plays them as a bot (auto battle, no screen). Party: a smooth curve of rising cards at the on-curve level and stars. */
 async function qSim(g0, g1, n = 12) {
   qInit(); const out = [], all = C.filter(c => !c.ex).sort((a, b) => qPower(a) - qPower(b));
   for (let g = g0; g <= g1; g++) {
-    const stars = 1 + Math.min(4, Math.floor(g / 15)), lv = 1 + Math.round(g * .72), cut = Math.ceil(all.length * (.1 + .75 * g / (NM - 1)));
-    const team = all.slice(0, cut).slice(-4); let w = 0, hp = 0;
-    for (let k = 0; k < n; k++) { const p = team.map(c => qMk(c, 0, Math.min(lv, qLvCap(c, stars)), stars)); B = { g, ui: false, party: p, wave: 0, foes: qFoes(g, 0), lb: 0, lbQ: false, auto: true, speed: 1, round: 0, done: false }; const r = await qLoop(); B = null; if (r === true) { w++; hp += p.reduce((a, u) => a + u.hp, 0) / p.reduce((a, u) => a + u.max, 0); } }
+    const stars = 1 + Math.min(4, Math.floor(g / 15)), lv = 1 + Math.round(g * .72), cut = Math.ceil(all.length * (.1 + .75 * g / (NM - 1))), team = all.slice(0, cut).slice(-4); let w = 0, hp = 0;
+    for (let k = 0; k < n; k++) {
+      const p = team.map(c => qMk(c, 0, Math.min(lv, qLvCap(c, stars)), stars)); B = { g, ui: false, party: p, wave: 0, foes: qFoes(g, 0), turn: 0, phase: "select", cmds: {}, cur: 0, tgt: null, tgtMode: null, auto: true, speed: 1, last: null, done: false, go: null };
+      const r = await qRun(); B = null; if (r === true) { w++; hp += p.reduce((a, u) => a + u.hp, 0) / p.reduce((a, u) => a + u.max, 0); }
+    }
     out.push(g + ":" + Math.round(100 * w / n) + "%/" + (w ? Math.round(100 * hp / w) : 0));
   }
   return out.join(" ");
@@ -1650,6 +1794,15 @@ document.addEventListener("click", async e => {
   switch (a) {
     case "tab": return show(d.k);
     case "qstage": return qStageSheet(+d.i);
+    case "qauto": if (B) qAuto(); return;
+    case "qspeed": if (B) { B.speed = B.speed === 1 ? 2 : B.speed === 2 ? 3 : 1; if (B.ui) qSync(); closeModal(); } return;
+    case "qrepeat": if (B) qRepeat(); return;
+    case "qreset": if (B) qReset(); return;
+    case "qmenu": return qMenu();
+    case "qcmd": if (B) qCmd(d.k); return;
+    case "qcancel": if (B) { B.tgtMode = null; qSync(); } return;
+    case "qtgt": if (B) qTgt(+d.i); return;
+    case "qsel": if (B) qSel(+d.i); return;
     case "qworld": Q.ch = null; return show("quest");
     case "qchap": Q.ch = +d.ch; return show("quest");
     case "qtrain": { qInit(); if (P.dust >= QTRAIN.dust) { P.dust -= QTRAIN.dust; const ups = qGain(d.id, QTRAIN.xp); scheduleSave(); chrome(); detail(d.id); if (ups.length) toast(ups[ups.length - 1]); } return; }
@@ -1657,10 +1810,7 @@ document.addEventListener("click", async e => {
     case "qteam": return qTeamSheet();
     case "qpick": return qPick(d.id);
     case "qleave": case "qleave2": return qLeave();
-    case "qauto": if (B) { B.auto = !B.auto; qSync(); } return;
-    case "qspeed": if (B) { B.speed = B.speed === 1 ? 2 : B.speed === 2 ? 3 : 1; qSync(); } return;
-    case "qlb": if (B && B.lb >= 100) { B.lbQ = !B.lbQ; qSync(); } return;
-    case "qburst": if (B) { const u = B.party[+d.i]; if (u && u.alive && u.bc >= 100) { u.q = !u.q; qSync(); } } return;
+
     case "quick": return startAi({ tier: +d.t });
     case "stage": { const ci = +d.c, si = +d.s, ch = CAMPAIGN[ci], st = ch.stages[si]; return openSheet(`<span class="ribbon">${esc(st[0]).toUpperCase()}</span><div class="row" style="flex-wrap:nowrap;align-items:flex-start"><div style="width:96px;flex:none">${cardHtml(BY[st[1]])}</div><p class="note" style="margin:0">${TIERS[ch.tier]} foes${si === 3 ? " · boss" : ""}. They hold ${esc(BY[st[1]].name)} and four more. Their deck costs about ${STAGE_COST[ci * 4 + si]}; yours is ${deckCost(P.decks[P.deck])} of ${deckCap()}.<br>First clear: ${ch.tickets[si]} ${ic("ticket")}. Every win lets you take a copy of one of their cards.</p></div><div class="row c" style="margin-top:14px"><button class="btn yellow big" data-act="stageGo" data-c="${ci}" data-s="${si}">FIGHT</button><button class="btn dark" data-act="closeModal">Back</button></div>`); }
     case "stageGo": { closeModal(); const ci = +d.c, si = +d.s; return startAi({ tier: CAMPAIGN[ci].tier, stage: { c: ci, s: si, sig: CAMPAIGN[ci].stages[si][1], boss: si === 3 } }); }
