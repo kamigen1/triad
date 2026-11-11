@@ -1,6 +1,6 @@
 {
-  "name": "triad-server",
-  "main": "src/index.js",
+  "name": "triad",
+  "main": "server/src/index.js",
   "compatibility_date": "2025-01-01",
   "durable_objects": {
     "bindings": [
