@@ -870,7 +870,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.11.11-e";
+const VER = "2026.11.11-f";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -1401,8 +1401,9 @@ async function ckFx(e) {
   else if (e.t === "buff") { kpop(kq(e.s, e.i), e.text, "heal"); sfx("ping", 3); await sleep(320 / sp); }
   else if (e.t === "enter") { await sleep(260 / sp); }
 }
-async function ckFight() {
-  if (!G || G.phase !== "plan" || CKU.busy || G.over) return; if (G.online) return cknFight();
+async function ckFight(auto) {
+  if (!G || G.phase !== "plan" || CKU.busy || G.over) return;
+  if (auto !== true) { G.to = G.to || [0, 0]; if (G.to[ME]) { G.to[ME] = 0; if (G.online && ONL) ONL.send({ k: "to", n: 0 }); } }   // playing a turn in time clears the warning if (G.online) return cknFight();
   CKU.busy = true; CKU.sel = null; CKU.mode = null; sfx("charge");
   const acts = ckAiPlan(1); ckRender(); await sleep(250 / G.speed); await ckAiExecute(acts); if (!G.over) await ckBattle(); CKU.busy = false; CKU.msg = ""; ckRender(); if (G.over) ckResult();
 }
@@ -1488,7 +1489,7 @@ setInterval(() => {
   if (left > 0) return;
   CKT.end = 0; G.to[ME]++; if (G.online && ONL) ONL.send({ k: "to", n: G.to[ME] });
   if (G.to[ME] >= TURN_MAX_OUT) { if (G.online && ONL) ONL.send({ k: "forfeit" }); return ckForfeit(ME, "Disqualified: ran out of time twice"); }
-  toast("Out of time! One more and you are disqualified."); ckFight();
+  toast("Out of time! Warning " + G.to[ME] + "/" + TURN_MAX_OUT + ". Play your next turn in time to clear it."); ckFight(true);
 }, 250);
 
 /* ===== Clash online: two phones, one shared board that both of them simulate. ===== */
@@ -1515,7 +1516,7 @@ function cknGot(m) {
   if (!ONL || !G || !m) return;
   if (m.k === "plan") { ONL.theirPlans[m.r] = m.a || []; cknTryReveal(); }
   else if (m.k === "sum") { ONL.sums[m.r] = m.h; cknCheckSum(m.r); }
-  else if (m.k === "to") { (G.to = G.to || [0, 0])[1 - ME] = m.n; toast("Your opponent ran out of time (" + m.n + "/" + TURN_MAX_OUT + ")."); }
+  else if (m.k === "to") { (G.to = G.to || [0, 0])[1 - ME] = m.n; if (m.n) toast("Your opponent ran out of time (" + m.n + "/" + TURN_MAX_OUT + ")."); }
   else if (m.k === "forfeit") ckForfeit(1 - ME, "Opponent disqualified: ran out of time twice");
   else if (m.k === "bye") { toast("Your opponent left."); if (!G.over) { G.over = true; G.winner = ME; ckResult(); } }
 }
