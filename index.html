@@ -870,7 +870,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.11.11-d";
+const VER = "2026.11.11-e";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -1384,7 +1384,7 @@ function ckRender() {
   const bench = (s) => [0, 1, 2].map(i => kuHtml(G.s[s].bench[i], s, i, "bench", { mini: true, sel: sel && sel.kind === "bench" && sel.s === s && sel.i === i })).join("");
   const coreBar = (S, s) => `<div class="coreb ${s === ME ? "me" : "foe"}" id="core${s}"><span>${s === ME ? "YOU" : esc((CKU.opp || "ENEMY").toUpperCase().slice(0, 7))}</span><div class="cbar"><i style="width:${Math.max(0, 100 * S.core / (G.coreMax ? G.coreMax[s] : CK.CORE))}%"></i><em>${Math.max(0, S.core)}</em></div><div class="pips">${energyPips(S.energy)}</div></div>`;
   const surge = G.round >= CK.SURGE ? `SURGE +${G.round - CK.SURGE + 1}` : `Surge in ${CK.SURGE - G.round}`;
-  root.innerHTML = `<div class="ckwrap"><div class="ckhud"><button class="btn sm red" data-ck="menu">✕</button><b class="fat">ROUND ${Math.min(G.round, CK.MAXR)}</b><span class="surge">${surge}</span><button class="btn sm dark" data-ck="speed">${G.speed}×</button></div>` +
+  root.innerHTML = `<div class="ckwrap"><div class="ckhud"><button class="btn sm red" data-ck="menu">✕</button><b class="fat">ROUND ${Math.min(G.round, CK.MAXR)}</b><span class="surge">${surge} · <i id="cktime" style="font-style:normal"></i></span><button class="btn sm dark" data-ck="speed">${G.speed}×</button></div>` +
     `<div class="side foe"><div class="bench">${bench(F)}</div>${coreBar(foe, F)}<div class="lanes">${row(F)}</div></div><div class="vsline"><span id="ckmsg">${esc(CKU.msg || "")}</span></div><div class="side me"><div class="lanes">${row(ME)}</div>${coreBar(me, ME)}<div class="bench">${bench(ME)}</div></div>` +
     `<div class="ckpanel">${ckPanel()}</div><button class="fightbtn btn big yellow" data-ck="fight" ${G.phase !== "plan" || CKU.busy || G.over ? "disabled" : ""}>FIGHT</button></div>`;
 }
@@ -1420,6 +1420,7 @@ function ckResult() {
     if (win && rk.day !== today()) { rk.day = today(); packs += 1; }
     if (after > rk.tierBest) { rk.tierBest = after; packs += 3; extra += " · NEW TIER, +3 packs"; }
   } else if (mode.kind === "online") { dust = win ? 10 : 5; xp = win ? 20 : 10; }
+  if (G.note) extra = G.note + (extra ? " · " + extra : "");
   P.dust += dust; P.tickets += packs; const ups = xp ? gainXp(xp) : []; scheduleSave(); chrome(); sfx(win ? "win" : draw ? "draw" : "lose");
   const again = mode.kind === "online" ? "" : `<button class="btn yellow" data-ck="rematch">${mode.kind === "camp" ? "Again" : "Rematch"}</button>`;
   openSheet(`<span class="ribbon ${win ? "gold" : ""}">${win ? "VICTORY" : draw ? "DRAW" : "DEFEAT"}</span><div class="panel"><p style="margin:0 0 6px">Round ${Math.min(G.round, CK.MAXR)} · your core ${Math.max(0, G.s[ME].core)} · their core ${Math.max(0, G.s[1 - ME].core)}</p><div class="row c">${dust ? `<span class="tag gold">+${dust} ${ic("gem", "ico")}</span>` : ""}${packs ? `<span class="tag ok">+${packs} pack${packs > 1 ? "s" : ""}</span>` : ""}</div>${extra ? `<p class="note" style="margin:8px 0 0;color:var(--yellow)">${esc(extra)}</p>` : ""}${ups.length ? `<p class="note" style="margin:6px 0 0;color:var(--yellow)">${ups.map(esc).join("<br>")}</p>` : ""}</div><div class="row c" style="margin-top:12px">${again}<button class="btn dark" data-ck="leave">Back</button></div>`);
@@ -1474,6 +1475,22 @@ document.addEventListener("change", e => {
   const el = e.target.closest && e.target.closest("[data-ck]"); if (!el) return; if (el.dataset.ck === "deckSel") { P.cdi = +el.value; scheduleSave(); show(tab); } else if (el.dataset.ck === "dfilt") { CKD.el = el.value; deckSheet2(); }
 });
 
+/* ----- turn timer: 60 seconds to plan; the second time you run out you are disqualified and lose ----- */
+const TURN_SECS = 60, TURN_MAX_OUT = 2; let CKT = { end: 0, round: -1 };
+function ckForfeit(loser, why) { if (!G || G.over) return; G.over = true; G.winner = 1 - loser; G.note = why; CKU.busy = false; CKU.msg = ""; ckRender(); ckResult(); }
+setInterval(() => {
+  if (!G || G.over || $("#ck").hidden) { CKT.end = 0; return; }
+  const el = $("#cktime");
+  if (G.phase !== "plan" || CKU.busy) { CKT.end = 0; if (el) el.textContent = ""; if (G.online && ONL && ONL.sent === G.round && !ONL.revealing && !ONL.theirPlans[G.round]) { ONL.wait = ONL.wait || Date.now(); if (Date.now() - ONL.wait > (TURN_SECS + 30) * 1000) ckForfeit(1 - ME, "Opponent stopped responding"); } else if (ONL) ONL.wait = 0; return; }
+  if (!CKT.end || CKT.round !== G.round) { CKT.end = Date.now() + TURN_SECS * 1000; CKT.round = G.round; }
+  const left = Math.max(0, Math.ceil((CKT.end - Date.now()) / 1000)), out = (G.to = G.to || [0, 0])[ME];
+  if (el) { el.textContent = left + "s" + (out ? " ⚠" + out + "/" + TURN_MAX_OUT : ""); el.style.color = left <= 10 ? "#ff8d98" : ""; }
+  if (left > 0) return;
+  CKT.end = 0; G.to[ME]++; if (G.online && ONL) ONL.send({ k: "to", n: G.to[ME] });
+  if (G.to[ME] >= TURN_MAX_OUT) { if (G.online && ONL) ONL.send({ k: "forfeit" }); return ckForfeit(ME, "Disqualified: ran out of time twice"); }
+  toast("Out of time! One more and you are disqualified."); ckFight();
+}, 250);
+
 /* ===== Clash online: two phones, one shared board that both of them simulate. ===== */
 /* Both phones hold the same match (seat 0 is the host, seat 1 the guest). Each player plans in secret and sends the list of what they did; when both lists are in,
    both phones rewind to the start of the round, replay the host's plan and then the guest's, and run the same battle. The rules contain no dice, so the two
@@ -1498,6 +1515,8 @@ function cknGot(m) {
   if (!ONL || !G || !m) return;
   if (m.k === "plan") { ONL.theirPlans[m.r] = m.a || []; cknTryReveal(); }
   else if (m.k === "sum") { ONL.sums[m.r] = m.h; cknCheckSum(m.r); }
+  else if (m.k === "to") { (G.to = G.to || [0, 0])[1 - ME] = m.n; toast("Your opponent ran out of time (" + m.n + "/" + TURN_MAX_OUT + ")."); }
+  else if (m.k === "forfeit") ckForfeit(1 - ME, "Opponent disqualified: ran out of time twice");
   else if (m.k === "bye") { toast("Your opponent left."); if (!G.over) { G.over = true; G.winner = ME; ckResult(); } }
 }
 async function cknApply(s, a) {
