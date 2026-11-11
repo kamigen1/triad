@@ -347,6 +347,44 @@ table.odds { width: 100%; border-collapse: collapse; } table.odds td { padding: 
 .recent { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; } .recent .card { width: 100%; }
 @media (orientation: landscape) and (max-height: 540px) { .pc { width: min(30vh, 170px); } .packw.big { width: 150px; height: 236px; } .psum { grid-template-columns: repeat(5, 1fr); } .packfs { flex-direction: column; } }
 
+/* ===== Clash ===== */
+#ck { position: fixed; inset: 0; z-index: 20; background: radial-gradient(ellipse at 50% 40%, #12583a 0%, var(--felt-d) 55%, var(--felt-dd) 100%); }
+.sa #ck { bottom: auto; height: var(--app-h, 100%); } #ck[hidden] { display: none; }
+.ckwrap { height: 100%; display: flex; flex-direction: column; gap: 4px; padding: calc(env(safe-area-inset-top, 0px) + 6px) max(8px, env(safe-area-inset-left, 0px)) calc(env(safe-area-inset-bottom, 0px) + 8px) max(8px, env(safe-area-inset-right, 0px)); max-width: 560px; margin: 0 auto; }
+.ckhud { display: flex; align-items: center; justify-content: space-between; gap: 8px; } .ckhud b { font-size: 18px; } .surge { font: 400 12px var(--display); color: #ffb36b; }
+.side { display: flex; flex-direction: column; gap: 4px; } .lanes { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; } .bench { display: flex; gap: 5px; justify-content: center; } .bench .ku { width: 15%; }
+.vsline { text-align: center; min-height: 20px; font: 400 16px var(--display); color: var(--yellow); -webkit-text-stroke: .1em #000; paint-order: stroke fill; letter-spacing: .06em; }
+.coreb { display: flex; align-items: center; gap: 8px; } .coreb span { font: 400 11px var(--display); color: #fff; width: 44px; }
+.cbar { position: relative; flex: 1; height: 14px; border: 2px solid #000; border-radius: 7px; background: #1a0508; overflow: hidden; } .coreb.me .cbar { background: #031a10; }
+.cbar i { position: absolute; left: 0; top: 0; bottom: 0; background: linear-gradient(#ff8d98, #d72b3c); transition: width .35s; } .coreb.me .cbar i { background: linear-gradient(#9dff6a, #35b520); } .cbar em { position: absolute; inset: 0; text-align: center; font: 800 10px/10px var(--body); color: #fff; text-shadow: 0 1px 0 #000; font-style: normal; }
+.pips { display: flex; gap: 3px; } .pips i { width: 10px; height: 14px; border-radius: 3px; background: #0a1a12; border: 1px solid #000; } .pips i.on { background: linear-gradient(#ffe57a, #e0a410); box-shadow: 0 0 6px #ffd23f99; }
+.coreb.shake { animation: shake .4s; }
+/* a card in a lane */
+.ku { position: relative; aspect-ratio: 5 / 7; border-radius: 8px; border: 2px solid #000; background: linear-gradient(#143a2a, #08170f); overflow: hidden; cursor: pointer; box-shadow: 0 0 0 2px var(--elc, #ffffff40), 0 3px 0 #000a; --elc: #7a8a82; transition: transform .15s, box-shadow .15s; }
+.ku.el-fire { --elc: #ff6a3a; } .ku.el-water { --elc: #3aa0ff; } .ku.el-wind { --elc: #5fe0a0; } .ku.el-earth { --elc: #c9a05a; } .ku.el-lightning { --elc: #ffe03a; } .ku.el-ice { --elc: #9fe6ff; } .ku.el-light { --elc: #fff3b0; } .ku.el-dark { --elc: #b074ff; }
+.ku .kart { position: absolute; inset: 0 0 34% 0; background: #000; } .ku .kart img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ku .kel { position: absolute; right: 2px; top: 2px; font-style: normal; font-size: 13px; text-shadow: 0 0 3px #000, 0 0 3px #000; } .ku .kmk { position: absolute; left: 2px; bottom: 36%; font-style: normal; font-size: 12px; background: #000b; border-radius: 6px; padding: 0 2px; }
+.ku .kcost { position: absolute; left: 2px; top: 2px; width: 16px; height: 16px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #5a9aff, #1a3c9a); border: 1.5px solid #000; font: 400 11px/13px var(--display); color: #fff; text-align: center; }
+.ku .kname { position: absolute; left: 0; right: 0; bottom: 18%; text-align: center; font: 400 9px/1.1 var(--display); color: #fff; -webkit-text-stroke: .12em #000; paint-order: stroke fill; white-space: nowrap; overflow: hidden; }
+.ku .kst { position: absolute; left: 0; right: 0; bottom: 0; height: 18%; display: flex; justify-content: space-between; align-items: center; padding: 0 4px; background: #000b; }
+.ku .kst b { font: 400 13px var(--display); } .ku .kst .a { color: #ffb36b; } .ku .kst .a::before { content: "⚔"; font-size: 9px; margin-right: 1px; } .ku .kst .h { color: #7dff9a; } .ku .kst .h.hurt { color: #ff8d98; } .ku .kst .h::before { content: "♥"; font-size: 9px; margin-right: 1px; }
+.ku .ksh { position: absolute; right: 2px; bottom: 36%; font-style: normal; font-size: 10px; background: #000b; border-radius: 6px; padding: 0 3px; color: #9fe6ff; } .ku .kfr { position: absolute; left: 50%; top: 30%; transform: translateX(-50%); font-style: normal; font-size: 22px; } .ku .ktmp { position: absolute; left: 20px; top: 2px; font-style: normal; font-size: 10px; color: #ffb36b; }
+.ku.foe { box-shadow: 0 0 0 2px #ec3d4c, 0 3px 0 #000a; } .ku.sel { transform: translateY(-5px) scale(1.04); box-shadow: 0 0 0 3px var(--yellow), 0 0 14px var(--yellow); z-index: 3; } .ku.tgt { animation: tgtp .8s ease-in-out infinite; box-shadow: 0 0 0 3px #fff, 0 0 12px #fff; }
+.ku.empty { background: #0003; border: 2px dashed #ffffff40; box-shadow: none; display: grid; place-items: center; } .ku.empty span { font: 400 22px var(--display); color: #ffffff60; }
+.ku.hurt { animation: shake .35s; filter: brightness(1.6) sepia(1) hue-rotate(-30deg) saturate(3); } .ku.act0 { transform: translateY(-14px) scale(1.06); z-index: 4; } .ku.act1 { transform: translateY(14px) scale(1.06); z-index: 4; }
+.ku.mini { cursor: default; } .ku.mini .kname { font-size: 8px; } .ku.mini .kst b { font-size: 11px; }
+.kpopn { position: absolute; left: 50%; top: 24%; transform: translateX(-50%); font: 400 20px var(--display); color: #fff; -webkit-text-stroke: .14em #000; paint-order: stroke fill; pointer-events: none; animation: rise 1s ease-out forwards; z-index: 9; white-space: nowrap; } .kpopn.react { color: #ffd23f; font-size: 24px; } .kpopn.rname { top: 52%; font-size: 13px; color: #7be0ff; } .kpopn.heal { color: #7dff9a; font-size: 14px; }
+.ckpanel { background: linear-gradient(#10261b, #07140d); border: 3px solid #000; border-radius: 14px; box-shadow: inset 0 0 0 2px var(--edge); padding: 6px 8px; min-height: 76px; font-size: 12px; font-weight: 700; }
+.kp1 { display: flex; align-items: center; gap: 8px; color: var(--muted); min-height: 56px; } .kp1 b { color: #fff; font-family: var(--display); }
+.kinfo { line-height: 1.35; } .kinfo b { font: 400 15px var(--display); } .kinfo em { color: var(--yellow); font-style: normal; } .kinfo small { color: var(--muted); } .kbtns { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; align-items: center; }
+.fightbtn { margin: 2px auto 0; width: 70%; } .fightbtn:disabled { opacity: .6; }
+/* deck views */
+.kdeck { margin-top: 8px; } .kd5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; } .kd5.b3 { grid-template-columns: repeat(5, 1fr); } .kd5.b3 .kslot:nth-child(n+4) { display: none; } .kd3 { display: flex; gap: 5px; align-items: center; margin-top: 6px; } .kd3 .ku { width: 15%; } .kd3 small { font: 400 10px var(--display); color: var(--muted); width: 54px; }
+.kslot { border-radius: 10px; padding: 2px; } .kslot.on { background: var(--yellow); }
+.kpick { display: grid; grid-template-columns: repeat(auto-fill, minmax(62px, 1fr)); gap: 6px; max-height: 38vh; overflow-y: auto; padding: 2px; } .kp { position: relative; cursor: pointer; } .kp .kn { position: absolute; right: -2px; top: -4px; background: var(--yellow); color: #000; font: 400 11px var(--display); border-radius: 8px; padding: 0 4px; z-index: 5; }
+.rules p { margin: 0 0 8px; font-size: 13px; line-height: 1.4; font-weight: 700; color: #dff7ea; }
+@media (orientation: landscape) and (max-height: 540px) { .ckwrap { max-width: none; flex-wrap: wrap; } }
+
 @media (prefers-reduced-motion: reduce) { * { animation-duration: .01s !important; } }
 </style>
 
@@ -368,6 +406,7 @@ table.odds { width: 100%; border-collapse: collapse; } table.odds td { padding: 
   <nav id="nav"></nav>
 </div>
 <div id="match" hidden></div>
+<div id="ck" hidden></div>
 <div id="modal" hidden></div>
 <div id="toast"></div>
 <div id="splash"><div class="logo fat">TRIAD<i>SUMMONS</i></div><small>Loading…</small></div>
@@ -608,8 +647,8 @@ function bestDeckIds(cap) {
 }
 
 /* ===== chrome: top bar and the five-button bar ===== */
-let tab = "play";
-const TABS = [["summon", "Packs", "summon"], ["cards", "Cards", "cards"], ["play", "Play", "spade"], ["daily", "Daily", "daily"], ["versus", "Versus", "vs"]];
+let tab = "battle";
+const TABS = [["summon", "Packs", "summon"], ["cards", "Cards", "cards"], ["battle", "Battle", "swords"], ["daily", "Daily", "daily"], ["versus", "Versus", "vs"]];
 function chrome() {
   if (!P) { $("#hud").innerHTML = ""; return; }
   const pct = Math.floor(100 * P.xp / need(P.lv));
@@ -617,7 +656,7 @@ function chrome() {
   const claimable = !P.login || missions().some(m => m.have >= m.need && !P.mis.claimed[m.id]);
   $("#nav").innerHTML = TABS.map(([k, n, i]) => `<button data-act="tab" data-k="${k}" class="${tab === k ? "on" : ""}"><span class="dia">${ic(i, "")}</span><span class="lb">${n.toUpperCase()}</span>${k === "daily" && claimable ? '<i class="dot"></i>' : ""}</button>`).join("");
 }
-function show(k) { tab = k; musicMode(k === "summon" ? "summon" : "menu"); chrome(); const v = $("#view"); v.scrollTop = 0; if (!P) { v.innerHTML = ""; return; } ({ play: viewPlay, summon: viewSummon, cards: viewCards, daily: viewDaily, versus: viewVersus })[k](v); }
+function show(k) { tab = k; musicMode(k === "summon" ? "summon" : "menu"); chrome(); const v = $("#view"); v.scrollTop = 0; if (!P) { v.innerHTML = ""; return; } ({ battle: viewBattle, play: viewPlay, summon: viewSummon, cards: viewCards, daily: viewDaily, versus: viewVersus })[k](v); }
 function deckSelect() { return `<select id="deckSel" data-act="deckSel">${P.decks.map((d, i) => `<option value="${i}" ${i === P.deck ? "selected" : ""}>${esc(d.name)} · ${deckCost(d)}/${deckCap()}${deckOk(d) ? "" : " ✕"}</option>`).join("")}</select>`; }
 
 /* ===== play: the campaign map and quick matches ===== */
@@ -816,7 +855,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.11.11-b";
+const VER = "2026.11.11-c";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -1014,6 +1053,333 @@ function oddsModal() {
   const ex = C.filter(c => c.ex).length, cnt = l => C.filter(c => !c.ex && c.lv === l).length, row = (r, n, s) => `<tr><td><span class="rtag r${r}">${RNAME[r].toUpperCase()}</span> ${n} cards</td><td>${s}</td></tr>`;
   openSheet(`<h2 class="fat">PACK ODDS</h2><p class="note">Five cards a pack. Chance per slot:</p><table class="odds"><tr><td>Slots 1 to 3</td><td>Common 68 to 75%, Uncommon 25 to 32%</td></tr><tr><td>Slot 4</td><td>Uncommon 55%, Rare 40%, Epic 5%</td></tr><tr><td>Slot 5 (the hit)</td><td>Rare 52%, Epic 30%, Legendary 14%, Secret Rare 4%</td></tr></table><table class="odds" style="margin-top:8px">${row(1, cnt(1), "")}${row(2, cnt(2), "")}${row(3, cnt(3), "")}${row(4, cnt(4), "")}${row(5, cnt(5), "")}${row(6, ex, "")}</table><p class="note">Every card of a rarity is equally likely. Secret Rares only come from packs. If ${PACK.pity - 1} packs in a row hold no Legendary or Secret Rare, the next pack's last card is one.</p><div class="row c"><button class="btn dark" data-act="closeModal">Close</button></div>`);
 }
+
+/* ===== CLASH: 5 v 5 lane duels with 8-card decks (5 front, 3 backup), energy, elements and reactions. Rules: GAME_RULES.md ===== */
+const EL = { fire: ["Fire", "🔥", "#ff6a3a"], water: ["Water", "💧", "#3aa0ff"], wind: ["Wind", "🌀", "#5fe0a0"], earth: ["Earth", "⛰️", "#c9a05a"], lightning: ["Lightning", "⚡", "#ffe03a"], ice: ["Ice", "❄️", "#9fe6ff"], light: ["Light", "✨", "#fff3b0"], dark: ["Dark", "🌙", "#b074ff"] };
+const ELKEYS = Object.keys(EL);
+const REACT = {   // "mark>incoming": what happens
+  "water>lightning": { n: "Conduct", mul: 1.5 }, "ice>fire": { n: "Melt", mul: 1.5 }, "wind>earth": { n: "Sandblast", mul: 1.5 },
+  "fire>wind": { n: "Blaze", mul: 1, splash: .5 }, "water>ice": { n: "Freeze", mul: 1, freeze: true },
+  "light>dark": { n: "Eclipse", mul: 1.25, strip: true }, "dark>light": { n: "Eclipse", mul: 1.25, strip: true },
+};
+const CK = { E0: 3, EMAX: 6, CORE: 40, SURGE: 4, MAXR: 25, SPLIT: 3 };
+const PASS = {
+  grow: ["Grow", "+1 attack at the start of each round"], fortify: ["Fortify", "+2 HP at the start of each round"], thorns: ["Thorns", "Deals 1 damage to whatever hits it"],
+  guard: ["Guard", "Takes 1 less damage from each hit"], swift: ["Swift", "Strikes first in its lane"], vamp: ["Lifesteal", "Heals half the damage it deals"],
+  lastwords: ["Last Words", "When it falls, your other cards get +2/+2"], rally: ["Rally", "Cards beside it get +1 attack each round"], pack: ["Pack Tactics", "+1 attack for each other card of its kind"],
+  reserve: ["Reserve", "From the backups: enters free when a front card falls"], overkill: ["Overkill", "Excess damage hits the enemy core"], mender: ["Mender", "Heals your most hurt card for 2 each round"],
+  berserk: ["Berserk", "+3 attack while below half health"], pierce: ["Pierce", "Also hits the next lane for 1"], battery: ["Battery", "+1 energy each round"],
+  amp: ["Elemental Amp", "Reactions it triggers hit for +50% more"], sponge: ["Sponge", "Absorbs the first hit each round"],
+};
+const ACT = {
+  mend: { n: "Mend", c: 1, t: "ally", d: "Heal a card for 4" }, empower: { n: "Empower", c: 1, t: "ally", d: "A card gets +3 attack this round" }, overgrow: { n: "Overgrow", c: 2, t: "ally", d: "A card gets +2/+2 for good" },
+  ward: { n: "Ward", c: 1, t: "ally", d: "A card absorbs the next 5 damage" }, volley: { n: "Volley", c: 2, t: "none", d: "1 damage to every enemy" }, disrupt: { n: "Disrupt", c: 1, t: "enemy", d: "Strip an enemy's buffs and mark" },
+  strike: { n: "Strike", c: 2, t: "enemy", d: "3 damage with its element (reacts, then marks)" }, mark: { n: "Mark", c: 1, t: "enemy", d: "Mark an enemy with its element (no damage)" },
+};
+const LOW_P = ["grow", "fortify", "thorns", "guard", "sponge", "berserk", "mender", "pack"], MID_P = LOW_P.concat(["swift", "vamp", "rally", "pierce", "lastwords"]), HIGH_P = MID_P.concat(["reserve", "overkill", "battery", "amp", "lastwords", "swift"]);
+const UTIL_BY = { folk: ["mend", "ward"], hero: ["empower", "strike"], monster: ["volley", "overgrow"], weapon: ["strike", "empower"], armor: ["ward", "disrupt"], esper: ["volley", "mark"], relic: ["mend", "disrupt"], dominant: ["overgrow", "strike"] };
+
+/* ----- turning a card into a fighter ----- */
+const KC = {};
+function ckElement(c, r) {
+  const n = (c.name + " " + c.id).toLowerCase();
+  const rules = [["fire", /fire|flame|ifrit|phoenix|burn|ember|inferno|blaze|magma|lava|dragon_r|red/], ["ice", /ice|frost|shiva|snow|blizzard|cold|glacier|winter/], ["lightning", /thunder|bolt|ramuh|lightning|storm|spark|volt|electr/], ["water", /water|sea|aqua|leviathan|siren|tide|ocean|slime|river|mermaid|kraken/],
+    ["wind", /wind|garuda|air|sylph|bird|wing|harpy|zephyr|gale|chocobo/], ["earth", /earth|stone|golem|titan|rock|mountain|gnome|cactuar|iron|giant|quake/], ["light", /holy|light|angel|paladin|white|cleric|saint|sun|hero|odin|bahamut/], ["dark", /dark|shadow|demon|death|vampire|necro|black|ghost|wraith|bomb|evil/]];
+  for (const [el, re] of rules) if (re.test(n)) return el;
+  const bias = { monster: ["dark", "earth", "water", "wind"], hero: ["light", "fire", "wind"], folk: ["water", "earth", "wind", "light"], weapon: ["fire", "lightning", "ice"], armor: ["earth", "ice", "light"], esper: ["light", "dark", "lightning", "ice"], relic: ["light", "dark", "water"], dominant: ["fire", "ice", "lightning", "dark"] }[c.grp];
+  return (bias || ELKEYS)[Math.floor(r() * (bias || ELKEYS).length)];
+}
+function ckCard(c) {
+  if (KC[c.id]) return KC[c.id];
+  const r = rngOf("ck" + c.id), rar = rarOf(c), costs = rar <= 1 ? [1, 1, 1, 2, 2] : rar === 2 ? [1, 2, 2, 2, 3] : rar === 3 ? [2, 2, 3, 3] : rar === 4 ? [2, 3, 3, 4] : [3, 4, 4, 4, 3], cost = costs[Math.floor(r() * costs.length)];
+  const B = 5 + 3 * cost; let aw = c.s[0] + c.s[1] + 1, hw = (c.s[2] + c.s[3]) * 1.3 + 1; if (c.grp === "weapon") aw *= 1.35; if (c.grp === "armor") hw *= 1.35;
+  const atk = Math.max(1, Math.min(B - 2, Math.round(B * aw / (aw + hw * CK.SPLIT)))), hp = Math.max(2, B - atk + 1), el = ckElement(c, r);
+  const pool = rar <= 2 ? LOW_P : rar === 3 ? MID_P : HIGH_P, passive = pool[Math.floor(r() * pool.length)];
+  let aid; const roll = r();
+  if (roll < .26) aid = "strike"; else if (roll < .5) aid = "mark"; else { const u = UTIL_BY[c.grp] || ["mend", "empower", "ward", "volley"]; aid = r() < .6 ? u[Math.floor(r() * u.length)] : ["mend", "empower", "ward", "overgrow", "volley", "disrupt"][Math.floor(r() * 6)]; }
+  return (KC[c.id] = { id: c.id, name: c.name, cost, atk, hp, el, tribe: c.grp, rar, passive, active: aid, acost: ACT[aid].c });
+}
+const actName = (k) => (k.active === "strike" || k.active === "mark" ? EL[k.el][0] + " " + ACT[k.active].n : ACT[k.active].n);
+let UID = 0;
+function ckUnit(cid) {
+  const k = ckCard(BY[cid]); return { uid: ++UID, cid, name: k.name, el: k.el, atk: k.atk, hp: k.hp, max: k.hp, cost: k.cost, tribe: k.tribe, passive: k.passive, active: k.active, acost: k.acost, tmp: 0, pb: { a: 0, h: 0 }, shield: 0, mark: null, frozen: false, used: false, sponge: false, rar: k.rar };
+}
+
+/* ----- the match ----- */
+let G = null;
+const sleepG = ms => (G && G.ui ? sleep(ms / (G.speed || 1)) : null);
+function ckNew(deck0, deck1, o = {}) {
+  const mk = deck => ({ core: CK.CORE, energy: CK.E0, lane: deck.slice(0, 5).map(ckUnit), bench: deck.slice(5, 8).map(ckUnit) });
+  G = { s: [mk(deck0), mk(deck1)], round: 1, phase: "plan", over: false, winner: null, ui: !!o.ui, ai: o.ai ?? 1, speed: 1, log: [], fx: null, plan: [] };
+  ckStartUnits(); return G;
+}
+const atkOf = (u, s) => Math.max(0, u.atk + u.tmp + (u.passive === "berserk" && u.hp * 2 < u.max ? 3 : 0) + (u.passive === "pack" ? G.s[s].lane.filter(x => x && x !== u && x.tribe === u.tribe).length : 0));
+const lane = (s, i) => G.s[s].lane[i];
+const liveLane = s => G.s[s].lane.map((u, i) => ({ u, i })).filter(x => x.u);
+const logG = t => { G.log.push(t); if (G.log.length > 60) G.log.shift(); };
+function ckStartUnits() { for (let s = 0; s < 2; s++) for (const u of G.s[s].lane.concat(G.s[s].bench)) if (u && u.passive === "sponge") u.sponge = true; }
+function ckRoundStart() {
+  for (let s = 0; s < 2; s++) {
+    const S = G.s[s]; if (G.round > 1) S.energy = Math.min(CK.EMAX, S.energy + 3 + (S.lane.some(u => u && u.passive === "battery") ? 1 : 0));
+    for (const { u, i } of liveLane(s)) {
+      u.tmp = 0; u.used = false; if (u.passive === "sponge") u.sponge = true;
+      if (G.round >= CK.SURGE) u.atk += 1;
+      if (u.passive === "grow") u.atk += 1; if (u.passive === "fortify") { u.max += 2; u.hp += 2; }
+      if (u.passive === "rally") [i - 1, i + 1].forEach(j => { const a = S.lane[j]; if (a) a.atk += 1; });
+      if (u.passive === "mender") { const t = liveLane(s).map(x => x.u).sort((a, b) => a.hp / a.max - b.hp / b.max)[0]; if (t && t.hp < t.max) t.hp = Math.min(t.max, t.hp + 2); }
+      if (u.mark && ++u.mark.age > 3) u.mark = null;
+    }
+  }
+}
+async function fxG(e) { if (G.ui && G.fx) await G.fx(e); }
+function core(s, d, src) { G.s[s].core -= d; logG((s ? "Enemy" : "Your") + " core takes " + d); return fxG({ t: "core", s, d }); }
+/* one hit: reactions, guard, shield, marks, and the passives that fire on a hit */
+async function ckHit(src, ss, ts, ti, dmg, el, o = {}) {
+  const T = lane(ts, ti); if (!T || dmg <= 0) return 0; let d = dmg, react = null;
+  if (el && T.mark && REACT[T.mark.el + ">" + el]) {
+    react = REACT[T.mark.el + ">" + el]; const amp = src && src.passive === "amp" ? .5 : 0; d = Math.round(dmg * ((react.mul || 1) + (react.mul > 1 ? amp : 0)));
+    if (react.strip) { T.atk = Math.max(1, T.atk - T.pb.a); T.max = Math.max(1, T.max - T.pb.h); T.hp = Math.min(T.hp, T.max); T.pb = { a: 0, h: 0 }; T.shield = 0; T.tmp = 0; }
+    if (react.freeze) T.frozen = true; T.mark = null; logG(react.n + "! on " + T.name);
+  }
+  if (T.passive === "guard") d = Math.max(1, d - 1);
+  if (T.sponge) { T.sponge = false; d = 0; }
+  const ab = Math.min(T.shield, d); T.shield -= ab; d -= ab; T.hp -= d;
+  if (el && !react) T.mark = { el, age: 0 };
+  if (src) { if (src.passive === "vamp" && d > 0) src.hp = Math.min(src.max, src.hp + Math.ceil(d / 2)); if (T.passive === "thorns" && o.melee) src.hp -= 1; if (src.passive === "overkill" && T.hp < 0) await core(ts, -T.hp, src); }
+  await fxG({ t: "hit", s: ts, i: ti, d, el, react: react && react.n });
+  if (react && react.splash) for (const j of [ti - 1, ti + 1]) { const N = lane(ts, j); if (N) { N.hp -= Math.round(d * react.splash); await fxG({ t: "hit", s: ts, i: j, d: Math.round(d * react.splash), el: null }); } }
+  if (src && o.melee && src.passive === "pierce") { const N = lane(ts, ti + 1); if (N) { N.hp -= 1; await fxG({ t: "hit", s: ts, i: ti + 1, d: 1, el: null }); } }
+  return d;
+}
+async function ckSweep() {
+  for (let s = 0; s < 2; s++) {
+    for (let i = 0; i < 5; i++) {
+      const u = lane(s, i); if (!u || u.hp > 0) continue; G.s[s].lane[i] = null; logG(u.name + " falls"); await fxG({ t: "die", s, i, name: u.name });
+      if (u.passive === "lastwords") for (const x of liveLane(s)) { x.u.atk += 2; x.u.max += 2; x.u.hp += 2; x.u.pb.a += 2; x.u.pb.h += 2; }
+      const ri = G.s[s].bench.findIndex(b => b && b.passive === "reserve");
+      if (ri >= 0) { G.s[s].lane[i] = G.s[s].bench[ri]; G.s[s].bench[ri] = null; logG(G.s[s].lane[i].name + " steps in"); await fxG({ t: "enter", s, i }); }
+    }
+  }
+}
+function ckCheck() {
+  const a = G.s[0], b = G.s[1];
+  if (a.core <= 0 || b.core <= 0) { G.over = true; G.winner = a.core > b.core ? 0 : b.core > a.core ? 1 : -1; }
+  else if (G.round > CK.MAXR) { G.over = true; G.winner = a.core > b.core ? 0 : b.core > a.core ? 1 : -1; }
+  return G.over;
+}
+/* planning actions: each returns true when it worked */
+function ckSwap(s, bi, li, free) {
+  const S = G.s[s], u = S.bench[bi]; if (!u) return false; if (!free && S.energy < u.cost) return false; if (!free) S.energy -= u.cost;
+  S.bench[bi] = S.lane[li]; S.lane[li] = u; if (S.bench[bi] && S.bench[bi].passive === "sponge") S.bench[bi].sponge = true; logG((s ? "Enemy" : "You") + " bring in " + u.name); return true;
+}
+function ckShift(s, li, dir) {
+  const S = G.s[s], j = li + dir; if (j < 0 || j > 4 || S.energy < 1) return false; S.energy -= 1; [S.lane[li], S.lane[j]] = [S.lane[j], S.lane[li]]; return true;
+}
+async function ckUse(s, li, tgt) {
+  const S = G.s[s], u = S.lane[li]; if (!u || u.used) return false; const a = ACT[u.active]; if (S.energy < a.c) return false;
+  const T = a.t === "ally" ? lane(s, tgt) : a.t === "enemy" ? lane(1 - s, tgt) : null; if (a.t !== "none" && !T) return false;
+  S.energy -= a.c; u.used = true; logG((s ? "Enemy" : "You") + ": " + u.name + " uses " + actName(u));
+  switch (u.active) {
+    case "mend": T.hp = Math.min(T.max, T.hp + 4); await fxG({ t: "heal", s, i: tgt, d: 4 }); break;
+    case "empower": T.tmp += 3; await fxG({ t: "buff", s, i: tgt, text: "+3 ATK" }); break;
+    case "overgrow": T.atk += 2; T.max += 2; T.hp += 2; T.pb.a += 2; T.pb.h += 2; await fxG({ t: "buff", s, i: tgt, text: "+2/+2" }); break;
+    case "ward": T.shield += 5; await fxG({ t: "buff", s, i: tgt, text: "+5 ward" }); break;
+    case "volley": for (const { i } of liveLane(1 - s)) await ckHit(u, s, 1 - s, i, 1, null, {}); break;
+    case "disrupt": T.atk = Math.max(1, T.atk - T.pb.a); T.max = Math.max(1, T.max - T.pb.h); T.hp = Math.min(T.hp, T.max); T.pb = { a: 0, h: 0 }; T.tmp = 0; T.shield = 0; T.mark = null; await fxG({ t: "buff", s: 1 - s, i: tgt, text: "stripped" }); break;
+    case "strike": await ckHit(u, s, 1 - s, tgt, 3, u.el, {}); break;
+    case "mark": T.mark = { el: u.el, age: 0 }; await fxG({ t: "buff", s: 1 - s, i: tgt, text: EL[u.el][1] + " marked" }); break;
+  }
+  await ckSweep(); return true;
+}
+
+/* ----- the enemy's planning ----- */
+function ckAiPlan(s) {
+  const S = G.s[s], E = G.s[1 - s], lvl = G.ai, acts = [];
+  for (let i = 0; i < 5; i++) if (!S.lane[i]) { const bi = S.bench.map((b, k) => ({ b, k })).filter(x => x.b && x.b.cost <= S.energy).sort((p, q) => q.b.atk - p.b.atk)[0]; if (bi) ckSwap(s, bi.k, i); }
+  const reacts = (m, e) => !!REACT[m + ">" + e];
+  const doAct = async () => {};
+  for (let i = 0; i < 5; i++) {
+    const u = S.lane[i]; if (!u || u.used || S.energy < u.acost) continue; if (lvl === 0 && Math.random() < .5) continue; const A = ACT[u.active]; let tgt = null;
+    const allies = liveLane(s), foes = liveLane(1 - s);
+    if (u.active === "mend") { const t = allies.filter(x => x.u.hp < x.u.max * .6).sort((p, q) => p.u.hp / p.u.max - q.u.hp / q.u.max)[0]; if (t) tgt = t.i; }
+    else if (u.active === "empower" || u.active === "ward") { const t = allies.filter(x => lane(1 - s, x.i)).sort((p, q) => atkOf(lane(1 - s, q.i), 1 - s) - atkOf(lane(1 - s, p.i), 1 - s))[0]; if (t) tgt = t.i; }
+    else if (u.active === "overgrow") { const t = allies.sort((p, q) => q.u.atk - p.u.atk)[0]; if (t && G.round <= 6) tgt = t.i; }
+    else if (u.active === "volley") { if (foes.length >= 3) tgt = -1; }
+    else if (u.active === "disrupt") { const t = foes.filter(x => x.u.pb.a + x.u.pb.h + x.u.shield > 0 || x.u.mark).sort((p, q) => (q.u.pb.a + q.u.pb.h) - (p.u.pb.a + p.u.pb.h))[0]; if (t) tgt = t.i; }
+    else if (u.active === "strike") {
+      const combo = foes.find(x => x.u.mark && reacts(x.u.mark.el, u.el)), kill = foes.filter(x => x.u.hp <= 3 + (x.u.shield ? 5 : 0)).sort((p, q) => q.u.atk - p.u.atk)[0]; const t = combo || kill || foes.sort((p, q) => q.u.atk - p.u.atk)[0]; if (t) tgt = t.i;
+    } else if (u.active === "mark") {
+      const t = foes.find(x => { const m = lane(s, x.i); return m && reacts(u.el, m.el) && !x.u.mark; }); if (t) tgt = t.i;
+    }
+    if (tgt !== null) acts.push({ s, i, tgt });
+  }
+  return acts;
+}
+async function ckAiExecute(acts) { for (const a of acts) { const u = lane(a.s, a.i); if (!u || G.over) continue; const A = ACT[u.active]; await ckUse(a.s, a.i, A.t === "none" ? 0 : a.tgt); } }
+
+/* ----- the battle phase ----- */
+async function ckBattle() {
+  G.phase = "battle"; await fxG({ t: "phase", text: "ROUND " + G.round });
+  for (let i = 0; i < 5 && !G.over; i++) {
+    const A = lane(0, i), B = lane(1, i); if (!A && !B) continue;
+    await fxG({ t: "lane", i });
+    const a = A && !A.frozen ? atkOf(A, 0) : 0, b = B && !B.frozen ? atkOf(B, 1) : 0; if (A && A.frozen) { A.frozen = false; await fxG({ t: "buff", s: 0, i, text: "frozen" }); } if (B && B.frozen) { B.frozen = false; await fxG({ t: "buff", s: 1, i, text: "frozen" }); }
+    const hit = async (src, ss, dmg) => { if (dmg <= 0) return; const T = lane(1 - ss, i); if (T) await ckHit(src, ss, 1 - ss, i, dmg, src.el, { melee: true }); else await core(1 - ss, dmg, src); };
+    const swA = A && A.passive === "swift", swB = B && B.passive === "swift";
+    if (swA && !swB) { if (A) await hit(A, 0, a); await ckSweep(); if (lane(1, i) === B && B && B.hp > 0) await hit(B, 1, b); }
+    else if (swB && !swA) { if (B) await hit(B, 1, b); await ckSweep(); if (lane(0, i) === A && A && A.hp > 0) await hit(A, 0, a); }
+    else { if (A) await hit(A, 0, a); if (B) await hit(B, 1, b); }
+    await ckSweep(); if (ckCheck()) break; await sleepG(180);
+  }
+  if (!G.over) { G.round++; if (!ckCheck()) { ckRoundStart(); G.phase = "plan"; } }
+}
+
+/* ----- decks ----- */
+function ckDeckOk(ids) {
+  if (!ids || ids.length !== 8) return "Pick 8 cards: 5 front and 3 backups."; const n = {}; for (const id of ids) { if (!BY[id]) return "A card is missing."; n[id] = (n[id] || 0) + 1; if (n[id] > (rarOf(BY[id]) >= 5 ? 1 : 2)) return BY[id].name + ": only " + (rarOf(BY[id]) >= 5 ? 1 : 2) + " copy allowed."; if (n[id] > (P.own[id] || 0)) return "You don't own enough " + BY[id].name + "."; }
+  return "";
+}
+function ckAutoDeck() {
+  const own = ownedList().slice().sort((a, b) => ckCard(a).cost - ckCard(b).cost || a.i - b.i), pick = [], used = {};
+  const els = {}; for (const c of own) { const k = ckCard(c); if (pick.length >= 8) break; if ((els[k.el] || 0) >= 2) continue; pick.push(c.id); used[c.id] = 1; els[k.el] = (els[k.el] || 0) + 1; }
+  for (const c of own) { if (pick.length >= 8) break; if (!used[c.id]) { pick.push(c.id); used[c.id] = 1; } }
+  return pick.slice(0, 8);
+}
+function ckInit() {
+  if (!P.cd) P.cd = []; if (!P.cd.length) { P.cd.push({ name: "Starter", cards: ckAutoDeck() }); P.cdi = 0; scheduleSave(); } if (P.cdi == null || !P.cd[P.cdi]) P.cdi = 0;
+  if (!P.ck) P.ck = { w: 0, l: 0, day: "", won: false };
+}
+function ckAiDeck(level) {
+  const pairs = [["water", "lightning"], ["ice", "fire"], ["wind", "earth"], ["fire", "wind"], ["light", "dark"], ["water", "ice"]], pair = pairs[Math.floor(Math.random() * pairs.length)];
+  const maxR = level === 0 ? 2 : level === 1 ? 4 : 6, pool = C.filter(c => rarOf(c) <= maxR && !(c.ex && level < 2)), shuffle = a => a.sort(() => Math.random() - .5), pick = [], n = {};
+  const take = list => { for (const c of shuffle(list.slice())) { if (pick.length >= 8) return; if ((n[c.id] || 0) >= (rarOf(c) >= 5 ? 1 : 2)) continue; pick.push(c.id); n[c.id] = (n[c.id] || 0) + 1; } };
+  const of = (el, k) => shuffle(pool.filter(c => ckCard(c).el === el)).slice(0, k);
+  take(of(pair[0], 4)); take(of(pair[1], 3)); take(pool); while (pick.length < 8) take(pool);
+  return shuffle(pick.slice(0, 8));
+}
+
+/* ===== CLASH screens: the Battle tab, the deck editor, the match ===== */
+const kshort = (n, m = 11) => (n.length > m ? n.slice(0, m - 1) + "." : n);
+const energyPips = (e) => Array.from({ length: CK.EMAX }, (_, i) => `<i class="${i < e ? "on" : ""}"></i>`).join("");
+function kuHtml(u, s, i, kind, o = {}) {
+  if (!u) return `<div class="ku empty ${kind}" data-ck="slot" data-s="${s}" data-i="${i}" data-kind="${kind}"><span>${kind === "lane" && s === 0 ? "+" : ""}</span></div>`;
+  const c = BY[u.cid], a = G ? atkOf(u, s) : u.atk, k = ckCard(c);
+  return `<div class="ku ${s ? "foe" : "me"} ${o.sel ? "sel" : ""} ${o.tgt ? "tgt" : ""} ${o.mini ? "mini" : ""} el-${u.el} r${rarOf(c)}" data-ck="unit" data-s="${s}" data-i="${i}" data-kind="${kind}"><div class="kart"><img src="${artSrc(c)}" alt=""></div><i class="kel">${EL[u.el][1]}</i><b class="kcost">${u.cost}</b>${u.mark ? `<i class="kmk">${EL[u.mark.el][1]}</i>` : ""}<div class="kname">${esc(kshort(u.name))}</div><div class="kst"><b class="a">${a}</b><b class="h ${u.hp < u.max ? "hurt" : ""}">${u.hp}</b></div>${u.shield ? `<i class="ksh">🛡${u.shield}</i>` : ""}${u.frozen ? '<i class="kfr">❄️</i>' : ""}${u.tmp ? '<i class="ktmp">▲</i>' : ""}</div>`;
+}
+const kcardMini = (id, extra = "") => { const k = ckCard(BY[id]); return `<div class="ku mini el-${k.el} r${k.rar} ${extra}"><div class="kart"><img src="${artSrc(BY[id])}" alt=""></div><i class="kel">${EL[k.el][1]}</i><b class="kcost">${k.cost}</b><div class="kname">${esc(kshort(k.name, 10))}</div><div class="kst"><b class="a">${k.atk}</b><b class="h">${k.hp}</b></div></div>`; };
+
+/* ----- the Battle tab ----- */
+function viewBattle(v) {
+  ckInit(); const d = P.cd[P.cdi], err = ckDeckOk(d.cards), rec = P.ck;
+  v.innerHTML = `<span class="ribbon">BATTLE</span><div class="panel"><div class="row" style="flex-wrap:nowrap"><select id="ckdeck" data-ck="deckSel" style="flex:1">${P.cd.map((x, i) => `<option value="${i}" ${i === P.cdi ? "selected" : ""}>${esc(x.name)}${ckDeckOk(x.cards) ? " ✕" : ""}</option>`).join("")}</select><button class="btn sm yellow" data-ck="deckEdit">Edit</button><button class="btn sm dark" data-ck="deckNew" ${P.cd.length >= 8 ? "disabled" : ""}>New</button></div>` +
+    `<div class="kdeck"><div class="kd5">${d.cards.slice(0, 5).map(id => BY[id] ? kcardMini(id) : "").join("")}</div><div class="kd3"><small>BACKUPS</small>${d.cards.slice(5, 8).map(id => BY[id] ? kcardMini(id) : "").join("")}</div></div>${err ? `<p class="note" style="color:#ff9aa4;margin:6px 0 0">${esc(err)}</p>` : ""}</div>` +
+    `<span class="ribbon green">PLAY</span><div class="row c"><button class="btn" data-ck="start" data-l="0" ${err ? "disabled" : ""}>Easy</button><button class="btn yellow" data-ck="start" data-l="1" ${err ? "disabled" : ""}>Normal</button><button class="btn red" data-ck="start" data-l="2" ${err ? "disabled" : ""}>Hard</button></div>` +
+    `<p class="note" style="text-align:center;margin:8px 0 0">Wins ${rec.w} · Losses ${rec.l}. The first win each day earns a pack.</p><div class="row c" style="margin-top:12px"><button class="btn sm dark" data-ck="rules">How to play</button><button class="btn sm dark" data-act="tab" data-k="play">Classic Triad</button></div>`;
+}
+function rulesSheet() {
+  openSheet(`<h2 class="fat">HOW TO PLAY</h2><div class="rules"><p><b>The goal:</b> bring the enemy core from 40 to 0.</p><p><b>Your deck:</b> 8 cards. The first 5 stand in lanes, 3 wait as backups.</p><p><b>Each round:</b> spend energy (3 a round, up to 6) to bring in a backup (its cost), shift a card (1), or use a card's active skill. Then press <b>Fight</b>: each lane trades blows by itself; a card facing an empty lane hits the core.</p><p><b>Elements:</b> whatever hurts a card marks it with its element. Hit a marked card with a reacting element for a bonus: Water then Lightning (Conduct ×1.5), Ice then Fire (Melt ×1.5), Wind then Earth (Sandblast ×1.5), Water then Ice (Freeze), Fire then Wind (Blaze splash), Light and Dark (Eclipse).</p><p><b>Skills:</b> every card has a passive and an active. Tap any card to read them.</p><p><b>The surge:</b> from round 4 every card gains +1 attack each round, so build to snowball.</p></div><div class="row c" style="margin-top:12px"><button class="btn yellow" data-act="closeModal">Got it</button></div>`);
+}
+
+/* ----- deck editor ----- */
+let CKD = null;
+function deckEditor(i) { ckInit(); CKD = { i, cards: P.cd[i].cards.slice(), sel: 0, el: "all" }; deckSheet2(); }
+function deckSheet2() {
+  const D = CKD, err = ckDeckOk(D.cards), own = ownedList().slice().sort((a, b) => ckCard(a).cost - ckCard(b).cost || a.name.localeCompare(b.name)).filter(c => D.el === "all" || ckCard(c).el === D.el);
+  const slot = k => { const id = D.cards[k]; return `<div class="kslot ${D.sel === k ? "on" : ""}" data-ck="dslot" data-k="${k}">${id && BY[id] ? kcardMini(id) : '<div class="ku mini empty"><span>+</span></div>'}</div>`; };
+  openSheet(`<h2 class="fat">DECK</h2><div class="row" style="margin:0 0 6px;flex-wrap:nowrap"><input type="text" id="ckname" maxlength="14" value="${esc(P.cd[D.i].name)}" style="flex:1"><button class="btn sm dark" data-ck="deckDel" ${P.cd.length <= 1 ? "disabled" : ""}>Delete</button></div><p class="note" style="margin:0 0 4px">FRONT LINE (left to right are lanes 1 to 5)</p><div class="kd5">${[0, 1, 2, 3, 4].map(slot).join("")}</div><p class="note" style="margin:6px 0 4px">BACKUPS</p><div class="kd5 b3">${[5, 6, 7].map(slot).join("")}</div>${err ? `<p class="note" style="color:#ff9aa4;margin:6px 0 0">${esc(err)}</p>` : '<p class="note" style="color:var(--ok);margin:6px 0 0">Ready to play.</p>'}` +
+    `<div class="row" style="margin:8px 0 4px"><select data-ck="dfilt"><option value="all">All elements</option>${ELKEYS.map(e => `<option value="${e}" ${D.el === e ? "selected" : ""}>${EL[e][1]} ${EL[e][0]}</option>`).join("")}</select><small class="note">Tap a slot, then a card.</small></div><div class="kpick">${own.map(c => { const k = ckCard(c), n = D.cards.filter(x => x === c.id).length; return `<div class="kp" data-ck="dpick" data-id="${c.id}">${kcardMini(c.id)}${n ? `<b class="kn">×${n}</b>` : ""}</div>`; }).join("")}</div><div class="row c" style="margin-top:10px"><button class="btn yellow" data-ck="deckSave">Save</button><button class="btn dark" data-act="closeModal">Close</button></div>`);
+}
+
+/* ----- the match ----- */
+let CKU = { sel: null, mode: null, busy: false, msg: "" };
+function ckStart(level) {
+  ckInit(); const d = P.cd[P.cdi]; const err = ckDeckOk(d.cards); if (err) return toast(err);
+  ckNew(d.cards, ckAiDeck(level), { ui: true, ai: level }); G.fx = ckFx; G.level = level; CKU = { sel: null, mode: null, busy: false, msg: "" };
+  $("#ck").hidden = false; musicMode("match"); ckRender();
+}
+function ckPanel() {
+  const m = CKU.mode, sel = CKU.sel; let h = "";
+  if (m) { const A = ACT[m.act]; return `<div class="kp1"><b>${esc(actName(m.u))}</b><span>${A.t === "ally" ? "Choose one of your cards" : "Choose an enemy card"}.</span><button class="btn sm dark" data-ck="cancel">Cancel</button></div>`; }
+  if (!sel) return `<div class="kp1"><span>Tap a card to read its skills. Spend your energy, then press Fight.</span></div>`;
+  const u = sel.kind === "bench" ? G.s[sel.s].bench[sel.i] : lane(sel.s, sel.i); if (!u) return `<div class="kp1"><span>Tap a card to read its skills.</span></div>`;
+  const A = ACT[u.active], P1 = PASS[u.passive], mine = sel.s === 0, plan = G.phase === "plan" && !CKU.busy;
+  h = `<div class="kp2"><div class="kinfo"><b>${esc(u.name)}</b> <span class="kel2" style="color:${EL[u.el][2]}">${EL[u.el][1]} ${EL[u.el][0]}</span> <small>cost ${u.cost} · ${esc(GROUPS[u.tribe] || u.tribe)}</small><br><em>${P1[0]}:</em> ${P1[1]}<br><em>${actName(u)} (${A.c}):</em> ${A.d}${u.mark ? `<br><em>Marked:</em> ${EL[u.mark.el][0]}` : ""}</div>`;
+  if (mine && plan && sel.kind === "lane") h += `<div class="kbtns"><button class="btn sm yellow" data-ck="use" ${u.used || G.s[0].energy < A.c ? "disabled" : ""}>${u.used ? "Used" : esc(actName(u)) + " · " + A.c + "⚡"}</button><button class="btn sm dark" data-ck="shift" data-d="-1" ${sel.i === 0 || G.s[0].energy < 1 ? "disabled" : ""}>◀ 1⚡</button><button class="btn sm dark" data-ck="shift" data-d="1" ${sel.i === 4 || G.s[0].energy < 1 ? "disabled" : ""}>1⚡ ▶</button></div>`;
+  else if (mine && plan && sel.kind === "bench") h += `<div class="kbtns"><span class="note">Tap a lane to bring it in for ${u.cost}⚡${G.s[0].energy < u.cost ? " (not enough energy)" : ""}.</span></div>`;
+  return h + "</div>";
+}
+function ckRender() {
+  const root = $("#ck"); if (!G || !root) return; const me = G.s[0], foe = G.s[1], sel = CKU.sel, m = CKU.mode;
+  const tgtOk = (s, i) => m && ((ACT[m.act].t === "ally" && s === 0) || (ACT[m.act].t === "enemy" && s === 1)) && lane(s, i);
+  const row = (s) => [0, 1, 2, 3, 4].map(i => kuHtml(lane(s, i), s, i, "lane", { sel: sel && sel.kind === "lane" && sel.s === s && sel.i === i, tgt: tgtOk(s, i) })).join("");
+  const bench = (s) => [0, 1, 2].map(i => kuHtml(G.s[s].bench[i], s, i, "bench", { mini: true, sel: sel && sel.kind === "bench" && sel.s === s && sel.i === i })).join("");
+  const coreBar = (S, s) => `<div class="coreb ${s ? "foe" : "me"}" id="core${s}"><span>${s ? "ENEMY" : "YOU"}</span><div class="cbar"><i style="width:${Math.max(0, 100 * S.core / CK.CORE)}%"></i><em>${Math.max(0, S.core)}</em></div><div class="pips">${energyPips(S.energy)}</div></div>`;
+  const surge = G.round >= CK.SURGE ? `SURGE +${G.round - CK.SURGE + 1}` : `Surge in ${CK.SURGE - G.round}`;
+  root.innerHTML = `<div class="ckwrap"><div class="ckhud"><button class="btn sm red" data-ck="menu">✕</button><b class="fat">ROUND ${Math.min(G.round, CK.MAXR)}</b><span class="surge">${surge}</span><button class="btn sm dark" data-ck="speed">${G.speed}×</button></div>` +
+    `<div class="side foe"><div class="bench">${bench(1)}</div>${coreBar(foe, 1)}<div class="lanes">${row(1)}</div></div><div class="vsline"><span id="ckmsg">${esc(CKU.msg || "")}</span></div><div class="side me"><div class="lanes">${row(0)}</div>${coreBar(me, 0)}<div class="bench">${bench(0)}</div></div>` +
+    `<div class="ckpanel">${ckPanel()}</div><button class="fightbtn btn big yellow" data-ck="fight" ${G.phase !== "plan" || CKU.busy || G.over ? "disabled" : ""}>FIGHT</button></div>`;
+}
+const kq = (s, i) => document.querySelector(`#ck .ku[data-s="${s}"][data-i="${i}"][data-kind="lane"]`);
+function kpop(el, text, cls = "") { if (!el) return; const p = document.createElement("span"); p.className = "kpopn " + cls; p.textContent = text; el.appendChild(p); setTimeout(() => p.remove(), 1000); }
+async function ckFx(e) {
+  ckRender(); const sp = G.speed || 1;
+  if (e.t === "phase") { CKU.msg = e.text; const mg = $("#ckmsg"); if (mg) mg.textContent = e.text; sfx("go"); await sleep(380 / sp); }
+  else if (e.t === "lane") { [0, 1].forEach(s => { const el = kq(s, e.i); if (el) el.classList.add("act" + s); }); await sleep(220 / sp); }
+  else if (e.t === "hit") { const el = kq(e.s, e.i); if (el) { el.classList.add("hurt"); kpop(el, "-" + e.d, e.react ? "react" : ""); if (e.react) kpop(el, e.react, "rname"); } sfx(e.react ? "plus" : "flip"); await sleep((e.react ? 560 : 340) / sp); }
+  else if (e.t === "core") { const c = $("#core" + e.s); if (c) { c.classList.add("shake"); kpop(c, "-" + e.d, "react"); } sfx("err"); await sleep(420 / sp); }
+  else if (e.t === "die") { const mg = $("#ckmsg"); if (mg) mg.textContent = e.name + " falls"; await sleep(300 / sp); }
+  else if (e.t === "heal") { kpop(kq(e.s, e.i), "+" + e.d, "heal"); sfx("level"); await sleep(320 / sp); }
+  else if (e.t === "buff") { kpop(kq(e.s, e.i), e.text, "heal"); sfx("ping", 3); await sleep(320 / sp); }
+  else if (e.t === "enter") { await sleep(260 / sp); }
+}
+async function ckFight() {
+  if (!G || G.phase !== "plan" || CKU.busy || G.over) return; CKU.busy = true; CKU.sel = null; CKU.mode = null; sfx("charge");
+  const acts = ckAiPlan(1); ckRender(); await sleep(250 / G.speed); await ckAiExecute(acts); if (!G.over) await ckBattle(); CKU.busy = false; CKU.msg = ""; ckRender(); if (G.over) ckResult();
+}
+function ckResult() {
+  const w = G.winner, win = w === 0, draw = w === -1, L = G.level; P.ck.w += win ? 1 : 0; P.ck.l += win || draw ? 0 : 1; rollover(); P.mis.play++; let tk = 0, dust = win ? 15 + L * 10 : 5;
+  if (win) { P.mis.win++; if (P.ck.day !== today()) { P.ck.day = today(); tk = 1; P.tickets += 1; } }
+  P.dust += dust; const ups = gainXp(win ? 25 + 10 * L : 10); scheduleSave(); chrome(); sfx(win ? "win" : draw ? "draw" : "lose");
+  openSheet(`<span class="ribbon ${win ? "gold" : ""}">${win ? "VICTORY" : draw ? "DRAW" : "DEFEAT"}</span><div class="panel"><p style="margin:0 0 6px">Round ${Math.min(G.round, CK.MAXR)} · your core ${Math.max(0, G.s[0].core)} · enemy core ${Math.max(0, G.s[1].core)}</p><div class="row c"><span class="tag gold">+${dust} ${ic("gem", "ico")}</span>${tk ? `<span class="tag ok">First win today +1 pack</span>` : ""}</div>${ups.length ? `<p class="note" style="margin:8px 0 0;color:var(--yellow)">${ups.map(esc).join("<br>")}</p>` : ""}</div><div class="row c" style="margin-top:12px"><button class="btn yellow" data-ck="rematch">Rematch</button><button class="btn dark" data-ck="leave">Back</button></div>`);
+}
+function ckLeave() { G = null; $("#ck").hidden = true; closeModal(); musicMode("menu"); chrome(); show("battle"); }
+
+/* ----- every tap in Clash ----- */
+document.addEventListener("click", async e => {
+  const el = e.target.closest("[data-ck]"); if (!el || !P) return; const a = el.dataset.ck, d = el.dataset; if (el.tagName === "SELECT") return;
+  if (a === "deckSel") return;
+  sfx(["unit", "slot", "dslot", "dpick"].includes(a) ? "select" : "tap");
+  switch (a) {
+    case "start": return ckStart(+d.l);
+    case "rematch": closeModal(); return ckStart(G ? G.level : 1);
+    case "leave": return ckLeave();
+    case "rules": return rulesSheet();
+    case "deckEdit": return deckEditor(P.cdi);
+    case "deckNew": ckInit(); P.cd.push({ name: "Deck " + (P.cd.length + 1), cards: ckAutoDeck() }); P.cdi = P.cd.length - 1; scheduleSave(); return deckEditor(P.cdi);
+    case "deckDel": { P.cd.splice(CKD.i, 1); P.cdi = 0; scheduleSave(); closeModal(); return show("battle"); }
+    case "deckSave": { const nm = $("#ckname"); if (nm) P.cd[CKD.i].name = nm.value.trim() || "Deck"; if (!ckDeckOk(CKD.cards)) P.cd[CKD.i].cards = CKD.cards.slice(); else { P.cd[CKD.i].cards = CKD.cards.slice(); } scheduleSave(); closeModal(); return show("battle"); }
+    case "dslot": CKD.sel = +d.k; return deckSheet2();
+    case "dpick": { const k = CKD.sel; CKD.cards[k] = d.id; CKD.sel = Math.min(7, k + 1); return deckSheet2(); }
+  }
+  if (!G) return;
+  switch (a) {
+    case "menu": return openSheet(`<h2 class="fat">PAUSED</h2><div class="row c" style="margin-top:10px"><button class="btn red" data-ck="leave">Give up</button><button class="btn yellow" data-act="closeModal">Resume</button></div>`);
+    case "speed": G.speed = G.speed === 1 ? 2 : G.speed === 2 ? 3 : 1; return ckRender();
+    case "fight": return ckFight();
+    case "cancel": CKU.mode = null; return ckRender();
+    case "unit": case "slot": {
+      if (CKU.busy || G.over) return; const s = +d.s, i = +d.i, kind = d.kind, m = CKU.mode, sel = CKU.sel;
+      if (m) { const A = ACT[m.act]; if (a === "unit" && kind === "lane" && ((A.t === "ally" && s === 0) || (A.t === "enemy" && s === 1))) { CKU.mode = null; const ok = await ckUse(0, m.i, i); if (!ok) toast("That didn't work."); return ckRender(); } return; }
+      if (G.phase === "plan" && sel && sel.kind === "bench" && sel.s === 0 && s === 0 && kind === "lane") { const bi = sel.i; if (!ckSwap(0, bi, i)) { toast("Not enough energy."); return; } CKU.sel = null; return ckRender(); }
+      if (a === "unit") { CKU.sel = { s, i, kind }; return ckRender(); } CKU.sel = null; return ckRender();
+    }
+    case "use": { const sel = CKU.sel; if (!sel || sel.kind !== "lane") return; const u = lane(0, sel.i); if (!u) return; const A = ACT[u.active]; if (A.t === "none") { CKU.busy = true; const ok = await ckUse(0, sel.i, 0); CKU.busy = false; CKU.sel = null; if (!ok) toast("Not enough energy."); return ckRender(); } CKU.mode = { act: u.active, i: sel.i, u }; return ckRender(); }
+    case "shift": { const sel = CKU.sel; if (!sel) return; const j = sel.i + +d.d; if (ckShift(0, sel.i, +d.d)) CKU.sel = { s: 0, i: j, kind: "lane" }; else toast("Not enough energy."); return ckRender(); }
+  }
+});
+document.addEventListener("change", e => {
+  const el = e.target.closest && e.target.closest("[data-ck]"); if (!el) return; if (el.dataset.ck === "deckSel") { P.cdi = +el.value; scheduleSave(); show("battle"); } else if (el.dataset.ck === "dfilt") { CKD.el = el.value; deckSheet2(); }
+});
 
 
 /* ===== cards: collection, detail, decks ===== */
