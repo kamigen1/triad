@@ -385,6 +385,16 @@ table.odds { width: 100%; border-collapse: collapse; } table.odds td { padding: 
 .rules p { margin: 0 0 8px; font-size: 13px; line-height: 1.4; font-weight: 700; color: #dff7ea; }
 @media (orientation: landscape) and (max-height: 540px) { .ckwrap { max-width: none; flex-wrap: wrap; } }
 
+/* modes and the campaign map */
+.modes { display: flex; flex-direction: column; gap: 8px; }
+.mode { text-align: left; border: 3px solid #000; border-radius: 14px; padding: 10px 12px; background: linear-gradient(#154634, #0a2519); box-shadow: inset 0 0 0 2px var(--edge), 0 4px 0 #000a; color: #fff; }
+.mode b { display: block; font-size: 18px; color: var(--yellow); } .mode small { display: block; margin-top: 2px; font: 700 12px var(--body); color: var(--muted); }
+.mode:disabled { opacity: .55; } .mode.lock b { color: #8a9a92; }
+.region { margin-top: 12px; border: 3px solid #000; border-radius: 16px; overflow: hidden; background: linear-gradient(135deg, color-mix(in srgb, var(--rc) 55%, #06140d), #07170f 70%); box-shadow: inset 0 0 0 2px var(--rc), 0 4px 0 #000a; }
+.region .rh { padding: 8px 12px 4px; } .region .rh b { display: block; font-size: 20px; } .region .rh small { color: var(--muted); font-weight: 700; } .region.lock { opacity: .6; }
+.nodes.six { grid-template-columns: repeat(3, 1fr); max-width: 420px; margin-left: auto; margin-right: auto; }
+@media (orientation: landscape) and (max-height: 540px) { .nodes.six { grid-template-columns: repeat(6, 1fr); max-width: 520px; } }
+
 @media (prefers-reduced-motion: reduce) { * { animation-duration: .01s !important; } }
 </style>
 
@@ -790,6 +800,9 @@ function takeCard(id) {
 }
 
 /* ===== versus: one shared state, from a room on claude.ai or over a direct connection ===== */
+let VSG = "clash";   // which game the Versus tab plays: "clash" or "triad"
+const vsDeck = () => (VSG === "clash" ? (ckInit(), P.cd[P.cdi].cards) : P.decks[P.deck].cards);
+const vsDeckErr = () => (VSG === "clash" ? (ckInit(), ckDeckOk(P.cd[P.cdi].cards)) : deckOk(P.decks[P.deck]) ? "" : deckWhy(P.decks[P.deck]));
 const roomRef = code => db.doc("rooms/" + code);
 const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ";
 const rOf = () => { const s = M.state; return { status: s.over ? "over" : "play", round: M.round, created: M.created, board: s.board, owner: s.owner, hands: s.hands, turn: s.turn, seq: s.seq, fx: s.fx }; };
@@ -799,6 +812,7 @@ async function pushRoom() {
 }
 function newVsMatch(o) { return Object.assign({ kind: "vs", hints: true, captured: 0, done: false, sel: null, tier: 0, round: 0, state: Object.assign(freshState([], [], 0), { status: "wait" }) }, o); }
 async function vsCreate() {
+  if (VSG === "clash") return cknRoomCreate();
   if (!db || !uid) return toast("Rooms work on the claude.ai version. Use Direct connect here.");
   const d = P.decks[P.deck]; if (!deckOk(d)) return toast(deckWhy(P.decks[P.deck]));
   let code = ""; for (let i = 0; i < 4; i++) code += CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)];
@@ -810,6 +824,7 @@ async function vsCreate() {
   openMatch(); toast("Room " + code);
 }
 async function vsJoin() {
+  if (VSG === "clash") return cknRoomJoin();
   if (!db || !uid) return toast("Rooms work on the claude.ai version. Use Direct connect here.");
   const code = ($("#vsCode").value || "").trim().toUpperCase(); if (code.length !== 4) return toast("Enter the 4-letter room code.");
   const d = P.decks[P.deck]; if (!deckOk(d)) return toast(deckWhy(P.decks[P.deck]));
@@ -855,7 +870,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.11.11-c";
+const VER = "2026.11.11-d";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -885,17 +900,18 @@ function sdpUnpack(code) {
 const waitIce = pc => new Promise(res => { if (pc.iceGatheringState === "complete") return res(); const t = setTimeout(res, 6000); pc.addEventListener("icegatheringstatechange", () => { if (pc.iceGatheringState === "complete") { clearTimeout(t); res(); } }); });
 function netMake(host) {
   let pc; try { pc = new RTCPeerConnection(ICE); } catch (e) { throw new Error("Direct connect is not available in this view. Use the installed app or the downloaded file."); }
-  const d = P.decks[P.deck]; NET = { pc, dc: null, host, open: false, name: playerName(), deck: d.cards.slice() };
+  NET = { pc, dc: null, host, open: false, name: playerName(), deck: vsDeck().slice(), g: VSG };
   pc.onconnectionstatechange = () => { if (pc.connectionState === "failed") toast("Could not connect. Try the same Wi-Fi, or swap codes again."); };
   return NET;
 }
 function netWire(dc) {
   NET.dc = dc;
-  dc.onopen = () => { NET.open = true; dc.send(JSON.stringify({ t: "hello", name: NET.name, deck: NET.deck })); netMaybeStart(); };
+  dc.onopen = () => { NET.open = true; dc.send(JSON.stringify({ t: "hello", name: NET.name, deck: NET.deck, g: NET.g })); netMaybeStart(); };
   dc.onmessage = e => { let m; try { m = JSON.parse(e.data); } catch (_) { return; } netGot(m); };
   dc.onclose = () => { if (M && M.net && !M.state.over) toast("Your friend disconnected."); };
 }
 function netMaybeStart() {
+  if (NET && NET.g === "clash") { if (NET.started || !NET.open || !NET.theirDeck) return; NET.started = true; const h = NET.host; return cknStart(h ? 0 : 1, h ? NET.deck : NET.theirDeck, h ? NET.theirDeck : NET.deck, NET.theirName, m => netSend(Object.assign({ t: "ck" }, m))); }
   if (!NET || !NET.open || !NET.theirDeck || M || !NET.host) return; closeModal();
   const mine = NET.deck, theirs = NET.theirDeck, a = mine.map(id => BY[id].i), b = theirs.map(id => BY[id].i), first = Math.random() < .5 ? 0 : 1, created = Date.now();
   M = newVsMatch({ me: 0, host: true, net: NET, room: "direct", created, oppName: NET.theirName, oppDeck: theirs.slice(), hostDeck: mine.slice(), guestDeck: theirs.slice() });
@@ -903,7 +919,8 @@ function netMaybeStart() {
   applyRemote(r); netSend({ t: "state", r });
 }
 function netGot(m) {
-  if (m.t === "hello") { NET.theirName = m.name || "Friend"; NET.theirDeck = m.deck; if (M && M.net) M.oppName = NET.theirName; netMaybeStart(); }
+  if (m.t === "ck") return cknGot(m);
+  if (m.t === "hello") { if ((m.g || "triad") !== NET.g) { toast("You picked different games. Both players choose the same game on the Versus tab."); return; } NET.theirName = m.name || "Friend"; NET.theirDeck = m.deck; if (M && M.net) M.oppName = NET.theirName; netMaybeStart(); }
   else if (m.t === "state") {
     if (!M && NET && !NET.host && NET.theirDeck) { closeModal(); M = newVsMatch({ me: 1, host: false, net: NET, room: "direct", created: m.r.created, oppName: NET.theirName, oppDeck: NET.theirDeck.slice() }); openMatch(); }
     applyRemote(m.r);
@@ -913,7 +930,7 @@ async function netSend(m) { try { NET.dc.send(JSON.stringify(m)); } catch (e) { 
 function netClose() { try { NET.dc && NET.dc.close(); NET.pc && NET.pc.close(); } catch (_) {} NET = null; }
 function codeBox(id, text) { return `<textarea id="${id}" rows="3" readonly>${esc(text)}</textarea><div class="row" style="margin-top:6px"><button class="btn sm yellow" data-act="copy" data-id="${id}">Copy</button>${navigator.share ? `<button class="btn sm" data-act="share" data-id="${id}">Share</button>` : ""}</div>`; }
 async function hostStart() {
-  if (!deckOk(P.decks[P.deck])) return toast(deckWhy(P.decks[P.deck]));
+  { const bad = vsDeckErr(); if (bad) return toast(bad); }
   openSheet(`<h2 class="fat">HOST A MATCH</h2><p class="note" style="text-align:center">Making your code…</p>`);
   try {
     if (NET) netClose(); netMake(true); netWire(NET.pc.createDataChannel("game"));
@@ -927,7 +944,7 @@ async function hostFinish() {
 }
 function joinSheet() { openSheet(`<h2 class="fat">JOIN A MATCH</h2><p class="note">1. Paste the code your friend sent.</p><textarea id="c1" rows="4" placeholder="Paste host code"></textarea><div class="row c" style="margin-top:10px"><button class="btn yellow" data-act="joinMake">Make reply code</button><button class="btn dark" data-act="closeModal">Cancel</button></div>`); }
 async function joinMake() {
-  if (!deckOk(P.decks[P.deck])) return toast(deckWhy(P.decks[P.deck]));
+  { const bad = vsDeckErr(); if (bad) return toast(bad); }
   try {
     const off = sdpUnpack($("#c1").value); if (off.role !== "o") throw new Error("That is a reply code. Join needs the host code first."); if (NET) netClose(); netMake(false); NET.pc.ondatachannel = e => netWire(e.channel);
     await NET.pc.setRemoteDescription({ type: "offer", sdp: off.sdp }); await NET.pc.setLocalDescription(await NET.pc.createAnswer()); await waitIce(NET.pc);
@@ -936,10 +953,12 @@ async function joinMake() {
   } catch (e) { toast(e.message || "That code did not work."); }
 }
 function viewVersus(v) {
-  const online = !!(db && uid);
-  v.innerHTML = `<span class="ribbon">DIRECT CONNECT</span><div class="panel"><p class="note" style="margin:0 0 10px">Play a friend phone to phone, with no account and no server. You swap two short codes in any chat app. Works on shared Wi-Fi and usually on mobile data too.</p><div class="row c"><button class="btn yellow" data-act="hostStart">Host a match</button><button class="btn" data-act="joinSheet">Join a match</button></div></div>` +
+  const online = !!(db && uid), clash = VSG === "clash"; if (clash) ckInit();
+  const picker = `<div class="row c" style="margin:4px 0 8px"><button class="btn sm ${clash ? "yellow" : "dark"}" data-act="vsGame" data-g="clash">Clash</button><button class="btn sm ${clash ? "dark" : "yellow"}" data-act="vsGame" data-g="triad">Classic Triad</button></div>`;
+  const deckRow = clash ? `<div class="row" style="margin:14px 0 0"><span class="note">Deck</span><select data-ck="deckSel">${P.cd.map((x, i) => `<option value="${i}" ${i === P.cdi ? "selected" : ""}>${esc(x.name)}${ckDeckOk(x.cards) ? " ✕" : ""}</option>`).join("")}</select></div><p class="note" style="text-align:center">Friendly matches pay a little dust. Your cards are never at risk.</p>` : `<div class="row" style="margin:14px 0 0"><span class="note">Deck</span>${deckSelect()}</div><p class="note" style="text-align:center">The winner takes a copy of one of the loser's cards. Nobody loses a card.</p>`;
+  v.innerHTML = picker + `<span class="ribbon">DIRECT CONNECT</span><div class="panel"><p class="note" style="margin:0 0 10px">Play a friend phone to phone, with no account and no server. You swap two short codes in any chat app. Works on shared Wi-Fi and usually on mobile data too.</p><div class="row c"><button class="btn yellow" data-act="hostStart">Host a match</button><button class="btn" data-act="joinSheet">Join a match</button></div></div>` +
     `<span class="ribbon green">ROOM CODE</span><div class="panel"><p class="note" style="margin:0 0 10px">${online ? "A 4-letter room code. Both players need this page open on claude.ai with Contributor access." : "Room codes only work on the claude.ai version of this page."}</p><div class="row c"><button class="btn yellow" data-act="vsCreate" ${online ? "" : "disabled"}>Create room</button><input type="text" id="vsCode" maxlength="4" placeholder="CODE" style="width:90px;text-transform:uppercase;text-align:center" ${online ? "" : "disabled"}><button class="btn" data-act="vsJoin" ${online ? "" : "disabled"}>Join</button></div></div>` +
-    `<div class="row" style="margin:14px 0 0"><span class="note">Deck</span>${deckSelect()}</div><p class="note" style="text-align:center">The winner takes a copy of one of the loser's cards. Nobody loses a card.</p><p class="note" style="text-align:center;opacity:.7">App version ${VER}. Both players need the same version.</p>`;
+    deckRow + `<p class="note" style="text-align:center;opacity:.7">App version ${VER}. Both players need the same version.</p>`;
 }
 
 /* ===== PACKS: ripping packs is how you get cards. A pack holds 5 cards; the last slot is the "hit" slot. A free pack recharges every 8 hours (2 stored);
@@ -1120,7 +1139,7 @@ const logG = t => { G.log.push(t); if (G.log.length > 60) G.log.shift(); };
 function ckStartUnits() { for (let s = 0; s < 2; s++) for (const u of G.s[s].lane.concat(G.s[s].bench)) if (u && u.passive === "sponge") u.sponge = true; }
 function ckRoundStart() {
   for (let s = 0; s < 2; s++) {
-    const S = G.s[s]; if (G.round > 1) S.energy = Math.min(CK.EMAX, S.energy + 3 + (S.lane.some(u => u && u.passive === "battery") ? 1 : 0));
+    const S = G.s[s]; if (G.round > 1) S.energy = Math.min(CK.EMAX + (s === 1 ? G.bonusE || 0 : 0), S.energy + 3 + (s === 1 ? G.bonusE || 0 : 0) + (S.lane.some(u => u && u.passive === "battery") ? 1 : 0));
     for (const { u, i } of liveLane(s)) {
       u.tmp = 0; u.used = false; if (u.passive === "sponge") u.sponge = true;
       if (G.round >= CK.SURGE) u.atk += 1;
@@ -1239,6 +1258,9 @@ function ckDeckOk(ids) {
   if (!ids || ids.length !== 8) return "Pick 8 cards: 5 front and 3 backups."; const n = {}; for (const id of ids) { if (!BY[id]) return "A card is missing."; n[id] = (n[id] || 0) + 1; if (n[id] > (rarOf(BY[id]) >= 5 ? 1 : 2)) return BY[id].name + ": only " + (rarOf(BY[id]) >= 5 ? 1 : 2) + " copy allowed."; if (n[id] > (P.own[id] || 0)) return "You don't own enough " + BY[id].name + "."; }
   return "";
 }
+function ckDeckShapeOk(ids) {   // the same rules, without checking what the player owns (used on an opponent's deck)
+  if (!ids || ids.length !== 8) return "bad size"; const n = {}; for (const id of ids) { if (!BY[id]) return "unknown card"; n[id] = (n[id] || 0) + 1; if (n[id] > (rarOf(BY[id]) >= 5 ? 1 : 2)) return "too many copies"; } return "";
+}
 function ckAutoDeck() {
   const own = ownedList().slice().sort((a, b) => ckCard(a).cost - ckCard(b).cost || a.i - b.i), pick = [], used = {};
   const els = {}; for (const c of own) { const k = ckCard(c); if (pick.length >= 8) break; if ((els[k.el] || 0) >= 2) continue; pick.push(c.id); used[c.id] = 1; els[k.el] = (els[k.el] || 0) + 1; }
@@ -1258,23 +1280,69 @@ function ckAiDeck(level) {
   return shuffle(pick.slice(0, 8));
 }
 
-/* ===== CLASH screens: the Battle tab, the deck editor, the match ===== */
+/* ===== CLASH screens: the Battle tab (home, campaign, ranked), the deck editor, the match ===== */
 const kshort = (n, m = 11) => (n.length > m ? n.slice(0, m - 1) + "." : n);
 const energyPips = (e) => Array.from({ length: CK.EMAX }, (_, i) => `<i class="${i < e ? "on" : ""}"></i>`).join("");
+let ME = 0;   // which seat I am in the current match (0 normally; the guest is 1 online)
 function kuHtml(u, s, i, kind, o = {}) {
-  if (!u) return `<div class="ku empty ${kind}" data-ck="slot" data-s="${s}" data-i="${i}" data-kind="${kind}"><span>${kind === "lane" && s === 0 ? "+" : ""}</span></div>`;
-  const c = BY[u.cid], a = G ? atkOf(u, s) : u.atk, k = ckCard(c);
-  return `<div class="ku ${s ? "foe" : "me"} ${o.sel ? "sel" : ""} ${o.tgt ? "tgt" : ""} ${o.mini ? "mini" : ""} el-${u.el} r${rarOf(c)}" data-ck="unit" data-s="${s}" data-i="${i}" data-kind="${kind}"><div class="kart"><img src="${artSrc(c)}" alt=""></div><i class="kel">${EL[u.el][1]}</i><b class="kcost">${u.cost}</b>${u.mark ? `<i class="kmk">${EL[u.mark.el][1]}</i>` : ""}<div class="kname">${esc(kshort(u.name))}</div><div class="kst"><b class="a">${a}</b><b class="h ${u.hp < u.max ? "hurt" : ""}">${u.hp}</b></div>${u.shield ? `<i class="ksh">🛡${u.shield}</i>` : ""}${u.frozen ? '<i class="kfr">❄️</i>' : ""}${u.tmp ? '<i class="ktmp">▲</i>' : ""}</div>`;
+  if (!u) return `<div class="ku empty ${kind}" data-ck="slot" data-s="${s}" data-i="${i}" data-kind="${kind}"><span>${kind === "lane" && s === ME ? "+" : ""}</span></div>`;
+  const c = BY[u.cid], a = G ? atkOf(u, s) : u.atk;
+  return `<div class="ku ${s !== ME ? "foe" : "me"} ${o.sel ? "sel" : ""} ${o.tgt ? "tgt" : ""} ${o.mini ? "mini" : ""} el-${u.el} r${rarOf(c)}" data-ck="unit" data-s="${s}" data-i="${i}" data-kind="${kind}"><div class="kart"><img src="${artSrc(c)}" alt=""></div><i class="kel">${EL[u.el][1]}</i><b class="kcost">${u.cost}</b>${u.mark ? `<i class="kmk">${EL[u.mark.el][1]}</i>` : ""}<div class="kname">${esc(kshort(u.name))}</div><div class="kst"><b class="a">${a}</b><b class="h ${u.hp < u.max ? "hurt" : ""}">${u.hp}</b></div>${u.shield ? `<i class="ksh">🛡${u.shield}</i>` : ""}${u.frozen ? '<i class="kfr">❄️</i>' : ""}${u.tmp ? '<i class="ktmp">▲</i>' : ""}</div>`;
 }
 const kcardMini = (id, extra = "") => { const k = ckCard(BY[id]); return `<div class="ku mini el-${k.el} r${k.rar} ${extra}"><div class="kart"><img src="${artSrc(BY[id])}" alt=""></div><i class="kel">${EL[k.el][1]}</i><b class="kcost">${k.cost}</b><div class="kname">${esc(kshort(k.name, 10))}</div><div class="kst"><b class="a">${k.atk}</b><b class="h">${k.hp}</b></div></div>`; };
 
+/* ----- the campaign: five regions of six opponents ----- */
+const CAMP = [
+  { name: "Verdant Reach", sub: "Meadows, roads and the first bandits", els: ["earth", "wind"], hint: "Wind then Earth is Sandblast: ×1.5 damage.", foes: ["Roadside Scouts", "Cactus Raiders", "The Hollow Patrol", "Gale Riders", "Stone Wardens", "Chief Brogan"] },
+  { name: "Ashen Wastes", sub: "Cinder plains under a red sky", els: ["fire", "wind"], hint: "Fire then Wind splashes the lanes beside the target.", foes: ["Ember Hounds", "Cinder Marauders", "The Smoulder Guard", "Ash Dancers", "Furnace Knights", "Warlord Pyra"] },
+  { name: "Frostmere", sub: "A frozen pass and a silent court", els: ["ice", "water"], hint: "Water then Ice freezes a card: it skips its next attack.", foes: ["Snow Wolves", "Rimebound Pilgrims", "The Quiet Court", "Glacier Wardens", "Frostweavers", "The Frost Queen"] },
+  { name: "Tidal Ruins", sub: "Drowned stairs and a sunken throne", els: ["water", "lightning"], hint: "Water then Lightning is Conduct: ×1.5 damage.", foes: ["Reef Skulkers", "Stormcallers", "The Drowned Choir", "Tidebreakers", "Thunder Sentinels", "Leviathan's Voice"] },
+  { name: "The Hollow Crown", sub: "The last road, and the last table", els: ["light", "dark"], hint: "Light and Dark react both ways: Eclipse strips buffs.", foes: ["Pale Heralds", "Dusk Stalkers", "The Veiled Court", "Dawnblades", "Eclipse Knights", "The Hollow King"] },
+];
+const campOpen = (ch, k) => (ch === 0 && k === 0) || !!(P.camp && P.camp.cl[k === 0 ? (ch - 1) + "-5" : ch + "-" + (k - 1)]);
+function campDeck(ch, k) {
+  const r = rngOf("camp" + ch + "-" + k), cap = Math.min(6, 2 + Math.ceil(ch * .8) + (k >= 4 ? 1 : 0) + (k === 5 ? 1 : 0)), els = CAMP[ch].els;
+  const pool = C.filter(c => rarOf(c) <= cap && (!c.ex || cap >= 6)).sort((a, b) => a.i - b.i), pick = [], n = {};
+  const take = (list, cnt) => { const L = list.slice(); for (let t = 0; t < cnt && L.length; t++) { const c = L.splice(Math.floor(r() * L.length), 1)[0]; if ((n[c.id] || 0) >= (rarOf(c) >= 5 ? 1 : 2)) { t--; continue; } pick.push(c.id); n[c.id] = (n[c.id] || 0) + 1; } };
+  take(pool.filter(c => ckCard(c).el === els[0]), 4); take(pool.filter(c => ckCard(c).el === els[1]), 3); take(pool, 1); while (pick.length < 8) take(pool, 1);
+  const deck = pick.slice(0, 8); for (let i = 4; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [deck[i], deck[j]] = [deck[j], deck[i]]; } return deck;
+}
+const campLevel = (ch, k) => Math.min(2, Math.floor((ch * 6 + k) / 9));
+
+/* ----- ranked: a ladder of points, unlocked at level 5 ----- */
+const RANK_LV = 5, TIERS_R = [["Bronze", 0], ["Silver", 1000], ["Gold", 1300], ["Platinum", 1600], ["Diamond", 1900], ["Master", 2200]];
+const rankTier = pts => { let t = 0; TIERS_R.forEach(([n, v], i) => { if (pts >= v) t = i; }); return t; };
+function rankInit() { if (!P.rank) P.rank = { pts: 800, w: 0, l: 0, tierBest: 0, day: "" }; }
+function rankOpp(pts) { return Math.max(400, pts + Math.round((Math.random() * 2 - 1) * 120)); }
+const rankLevel = pts => (pts < 1100 ? 0 : pts < 1800 ? 1 : 2);
+
 /* ----- the Battle tab ----- */
+let BV = "home";
 function viewBattle(v) {
-  ckInit(); const d = P.cd[P.cdi], err = ckDeckOk(d.cards), rec = P.ck;
+  ckInit(); rankInit(); if (BV === "camp") return viewCamp(v);
+  const d = P.cd[P.cdi], err = ckDeckOk(d.cards), rec = P.ck, rk = P.rank, unlocked = P.lv >= RANK_LV, tier = rankTier(rk.pts), nextT = TIERS_R[tier + 1];
   v.innerHTML = `<span class="ribbon">BATTLE</span><div class="panel"><div class="row" style="flex-wrap:nowrap"><select id="ckdeck" data-ck="deckSel" style="flex:1">${P.cd.map((x, i) => `<option value="${i}" ${i === P.cdi ? "selected" : ""}>${esc(x.name)}${ckDeckOk(x.cards) ? " ✕" : ""}</option>`).join("")}</select><button class="btn sm yellow" data-ck="deckEdit">Edit</button><button class="btn sm dark" data-ck="deckNew" ${P.cd.length >= 8 ? "disabled" : ""}>New</button></div>` +
     `<div class="kdeck"><div class="kd5">${d.cards.slice(0, 5).map(id => BY[id] ? kcardMini(id) : "").join("")}</div><div class="kd3"><small>BACKUPS</small>${d.cards.slice(5, 8).map(id => BY[id] ? kcardMini(id) : "").join("")}</div></div>${err ? `<p class="note" style="color:#ff9aa4;margin:6px 0 0">${esc(err)}</p>` : ""}</div>` +
-    `<span class="ribbon green">PLAY</span><div class="row c"><button class="btn" data-ck="start" data-l="0" ${err ? "disabled" : ""}>Easy</button><button class="btn yellow" data-ck="start" data-l="1" ${err ? "disabled" : ""}>Normal</button><button class="btn red" data-ck="start" data-l="2" ${err ? "disabled" : ""}>Hard</button></div>` +
-    `<p class="note" style="text-align:center;margin:8px 0 0">Wins ${rec.w} · Losses ${rec.l}. The first win each day earns a pack.</p><div class="row c" style="margin-top:12px"><button class="btn sm dark" data-ck="rules">How to play</button><button class="btn sm dark" data-act="tab" data-k="play">Classic Triad</button></div>`;
+    `<span class="ribbon green">MODES</span><div class="modes"><button class="mode" data-ck="camp" ${err ? "disabled" : ""}><b class="fat">CAMPAIGN</b><small>${campDone()} / 30 opponents beaten · packs for each first win</small></button>` +
+    `<button class="mode ${unlocked ? "" : "lock"}" data-ck="ranked" ${err || !unlocked ? "disabled" : ""}><b class="fat">RANKED LADDER</b><small>${unlocked ? `${TIERS_R[tier][0]} · ${rk.pts} pts${nextT ? " · " + (nextT[1] - rk.pts) + " to " + nextT[0] : ""} · ${rk.w}W ${rk.l}L` : `🔒 Unlocks at level ${RANK_LV} (you are level ${P.lv})`}</small></button>` +
+    `<button class="mode" data-act="tab" data-k="versus"><b class="fat">PLAY A FRIEND</b><small>Online, phone to phone or by room code</small></button></div>` +
+    `<span class="ribbon">PRACTICE</span><div class="row c"><button class="btn" data-ck="start" data-l="0" ${err ? "disabled" : ""}>Easy</button><button class="btn yellow" data-ck="start" data-l="1" ${err ? "disabled" : ""}>Normal</button><button class="btn red" data-ck="start" data-l="2" ${err ? "disabled" : ""}>Hard</button></div><p class="note" style="text-align:center;margin:8px 0 0">Practice wins ${rec.w} · losses ${rec.l}. Practice pays dust and XP.</p>` +
+    `<div class="row c" style="margin-top:12px"><button class="btn sm dark" data-ck="rules">How to play</button><button class="btn sm dark" data-ck="triad">Classic Triad</button></div>`;
+}
+const campDone = () => Object.keys((P.camp && P.camp.cl) || {}).length;
+function viewCamp(v) {
+  if (!P.camp) P.camp = { cl: {} };
+  let h = `<div class="row" style="margin:6px 0 0"><button class="btn sm dark" data-ck="campBack">← Back</button><span class="note">${campDone()} / 30 beaten</span></div>`;
+  CAMP.forEach((c, ch) => {
+    const open = campOpen(ch, 0); h += `<div class="region ${open ? "" : "lock"}" style="--rc:${["#2fbf74", "#e8693a", "#5fb8ff", "#3fd0c9", "#b574ff"][ch]}"><div class="rh"><b class="fat">${esc(c.name)}</b><small>${open ? esc(c.sub) : "🔒 Beat the previous region's boss"}</small></div><div class="nodes six" style="margin:4px 10px 10px">`;
+    for (let k = 0; k < 6; k++) { const o = campOpen(ch, k), done = !!P.camp.cl[ch + "-" + k]; h += `<button class="node ${done ? "done" : ""} ${!o ? "lock" : ""} ${o && !done ? "next" : ""} ${k === 5 ? "boss" : ""}" ${o ? `data-ck="campStage" data-ch="${ch}" data-k="${k}"` : "disabled"}><span>${o ? (k === 5 ? "☠" : k + 1) : "🔒"}</span>${done ? "<small>✓</small>" : ""}</button>`; }
+    h += "</div></div>";
+  });
+  v.innerHTML = h + '<p class="note" style="text-align:center">Each region favours two elements. Learn their combos, then build against them.</p>';
+}
+function campSheet(ch, k) {
+  const c = CAMP[ch], deck = campDeck(ch, k), first = !(P.camp.cl[ch + "-" + k]), boss = k === 5;
+  openSheet(`<span class="ribbon">${esc(c.foes[k]).toUpperCase()}</span><p class="note" style="text-align:center;margin:0 0 8px">${esc(c.name)} · ${c.els.map(e => EL[e][1] + " " + EL[e][0]).join(" + ")}${boss ? " · boss: +15 core, +1 energy" : ""}</p><div class="kd5">${deck.slice(0, 5).map(id => kcardMini(id)).join("")}</div><div class="kd3" style="margin-top:6px"><small>BACKUPS</small>${deck.slice(5).map(id => kcardMini(id)).join("")}</div><p class="note" style="text-align:center;margin:10px 0 0">${esc(c.hint)}</p><p class="note" style="text-align:center;margin:4px 0 0">${first ? "First win: " + (boss ? "3 packs" : k % 2 ? "1 pack" : "30 dust") + " and 30 XP." : "Beaten. A win pays 10 dust."}</p><div class="row c" style="margin-top:12px"><button class="btn yellow big" data-ck="campGo" data-ch="${ch}" data-k="${k}">FIGHT</button><button class="btn dark" data-act="closeModal">Back</button></div>`);
 }
 function rulesSheet() {
   openSheet(`<h2 class="fat">HOW TO PLAY</h2><div class="rules"><p><b>The goal:</b> bring the enemy core from 40 to 0.</p><p><b>Your deck:</b> 8 cards. The first 5 stand in lanes, 3 wait as backups.</p><p><b>Each round:</b> spend energy (3 a round, up to 6) to bring in a backup (its cost), shift a card (1), or use a card's active skill. Then press <b>Fight</b>: each lane trades blows by itself; a card facing an empty lane hits the core.</p><p><b>Elements:</b> whatever hurts a card marks it with its element. Hit a marked card with a reacting element for a bonus: Water then Lightning (Conduct ×1.5), Ice then Fire (Melt ×1.5), Wind then Earth (Sandblast ×1.5), Water then Ice (Freeze), Fire then Wind (Blaze splash), Light and Dark (Eclipse).</p><p><b>Skills:</b> every card has a passive and an active. Tap any card to read them.</p><p><b>The surge:</b> from round 4 every card gains +1 attack each round, so build to snowball.</p></div><div class="row c" style="margin-top:12px"><button class="btn yellow" data-act="closeModal">Got it</button></div>`);
@@ -1287,36 +1355,37 @@ function deckSheet2() {
   const D = CKD, err = ckDeckOk(D.cards), own = ownedList().slice().sort((a, b) => ckCard(a).cost - ckCard(b).cost || a.name.localeCompare(b.name)).filter(c => D.el === "all" || ckCard(c).el === D.el);
   const slot = k => { const id = D.cards[k]; return `<div class="kslot ${D.sel === k ? "on" : ""}" data-ck="dslot" data-k="${k}">${id && BY[id] ? kcardMini(id) : '<div class="ku mini empty"><span>+</span></div>'}</div>`; };
   openSheet(`<h2 class="fat">DECK</h2><div class="row" style="margin:0 0 6px;flex-wrap:nowrap"><input type="text" id="ckname" maxlength="14" value="${esc(P.cd[D.i].name)}" style="flex:1"><button class="btn sm dark" data-ck="deckDel" ${P.cd.length <= 1 ? "disabled" : ""}>Delete</button></div><p class="note" style="margin:0 0 4px">FRONT LINE (left to right are lanes 1 to 5)</p><div class="kd5">${[0, 1, 2, 3, 4].map(slot).join("")}</div><p class="note" style="margin:6px 0 4px">BACKUPS</p><div class="kd5 b3">${[5, 6, 7].map(slot).join("")}</div>${err ? `<p class="note" style="color:#ff9aa4;margin:6px 0 0">${esc(err)}</p>` : '<p class="note" style="color:var(--ok);margin:6px 0 0">Ready to play.</p>'}` +
-    `<div class="row" style="margin:8px 0 4px"><select data-ck="dfilt"><option value="all">All elements</option>${ELKEYS.map(e => `<option value="${e}" ${D.el === e ? "selected" : ""}>${EL[e][1]} ${EL[e][0]}</option>`).join("")}</select><small class="note">Tap a slot, then a card.</small></div><div class="kpick">${own.map(c => { const k = ckCard(c), n = D.cards.filter(x => x === c.id).length; return `<div class="kp" data-ck="dpick" data-id="${c.id}">${kcardMini(c.id)}${n ? `<b class="kn">×${n}</b>` : ""}</div>`; }).join("")}</div><div class="row c" style="margin-top:10px"><button class="btn yellow" data-ck="deckSave">Save</button><button class="btn dark" data-act="closeModal">Close</button></div>`);
+    `<div class="row" style="margin:8px 0 4px"><select data-ck="dfilt"><option value="all">All elements</option>${ELKEYS.map(e => `<option value="${e}" ${D.el === e ? "selected" : ""}>${EL[e][1]} ${EL[e][0]}</option>`).join("")}</select><small class="note">Tap a slot, then a card.</small></div><div class="kpick">${own.map(c => { const n = D.cards.filter(x => x === c.id).length; return `<div class="kp" data-ck="dpick" data-id="${c.id}">${kcardMini(c.id)}${n ? `<b class="kn">×${n}</b>` : ""}</div>`; }).join("")}</div><div class="row c" style="margin-top:10px"><button class="btn yellow" data-ck="deckSave">Save</button><button class="btn dark" data-act="closeModal">Close</button></div>`);
 }
 
 /* ----- the match ----- */
 let CKU = { sel: null, mode: null, busy: false, msg: "" };
-function ckStart(level) {
-  ckInit(); const d = P.cd[P.cdi]; const err = ckDeckOk(d.cards); if (err) return toast(err);
-  ckNew(d.cards, ckAiDeck(level), { ui: true, ai: level }); G.fx = ckFx; G.level = level; CKU = { sel: null, mode: null, busy: false, msg: "" };
-  $("#ck").hidden = false; musicMode("match"); ckRender();
+function ckStart(level, mode = { kind: "practice" }) {
+  ckInit(); const d = P.cd[P.cdi], err = ckDeckOk(d.cards); if (err) return toast(err);
+  const foeDeck = mode.deck || ckAiDeck(level); ckNew(d.cards, foeDeck, { ui: true, ai: level }); ME = 0; G.fx = ckFx; G.level = level; G.mode = mode;
+  if (mode.core) G.s[1].core += mode.core; if (mode.energy) G.s[1].energy += mode.energy; G.bonusE = mode.energy || 0;
+  G.coreMax = [CK.CORE, CK.CORE + (mode.core || 0)]; CKU = { sel: null, mode: null, busy: false, msg: "", opp: mode.kind === "camp" ? CAMP[mode.ch].foes[mode.k] : mode.kind === "ranked" ? "RANKED" : "ENEMY" }; $("#ck").hidden = false; musicMode("match"); ckRender();
 }
 function ckPanel() {
   const m = CKU.mode, sel = CKU.sel; let h = "";
   if (m) { const A = ACT[m.act]; return `<div class="kp1"><b>${esc(actName(m.u))}</b><span>${A.t === "ally" ? "Choose one of your cards" : "Choose an enemy card"}.</span><button class="btn sm dark" data-ck="cancel">Cancel</button></div>`; }
-  if (!sel) return `<div class="kp1"><span>Tap a card to read its skills. Spend your energy, then press Fight.</span></div>`;
+  if (!sel) return `<div class="kp1"><span>${CKU.busy && G.online && G.phase === "plan" ? "Waiting for your opponent…" : "Tap a card to read its skills. Spend your energy, then press Fight."}</span></div>`;
   const u = sel.kind === "bench" ? G.s[sel.s].bench[sel.i] : lane(sel.s, sel.i); if (!u) return `<div class="kp1"><span>Tap a card to read its skills.</span></div>`;
-  const A = ACT[u.active], P1 = PASS[u.passive], mine = sel.s === 0, plan = G.phase === "plan" && !CKU.busy;
+  const A = ACT[u.active], P1 = PASS[u.passive], mine = sel.s === ME, plan = G.phase === "plan" && !CKU.busy;
   h = `<div class="kp2"><div class="kinfo"><b>${esc(u.name)}</b> <span class="kel2" style="color:${EL[u.el][2]}">${EL[u.el][1]} ${EL[u.el][0]}</span> <small>cost ${u.cost} · ${esc(GROUPS[u.tribe] || u.tribe)}</small><br><em>${P1[0]}:</em> ${P1[1]}<br><em>${actName(u)} (${A.c}):</em> ${A.d}${u.mark ? `<br><em>Marked:</em> ${EL[u.mark.el][0]}` : ""}</div>`;
-  if (mine && plan && sel.kind === "lane") h += `<div class="kbtns"><button class="btn sm yellow" data-ck="use" ${u.used || G.s[0].energy < A.c ? "disabled" : ""}>${u.used ? "Used" : esc(actName(u)) + " · " + A.c + "⚡"}</button><button class="btn sm dark" data-ck="shift" data-d="-1" ${sel.i === 0 || G.s[0].energy < 1 ? "disabled" : ""}>◀ 1⚡</button><button class="btn sm dark" data-ck="shift" data-d="1" ${sel.i === 4 || G.s[0].energy < 1 ? "disabled" : ""}>1⚡ ▶</button></div>`;
-  else if (mine && plan && sel.kind === "bench") h += `<div class="kbtns"><span class="note">Tap a lane to bring it in for ${u.cost}⚡${G.s[0].energy < u.cost ? " (not enough energy)" : ""}.</span></div>`;
+  if (mine && plan && sel.kind === "lane") h += `<div class="kbtns"><button class="btn sm yellow" data-ck="use" ${u.used || G.s[ME].energy < A.c ? "disabled" : ""}>${u.used ? "Used" : esc(actName(u)) + " · " + A.c + "⚡"}</button><button class="btn sm dark" data-ck="shift" data-d="-1" ${sel.i === 0 || G.s[ME].energy < 1 ? "disabled" : ""}>◀ 1⚡</button><button class="btn sm dark" data-ck="shift" data-d="1" ${sel.i === 4 || G.s[ME].energy < 1 ? "disabled" : ""}>1⚡ ▶</button></div>`;
+  else if (mine && plan && sel.kind === "bench") h += `<div class="kbtns"><span class="note">Tap a lane to bring it in for ${u.cost}⚡${G.s[ME].energy < u.cost ? " (not enough energy)" : ""}.</span></div>`;
   return h + "</div>";
 }
 function ckRender() {
-  const root = $("#ck"); if (!G || !root) return; const me = G.s[0], foe = G.s[1], sel = CKU.sel, m = CKU.mode;
-  const tgtOk = (s, i) => m && ((ACT[m.act].t === "ally" && s === 0) || (ACT[m.act].t === "enemy" && s === 1)) && lane(s, i);
+  const root = $("#ck"); if (!G || !root) return; const F = 1 - ME, me = G.s[ME], foe = G.s[F], sel = CKU.sel, m = CKU.mode;
+  const tgtOk = (s, i) => m && ((ACT[m.act].t === "ally" && s === ME) || (ACT[m.act].t === "enemy" && s === F)) && lane(s, i);
   const row = (s) => [0, 1, 2, 3, 4].map(i => kuHtml(lane(s, i), s, i, "lane", { sel: sel && sel.kind === "lane" && sel.s === s && sel.i === i, tgt: tgtOk(s, i) })).join("");
   const bench = (s) => [0, 1, 2].map(i => kuHtml(G.s[s].bench[i], s, i, "bench", { mini: true, sel: sel && sel.kind === "bench" && sel.s === s && sel.i === i })).join("");
-  const coreBar = (S, s) => `<div class="coreb ${s ? "foe" : "me"}" id="core${s}"><span>${s ? "ENEMY" : "YOU"}</span><div class="cbar"><i style="width:${Math.max(0, 100 * S.core / CK.CORE)}%"></i><em>${Math.max(0, S.core)}</em></div><div class="pips">${energyPips(S.energy)}</div></div>`;
+  const coreBar = (S, s) => `<div class="coreb ${s === ME ? "me" : "foe"}" id="core${s}"><span>${s === ME ? "YOU" : esc((CKU.opp || "ENEMY").toUpperCase().slice(0, 7))}</span><div class="cbar"><i style="width:${Math.max(0, 100 * S.core / (G.coreMax ? G.coreMax[s] : CK.CORE))}%"></i><em>${Math.max(0, S.core)}</em></div><div class="pips">${energyPips(S.energy)}</div></div>`;
   const surge = G.round >= CK.SURGE ? `SURGE +${G.round - CK.SURGE + 1}` : `Surge in ${CK.SURGE - G.round}`;
   root.innerHTML = `<div class="ckwrap"><div class="ckhud"><button class="btn sm red" data-ck="menu">✕</button><b class="fat">ROUND ${Math.min(G.round, CK.MAXR)}</b><span class="surge">${surge}</span><button class="btn sm dark" data-ck="speed">${G.speed}×</button></div>` +
-    `<div class="side foe"><div class="bench">${bench(1)}</div>${coreBar(foe, 1)}<div class="lanes">${row(1)}</div></div><div class="vsline"><span id="ckmsg">${esc(CKU.msg || "")}</span></div><div class="side me"><div class="lanes">${row(0)}</div>${coreBar(me, 0)}<div class="bench">${bench(0)}</div></div>` +
+    `<div class="side foe"><div class="bench">${bench(F)}</div>${coreBar(foe, F)}<div class="lanes">${row(F)}</div></div><div class="vsline"><span id="ckmsg">${esc(CKU.msg || "")}</span></div><div class="side me"><div class="lanes">${row(ME)}</div>${coreBar(me, ME)}<div class="bench">${bench(ME)}</div></div>` +
     `<div class="ckpanel">${ckPanel()}</div><button class="fightbtn btn big yellow" data-ck="fight" ${G.phase !== "plan" || CKU.busy || G.over ? "disabled" : ""}>FIGHT</button></div>`;
 }
 const kq = (s, i) => document.querySelector(`#ck .ku[data-s="${s}"][data-i="${i}"][data-kind="lane"]`);
@@ -1324,7 +1393,7 @@ function kpop(el, text, cls = "") { if (!el) return; const p = document.createEl
 async function ckFx(e) {
   ckRender(); const sp = G.speed || 1;
   if (e.t === "phase") { CKU.msg = e.text; const mg = $("#ckmsg"); if (mg) mg.textContent = e.text; sfx("go"); await sleep(380 / sp); }
-  else if (e.t === "lane") { [0, 1].forEach(s => { const el = kq(s, e.i); if (el) el.classList.add("act" + s); }); await sleep(220 / sp); }
+  else if (e.t === "lane") { [0, 1].forEach(s => { const el = kq(s, e.i); if (el) el.classList.add(s === ME ? "act0" : "act1"); }); await sleep(220 / sp); }
   else if (e.t === "hit") { const el = kq(e.s, e.i); if (el) { el.classList.add("hurt"); kpop(el, "-" + e.d, e.react ? "react" : ""); if (e.react) kpop(el, e.react, "rname"); } sfx(e.react ? "plus" : "flip"); await sleep((e.react ? 560 : 340) / sp); }
   else if (e.t === "core") { const c = $("#core" + e.s); if (c) { c.classList.add("shake"); kpop(c, "-" + e.d, "react"); } sfx("err"); await sleep(420 / sp); }
   else if (e.t === "die") { const mg = $("#ckmsg"); if (mg) mg.textContent = e.name + " falls"; await sleep(300 / sp); }
@@ -1333,53 +1402,152 @@ async function ckFx(e) {
   else if (e.t === "enter") { await sleep(260 / sp); }
 }
 async function ckFight() {
-  if (!G || G.phase !== "plan" || CKU.busy || G.over) return; CKU.busy = true; CKU.sel = null; CKU.mode = null; sfx("charge");
+  if (!G || G.phase !== "plan" || CKU.busy || G.over) return; if (G.online) return cknFight();
+  CKU.busy = true; CKU.sel = null; CKU.mode = null; sfx("charge");
   const acts = ckAiPlan(1); ckRender(); await sleep(250 / G.speed); await ckAiExecute(acts); if (!G.over) await ckBattle(); CKU.busy = false; CKU.msg = ""; ckRender(); if (G.over) ckResult();
 }
+/* ----- rewards by mode ----- */
 function ckResult() {
-  const w = G.winner, win = w === 0, draw = w === -1, L = G.level; P.ck.w += win ? 1 : 0; P.ck.l += win || draw ? 0 : 1; rollover(); P.mis.play++; let tk = 0, dust = win ? 15 + L * 10 : 5;
-  if (win) { P.mis.win++; if (P.ck.day !== today()) { P.ck.day = today(); tk = 1; P.tickets += 1; } }
-  P.dust += dust; const ups = gainXp(win ? 25 + 10 * L : 10); scheduleSave(); chrome(); sfx(win ? "win" : draw ? "draw" : "lose");
-  openSheet(`<span class="ribbon ${win ? "gold" : ""}">${win ? "VICTORY" : draw ? "DRAW" : "DEFEAT"}</span><div class="panel"><p style="margin:0 0 6px">Round ${Math.min(G.round, CK.MAXR)} · your core ${Math.max(0, G.s[0].core)} · enemy core ${Math.max(0, G.s[1].core)}</p><div class="row c"><span class="tag gold">+${dust} ${ic("gem", "ico")}</span>${tk ? `<span class="tag ok">First win today +1 pack</span>` : ""}</div>${ups.length ? `<p class="note" style="margin:8px 0 0;color:var(--yellow)">${ups.map(esc).join("<br>")}</p>` : ""}</div><div class="row c" style="margin-top:12px"><button class="btn yellow" data-ck="rematch">Rematch</button><button class="btn dark" data-ck="leave">Back</button></div>`);
+  const w = G.winner, win = w === ME, draw = w === -1, mode = G.mode || { kind: "practice" }, L = G.level || 0; rollover(); P.mis.play++; let dust = 0, packs = 0, xp = 0, extra = "";
+  if (win) P.mis.win++;
+  if (mode.kind === "practice") { P.ck.w += win ? 1 : 0; P.ck.l += win || draw ? 0 : 1; dust = win ? 15 + L * 10 : 5; xp = win ? 25 + 10 * L : 10; }
+  else if (mode.kind === "camp") {
+    const key = mode.ch + "-" + mode.k, first = !P.camp.cl[key]; xp = win ? 30 : 10;
+    if (win) { if (first) { P.camp.cl[key] = true; if (mode.k === 5) { packs = 3; extra = "Region cleared!"; } else if (mode.k % 2) packs = 1; else dust = 30; } else dust = 10; } else dust = 5;
+  } else if (mode.kind === "ranked") {
+    rankInit(); const rk = P.rank, opp = mode.opp, E = 1 / (1 + Math.pow(10, (opp - rk.pts) / 400)), S = win ? 1 : draw ? .5 : 0, before = rankTier(rk.pts), delta = Math.round(32 * (S - E)); rk.pts = Math.max(0, rk.pts + delta); win ? rk.w++ : draw ? 0 : rk.l++; const after = rankTier(rk.pts);
+    extra = (delta >= 0 ? "+" : "") + delta + " points · " + TIERS_R[after][0] + " " + rk.pts; xp = win ? 40 : 15; dust = win ? 25 : 8;
+    if (win && rk.day !== today()) { rk.day = today(); packs += 1; }
+    if (after > rk.tierBest) { rk.tierBest = after; packs += 3; extra += " · NEW TIER, +3 packs"; }
+  } else if (mode.kind === "online") { dust = win ? 10 : 5; xp = win ? 20 : 10; }
+  P.dust += dust; P.tickets += packs; const ups = xp ? gainXp(xp) : []; scheduleSave(); chrome(); sfx(win ? "win" : draw ? "draw" : "lose");
+  const again = mode.kind === "online" ? "" : `<button class="btn yellow" data-ck="rematch">${mode.kind === "camp" ? "Again" : "Rematch"}</button>`;
+  openSheet(`<span class="ribbon ${win ? "gold" : ""}">${win ? "VICTORY" : draw ? "DRAW" : "DEFEAT"}</span><div class="panel"><p style="margin:0 0 6px">Round ${Math.min(G.round, CK.MAXR)} · your core ${Math.max(0, G.s[ME].core)} · their core ${Math.max(0, G.s[1 - ME].core)}</p><div class="row c">${dust ? `<span class="tag gold">+${dust} ${ic("gem", "ico")}</span>` : ""}${packs ? `<span class="tag ok">+${packs} pack${packs > 1 ? "s" : ""}</span>` : ""}</div>${extra ? `<p class="note" style="margin:8px 0 0;color:var(--yellow)">${esc(extra)}</p>` : ""}${ups.length ? `<p class="note" style="margin:6px 0 0;color:var(--yellow)">${ups.map(esc).join("<br>")}</p>` : ""}</div><div class="row c" style="margin-top:12px">${again}<button class="btn dark" data-ck="leave">Back</button></div>`);
 }
-function ckLeave() { G = null; $("#ck").hidden = true; closeModal(); musicMode("menu"); chrome(); show("battle"); }
+function ckLeave() { if (G && G.online) cknBye(); G = null; $("#ck").hidden = true; closeModal(); musicMode("menu"); chrome(); show(tab); }
+function ckRematch() {
+  const m = G && G.mode; closeModal(); if (!m) return;
+  if (m.kind === "camp") return ckStart(campLevel(m.ch, m.k), campMode(m.ch, m.k)); if (m.kind === "ranked") return rankedStart(); ckStart(G.level, { kind: "practice" });
+}
+const campMode = (ch, k) => ({ kind: "camp", ch, k, deck: campDeck(ch, k), core: k === 5 ? 15 : 0, energy: k === 5 ? 1 : 0 });
+function rankedStart() { rankInit(); const opp = rankOpp(P.rank.pts); ckStart(rankLevel(P.rank.pts), { kind: "ranked", opp, deck: ckAiDeck(rankLevel(P.rank.pts)) }); }
 
 /* ----- every tap in Clash ----- */
 document.addEventListener("click", async e => {
   const el = e.target.closest("[data-ck]"); if (!el || !P) return; const a = el.dataset.ck, d = el.dataset; if (el.tagName === "SELECT") return;
-  if (a === "deckSel") return;
   sfx(["unit", "slot", "dslot", "dpick"].includes(a) ? "select" : "tap");
   switch (a) {
     case "start": return ckStart(+d.l);
-    case "rematch": closeModal(); return ckStart(G ? G.level : 1);
+    case "camp": BV = "camp"; return show("battle");
+    case "campBack": BV = "home"; return show("battle");
+    case "campStage": return campSheet(+d.ch, +d.k);
+    case "campGo": closeModal(); return ckStart(campLevel(+d.ch, +d.k), campMode(+d.ch, +d.k));
+    case "ranked": if (P.lv < RANK_LV) return toast("Ranked unlocks at level " + RANK_LV + "."); return rankedStart();
+    case "triad": return show("play");
+    case "rematch": return ckRematch();
     case "leave": return ckLeave();
     case "rules": return rulesSheet();
     case "deckEdit": return deckEditor(P.cdi);
     case "deckNew": ckInit(); P.cd.push({ name: "Deck " + (P.cd.length + 1), cards: ckAutoDeck() }); P.cdi = P.cd.length - 1; scheduleSave(); return deckEditor(P.cdi);
     case "deckDel": { P.cd.splice(CKD.i, 1); P.cdi = 0; scheduleSave(); closeModal(); return show("battle"); }
-    case "deckSave": { const nm = $("#ckname"); if (nm) P.cd[CKD.i].name = nm.value.trim() || "Deck"; if (!ckDeckOk(CKD.cards)) P.cd[CKD.i].cards = CKD.cards.slice(); else { P.cd[CKD.i].cards = CKD.cards.slice(); } scheduleSave(); closeModal(); return show("battle"); }
+    case "deckSave": { const nm = $("#ckname"); if (nm) P.cd[CKD.i].name = nm.value.trim() || "Deck"; P.cd[CKD.i].cards = CKD.cards.slice(); scheduleSave(); closeModal(); return show("battle"); }
     case "dslot": CKD.sel = +d.k; return deckSheet2();
     case "dpick": { const k = CKD.sel; CKD.cards[k] = d.id; CKD.sel = Math.min(7, k + 1); return deckSheet2(); }
   }
   if (!G) return;
   switch (a) {
-    case "menu": return openSheet(`<h2 class="fat">PAUSED</h2><div class="row c" style="margin-top:10px"><button class="btn red" data-ck="leave">Give up</button><button class="btn yellow" data-act="closeModal">Resume</button></div>`);
+    case "menu": return openSheet(`<h2 class="fat">PAUSED</h2><div class="row c" style="margin-top:10px"><button class="btn red" data-ck="leave">${G.online ? "Resign" : "Give up"}</button><button class="btn yellow" data-act="closeModal">Resume</button></div>`);
     case "speed": G.speed = G.speed === 1 ? 2 : G.speed === 2 ? 3 : 1; return ckRender();
     case "fight": return ckFight();
     case "cancel": CKU.mode = null; return ckRender();
     case "unit": case "slot": {
-      if (CKU.busy || G.over) return; const s = +d.s, i = +d.i, kind = d.kind, m = CKU.mode, sel = CKU.sel;
-      if (m) { const A = ACT[m.act]; if (a === "unit" && kind === "lane" && ((A.t === "ally" && s === 0) || (A.t === "enemy" && s === 1))) { CKU.mode = null; const ok = await ckUse(0, m.i, i); if (!ok) toast("That didn't work."); return ckRender(); } return; }
-      if (G.phase === "plan" && sel && sel.kind === "bench" && sel.s === 0 && s === 0 && kind === "lane") { const bi = sel.i; if (!ckSwap(0, bi, i)) { toast("Not enough energy."); return; } CKU.sel = null; return ckRender(); }
+      if (CKU.busy || G.over) return; const s = +d.s, i = +d.i, kind = d.kind, m = CKU.mode, sel = CKU.sel, F = 1 - ME;
+      if (m) { const A = ACT[m.act]; if (a === "unit" && kind === "lane" && ((A.t === "ally" && s === ME) || (A.t === "enemy" && s === F))) { CKU.mode = null; const ok = await ckUse(ME, m.i, i); if (ok && G.online) cknRec({ k: "u", l: m.i, t: i }); if (!ok) toast("That didn't work."); return ckRender(); } return; }
+      if (G.phase === "plan" && sel && sel.kind === "bench" && sel.s === ME && s === ME && kind === "lane") { const bi = sel.i; if (!ckSwap(ME, bi, i)) { toast("Not enough energy."); return; } if (G.online) cknRec({ k: "s", b: bi, l: i }); CKU.sel = null; return ckRender(); }
       if (a === "unit") { CKU.sel = { s, i, kind }; return ckRender(); } CKU.sel = null; return ckRender();
     }
-    case "use": { const sel = CKU.sel; if (!sel || sel.kind !== "lane") return; const u = lane(0, sel.i); if (!u) return; const A = ACT[u.active]; if (A.t === "none") { CKU.busy = true; const ok = await ckUse(0, sel.i, 0); CKU.busy = false; CKU.sel = null; if (!ok) toast("Not enough energy."); return ckRender(); } CKU.mode = { act: u.active, i: sel.i, u }; return ckRender(); }
-    case "shift": { const sel = CKU.sel; if (!sel) return; const j = sel.i + +d.d; if (ckShift(0, sel.i, +d.d)) CKU.sel = { s: 0, i: j, kind: "lane" }; else toast("Not enough energy."); return ckRender(); }
+    case "use": { const sel = CKU.sel; if (!sel || sel.kind !== "lane") return; const u = lane(ME, sel.i); if (!u) return; const A = ACT[u.active]; if (A.t === "none") { CKU.busy = true; const ok = await ckUse(ME, sel.i, 0); CKU.busy = false; CKU.sel = null; if (ok && G.online) cknRec({ k: "u", l: sel.i, t: 0 }); if (!ok) toast("Not enough energy."); return ckRender(); } CKU.mode = { act: u.active, i: sel.i, u }; return ckRender(); }
+    case "shift": { const sel = CKU.sel; if (!sel) return; const dir = +d.d, j = sel.i + dir; if (ckShift(ME, sel.i, dir)) { if (G.online) cknRec({ k: "h", l: sel.i, d: dir }); CKU.sel = { s: ME, i: j, kind: "lane" }; } else toast("Not enough energy."); return ckRender(); }
   }
 });
 document.addEventListener("change", e => {
-  const el = e.target.closest && e.target.closest("[data-ck]"); if (!el) return; if (el.dataset.ck === "deckSel") { P.cdi = +el.value; scheduleSave(); show("battle"); } else if (el.dataset.ck === "dfilt") { CKD.el = el.value; deckSheet2(); }
+  const el = e.target.closest && e.target.closest("[data-ck]"); if (!el) return; if (el.dataset.ck === "deckSel") { P.cdi = +el.value; scheduleSave(); show(tab); } else if (el.dataset.ck === "dfilt") { CKD.el = el.value; deckSheet2(); }
 });
+
+/* ===== Clash online: two phones, one shared board that both of them simulate. ===== */
+/* Both phones hold the same match (seat 0 is the host, seat 1 the guest). Each player plans in secret and sends the list of what they did; when both lists are in,
+   both phones rewind to the start of the round, replay the host's plan and then the guest's, and run the same battle. The rules contain no dice, so the two
+   boards stay identical. After every round the phones compare a short fingerprint of the board; if it ever differs the match is stopped. */
+let ONL = null;   // { send, snap, myActs, theirPlans, sent, mySums, sums, opp }
+const cknRec = a => { if (ONL) ONL.myActs.push(a); };
+function cknHash() {
+  const x = G.s.map(s => [s.core, s.energy, s.lane.map(u => (u ? [u.cid, u.atk, u.hp, u.max, u.shield, u.mark && u.mark.el] : 0)), s.bench.map(u => (u ? u.cid : 0))]), t = JSON.stringify([G.round, x]); let h = 5381;
+  for (let i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) >>> 0; return h;
+}
+function cknStart(role, hostDeck, guestDeck, oppName, send) {
+  if (ckDeckShapeOk(hostDeck) || ckDeckShapeOk(guestDeck)) return toast("That deck is not valid.");
+  ckNew(hostDeck, guestDeck, { ui: true, ai: 0 }); ME = role; G.online = true; G.fx = ckFx; G.level = 0; G.mode = { kind: "online" }; CKU = { sel: null, mode: null, busy: false, msg: "", opp: oppName || "Friend" };
+  ONL = { send, role, myActs: [], theirPlans: {}, sums: {}, mySums: {}, snap: JSON.stringify(G.s), sent: 0, revealing: false, opp: oppName };
+  closeModal(); $("#ck").hidden = false; musicMode("match"); ckRender();
+}
+async function cknFight() {
+  if (!ONL || CKU.busy || G.phase !== "plan") return; CKU.busy = true; CKU.sel = null; CKU.mode = null; CKU.msg = "Waiting for your opponent…"; ckRender();
+  ONL.sent = G.round; ONL.send({ k: "plan", r: G.round, a: ONL.myActs }); cknTryReveal();
+}
+function cknGot(m) {
+  if (!ONL || !G || !m) return;
+  if (m.k === "plan") { ONL.theirPlans[m.r] = m.a || []; cknTryReveal(); }
+  else if (m.k === "sum") { ONL.sums[m.r] = m.h; cknCheckSum(m.r); }
+  else if (m.k === "bye") { toast("Your opponent left."); if (!G.over) { G.over = true; G.winner = ME; ckResult(); } }
+}
+async function cknApply(s, a) {
+  if (a.k === "s") ckSwap(s, a.b, a.l); else if (a.k === "h") ckShift(s, a.l, a.d); else if (a.k === "u") await ckUse(s, a.l, a.t);
+  ckRender(); await sleep(260 / (G.speed || 1));
+}
+async function cknTryReveal() {
+  if (!ONL || ONL.revealing || G.phase !== "plan" || G.over) return; const r = G.round; if (ONL.sent !== r || !ONL.theirPlans[r]) return; ONL.revealing = true;
+  const mine = ONL.myActs, theirs = ONL.theirPlans[r]; G.s = JSON.parse(ONL.snap); CKU.sel = null; CKU.mode = null; CKU.msg = ""; ckRender();
+  for (const side of [0, 1]) { const acts = side === ME ? mine : theirs; for (const a of acts) { if (G.over) break; await cknApply(side, a); } }
+  if (!G.over) await ckBattle();
+  const h = cknHash(); ONL.mySums[r] = h; ONL.send({ k: "sum", r, h });
+  ONL.snap = JSON.stringify(G.s); ONL.myActs = []; delete ONL.theirPlans[r]; CKU.busy = false; CKU.msg = ""; ONL.revealing = false; ckRender(); cknCheckSum(r);
+  if (G.over) ckResult(); else cknTryReveal();
+}
+function cknCheckSum(r) {
+  if (!ONL || ONL.mySums[r] == null || ONL.sums[r] == null) return;
+  if (ONL.mySums[r] !== ONL.sums[r]) { toast("The two games went out of sync, so the match was stopped."); G.over = true; G.winner = -1; CKU.busy = false; ckRender(); openSheet(`<span class="ribbon">OUT OF SYNC</span><p class="note" style="text-align:center">The two phones disagreed about the board, so this match was stopped. Both players need the same app version (${VER}).</p><div class="row c" style="margin-top:12px"><button class="btn dark" data-ck="leave">Back</button></div>`); }
+}
+function cknBye() {
+  if (ONL) { try { ONL.send({ k: "bye" }); } catch (_) {} ONL = null; }
+  if (typeof CKR !== "undefined" && CKR) { try { if (CKR.unsub) CKR.unsub(); if (CKR.role === 0) roomRef(CKR.code).delete(); } catch (_) {} CKR = null; }
+  if (NET) { try { netClose(); } catch (_) {} }
+}
+
+/* ----- over a room on claude.ai ----- */
+let CKR = null;
+async function cknRoomCreate() {
+  if (!db || !uid) return toast("Rooms work on the claude.ai version. Use Direct connect here."); ckInit(); const deck = P.cd[P.cdi].cards.slice(), err = ckDeckOk(deck); if (err) return toast(err);
+  let code = ""; for (let i = 0; i < 4; i++) code += CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)];
+  try { await roomRef(code).set({ game: "clash", status: "wait", created: Date.now(), host: { id: uid, name: playerName(), deck }, guest: null, hmsg: [], gmsg: [] }); } catch (e) { return toast("Could not make a room (" + (e.code || "error") + "). Friends need Contributor access."); }
+  CKR = { code, role: 0, mine: [], seen: 0, started: false, deck }; CKR.unsub = roomRef(code).onSnapshot(s => cknRoomSnap(s.exists ? s.data() : null), () => toast("Lost the room connection."));
+  openSheet(`<h2 class="fat">ROOM ${code}</h2><p class="note" style="text-align:center">Waiting for your friend. They enter this code on the Versus tab and press Join.</p><div class="row c" style="margin-top:12px"><button class="btn dark" data-ck="roomCancel">Cancel</button></div>`);
+}
+async function cknRoomJoin() {
+  if (!db || !uid) return toast("Rooms work on the claude.ai version. Use Direct connect here."); ckInit(); const deck = P.cd[P.cdi].cards.slice(), err = ckDeckOk(deck); if (err) return toast(err);
+  const code = ($("#vsCode").value || "").trim().toUpperCase(); if (code.length !== 4) return toast("Enter the 4-letter room code.");
+  let snap; try { snap = await roomRef(code).get(); } catch (e) { return toast("Could not reach the room."); } if (!snap.exists) return toast("No room with that code."); const r = snap.data();
+  if (r.game !== "clash") return toast("That room is for the other game."); if (r.host.id === uid) return toast("That is your own room."); if (r.guest || r.status !== "wait") return toast("That room is full.");
+  try { await roomRef(code).update({ guest: { id: uid, name: playerName(), deck }, status: "play" }); } catch (e) { return toast("Could not join (" + (e.code || "error") + ")."); }
+  CKR = { code, role: 1, mine: [], seen: 0, started: true, deck }; CKR.unsub = roomRef(code).onSnapshot(s => cknRoomSnap(s.exists ? s.data() : null), () => toast("Lost the room connection."));
+  cknStart(1, r.host.deck, deck, r.host.name, cknRoomSend);
+}
+function cknRoomSnap(r) {
+  if (!CKR) return; if (!r) { toast("The room was closed."); return; }
+  if (CKR.role === 0 && r.guest && !CKR.started) { CKR.started = true; closeModal(); cknStart(0, CKR.deck, r.guest.deck, r.guest.name, cknRoomSend); }
+  const arr = (CKR.role === 0 ? r.gmsg : r.hmsg) || []; for (let i = CKR.seen; i < arr.length; i++) cknGot(arr[i]); CKR.seen = arr.length;
+}
+async function cknRoomSend(m) { if (!CKR) return; CKR.mine.push(m); try { await roomRef(CKR.code).update(CKR.role === 0 ? { hmsg: CKR.mine } : { gmsg: CKR.mine }); } catch (e) { toast("Move not sent."); } }
+document.addEventListener("click", e => { const el = e.target.closest("[data-ck='roomCancel']"); if (!el) return; if (CKR) { try { CKR.unsub && CKR.unsub(); roomRef(CKR.code).delete(); } catch (_) {} CKR = null; } closeModal(); });
 
 
 /* ===== cards: collection, detail, decks ===== */
@@ -1591,6 +1759,7 @@ document.addEventListener("click", async e => {
     case "again": { const m = M, o = { tier: m.tier, stage: m.stage }; closeMatch(); return startAi(o); }
     case "rematch": return rematch();
     case "take": return takeCard(d.id);
+    case "vsGame": VSG = d.g; return show("versus");
     case "openPack": return openPack();
     case "packTear": return packTear();
     case "packNext": return packNext();
