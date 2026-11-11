@@ -870,7 +870,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.11.11-h";
+const VER = "2026.11.11-i";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -1572,7 +1572,7 @@ async function cknRoomSend(m) { if (!CKR) return; CKR.mine.push(m); try { await 
 document.addEventListener("click", e => { const el = e.target.closest("[data-ck='roomCancel']"); if (!el) return; if (CKR) { try { CKR.unsub && CKR.unsub(); roomRef(CKR.code).delete(); } catch (_) {} CKR = null; } closeModal(); });
 
 /* ----- over our own server (Cloudflare Worker): room codes and quick match ----- */
-const SERVER_URL = "";   // set to the deployed worker, e.g. "wss://triad-server.<you>.workers.dev"
+const SERVER_URL = "wss://triad.chancyrod.workers.dev";
 let SRVC = null, QWS = null;
 const srvOn = () => !!SERVER_URL;
 function cknSrvConnect(code, opts) {
