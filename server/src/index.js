@@ -145,6 +145,28 @@ function guardProfile(old, nw, dtSec, credit0) {
   return { why: "", credit: cr };
 }
 
+/* Sign in with Google / Apple: the phone gets an ID token from the provider; the server checks its signature against the provider's published keys, that it was issued for OUR client id, and that it has not expired. */
+const PROVIDERS = {
+  google: { keys: "https://www.googleapis.com/oauth2/v3/certs", iss: ["https://accounts.google.com", "accounts.google.com"] },
+  apple: { keys: "https://appleid.apple.com/auth/keys", iss: ["https://appleid.apple.com"] },
+};
+const b64u = (s) => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/").padEnd(Math.ceil(s.length / 4) * 4, "=")), (c) => c.charCodeAt(0));
+async function verifyIdToken(provider, token, aud) {
+  const [h, p, sg] = String(token).split("."); if (!sg) throw new Error("shape");
+  const head = JSON.parse(new TextDecoder().decode(b64u(h))), pay = JSON.parse(new TextDecoder().decode(b64u(p))), cfg = PROVIDERS[provider];
+  const jwk = (await (await fetch(cfg.keys)).json()).keys.find((k) => k.kid === head.kid); if (!jwk || head.alg !== "RS256") throw new Error("key");
+  const key = await crypto.subtle.importKey("jwk", jwk, { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["verify"]);
+  if (!(await crypto.subtle.verify("RSASSA-PKCS1-v1_5", key, b64u(sg), new TextEncoder().encode(h + "." + p)))) throw new Error("sig");
+  if (!cfg.iss.includes(pay.iss) || pay.aud !== aud || !(pay.exp * 1000 > Date.now()) || !pay.sub) throw new Error("claims");
+  return pay;
+}
+
+async function hashPw(pw, salt) {
+  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(pw), "PBKDF2", false, ["deriveBits"]);
+  return hex(await crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", salt: new TextEncoder().encode(salt), iterations: 100000 }, key, 256));
+}
+async function sha(s) { return hex(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s))); }
+
 export class Hub {
   constructor(state, env) {
     this.state = state; this.env = env || {}; this.sql = state.storage.sql; this.tries = new Map(); this.lastPut = new Map();
@@ -165,7 +187,8 @@ export class Hub {
     const now = Date.now(), t = (this.tries.get(ip) || []).filter(x => now - x < 60000); t.push(now); this.tries.set(ip, t);
     if (this.tries.size > 500) this.tries.clear(); return t.length > 8;
   }
-  async fetch(req) {
+  async fetch(req) { try { return await this.route(req); } catch (e) { return json({ ok: false, err: "Server error. Try again." }, 500); } }
+  async route(req) {
     const url = new URL(req.url), p = url.pathname;
     if (p === "/hub") return this.connect(req, url);
     if (p === "/auth/config") return json({ google: this.env.GOOGLE_CLIENT_ID || "", apple: this.env.APPLE_CLIENT_ID || "" });
