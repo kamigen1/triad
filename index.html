@@ -787,8 +787,8 @@ const BY = Object.fromEntries(C.map(c => [c.id, c]));
 const TIERS = ["Novice", "Adept", "Master", "Champion"];
 const STARTER = ["goblin", "slime", "dracky", "cactuar", "shadow", "bomb", "flan", "soldier", "healslime", "she_slime"];
 const SUM_CAP = 20;   // summons per day
-const DUST = { 1: 5, 2: 10, 3: 25, 4: 60, 5: 150, ex: 250 };
-const CRAFT = { 1: 20, 2: 50, 3: 120, 4: 300, 5: 700 };
+const DUST = { 1: 3, 2: 5, 3: 13, 4: 30, 5: 75, ex: 125 };
+const CRAFT = { 1: 30, 2: 90, 3: 300, 4: 900, 5: 3000 };
 const GROUPS = { all: "All", monster: "Monsters", hero: "Heroes", folk: "Folk", weapon: "Weapons", armor: "Armour", relic: "Relics", esper: "Espers", dominant: "Dominants", ff: "Final Fantasy", dq: "Dragon Quest", db: "Dragon Ball", nr: "Naruto", op: "One Piece" };
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -1237,7 +1237,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.11.13-a";
+const VER = "2026.11.13-b";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -1330,7 +1330,7 @@ function viewVersus(v) {
 
 /* ===== PACKS: ripping packs is how you get cards. A pack holds 5 cards; the last slot is the "hit" slot. A free pack recharges every 8 hours (2 stored);
    more packs come from daily missions, wins and levelling up. Foil follows the device's tilt (or a finger, or a gentle sway when there is no sensor). ===== */
-const PACK = { size: 5, pity: 14, freeEvery: 8 * 3600e3, freeMax: 2 };
+const PACK = { size: 5, pity: 14, freeEvery: 24 * 3600e3, freeMax: 2 };
 const PACK_SLOTS = [   // [rarity, % chance] per slot; "ex" is a Secret Rare
   [[1, 75], [2, 25]], [[1, 72], [2, 28]], [[1, 68], [2, 32]], [[2, 55], [3, 40], [4, 5]], [[3, 52], [4, 30], [5, 14], ["ex", 4]],
 ];
@@ -2107,16 +2107,16 @@ async function ckFight(auto) {
 function ckResult() {
   const w = G.winner, win = w === ME, draw = w === -1, mode = G.mode || { kind: "practice" }, L = G.level || 0; rollover(); P.mis.play++; let dust = 0, packs = 0, xp = 0, extra = "", coins = 0, gems = 0;
   if (win) P.mis.win++;
-  if (mode.kind === "practice") { P.ck.w += win ? 1 : 0; P.ck.l += win || draw ? 0 : 1; dust = win ? 15 + L * 10 : 5; xp = win ? 25 + 10 * L : 10; coins = win ? 25 + 10 * L : 5; }
+  if (mode.kind === "practice") { P.ck.w += win ? 1 : 0; P.ck.l += win || draw ? 0 : 1; dust = win ? 15 + L * 10 : 5; xp = win ? 25 + 10 * L : 10; coins = win ? 5 + 10 * L : 3; }
   else if (mode.kind === "camp") {
     const key = mode.ch + "-" + mode.k, first = !P.camp.cl[key]; xp = win ? 30 : 10;
-    if (win) { if (first) { P.camp.cl[key] = true; if (mode.k === 5) { packs = 3; extra = "Region cleared!"; coins = 250; gems = ECON.region.gems; } else { if (mode.k % 2) packs = 1; else dust = 30; coins = 100; } } else { dust = 10; coins = 30; } } else { dust = 5; coins = 5; }
+    if (win) { if (first) { P.camp.cl[key] = true; if (mode.k === 5) { packs = 3; extra = "Region cleared!"; coins = 150; gems = ECON.region.gems; } else { if (mode.k % 2) packs = 1; else dust = 30; coins = 60; } } else { dust = 10; coins = 20; } } else { dust = 5; coins = 3; }
   } else if (mode.kind === "ranked") {
     rankInit(); const rk = P.rank, opp = mode.opp, E = 1 / (1 + Math.pow(10, (opp - rk.pts) / 400)), S = win ? 1 : draw ? .5 : 0, before = rankTier(rk.pts), delta = Math.round(32 * (S - E)); rk.pts = Math.max(0, rk.pts + delta); win ? rk.w++ : draw ? 0 : rk.l++; const after = rankTier(rk.pts);
-    extra = (delta >= 0 ? "+" : "") + delta + " points · " + TIERS_R[after][0] + " " + rk.pts; xp = win ? 40 : 15; dust = win ? 25 : 8; coins = win ? 40 : 10;
+    extra = (delta >= 0 ? "+" : "") + delta + " points · " + TIERS_R[after][0] + " " + rk.pts; xp = win ? 40 : 15; dust = win ? 25 : 8; coins = win ? 25 : 5;
     if (win && rk.day !== today()) { rk.day = today(); packs += 1; }
     if (after > rk.tierBest) { rk.tierBest = after; packs += 3; gems += ECON.tierUp.gems; extra += " · NEW TIER, +3 packs, +" + ECON.tierUp.gems + " gems"; }
-  } else if (mode.kind === "online") { dust = win ? 10 : 5; xp = win ? 20 : 10; coins = win ? 30 : 10; }
+  } else if (mode.kind === "online") { dust = win ? 10 : 5; xp = win ? 20 : 10; coins = win ? 20 : 5; }
   if (G.note) extra = G.note + (extra ? " · " + extra : "");
   P.dust += dust; P.tickets += packs; earn(coins, gems); if (win) eventWin(); const ups = xp ? gainXp(xp) : []; scheduleSave(); chrome(); sfx(win ? "win" : draw ? "draw" : "lose");
   const again = mode.kind === "online" || G.online ? "" : `<button class="btn yellow" data-ck="rematch">${mode.kind === "camp" ? "Again" : "Rematch"}</button>`;
@@ -2504,13 +2504,13 @@ document.addEventListener("click", e => { if (e.target.closest("[data-ck='findCa
 const ECON = {
   startCoins: 300, startGems: 0,
   sell: { 1: 10, 2: 20, 3: 50, 4: 120, 5: 300, 6: 500 },
-  login: { coins: 50, tickets: 1 }, allFour: { gems: 10, tickets: 1 }, level5: { gems: 20 }, region: { gems: 30 }, tierUp: { gems: 25 },
+  std: 300, login: { coins: 60, tickets: 0 }, allFour: { gems: 5, tickets: 0 }, level5: { gems: 10 }, region: { gems: 20 }, tierUp: { gems: 25 },
   medal: { 1: 1, 2: 2, 3: 5, 4: 15, 5: 40, 6: 80 },           // medals per card pulled, by rarity
   exchange: { 3: 150, 4: 500, 5: 1500, 6: 3000 },                // medals for the card of your choice, by rarity
-  multi: 10, evLogin: 3, evWin: 1, evWinDay: 10,                 // a 10-summon costs 9; event tickets: daily claim, per win (capped per day)
+  multi: 10, evLogin: 1, evWin: 1, evWinDay: 2,                 // a 10-summon costs 9; event tickets: daily claim, per win (capped per day)
 };
 const PREM_SLOTS = [[[1, 60], [2, 40]], [[1, 50], [2, 50]], [[2, 70], [3, 30]], [[3, 70], [4, 30]], [[3, 35], [4, 40], [5, 20], ["ex", 5]]];
-const BUNDLE = { n: 5, coins: 450 };
+const BUNDLE = { n: 5, coins: 1350 };   // five Standard summons at a 10% discount
 const FAC_ORDER = ["H", "C", "D", "A", "M", "U", "B", "V"], FAC_TONE = { C: "#ffe08a", D: "#ff5a6e", A: "#d9a45a", M: "#9fb4d4", U: "#6fe0a0", B: "#ffb066", H: "#6fb4ff", V: "#b98aff" };
 const EL_TONE = { fire: "#ff6a3a", water: "#3aa0ff", wind: "#4fe0a4", earth: "#c9a05a", lightning: "#ffe03a", ice: "#9fe6ff", light: "#fff0b0", dark: "#b074ff" };
 const DAY = 864e5, WEEK = 7 * DAY, dayNo = () => Math.floor(Date.now() / DAY), weekNo = () => Math.floor(Date.now() / WEEK);
@@ -2529,7 +2529,7 @@ const STD_RATES = { slots: PACK_SLOTS };
 function activePools() {
   const w = weekNo(), legs = POOL.filter(c => c.lv === 5 && !c.ex), epics = POOL.filter(c => c.lv === 4), fl = legs[w % legs.length], fe = epics[(w * 3 + 1) % epics.length], fac = FAC_ORDER[(w + 3) % 8], el = ELKEYS[w % 8];
   return [
-    { key: "std", id: "std", name: "Standard Summon", sub: "The everyday pool. Every card in Set 1.", slots: PACK_SLOTS, pity: 14, cost: { coins: 100 }, forever: true },
+    { key: "std", id: "std", name: "Standard Summon", sub: "The everyday pool. Every card in Set 1.", slots: PACK_SLOTS, pity: 14, cost: { coins: ECON.std }, forever: true },
     { key: "prem", id: "prem", name: "Premium Summon", sub: "Better odds and a stronger hit. Every card in Set 1.", slots: PREM_SLOTS, pity: 8, cost: { gems: 50 }, forever: true },
     { key: "rate", id: "rate:" + w, name: "Rising Star", sub: "Two featured cards. Half of that rarity's pulls are the featured card.", slots: PREM_SLOTS, pity: 8, cost: { gems: 60 }, featured: [fl.id, fe.id], ends: weekLeft(), tone: "#ffd05a" },
     { key: "fest", id: "fest:" + w, name: "Faction Fest · " + FAC[fac], sub: FAC[fac] + " cards are four times as likely, and the hit card is always one.", slots: PREM_SLOTS, pity: 8, cost: { gems: 60 }, bias: c => facOf(c) === fac, biasName: FAC[fac], ends: weekLeft(), tone: FAC_TONE[fac] },
@@ -2604,16 +2604,16 @@ function eventWin() { econInit(); if (P.ev.winDay !== dayNo()) { P.ev.winDay = d
 
 /* ----- the cycling shops ----- */
 const TEMPLATES = [
-  { id: "dtok", t: "3 pack tokens", cost: { coins: 240 }, give: { tickets: 3 }, limit: 2 }, { id: "dshard", t: "60 shards", cost: { coins: 150 }, give: { dust: 60 }, limit: 3 },
-  { id: "dmedal", t: "20 medals", cost: { coins: 120 }, give: { medals: 20 }, limit: 3 }, { id: "dgem", t: "5 gems", cost: { coins: 400 }, give: { gems: 5 }, limit: 1 },
-  { id: "drare", t: "A random Rare card", cost: { coins: 350 }, give: { card: 3 }, limit: 1 }, { id: "dunc", t: "A random Uncommon card", cost: { coins: 90 }, give: { card: 2 }, limit: 2 },
-  { id: "devt", t: "2 event tickets", cost: { coins: 200 }, give: { evt: 2 }, limit: 2 },
+  { id: "dtok", t: "3 pack tokens", cost: { coins: 800 }, give: { tickets: 3 }, limit: 1 }, { id: "dshard", t: "60 shards", cost: { coins: 150 }, give: { dust: 60 }, limit: 3 },
+  { id: "dmedal", t: "20 medals", cost: { coins: 300 }, give: { medals: 20 }, limit: 2 }, { id: "dgem", t: "5 gems", cost: { coins: 800 }, give: { gems: 5 }, limit: 1 },
+  { id: "drare", t: "A random Rare card", cost: { coins: 600 }, give: { card: 3 }, limit: 1 }, { id: "dunc", t: "A random Uncommon card", cost: { coins: 150 }, give: { card: 2 }, limit: 2 },
+  { id: "devt", t: "2 event tickets", cost: { coins: 1200 }, give: { evt: 2 }, limit: 1 },
 ];
 function dailyOffers() { let s = dayNo() * 2654435761 % 4294967296; const rnd = () => (s = (s * 1664525 + 1013904223) % 4294967296) / 4294967296, a = TEMPLATES.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a.slice(0, 4); }
 function weeklyOffers() {
   const fac = FAC_ORDER[(weekNo() + 3) % 8], F = FAC[fac];
   return [{ id: "wpr", t: "Pick a " + F + " Rare", cost: { medals: 120 }, give: { pick: { r: 3, fac } }, limit: 1 }, { id: "wpe", t: "Pick a " + F + " Epic", cost: { medals: 450 }, give: { pick: { r: 4, fac } }, limit: 1 },
-    { id: "wtok", t: "10 pack tokens", cost: { coins: 700 }, give: { tickets: 10 }, limit: 1 }, { id: "wgem", t: "25 gems", cost: { coins: 2500 }, give: { gems: 25 }, limit: 1 }];
+    { id: "wtok", t: "10 pack tokens", cost: { coins: 2600 }, give: { tickets: 10 }, limit: 1 }, { id: "wgem", t: "25 gems", cost: { coins: 4000 }, give: { gems: 25 }, limit: 1 }];
 }
 function eventOffers() {
   const p = poolByKey("event"), E = EL[p.el][0];
@@ -2670,7 +2670,7 @@ function poolPanel(p) {
     `<div class="sumbtns">${btn(1, plan1)}${btn(ECON.multi, planN)}</div><div class="row c" style="margin-top:8px"><button class="btn sm dark" data-act="odds" data-k="${p.key}">Odds</button></div></div>`;
 }
 function offerList(offers, sub) {
-  return `<div class="list">${offers.map(o => { const used = P.shop.b[o.id] || 0, out = o.limit && used >= o.limit, can = Object.entries(o.cost).every(([r, n]) => have(r) >= n); return `<div class="panel item"><div class="t"><b>${esc(o.t)}</b><small>${o.limit ? `${o.limit - used} of ${o.limit} left` : "Always available"}</small></div><button class="btn sm ${can && !out ? "yellow" : ""}" data-act="buyOffer" data-id="${o.id}" ${out ? "disabled" : ""}><span class="cp">${priceChip(o)}</span></button></div>`; }).join("")}</div>`;
+  return `<div class="list">${offers.map(o => { const used = P.shop.b[o.id] || 0, out = o.limit && used >= o.limit, can = Object.entries(o.cost).every(([r, n]) => have(r) >= n); return `<div class="panel item"><div class="t"><b>${esc(o.t)}</b><small>${o.limit ? `${o.limit - used} of ${o.limit} left` : "Always available"}</small>${!can && Object.keys(o.cost).length === 1 ? (([r, n]) => `<div class="bar" style="margin-top:6px"><i style="width:${Math.min(100, 100 * have(r) / n)}%"></i></div>`)(Object.entries(o.cost)[0]) : ""}</div><button class="btn sm ${can && !out ? "yellow" : ""}" data-act="buyOffer" data-id="${o.id}" ${out ? "disabled" : ""}><span class="cp">${priceChip(o)}</span></button></div>`; }).join("")}</div>`;
 }
 function viewSummon(v) {
   econInit(); const pools = activePools(); if (!pools.find(p => p.key === SEL)) SEL = "std"; const p = pools.find(x => x.key === SEL), fi = freeInfo(), rec = (P.recent || []).slice(0, 10);
@@ -2679,7 +2679,7 @@ function viewSummon(v) {
   if (SV === "summon") {
     h += `<p class="note" style="text-align:center;margin:10px 0 6px">Choose a summon pool</p><div class="banners">${pools.map(bannerHtml).join("")}</div>${poolPanel(p)}` +
       `<p class="note" style="text-align:center;margin:10px 0 0">Free Standard packs: <b>${fi.n}/${PACK.freeMax}</b>${fi.n < PACK.freeMax ? " · the next in " + fmtT(fi.next) : ""}. Every summon pays medals by rarity.</p>` +
-      `<div class="panel" style="margin-top:12px"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><div><b class="fat" style="font-size:12px">${BUNDLE.n} PACK TOKENS</b><br><small class="note">Saves ${BUNDLE.n * 100 - BUNDLE.coins} coins. Tokens pay for Standard summons.</small></div><button class="btn sm yellow" data-act="buyBundle" ${P.coins >= BUNDLE.coins ? "" : "disabled"}><span class="cp">${ic("coin", "")}${BUNDLE.coins}</span> Buy</button></div></div>` +
+      `<div class="panel" style="margin-top:12px"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><div><b class="fat" style="font-size:12px">${BUNDLE.n} PACK TOKENS</b><br><small class="note">Saves ${BUNDLE.n * ECON.std - BUNDLE.coins} coins. Tokens pay for Standard summons.</small></div><button class="btn sm yellow" data-act="buyBundle" ${P.coins >= BUNDLE.coins ? "" : "disabled"}><span class="cp">${ic("coin", "")}${BUNDLE.coins}</span> Buy</button></div></div>` +
       `<span class="ribbon">COLLECTION</span>${setProgress()}` + (rec.length ? `<span class="ribbon green">RECENT PULLS</span><div class="recent">${rec.map(id => BY[id] ? cardHtml(BY[id], { attr: `data-act="detail" data-id="${id}"` }) : "").join("")}</div>` : "");
   } else if (SV === "exch") {
     h += `<span class="ribbon">MEDAL EXCHANGE</span><p class="note" style="text-align:center;margin:0 0 10px">Every summon pays medals (Common ${ECON.medal[1]}, Uncommon ${ECON.medal[2]}, Rare ${ECON.medal[3]}, Epic ${ECON.medal[4]}, Legendary ${ECON.medal[5]}, Secret ${ECON.medal[6]} per card). Spend them here on the exact card you want. Medals never expire.</p>` + offerList(exchangeOffers());
@@ -2747,13 +2747,13 @@ function deckSheet() {
 
 /* ===== daily: login ticket and missions ===== */
 function missions() {
-  return [{ id: "win", t: "Win a match", have: P.mis.win, need: 1, tk: 1 }, { id: "play", t: "Play 3 matches", have: P.mis.play, need: 3, dust: 25 }, { id: "cap", t: "Capture 10 cards", have: P.mis.cap, need: 10, dust: 25 }, { id: "sum", t: "Open a pack", have: P.mis.sum, need: 1, dust: 30 }];
+  return [{ id: "win", t: "Win a match", have: P.mis.win, need: 1, coins: 50 }, { id: "play", t: "Play 3 matches", have: P.mis.play, need: 3, dust: 10 }, { id: "cap", t: "Win 3 matches", have: P.mis.win, need: 3, dust: 15 }, { id: "sum", t: "Open a pack", have: P.mis.sum, need: 1, dust: 10 }];
 }
 function viewDaily(v) {
   rollover(); const ms = missions(), all = ms.every(m => P.mis.claimed[m.id]);
-  v.innerHTML = `<span class="ribbon">DAILY</span><div class="list"><div class="panel item"><div class="t"><b>Daily ticket</b><small>${ECON.login.coins} ${ic("coin")} and 1 ${ic("ticket")} for dropping in</small></div><button class="btn sm yellow" data-act="login" ${P.login ? "disabled" : ""}>${P.login ? "Claimed" : "Claim"}</button></div>` +
-    ms.map(m => `<div class="panel item"><div class="t"><b>${m.t}</b><small>${Math.min(m.have, m.need)} / ${m.need} · reward ${m.tk ? m.tk + " " + ic("ticket") : m.dust + " " + ic("shard")}</small><div class="bar" style="margin-top:5px"><i style="width:${Math.min(100, 100 * m.have / m.need)}%"></i></div></div><button class="btn sm ${m.have >= m.need && !P.mis.claimed[m.id] ? "yellow" : ""}" data-act="claimM" data-id="${m.id}" ${m.have >= m.need && !P.mis.claimed[m.id] ? "" : "disabled"}>${P.mis.claimed[m.id] ? "Done" : "Claim"}</button></div>`).join("") +
-    `<div class="panel item"><div class="t"><b>All four</b><small>+${ECON.allFour.tickets} ${ic("ticket")} and ${ECON.allFour.gems} ${ic("gem")} bonus</small></div><span class="tag ${all ? "ok" : ""}">${all ? "EARNED" : "FINISH THE LIST"}</span></div></div>` +
+  v.innerHTML = `<span class="ribbon">DAILY</span><div class="list"><div class="panel item"><div class="t"><b>Daily ticket</b><small>${ECON.login.coins} ${ic("coin")} for dropping in</small></div><button class="btn sm yellow" data-act="login" ${P.login ? "disabled" : ""}>${P.login ? "Claimed" : "Claim"}</button></div>` +
+    ms.map(m => `<div class="panel item"><div class="t"><b>${m.t}</b><small>${Math.min(m.have, m.need)} / ${m.need} · reward ${m.tk ? m.tk + " " + ic("ticket") : m.coins ? m.coins + " " + ic("coin") : m.dust + " " + ic("shard")}</small><div class="bar" style="margin-top:5px"><i style="width:${Math.min(100, 100 * m.have / m.need)}%"></i></div></div><button class="btn sm ${m.have >= m.need && !P.mis.claimed[m.id] ? "yellow" : ""}" data-act="claimM" data-id="${m.id}" ${m.have >= m.need && !P.mis.claimed[m.id] ? "" : "disabled"}>${P.mis.claimed[m.id] ? "Done" : "Claim"}</button></div>`).join("") +
+    `<div class="panel item"><div class="t"><b>All four</b><small>${ECON.allFour.gems} ${ic("gem")} bonus</small></div><span class="tag ${all ? "ok" : ""}">${all ? "EARNED" : "FINISH THE LIST"}</span></div></div>` +
     `<span class="ribbon green">YOU</span><div class="panel"><div class="row"><input type="text" id="pname" maxlength="14" value="${esc(P.name || "")}" placeholder="${esc(myName || "Your name")}" style="flex:1"><button class="btn sm" data-act="saveName">Save name</button></div><p class="note" style="margin:10px 0 0">Matches played ${P.plays} · won ${P.wins} · cards ${ownedList().length}/${C.length} · summons ${P.pulls} · campaign ${Object.keys(P.cleared).length}/16</p></div>` + soundPanel();
 }
 
@@ -2953,8 +2953,8 @@ document.addEventListener("click", async e => {
     case "deckAuto": { DE.cards = bestDeckIds(deckCap()); return deckSheet(); }
     case "deckSave": { P.decks[DE.i] = { name: (DE.name || "Deck").trim() || "Deck", cards: DE.cards.slice() }; P.deck = DE.i; scheduleSave(); closeModal(); toast("Deck saved"); return show("cards"); }
     case "deckDel": { P.decks.splice(DE.i, 1); P.deck = Math.min(P.deck, P.decks.length - 1); scheduleSave(); closeModal(); return show("cards"); }
-    case "login": P.login = true; P.tickets += ECON.login.tickets; earn(ECON.login.coins, 0); scheduleSave(); chrome(); toast("+" + ECON.login.coins + " coins, +1 token"); return show("daily");
-    case "claimM": { const m = missions().find(x => x.id === d.id); if (m && m.have >= m.need && !P.mis.claimed[m.id]) { P.mis.claimed[m.id] = 1; if (m.tk) P.tickets += m.tk; else P.dust += m.dust; if (missions().every(x => P.mis.claimed[x.id])) { P.tickets += ECON.allFour.tickets; earn(0, ECON.allFour.gems); chrome(); toast("All four done: +1 token, +" + ECON.allFour.gems + " gems"); } scheduleSave(); } return show("daily"); }
+    case "login": P.login = true; P.tickets += ECON.login.tickets; earn(ECON.login.coins, 0); scheduleSave(); chrome(); toast("+" + ECON.login.coins + " coins" + (ECON.login.tickets ? ", +" + ECON.login.tickets + " token" : "")); return show("daily");
+    case "claimM": { const m = missions().find(x => x.id === d.id); if (m && m.have >= m.need && !P.mis.claimed[m.id]) { P.mis.claimed[m.id] = 1; if (m.tk) P.tickets += m.tk; else if (m.coins) P.coins += m.coins; else P.dust += m.dust; if (missions().every(x => P.mis.claimed[x.id])) { P.tickets += ECON.allFour.tickets; earn(0, ECON.allFour.gems); chrome(); toast("All four done: +" + ECON.allFour.gems + " gems" + (ECON.allFour.tickets ? ", +" + ECON.allFour.tickets + " token" : "")); } scheduleSave(); } return show("daily"); }
     case "muteAll": { const on = !(AU.sfx || AU.bgm); AU.sfx = on; AU.bgm = on; auSave(); if (on) { sfx("tap"); musicStart(); } else musicStop(); chrome(); if (tab === "daily") show("daily"); return; }
     case "sfxT": AU.sfx = !AU.sfx; auSave(); sfx("tap"); chrome(); return show("daily");
     case "bgmT": AU.bgm = !AU.bgm; auSave(); if (AU.bgm) musicStart(); else musicStop(); chrome(); return show("daily");
