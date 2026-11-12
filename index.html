@@ -1451,7 +1451,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.11.16-b";
+const VER = "2026.11.17-a";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -1537,7 +1537,7 @@ function viewVersus(v) {
   const online = !!(db && uid) || (VSG === "clash" && srvOn()), clash = VSG === "clash"; if (clash) ckInit();
   const picker = `<div class="row c" style="margin:4px 0 8px"><button class="btn sm ${clash ? "yellow" : "dark"}" data-act="vsGame" data-g="clash">Clash</button><button class="btn sm ${clash ? "dark" : "yellow"}" data-act="vsGame" data-g="triad">Classic Triad</button></div>`;
   const deckRow = clash ? `<div class="row" style="margin:14px 0 0"><span class="note">Deck</span><select data-ck="deckSel">${P.cd.map((x, i) => `<option value="${i}" ${i === P.cdi ? "selected" : ""}>${esc(x.name)}${ckDeckOk(x.cards) ? " ✕" : ""}</option>`).join("")}</select></div><p class="note" style="text-align:center">Friendly matches pay a little dust. Your cards are never at risk.</p>` : `<div class="row" style="margin:14px 0 0"><span class="note">Deck</span>${deckSelect()}</div><p class="note" style="text-align:center">The winner takes a copy of one of the loser's cards. Nobody loses a card.</p>`;
-  const oldWays = `<span class="ribbon">DIRECT CONNECT</span><div class="panel"><p class="note" style="margin:0 0 10px">Play a friend phone to phone, with no account and no server. You swap two short codes in any chat app. Works on shared Wi-Fi and usually on mobile data too.</p><div class="row c"><button class="btn yellow" data-act="hostStart">Host a match</button><button class="btn" data-act="joinSheet">Join a match</button></div></div>` +
+  const oldWays = (clash && srvOn() ? "" : `<span class="ribbon">DIRECT CONNECT</span><div class="panel"><p class="note" style="margin:0 0 10px">Play a friend phone to phone, with no account and no server. You swap two short codes in any chat app. Works on shared Wi-Fi and usually on mobile data too.</p><div class="row c"><button class="btn yellow" data-act="hostStart">Host a match</button><button class="btn" data-act="joinSheet">Join a match</button></div></div>`) +
     `<span class="ribbon green">ROOM CODE</span><div class="panel"><p class="note" style="margin:0 0 10px">${online ? (VSG === "clash" && srvOn() ? "A 4-letter room code on our online server. Both players just need the app." : "A 4-letter room code. Both players need this page open on claude.ai with Contributor access.") : "Room codes only work on the claude.ai version of this page."}</p><div class="row c"><button class="btn yellow" data-act="vsCreate" ${online ? "" : "disabled"}>Create room</button><input type="text" id="vsCode" maxlength="4" placeholder="CODE" style="width:90px;text-transform:uppercase;text-align:center" ${online ? "" : "disabled"}><button class="btn" data-act="vsJoin" ${online ? "" : "disabled"}>Join</button></div></div>`;
   const friendsUi = clash && srvOn();
   v.innerHTML = picker + (friendsUi ? `<div id="vsAcc">${accPanelHtml()}</div><details class="panel" style="margin-top:12px"><summary class="note" style="cursor:pointer">Other ways to connect (room code, direct)</summary>${oldWays}</details>` : oldWays) +
@@ -2761,14 +2761,21 @@ document.addEventListener("click", e => { const el = e.target.closest("[data-ck=
 const SERVER_URL = "wss://triad.chancyrod.workers.dev";
 let SRVC = null, QWS = null;
 const srvOn = () => !!SERVER_URL;
-function cknSrvConnect(code, opts) {
+function cknSrvConnect(code, opts) {   // the saved game goes up first, so the server can check the deck against it
+  if (typeof P !== "undefined" && P && P.us && typeof cloudPushNow === "function") { cloudPushNow().then(() => cknSrvConnect2(code, opts)); return true; }
+  return cknSrvConnect2(code, opts);
+}
+function cknSrvConnect2(code, opts) {
   ckInit(); const deck = P.cd[P.cdi].cards.slice(), err = ckDeckOk(deck); if (err) return toast(err);
   let ws; try { ws = new WebSocket(SERVER_URL.replace(/\/$/, "") + "/room/" + code); } catch (_) { return toast("Could not reach the server."); }
   const me = SRVC = { ws, code, deck, started: false, role: -1 }, send = o => { try { ws.send(JSON.stringify(o)); } catch (_) {} };
   ws.onmessage = e => {
     let m; try { m = JSON.parse(e.data); } catch (_) { return; }
+    const sendDeck = () => { if (me.peer && me.authed && !me.sentDeck) { me.sentDeck = true; send({ t: "deck", deck, name: playerName(), rating: opts.ranked ? P.rank.pts : 0, ver: VER, av: P.avatar && P.own[P.avatar] > 0 ? P.avatar : null }); } };
     if (m.t === "hello") me.role = m.seat;
-    else if (m.t === "peer") send({ t: "deck", deck, name: playerName(), rating: opts.ranked ? P.rank.pts : 0, ver: VER, av: P.avatar && P.own[P.avatar] > 0 ? P.avatar : null });
+    else if (m.t === "authed") { me.authed = true; sendDeck(); }
+    else if (m.t === "denied") { toast(m.why || "The server refused that deck."); try { ws.close(); } catch (_) {} }
+    else if (m.t === "peer") { me.peer = true; sendDeck(); }
     else if (m.t === "deck") {
       if (me.started) return; if (m.ver && m.ver !== VER) { toast("Your opponent has a different app version."); return ws.close(); } if (ckDeckShapeOk(m.deck)) { toast("Your opponent's deck is not valid."); return ws.close(); }
       me.started = true; OPP_AV = typeof m.av === "string" && BY[m.av] ? m.av : null; closeModal(); const mine = me.role === 0;
@@ -2778,6 +2785,7 @@ function cknSrvConnect(code, opts) {
     else if (m.t === "left") { if (G && G.online && !G.over) arWin("Your opponent left."); else if (!me.started) toast("Your friend left the room."); }
     else if (m.t === "full") toast("That room is full.");
   };
+  ws.onopen = () => send({ t: "auth", token: ACC ? ACC.token : "" });
   ws.onerror = () => { if (!me.started) toast("Could not reach the server."); };
   ws.onclose = () => { if (SRVC === me && G && G.online && !G.over && me.started) arWin("Connection lost.") };
   return me;
@@ -2913,6 +2921,10 @@ async function cloudPushNow(keep) {
   if (CP.busy || !ACC || !CLOUD.on || CLOUD.conflict || !P) return; CP.busy = true; CP.t = Date.now();
   const r = await cloudCall("/profile/put", { base: P.rev || 0, data: JSON.stringify(P), keep: !!keep }); CP.busy = false;
   if (r.ok) { P.rev = r.rev; if (!dirty && !saving) P.us = 0; persist(); if (P.us) cloudPush(); return true; }
+  if (r.rejected) {   // the server did not accept this save: it goes back to the last verified one
+    CP.busy = false; if (r.data) takeServer(r.data, r.rev); else { P = newProfile(); P.acct = ACC.name; P.rev = r.rev; P.us = 0; econInit(); rollover(); persist(); chrome(); show(tab); }
+    openSheet(`<h2 class="fat">SAVE NOT VERIFIED</h2><p class="note" style="text-align:center">The server could not confirm your latest progress (${esc(r.why || "unknown reason")}), so your last verified save was restored.</p><p class="note" style="text-align:center">If this was a normal play session, tell us what you did just before.</p><div class="row c" style="margin-top:12px"><button class="btn yellow" data-act="closeModal">OK</button></div>`); return false;
+  }
   if (r.conflict) { cloudChoice({ rev: r.rev, data: null }); cloudCall("/profile/get", {}).then(g => { if (g.ok) { CLOUD.pendingRev = g.rev; CLOUD.pendingData = g.data; } }); return false; }
   if (r.slow || r.net) { clearTimeout(CP.tm); CP.tm = setTimeout(cloudPushNow, 8000); } return false;
 }

@@ -4,6 +4,7 @@
 //   /auth/signup, /auth/login, /auth/logout   accounts (a name and a password; the password is stored only as a salted PBKDF2 hash)
 //   /hub?token=    one live connection per signed-in player: friends, who is online, and match invites that pop up on the other phone.
 // The Hub keeps accounts, friends and pending invites in the Durable Object's SQLite storage. Rooms and the queue keep nothing.
+import { CARDS } from "./cards.generated.js";
 const MAX_MSG = 32768;
 const CORS = { "access-control-allow-origin": "*", "access-control-allow-headers": "content-type", "access-control-allow-methods": "GET,POST,OPTIONS" };
 const json = (o, status = 200) => new Response(JSON.stringify(o), { status, headers: { "content-type": "application/json", ...CORS } });
@@ -25,7 +26,7 @@ const upgrade = (req) => {
 };
 
 export class Room {
-  constructor(state) { this.state = state; }
+  constructor(state, env) { this.state = state; this.env = env; }
   async fetch(req) {
     const pair = upgrade(req); if (!pair) return new Response("expected websocket", { status: 426 });
     const [client, server] = Object.values(pair), live = this.state.getWebSockets();
@@ -36,8 +37,21 @@ export class Room {
     if (live.length === 1) { const msg = JSON.stringify({ t: "peer" }); live[0].send(msg); server.send(msg); }
     return new Response(null, { status: 101, webSocket: client });
   }
-  webSocketMessage(ws, msg) {
+  async hub(path, body) { const r = await this.env.HUB.get(this.env.HUB.idFromName("main")).fetch("https://hub" + path, { method: "POST", body: JSON.stringify(body) }); return r.json(); }
+  async webSocketMessage(ws, msg) {
     if (typeof msg !== "string" || msg.length > MAX_MSG) return;
+    let m = null; try { m = JSON.parse(msg); } catch (_) {}
+    const att = ws.deserializeAttachment() || {};
+    if (m && m.t === "auth") {   // who is this seat? the server looks the sign-in token up itself
+      const r = await this.hub("/_who", { token: m.token }); if (!r.ok) { try { ws.send('{"t":"denied","why":"Please sign in again."}'); ws.close(1008, "auth"); } catch (_) {} return; }
+      ws.serializeAttachment({ ...att, lname: r.lname, name: r.name }); try { ws.send('{"t":"authed"}'); } catch (_) {} return;
+    }
+    if (m && m.t === "deck") {   // a deck is only relayed if every card in it is in the sender's verified, server-held collection; the name is the account's, not whatever the phone claims
+      const cur = ws.deserializeAttachment() || {}; if (!cur.lname) { try { ws.send('{"t":"denied","why":"Not signed in."}'); ws.close(1008, "auth"); } catch (_) {} return; }
+      const r = await this.hub("/_deck", { lname: cur.lname, deck: m.deck });
+      if (!r.ok) { try { ws.send(JSON.stringify({ t: "denied", why: r.why || "That deck is not allowed." })); ws.close(1008, "deck"); } catch (_) {} return; }
+      m.name = cur.name; msg = JSON.stringify(m);
+    }
     for (const o of this.state.getWebSockets()) if (o !== ws) { try { o.send(msg); } catch (_) {} }
   }
   webSocketClose(ws) {
@@ -75,28 +89,61 @@ const roomCode = (n) => Array.from({ length: n }, () => "ABCDEFGHJKMNPQRSTUVWXYZ
 const hex = (buf) => [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
 const NAME_RE = /^[A-Za-z0-9_]{3,14}$/;
 const INVITE_TTL = 45000;
+const SELLV = { 1: 10, 2: 20, 3: 50, 4: 120, 5: 300, 6: 500 }, DUSTV = { 1: 3, 2: 5, 3: 13, 4: 30, 5: 75, 6: 125 };
+const xpTotal = (lv, xp) => { let t = xp || 0; for (let l = 1; l < lv; l++) t += 80 + l * 30; return t; };
+const cnt = (o) => Object.keys(o || {}).length;
+const posInt = (x, max) => Number.isFinite(x) && x >= 0 && x <= max;
+const ownSum = (o) => Object.values(o || {}).reduce((a, n) => a + n, 0);
 
-/* Sign in with Google / Apple: the phone gets an ID token from the provider; the server checks its signature against the provider's published keys, that it was issued for OUR client id, and that it has not expired. */
-const PROVIDERS = {
-  google: { keys: "https://www.googleapis.com/oauth2/v3/certs", iss: ["https://accounts.google.com", "accounts.google.com"] },
-  apple: { keys: "https://appleid.apple.com/auth/keys", iss: ["https://appleid.apple.com"] },
-};
-const b64u = (s) => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/").padEnd(Math.ceil(s.length / 4) * 4, "=")), (c) => c.charCodeAt(0));
-async function verifyIdToken(provider, token, aud) {
-  const [h, p, sg] = String(token).split("."); if (!sg) throw new Error("shape");
-  const head = JSON.parse(new TextDecoder().decode(b64u(h))), pay = JSON.parse(new TextDecoder().decode(b64u(p))), cfg = PROVIDERS[provider];
-  const jwk = (await (await fetch(cfg.keys)).json()).keys.find((k) => k.kid === head.kid); if (!jwk || head.alg !== "RS256") throw new Error("key");
-  const key = await crypto.subtle.importKey("jwk", jwk, { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["verify"]);
-  if (!(await crypto.subtle.verify("RSASSA-PKCS1-v1_5", key, b64u(sg), new TextEncoder().encode(h + "." + p)))) throw new Error("sig");
-  if (!cfg.iss.includes(pay.iss) || pay.aud !== aud || !(pay.exp * 1000 > Date.now()) || !pay.sub) throw new Error("claims");
-  return pay;
+/* The profile guard. A phone uploads its whole saved game; the server only accepts a change that could have been earned. Two sources of allowance, both checked against the previous verified save:
+   (1) the counters that moved (matches played, levels, stages cleared, summons, cards given up) each pay out at most what the game pays for them;
+   (2) a per-account CREDIT BUCKET that fills with real elapsed time (daily login, shop offers, mission rewards, anything not tied to a counter) and drains when used, so repeated small saves cannot mint extra.
+   Spending is always allowed. Over budget means refused, logged, and the phone is sent the last verified save back.
+   This is a plausibility check, not proof: the matches are still played on the phone (the next step is to replay them on the server). */
+const RATE = { plays: [1 / 20, 40], xp: [400 / 86400, 400], coins: [3000 / 86400, 2500], gems: [60 / 86400, 60], tix: [10 / 86400, 20], cards: [8 / 86400, 12], dust: [400 / 86400, 800], medals: [200 / 86400, 400] };
+const freshCredit = () => Object.fromEntries(Object.entries(RATE).map(([k, r]) => [k, r[1]]));
+function guardProfile(old, nw, dtSec, credit0) {
+  const bad = (why) => ({ why });
+  if (!nw || typeof nw !== "object" || typeof nw.own !== "object" || nw.own === null || Array.isArray(nw.own)) return bad("bad shape");
+  const lim = { coins: 1e6, gems: 5000, tickets: 1000, dust: 1e5, medals: 1e5, lv: 100, xp: 1e5, plays: 1e6, wins: 1e6, pulls: 1e6 };
+  for (const k in lim) if (nw[k] !== undefined && !posInt(nw[k], lim[k])) return bad(k + " out of range");
+  for (const [id, n] of Object.entries(nw.own)) if (!(id in CARDS) || !Number.isInteger(n) || n < 0 || n > 3) return bad("unknown card or count " + id);
+  const rk = nw.rank; if (rk && (!posInt(rk.pts, 4000) || !posInt(rk.w, 1e6) || !posInt(rk.l, 1e6))) return bad("rank out of range");
+  const g = (o, k) => (o && Number.isFinite(o[k]) ? o[k] : 0), cleared = (p) => cnt(p && p.cleared) + cnt(p && p.camp && p.camp.cl);
+  if (g(nw, "wins") > g(nw, "plays")) return bad("wins above plays");
+  if (!old) {   // the first save of an account: a starter profile, or an older save from before accounts, which has to look like it was played
+    const cardsN = ownSum(nw.own), lv = g(nw, "lv") || 1;
+    if (g(nw, "coins") > 60000 || g(nw, "gems") > 1500 || g(nw, "tickets") > 400 || g(nw, "dust") > 30000 || g(nw, "medals") > 30000 || lv > 60) return bad("first save too rich");
+    if (cardsN > 14 + 6 * g(nw, "pulls") + 2 * g(nw, "plays") + 8 * lv) return bad("first save has more cards than were earned");
+    return { why: "", credit: freshCredit() };
+  }
+  const cr = {}; for (const [k, r] of Object.entries(RATE)) cr[k] = Math.min(r[1], (credit0 && Number.isFinite(credit0[k]) ? credit0[k] : r[1]) + r[0] * dtSec);
+  const use = (k, gain, fromCounter) => { const over = Math.max(0, gain - fromCounter); if (over > cr[k] + 1e-6) return false; cr[k] -= over; return true; };
+  const pG = g(nw, "plays") - g(old, "plays"), wG = g(nw, "wins") - g(old, "wins"), lvG = g(nw, "lv") - g(old, "lv"), pullG = g(nw, "pulls") - g(old, "pulls");
+  for (const k of ["plays", "wins", "pulls", "lv"]) if (g(nw, k) < g(old, k)) return bad(k + " went backwards");
+  if (cleared(nw) < cleared(old)) return bad("cleared stages went backwards");
+  if (!use("plays", pG, 0)) return bad("too many matches for the time");
+  if (wG > pG) return bad("more wins than matches");
+  if (!use("xp", xpTotal(g(nw, "lv") || 1, g(nw, "xp")) - xpTotal(g(old, "lv") || 1, g(old, "xp")), 90 * pG)) return bad("xp above budget");
+  let sell = 0, dust = 0, gained = 0;
+  for (const id of new Set([...Object.keys(old.own || {}), ...Object.keys(nw.own)])) { const d = (nw.own[id] || 0) - ((old.own || {})[id] || 0), r = CARDS[id] || 1; if (d < 0) { sell += -d * SELLV[r]; dust += -d * DUSTV[r]; } else gained += d; }
+  const tierG = Math.max(0, g(nw.rank, "tierBest") - g(old.rank, "tierBest")), clG = Math.max(0, cleared(nw) - cleared(old)), lvP = Math.max(0, lvG);
+  const coinsA = 160 * pG + sell, gemsA = 12 * lvP + 25 * tierG + 25 * clG, tixA = 3 * pG + 2 * lvP + 4 * clG;
+  const pullMax = Math.floor((g(old, "coins") + coinsA + cr.coins) / 250) + g(old, "tickets") + tixA + cr.tix + g(old, "gems") + gemsA + cr.gems;
+  if (pullG > pullMax) return bad("summons above what could be paid for");
+  if (!use("coins", g(nw, "coins") - g(old, "coins"), coinsA)) return bad("coins above budget");
+  if (!use("gems", g(nw, "gems") - g(old, "gems"), gemsA)) return bad("gems above budget");
+  if (!use("tix", g(nw, "tickets") - g(old, "tickets"), tixA)) return bad("tickets above budget");
+  if (!use("dust", g(nw, "dust") - g(old, "dust"), 30 * pG + dust + 40 * Math.max(0, pullG))) return bad("shards above budget");
+  if (!use("medals", g(nw, "medals") - g(old, "medals"), 400 * Math.max(0, pullG))) return bad("medals above budget");
+  const spentD = Math.max(0, g(old, "dust") - g(nw, "dust")), spentM = Math.max(0, g(old, "medals") - g(nw, "medals"));
+  if (!use("cards", gained, 6 * Math.max(0, pullG) + Math.floor(spentD / 30) + Math.floor(spentM / 150))) return bad("more cards than were earned");
+  if (nw.rank && old.rank) {
+    const rG = g(nw.rank, "w") + g(nw.rank, "l") - g(old.rank, "w") - g(old.rank, "l"); if (g(nw.rank, "w") < g(old.rank, "w") || g(nw.rank, "l") < g(old.rank, "l")) return bad("rank record went backwards");
+    if (rG > pG) return bad("more ranked matches than matches"); if (g(nw.rank, "pts") > g(old.rank, "pts") + 32 * Math.max(0, rG)) return bad("rank points above budget");
+  } else if (nw.rank && !old.rank && (g(nw.rank, "pts") > 800 + 32 * Math.max(0, pG) || g(nw.rank, "w") + g(nw.rank, "l") > pG)) return bad("rank appeared above budget");
+  return { why: "", credit: cr };
 }
-
-async function hashPw(pw, salt) {
-  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(pw), "PBKDF2", false, ["deriveBits"]);
-  return hex(await crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", salt: new TextEncoder().encode(salt), iterations: 100000 }, key, 256));
-}
-async function sha(s) { return hex(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s))); }
 
 export class Hub {
   constructor(state, env) {
@@ -107,6 +154,8 @@ export class Hub {
       CREATE TABLE IF NOT EXISTS reqs (frm TEXT, too TEXT, PRIMARY KEY (frm, too));
       CREATE TABLE IF NOT EXISTS profiles (lname TEXT PRIMARY KEY, rev INTEGER, data TEXT, at INTEGER);
       CREATE TABLE IF NOT EXISTS pbak (lname TEXT, rev INTEGER, data TEXT, at INTEGER, PRIMARY KEY (lname, rev));
+      CREATE TABLE IF NOT EXISTS credit (lname TEXT PRIMARY KEY, j TEXT);
+      CREATE TABLE IF NOT EXISTS flags (lname TEXT, at INTEGER, why TEXT);
       CREATE TABLE IF NOT EXISTS oauth (provider TEXT, sub TEXT, lname TEXT, PRIMARY KEY (provider, sub));
       CREATE TABLE IF NOT EXISTS invites (frm TEXT, too TEXT, at INTEGER, PRIMARY KEY (frm, too));`);
   }
@@ -123,6 +172,15 @@ export class Hub {
     if (req.method !== "POST") return json({ ok: false, err: "post only" }, 405);
     let b = {}; try { b = await req.json(); } catch (_) {}
     if (p === "/auth/logout") { if (typeof b.token === "string") this.sql.exec("DELETE FROM sessions WHERE th=?", await sha(b.token)); return json({ ok: true }); }
+    if (p === "/_who") { const s = this.one("SELECT lname FROM sessions WHERE th=?", await sha(String(b.token || ""))); return json(s ? { ok: true, lname: s.lname, name: this.nameOf(s.lname) } : { ok: false }); }
+    if (p === "/_deck") {
+      const row = this.one("SELECT data FROM profiles WHERE lname=?", String(b.lname || "")); if (!row) return json({ ok: false, why: "Your account has no saved game yet. Play once online with the app open, then try again." });
+      let o; try { o = JSON.parse(row.data); } catch (_) { return json({ ok: false, why: "Saved game unreadable." }); }
+      const deck = b.deck; if (!Array.isArray(deck) || deck.length < 1 || deck.length > 12) return json({ ok: false, why: "Deck size is wrong." });
+      const need = {}; for (const id of deck) { if (typeof id !== "string" || !(id in CARDS)) return json({ ok: false, why: "Deck has an unknown card." }); need[id] = (need[id] || 0) + 1; }
+      for (const [id, n] of Object.entries(need)) if (n > ((o.own || {})[id] || 0)) return json({ ok: false, why: "Deck uses a card that is not in your saved collection yet." });
+      return json({ ok: true });
+    }
     if (p === "/profile/get" || p === "/profile/put") {   // the saved game: the server keeps it, the phone keeps a cache
       const s = this.one("SELECT lname FROM sessions WHERE th=?", await sha(String(b.token || ""))); if (!s) return json({ ok: false, auth: true, err: "Please sign in again." }, 401);
       const cur = this.one("SELECT rev, data FROM profiles WHERE lname=?", s.lname);
@@ -132,6 +190,12 @@ export class Hub {
       let o; try { o = JSON.parse(data); } catch (_) { return json({ ok: false, err: "Bad save." }, 400); }
       if (!o || typeof o !== "object" || Array.isArray(o) || typeof o.own !== "object") return json({ ok: false, err: "Bad save." }, 400);
       const have = cur ? cur.rev : 0; if ((+b.base || 0) !== have && !b.force) return json({ ok: false, conflict: true, rev: have });
+      let oldO = null; if (cur) { try { oldO = JSON.parse(cur.data); } catch (_) {} }
+      const curAt = cur ? (this.one("SELECT at FROM profiles WHERE lname=?", s.lname) || {}).at || now : now, cj = this.one("SELECT j FROM credit WHERE lname=?", s.lname);
+      let c0 = null; try { c0 = cj ? JSON.parse(cj.j) : null; } catch (_) {}
+      const gr = guardProfile(oldO, o, Math.max(0, (now - curAt) / 1000), c0);
+      if (gr.why) { this.sql.exec("INSERT INTO flags VALUES (?,?,?)", s.lname, now, gr.why); return json({ ok: false, rejected: true, why: gr.why, rev: have, data: cur ? cur.data : null }); }
+      this.sql.exec("INSERT OR REPLACE INTO credit VALUES (?,?)", s.lname, JSON.stringify(gr.credit));
       const rev = have + 1; this.lastPut.set(s.lname, now); if (this.lastPut.size > 500) this.lastPut.clear();
       if (cur) { this.sql.exec("INSERT OR REPLACE INTO pbak VALUES (?,?,?,?)", s.lname, have, cur.data, now); for (const o2 of this.all("SELECT rev FROM pbak WHERE lname=? ORDER BY rev DESC", s.lname).slice(8)) this.sql.exec("DELETE FROM pbak WHERE lname=? AND rev=?", s.lname, o2.rev); }
       this.sql.exec("INSERT OR REPLACE INTO profiles VALUES (?,?,?,?)", s.lname, rev, data, now);
