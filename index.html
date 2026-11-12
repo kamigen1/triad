@@ -375,6 +375,13 @@ table.odds { width: 100%; border-collapse: collapse; } table.odds td { padding: 
 /* sheets that rise from the bottom keep clear of the home indicator */
 #modal .sheet { padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 14px); }
 
+/* the sign-in gate: nothing is playable until the player has an account */
+#gate { position: fixed; inset: 0; z-index: 35; overflow-y: auto; display: flex; padding: calc(env(safe-area-inset-top, 0px) + 20px) 16px calc(env(safe-area-inset-bottom, 0px) + 20px); background: radial-gradient(ellipse at 50% -10%, #17305c 0%, #0a1430 45%, #050913 100%); }
+#gate .gatebox { margin: auto; width: 100%; max-width: 420px; }
+#gate .logo { text-align: center; font-size: 46px; line-height: 1; color: var(--gold, #e8c46a); margin-bottom: 18px; display: flex; flex-direction: column; align-items: center; }
+#gate .logo i { font-style: normal; font-size: 15px; letter-spacing: .5em; margin-top: 6px; opacity: .85; }
+#gate h2 { text-align: center; }
+
 /* ===== THEME: "Night Court" visual language (see ART_DIRECTION.md) =====
    Premium anime-fantasy collectible card game: dark navy / charcoal surfaces, gold and metal accents, rich elemental colours, thin engraved lines instead of chunky outlines.
    This file is loaded LAST: it re-points the old colour tokens at the new palette, then restyles every shared component once (button, panel, section header, pill, bar, sheet, card, board slot)
@@ -1444,7 +1451,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.11.16-a";
+const VER = "2026.11.16-b";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -2834,16 +2841,22 @@ async function accOauth(provider, idToken, name) {
   }
   if (!r.ok) return toast(r.err || "Sign-in failed.");
   OAUTH_PENDING = null; ACC = { name: r.name, token: r.token }; accSave(); HUBSTOP = false; if (P) { P.name = r.name; P.named = true; scheduleSave(); }
-  closeModal(); toast("Signed in as " + r.name); hubConnect(); chrome(); show(tab); cloudSync();
+  gateHide(); closeModal(); toast("Signed in as " + r.name); hubConnect(); chrome(); show(tab); cloudSync();
 }
+let GATE = false;
+function accRender(h) { if (GATE) { const g = document.getElementById("gate"); g.innerHTML = `<div class="gatebox"><div class="logo fat">TRIAD<i>SUMMONS</i></div>${h}</div>`; } else openSheet(h); }
+function gateShow(mode) {
+  if (ACC || !srvOn()) return; GATE = true; closeModal(); let g = document.getElementById("gate"); if (!g) { g = document.createElement("div"); g.id = "gate"; document.body.appendChild(g); } accSheet(mode || "up");
+}
+function gateHide() { GATE = false; const g = document.getElementById("gate"); if (g) g.remove(); }
 function accSheet(mode) {
   const up = mode === "up";
-  openSheet(`<h2 class="fat">${up ? "CREATE ACCOUNT" : "SIGN IN"}</h2><p class="note" style="text-align:center;margin:0 0 10px">${up ? "Pick the name friends will find you by. Your cards stay on this device." : "Welcome back."}</p>` +
+  accRender(`<h2 class="fat">${up ? "CREATE ACCOUNT" : "SIGN IN"}</h2><p class="note" style="text-align:center;margin:0 0 10px">${up ? "Pick the name friends will find you by. Your progress is saved to this account, so it follows you to any phone." : "Welcome back."}</p>` +
     `<div class="panel"><div class="row"><input type="text" id="acName" maxlength="14" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Name" value="${esc(ACC ? ACC.name : (P && P.named ? P.name : ""))}" style="flex:1"></div>` +
     `<div class="row" style="margin-top:8px"><input type="password" id="acPass" maxlength="64" autocomplete="${up ? "new-password" : "current-password"}" placeholder="Password (6 or more)" style="flex:1"></div>` +
     `<p class="note" id="acErr" style="color:var(--red);text-align:center;min-height:1.3em;margin:8px 0 0"></p>` +
     `<div class="row c" style="margin-top:6px"><button class="btn yellow" data-ac="submit" data-m="${up ? "up" : "in"}">${up ? "Create account" : "Sign in"}</button></div></div>` +
-    `<div id="acOauth"></div><div class="row c" style="margin-top:10px"><button class="btn sm dark" data-ac="${up ? "in" : "up"}">${up ? "I already have an account" : "Create a new account"}</button><button class="btn sm dark" data-act="closeModal">Close</button></div>`);
+    `<div id="acOauth"></div><div class="row c" style="margin-top:10px"><button class="btn sm dark" data-ac="${up ? "in" : "up"}">${up ? "I already have an account" : "Create a new account"}</button>${GATE ? "" : '<button class="btn sm dark" data-act="closeModal">Close</button>'}</div>`);
   accOauthButtons();
 }
 async function accSubmit(mode) {
@@ -2855,19 +2868,19 @@ async function accSubmit(mode) {
   if (!r.ok) { err.textContent = r.err || "Something went wrong."; btn.disabled = false; btn.textContent = mode === "up" ? "Create account" : "Sign in"; return; }
   ACC = { name: r.name, token: r.token }; accSave(); HUBSTOP = false;
   if (P) { P.name = r.name; P.named = true; scheduleSave(); }
-  closeModal(); toast(mode === "up" ? "Account created. Welcome, " + r.name + "!" : "Signed in as " + r.name); hubConnect(); chrome(); show(tab); cloudSync();
+  gateHide(); closeModal(); toast(mode === "up" ? "Account created. Welcome, " + r.name + "!" : "Signed in as " + r.name); hubConnect(); chrome(); show(tab); cloudSync();
 }
 async function accLogout() {
   if (P && P.us && CLOUD.on) { toast("Saving…"); await cloudPushNow(); if (P.us && !confirm("Your latest progress could not be saved online yet. Sign out anyway and lose it?")) return; }
   const t = ACC && ACC.token; ACC = null; accSave(); HUBSTOP = true; hubStop(); HUBST = { on: false, me: "", friends: [], reqs: [] }; INVIN = []; INVOUT = null; invHide(); CLOUD = { on: false, conflict: false };
   if (t) accCall("/auth/logout", { token: t });
-  P = newProfile(); econInit(); rollover(); await persist(); toast("Signed out. This phone no longer holds your save."); chrome(); show(tab);
+  P = newProfile(); econInit(); rollover(); await persist(); toast("Signed out. This phone no longer holds your save."); chrome(); show(tab); gateShow("in");
 }
 /* ----- the saved game lives on the server. The phone keeps a cache so the game works offline; P.rev is the server revision this copy came from, P.us marks unsent changes. ----- */
 let CLOUD = { on: false, conflict: false }, CP = { busy: false, tm: 0, t: 0 };
 async function cloudCall(path, body) {
   if (!ACC) return { ok: false };
-  try { const r = await fetch(SERVER_HTTP + path, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ token: ACC.token, ...body }), keepalive: !!body.keep }); const j = await r.json(); if (j.auth) { ACC = null; accSave(); HUBSTOP = true; CLOUD.on = false; toast("Please sign in again."); } return j; }
+  try { const r = await fetch(SERVER_HTTP + path, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ token: ACC.token, ...body }), keepalive: !!body.keep }); const j = await r.json(); if (j.auth) { ACC = null; accSave(); HUBSTOP = true; CLOUD.on = false; toast("Please sign in again."); gateShow("in"); } return j; }
   catch (_) { return { ok: false, net: true }; }
 }
 const meaningful = p => !!p && ((p.pulls || 0) > 0 || (p.plays || 0) > 0 || (p.lv || 1) > 1);
@@ -2936,7 +2949,7 @@ function hubGot(m) {
       INVOUT = null; INVIN = []; invHide(); closeModal(); if (busyNow()) return;
       toast("Match with " + m.with + "…"); return void cknSrvConnect(m.room, {});
     }
-    case "auth": ACC = null; accSave(); HUBSTOP = true; toast("Please sign in again."); hubRender(); return;
+    case "auth": ACC = null; accSave(); HUBSTOP = true; toast("Please sign in again."); gateShow("in"); hubRender(); return;
     case "other": HUBSTOP = true; HUBST.on = false; toast("You signed in on another device."); hubRender(); return;
   }
 }
@@ -3505,6 +3518,6 @@ document.addEventListener("pointerup", unlockAudio, true); document.addEventList
 window.addEventListener("pagehide", () => { dirty = true; flush(); });
 document.addEventListener("pointermove", tiltMove); document.addEventListener("pointerup", tiltEnd); document.addEventListener("pointerleave", tiltEnd, true);
 chrome(); bgmLoad();
-(async () => { const t0 = Date.now(); await loadProfile(); await sleep(Math.max(0, 1100 - (Date.now() - t0))); $("#splash").classList.add("gone"); setTimeout(() => { const s = $("#splash"); if (s) s.remove(); }, 600); if (P && !P.named && !P.name && !ACC) setTimeout(() => nameSheet(true), 500); if (ACC && P && ACC.name !== P.name) { P.name = ACC.name; P.named = true; } hubConnect(); cloudSync(); setTimeout(iosHint, 2500); })();
+(async () => { const t0 = Date.now(); await loadProfile(); await sleep(Math.max(0, 1100 - (Date.now() - t0))); $("#splash").classList.add("gone"); setTimeout(() => { const s = $("#splash"); if (s) s.remove(); }, 600); if (P && !P.named && !P.name && !ACC) setTimeout(() => nameSheet(true), 500); if (ACC && P && ACC.name !== P.name) { P.name = ACC.name; P.named = true; } hubConnect(); cloudSync(); if (!ACC) gateShow("up"); setTimeout(iosHint, 2500); })();
 </script>
 <script>if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) navigator.serviceWorker.register('sw.js');</script>
