@@ -880,7 +880,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.11.12-a";
+const VER = "2026.11.12-b";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -1426,7 +1426,7 @@ function arCheck(A) {
 }
 /* ----- the computer player (also "Auto" mode for a human): decides every half second ----- */
 function arAi(A, s) {
-  if (A.over) return; const S = A.s[s], F = A.s[1 - s], lvl = A.level[s], send = c => arInput(A, Object.assign({ s }, c), 1); let en = S.energy; const used = {};
+  if (A.over) return; const S = A.s[s], F = A.s[1 - s], lvl = A.level[s], send = c => (A.hook ? A.hook(Object.assign({ s }, c)) : arInput(A, Object.assign({ s }, c), 1)); let en = S.energy; const used = {};
   const reacts = (m, e) => !!REACT[m + ">" + e];
   for (let i = 0; i < 5; i++) if (!S.lane[i] && S.swapcd[i] <= 0 && en >= AR.SWAP_E) {
     const b = S.bench.map((u, k) => ({ u, k })).filter(x => x.u && !used[x.k]).sort((p, q) => q.u.atk - p.u.atk)[0];
@@ -1585,7 +1585,6 @@ async function ckFx(e) {
 async function ckFight(auto) {
   if (!G || G.phase !== "plan" || CKU.busy || G.over) return;
   if (auto !== true) { G.to = G.to || [0, 0]; if (G.to[ME]) { G.to[ME] = 0; if (G.online && ONL) ONL.send({ k: "to", n: 0 }); } }
-  if (G.online) return cknFight();   // (playing a turn in time clears the timeout warning, above)
   CKU.busy = true; CKU.sel = null; CKU.mode = null; sfx("charge");
   const acts = ckAiPlan(1); ckRender(); await sleep(250 / G.speed); await ckAiExecute(acts); if (!G.over) await ckBattle(); CKU.busy = false; CKU.msg = ""; ckRender(); if (G.over) ckResult();
 }
@@ -1608,7 +1607,7 @@ function ckResult() {
   const again = mode.kind === "online" || G.online ? "" : `<button class="btn yellow" data-ck="rematch">${mode.kind === "camp" ? "Again" : "Rematch"}</button>`;
   openSheet(`<span class="ribbon ${win ? "gold" : ""}">${win ? "VICTORY" : draw ? "DRAW" : "DEFEAT"}</span><div class="panel"><p style="margin:0 0 6px">${G.arena ? "Time " + arClock(G.time) : "Round " + Math.min(G.round, CK.MAXR)} · your core ${Math.max(0, G.s[ME].core)} · their core ${Math.max(0, G.s[1 - ME].core)}</p><div class="row c">${dust ? `<span class="tag gold">+${dust} ${ic("gem", "ico")}</span>` : ""}${packs ? `<span class="tag ok">+${packs} pack${packs > 1 ? "s" : ""}</span>` : ""}</div>${extra ? `<p class="note" style="margin:8px 0 0;color:var(--yellow)">${esc(extra)}</p>` : ""}${ups.length ? `<p class="note" style="margin:6px 0 0;color:var(--yellow)">${ups.map(esc).join("<br>")}</p>` : ""}</div><div class="row c" style="margin-top:12px">${again}<button class="btn dark" data-ck="leave">Back</button></div>`);
 }
-function ckLeave() { if (AM) { cancelAnimationFrame(AM.raf); AM = null; } if (G && G.online) cknBye(); G = null; $("#ck").hidden = true; closeModal(); musicMode("menu"); chrome(); show(tab); }
+function ckLeave() { if (AM) { cancelAnimationFrame(AM.raf); clearInterval(AM.ka); AM = null; } if (G && G.online) cknBye(); G = null; $("#ck").hidden = true; closeModal(); musicMode("menu"); chrome(); show(tab); }
 function ckRematch() {
   const m = G && G.mode; closeModal(); if (!m) return;
   if (m.kind === "camp") return ckStart(campLevel(m.ch, m.k), campMode(m.ch, m.k)); if (m.kind === "ranked") return rankedStart(); ckStart(G.level, { kind: "practice" });
@@ -1693,9 +1692,54 @@ function arStart(level, mode = { kind: "practice" }) {
   ckInit(); const d = P.cd[P.cdi], err = ckDeckOk(d.cards); if (err) return toast(err);
   const A = arNew(d.cards, mode.deck || ckAiDeck(level), { ui: true, level: [2, level], mode });
   if (mode.core) A.s[1].core += mode.core; if (mode.energy) A.s[1].eMul = 1.3;
-  ME = 0; AM = { A, speed: 1, auto: false, sel: null, mode: null, last: 0, acc: 0, sig: "", done: false, sfxAt: 0, maxCore: [AR.CORE, AR.CORE + (mode.core || 0)], opp: mode.kind === "camp" ? CAMP[mode.ch].foes[mode.k] : mode.kind === "ranked" ? "RANKED" : "ENEMY" };
-  G = { arena: true, over: false, phase: "arena", online: false, mode, level, winner: null, round: 1, time: 0, s: [{ core: A.s[0].core }, { core: A.s[1].core }], speed: 1 };
+  arLaunch(A, mode, mode.kind === "camp" ? CAMP[mode.ch].foes[mode.k] : mode.kind === "ranked" ? "RANKED" : "ENEMY", 0, null, level);
+}
+/* AM.me is my seat in the simulation (0 = host). On screen "view side" 0 is always me and 1 the opponent, so a sim side is `view ^ me`. */
+function arLaunch(A, mode, opp, me, net, level) {
+  ME = me; AM = { A, me, net, speed: 1, auto: false, sel: null, mode: null, last: 0, acc: 0, sig: "", done: false, sfxAt: 0, maxCore: [A.s[0].core, A.s[1].core], opp, aiTick: -1, stall: 0 };
+  G = { arena: true, over: false, phase: "arena", online: !!net, mode, level: level || 0, winner: null, round: 1, time: 0, s: [{ core: A.s[0].core }, { core: A.s[1].core }], speed: 1 };
   $("#ck").hidden = false; closeModal(); musicMode("match"); arBuild(); AM.raf = requestAnimationFrame(arLoop);
+  if (net) { $("#arspeed").style.display = "none"; AM.ka = setInterval(arNetPulse, 1000); }
+}
+/* ----- online: deterministic lockstep. Both phones run the same fight; only commands (with the tick they apply on) and heartbeats cross the wire. ----- */
+const NET_DELAY = 4, NET_DELAY_SLOW = 12, DISCONNECT_MS = 20000;
+function arStartOnline(role, hostDeck, guestDeck, oppName, send, slow) {
+  if (ckDeckShapeOk(hostDeck) || ckDeckShapeOk(guestDeck)) return toast("That deck is not valid.");
+  const A = arNew(hostDeck, guestDeck, { ui: true, level: [2, 2], mode: { kind: "online" } }), D = slow ? NET_DELAY_SLOW : NET_DELAY;
+  A.horizon = D; A.hook = c => arPut(c);
+  const net = { send, D, hb: slow ? 5 : 1, rx: Date.now(), mine: {}, theirs: {} };
+  ONL = { send, role, opp: oppName }; arLaunch(A, { kind: "online" }, oppName || "Friend", role, net, 0);
+  send({ k: "hb", f: D });
+}
+function arPut(cmd) {
+  const A = AM.A, me = AM.me, net = AM.net; cmd.s = me;
+  if (net) { cmd.at = A.tick + net.D; cmd.n = A.seq[me]++; arInput(A, cmd); net.send({ k: "in", c: cmd }); } else arInput(A, cmd, 1);
+}
+function arNetGot(m) {
+  const net = AM && AM.net; if (!net || AM.A.over) return; const A = AM.A; net.rx = Date.now();
+  if (m.k === "hb") { if (+m.f > A.horizon) A.horizon = +m.f; }
+  else if (m.k === "in" && m.c && ["lock", "use", "swap"].includes(m.c.k)) {
+    const c = m.c, num = x => (typeof x === "number" && isFinite(x) ? x : null);
+    arInput(A, { s: 1 - AM.me, k: c.k, i: num(c.i), t: num(c.t), b: num(c.b), l: num(c.l), at: num(c.at) == null ? A.tick : c.at, n: num(c.n) == null ? 0 : c.n });
+  } else if (m.k === "h") { net.theirs[m.tk] = m.h; arHashCheck(m.tk); }
+}
+function arHashCheck(tk) {
+  const net = AM && AM.net; if (!net || net.mine[tk] == null || net.theirs[tk] == null) return;
+  if (net.mine[tk] !== net.theirs[tk]) {
+    AM.A.over = true; AM.done = true; G.over = true; G.winner = -1;
+    openSheet(`<span class="ribbon">OUT OF SYNC</span><p class="note" style="text-align:center">The two phones disagreed about the board, so this match was stopped. Both players need the same app version (${VER}).</p><div class="row c" style="margin-top:12px"><button class="btn dark" data-ck="leave">Back</button></div>`);
+  }
+  delete net.mine[tk]; delete net.theirs[tk];
+}
+/* once a second: keep-alive for the other phone, and the 20-second disconnect forfeit */
+function arNetPulse() {
+  if (!AM || !AM.net) return; const net = AM.net; if (AM.A.over) return;
+  net.send({ k: "ka" });
+  if (Date.now() - net.rx > DISCONNECT_MS) arWin("Your opponent lost connection.");
+}
+/* the opponent left or dropped: I win */
+function arWin(msg) {
+  if (!AM || AM.A.over || AM.done) return; toast(msg); AM.A.over = true; AM.A.winner = AM.me; AM.A.why = "left";
 }
 function arBuild() {
   const slots = (s, kind, n) => Array.from({ length: n }, (_, i) => `<div class="ku slot empty" data-ar="slot" data-s="${s}" data-i="${i}" data-kind="${kind}"></div>`).join("");
@@ -1713,27 +1757,27 @@ function arFill(el, u, s, kind) {
   const q = c => el.querySelector(c); el._r = { cd: q(".kcd"), mk: q(".kmk"), hp: q(".khp i"), a: q(".kst .a"), h: q(".kst .h"), sh: q(".ksh"), fr: q(".kfr"), sk: q(".kskl") };
 }
 function arSlotUpd(el, u, s, kind, now) {
-  const A = AM.A, uid = u ? u.uid : 0; if (el._u !== uid) arFill(el, u, s, kind);
-  const sel = AM.sel && AM.sel.s === s && AM.sel.i === +el.dataset.i && AM.sel.kind === kind, m = AM.mode, selU = AM.sel && AM.sel.kind === "lane" && A.s[AM.sel.s].lane[AM.sel.i];
+  const A = AM.A, me = AM.me, ss = s ^ me, uid = u ? u.uid : 0; if (el._u !== uid) arFill(el, u, s, kind);
+  const sel = AM.sel && AM.sel.s === s && AM.sel.i === +el.dataset.i && AM.sel.kind === kind, m = AM.mode, selU = AM.sel && AM.sel.kind === "lane" && A.s[AM.sel.s ^ me].lane[AM.sel.i];
   let tgt = false; if (m && u && kind === "lane") tgt = (ACT[m.act].t === "ally" && s === 0) || (ACT[m.act].t === "enemy" && s === 1);
-  else if (selU && selU && AM.sel.s === 0 && s === 1 && kind === "lane" && u) tgt = arTarget(A, 0, AM.sel.i) === +el.dataset.i;
+  else if (selU && selU && AM.sel.s === 0 && s === 1 && kind === "lane" && u) tgt = arTarget(A, me, AM.sel.i) === +el.dataset.i;
   if (!u) { el.className = "ku empty slot " + kind + (kind === "lane" && s === 0 && AM.sel && AM.sel.kind === "bench" ? " tgt" : ""); return; }
-  const fx = el._fx, r = el._r, a = arAtk(A, s, u);
-  el.className = `ku slot ${s ? "foe" : "me"} el-${u.el} r${rarOf(BY[u.cid])}${kind === "bench" ? " mini" : ""}${sel ? " sel" : ""}${tgt ? " tgt" : ""}${fx.hurt > now ? " hurt" : ""}${fx.act > now ? " act" + s : ""}${fx.enter > now ? " enter" : ""}${kind === "bench" && A.s[s].energy < AR.SWAP_E && s === 0 ? " dim" : ""}`;
+  const fx = el._fx, r = el._r, a = arAtk(A, ss, u);
+  el.className = `ku slot ${s ? "foe" : "me"} el-${u.el} r${rarOf(BY[u.cid])}${kind === "bench" ? " mini" : ""}${sel ? " sel" : ""}${tgt ? " tgt" : ""}${fx.hurt > now ? " hurt" : ""}${fx.act > now ? " act" + s : ""}${fx.enter > now ? " enter" : ""}${kind === "bench" && A.s[ss].energy < AR.SWAP_E && s === 0 ? " dim" : ""}`;
   r.a.textContent = Math.round(a); r.h.textContent = Math.max(0, Math.ceil(u.hp)); r.h.className = "h" + (u.hp < u.max ? " hurt" : "");
   r.hp.style.width = Math.max(0, 100 * u.hp / u.max) + "%"; r.hp.className = u.hp < u.max * .3 ? "low" : "";
   r.cd.style.width = kind === "lane" ? Math.max(0, Math.min(100, 100 * (1 - u.cd / (AR.IV / u.spd)))) + "%" : "0";
   r.mk.textContent = u.mark ? EL[u.mark.el][1] : ""; r.sh.textContent = u.shield > 0 ? "🛡" + Math.ceil(u.shield) : ""; r.fr.style.display = u.frozen > 0 ? "" : "none";
-  r.sk.style.display = s === 0 && kind === "lane" && u.skcd <= 0 && A.s[0].energy >= u.acost && !A.over ? "" : "none";
+  r.sk.style.display = s === 0 && kind === "lane" && u.skcd <= 0 && A.s[me].energy >= u.acost && !A.over ? "" : "none";
 }
 function arPanel() {
-  const A = AM.A, m = AM.mode, sel = AM.sel; let h = "", sig;
-  const u = sel && (sel.kind === "bench" ? A.s[sel.s].bench[sel.i] : A.s[sel.s].lane[sel.i]);
-  const S0 = A.s[0];
-  if (m) { sig = "m" + m.act + m.i; h = `<div class="kp1"><b>${esc(actName(A.s[0].lane[m.i]))}</b><span>${ACT[m.act].t === "ally" ? "Choose one of your cards" : "Choose an enemy card"}.</span><button class="btn sm dark" data-ar="cancel">Cancel</button></div>`; }
+  const A = AM.A, me = AM.me, m = AM.mode, sel = AM.sel; let h = "", sig;
+  const u = sel && (sel.kind === "bench" ? A.s[sel.s ^ me].bench[sel.i] : A.s[sel.s ^ me].lane[sel.i]);
+  const S0 = A.s[me];
+  if (m) { sig = "m" + m.act + m.i; h = `<div class="kp1"><b>${esc(actName(A.s[me].lane[m.i]))}</b><span>${ACT[m.act].t === "ally" ? "Choose one of your cards" : "Choose an enemy card"}.</span><button class="btn sm dark" data-ar="cancel">Cancel</button></div>`; }
   else if (!u) { sig = "none"; h = `<div class="kp1"><span>Your cards fight on their own. Tap one of yours, then an enemy, to lock its target. A glowing <b>⚡</b> means its skill is ready.</span></div>`; }
   else {
-    const mine = sel.s === 0, ready = mine && sel.kind === "lane" && u.skcd <= 0 && S0.energy >= u.acost, tl = u.lock != null && A.s[1].lane[u.lock];
+    const mine = sel.s === 0, ready = mine && sel.kind === "lane" && u.skcd <= 0 && S0.energy >= u.acost, tl = u.lock != null && A.s[1 - me].lane[u.lock];
     sig = [sel.s, sel.i, sel.kind, u.uid, ready, !!tl, S0.energy >= AR.SWAP_E, u.skcd > 0].join();
     h = `<div class="kp2"><div class="kinfo"><b>${esc(u.name)}</b> <span style="color:${EL[u.el][2]}">${EL[u.el][1]} ${EL[u.el][0]}</span> <small>${esc(GROUPS[u.tribe] || u.tribe)} · cost ${u.cost} · speed ${u.spd.toFixed(2)} · ${TGT_NAME[u.tm]}</small><br><em>${PASS[u.passive][0]}:</em> ${passText(u.passive)}<br><em>${actName(u)} (${u.acost}⚡):</em> ${actText(u.active)}${u.mark ? `<br><em>Marked:</em> ${EL[u.mark.el][0]}` : ""}</div>`;
     if (mine && sel.kind === "lane") h += `<div class="kbtns"><button class="btn sm yellow" data-ar="skill" ${ready ? "" : "disabled"}>${u.skcd > 0 ? "Recharging" : esc(actName(u)) + " · " + u.acost + "⚡"}</button>${tl ? '<button class="btn sm dark" data-ar="unlock">Auto-target</button>' : ""}</div>`;
@@ -1747,17 +1791,18 @@ function arUpdate(now) {
   $("#arclock").textContent = arClock(left); $("#arclock").style.color = last ? "#ff8d98" : "";
   $("#arsurge").textContent = last ? "2× ENERGY" : A.t >= AR.SURGE_AT ? "SURGE +" + (Math.floor((A.t - AR.SURGE_AT) / AR.SURGE_T) + 1) : "";
   for (let s = 0; s < 2; s++) {
-    const S = A.s[s], c = $("#core" + s); c.querySelector(".cbar i").style.width = Math.max(0, 100 * S.core / AM.maxCore[s]) + "%"; c.querySelector("em").textContent = Math.max(0, Math.ceil(S.core));
+    const S = A.s[s ^ AM.me], c = $("#core" + s); c.querySelector(".cbar i").style.width = Math.max(0, 100 * S.core / AM.maxCore[s ^ AM.me]) + "%"; c.querySelector("em").textContent = Math.max(0, Math.ceil(S.core));
     if (s === 1) c.querySelectorAll(".pips i").forEach((p, k) => p.className = k < Math.floor(S.energy) ? "on" : "");
     for (let i = 0; i < 5; i++) arSlotUpd(arSlotEl(s, i, "lane"), S.lane[i], s, "lane", now);
     for (let i = 0; i < 3; i++) arSlotUpd(arSlotEl(s, i, "bench"), S.bench[i], s, "bench", now);
   }
-  const en = A.s[0].energy; document.querySelectorAll("#ck .aepips i").forEach((p, k) => { p.firstChild.style.width = Math.max(0, Math.min(1, en - k)) * 100 + "%"; }); $("#arenum").textContent = en.toFixed(1);
+  const en = A.s[AM.me].energy; document.querySelectorAll("#ck .aepips i").forEach((p, k) => { p.firstChild.style.width = Math.max(0, Math.min(1, en - k)) * 100 + "%"; }); $("#arenum").textContent = en.toFixed(1);
   arPanel(); arEvents(now);
 }
 function arEvents(now) {
-  const A = AM.A, ev = A.ev; A.ev = []; const snd = (n, a) => { if (now - AM.sfxAt > 120) { AM.sfxAt = now; sfx(n, a); } };
-  for (const e of ev) {
+  const A = AM.A, ev = A.ev, me = AM.me; A.ev = []; const snd = (n, a) => { if (now - AM.sfxAt > 120) { AM.sfxAt = now; sfx(n, a); } };
+  for (const e0 of ev) {
+    const e = Object.assign({}, e0); if (e.s != null) e.s ^= me;   // events speak in sim seats; the screen speaks in view sides
     const el = e.s != null && e.i != null ? arSlotEl(e.s, e.i, "lane") : null;
     if (e.t === "strike") { const a = arSlotEl(e.s, e.i, "lane"); if (a && a._fx) a._fx.act = now + 160; }
     else if (e.t === "hit") { if (el) { if (el._fx) el._fx.hurt = now + 280; kpop(el, "-" + Math.max(1, Math.round(e.d)), e.react ? "react" : ""); if (e.react) kpop(el, e.react, "rname"); } snd(e.react ? "plus" : "flip"); }
@@ -1771,7 +1816,21 @@ function arEvents(now) {
 }
 function arLoop(now) {
   if (!AM) return; const A = AM.A; if (!AM.last) AM.last = now; const dt = Math.min(.25, (now - AM.last) / 1000); AM.last = now;
-  if ($("#modal").hidden && !A.over) {   // an open sheet (pause menu) freezes the fight
+  const net = AM.net;
+  if (net) {   // online: the fight never pauses; it only waits when the other phone's commands have not arrived yet
+    if (!A.over) {
+      AM.acc = Math.min(AM.acc + dt, .5);
+      while (AM.acc >= AR.DT) {
+        if (AM.auto && A.tick % 5 === 0 && AM.aiTick !== A.tick) { AM.aiTick = A.tick; arAi(A, AM.me); }
+        if (!arStep(A)) { if (!A.over) { AM.acc = 0; if (!AM.stall) AM.stall = now; } break; }
+        AM.acc -= AR.DT; AM.stall = 0;
+        if (A.tick % net.hb === 0) net.send({ k: "hb", f: A.tick + net.D });
+        if (A.tick % 20 === 0) { net.mine[A.tick] = arHash(A); net.send({ k: "h", tk: A.tick, h: net.mine[A.tick] }); arHashCheck(A.tick); }
+        if (A.over) break;
+      }
+      const w = AM.stall && now - AM.stall > 800; $("#armsg").textContent = w ? "Waiting for your opponent…" : $("#armsg").textContent === "Waiting for your opponent…" ? "" : $("#armsg").textContent;
+    }
+  } else if ($("#modal").hidden && !A.over) {   // an open sheet (pause menu) freezes the fight
     AM.acc += dt * AM.speed;
     while (AM.acc >= AR.DT) { AM.acc -= AR.DT; if (A.tick % 5 === 0) { arAi(A, 1); if (AM.auto) arAi(A, 0); } arStep(A); if (A.over) break; }
   }
@@ -1784,29 +1843,29 @@ function arFinish() {
 }
 /* ----- taps ----- */
 function arTap(s, i, kind) {
-  const A = AM.A; if (A.over) return; const sel = AM.sel, m = AM.mode, u = kind === "lane" ? A.s[s].lane[i] : A.s[s].bench[i], S0 = A.s[0];
+  const A = AM.A; if (A.over) return; const me = AM.me, sel = AM.sel, m = AM.mode, u = kind === "lane" ? A.s[s ^ me].lane[i] : A.s[s ^ me].bench[i], S0 = A.s[me];
   if (m) {
-    if (kind === "lane" && u && ((ACT[m.act].t === "ally" && s === 0) || (ACT[m.act].t === "enemy" && s === 1))) { arInput(A, { s: 0, k: "use", i: m.i, t: i }, 1); AM.mode = null; AM.sig = ""; }
+    if (kind === "lane" && u && ((ACT[m.act].t === "ally" && s === 0) || (ACT[m.act].t === "enemy" && s === 1))) { arPut({ k: "use", i: m.i, t: i }); AM.mode = null; AM.sig = ""; }
     return;
   }
   if (sel && sel.kind === "bench" && s === 0 && kind === "lane") {
-    if (S0.energy < AR.SWAP_E) toast("Not enough energy."); else if (S0.swapcd[i] > 0) toast("That slot is recharging."); else { arInput(A, { s: 0, k: "swap", b: sel.i, l: i }, 1); AM.sel = null; AM.sig = ""; } return;
+    if (S0.energy < AR.SWAP_E) toast("Not enough energy."); else if (S0.swapcd[i] > 0) toast("That slot is recharging."); else { arPut({ k: "swap", b: sel.i, l: i }); AM.sel = null; AM.sig = ""; } return;
   }
-  if (sel && sel.kind === "lane" && sel.s === 0 && s === 1 && kind === "lane" && u) { const cur = A.s[0].lane[sel.i]; arInput(A, { s: 0, k: "lock", i: sel.i, t: cur && cur.lock === i ? null : i }, 1); AM.sig = ""; return; }
+  if (sel && sel.kind === "lane" && sel.s === 0 && s === 1 && kind === "lane" && u) { const cur = A.s[me].lane[sel.i]; arPut({ k: "lock", i: sel.i, t: cur && cur.lock === i ? null : i }); AM.sig = ""; return; }
   AM.sel = u && !(sel && sel.s === s && sel.i === i && sel.kind === kind) ? { s, i, kind } : null; AM.sig = "";
 }
 document.addEventListener("click", e => {
   const el = e.target.closest("[data-ar]"); if (!el || !AM) return; const a = el.dataset.ar, A = AM.A, d = el.dataset;
   switch (a) {
     case "slot": sfx("select"); return arTap(+d.s, +d.i, d.kind);
-    case "menu": return openSheet(`<h2 class="fat">PAUSED</h2><div class="row c" style="margin-top:10px"><button class="btn red" data-ck="leave">Give up</button><button class="btn yellow" data-act="closeModal">Resume</button></div>`);
+    case "menu": return openSheet(AM.net ? `<h2 class="fat">MATCH MENU</h2><p class="note" style="text-align:center">The fight keeps going while this is open.</p><div class="row c" style="margin-top:10px"><button class="btn red" data-ck="leave">Resign</button><button class="btn yellow" data-act="closeModal">Back to the fight</button></div>` : `<h2 class="fat">PAUSED</h2><div class="row c" style="margin-top:10px"><button class="btn red" data-ck="leave">Give up</button><button class="btn yellow" data-act="closeModal">Resume</button></div>`);
     case "speed": AM.speed = AM.speed === 1 ? 2 : 1; el.textContent = AM.speed + "×"; return;
     case "auto": AM.auto = !AM.auto; el.textContent = AM.auto ? "Auto: ON" : "Auto"; el.className = "btn sm " + (AM.auto ? "yellow" : "dark"); return;
     case "cancel": AM.mode = null; AM.sig = ""; return;
-    case "unlock": { const sel = AM.sel; if (sel) arInput(A, { s: 0, k: "lock", i: sel.i, t: null }, 1); AM.sig = ""; return; }
+    case "unlock": { const sel = AM.sel; if (sel) arPut({ k: "lock", i: sel.i, t: null }); AM.sig = ""; return; }
     case "skill": {
-      const sel = AM.sel, u = sel && A.s[0].lane[sel.i]; if (!u) return; if (u.skcd > 0 || A.s[0].energy < u.acost) return toast("Not ready.");
-      if (ACT[u.active].t === "none") { arInput(A, { s: 0, k: "use", i: sel.i, t: 0 }, 1); AM.sig = ""; } else { AM.mode = { act: u.active, i: sel.i }; AM.sig = ""; } return;
+      const sel = AM.sel, u = sel && A.s[AM.me].lane[sel.i]; if (!u) return; if (u.skcd > 0 || A.s[AM.me].energy < u.acost) return toast("Not ready.");
+      if (ACT[u.active].t === "none") { arPut({ k: "use", i: sel.i, t: 0 }); AM.sig = ""; } else { AM.mode = { act: u.active, i: sel.i }; AM.sig = ""; } return;
     }
   }
 });
@@ -1815,46 +1874,12 @@ document.addEventListener("click", e => {
 /* Both phones hold the same match (seat 0 is the host, seat 1 the guest). Each player plans in secret and sends the list of what they did; when both lists are in,
    both phones rewind to the start of the round, replay the host's plan and then the guest's, and run the same battle. The rules contain no dice, so the two
    boards stay identical. After every round the phones compare a short fingerprint of the board; if it ever differs the match is stopped. */
-let ONL = null;   // { send, snap, myActs, theirPlans, sent, mySums, sums, opp }
-const cknRec = a => { if (ONL) ONL.myActs.push(a); };
-function cknHash() {
-  const x = G.s.map(s => [s.core, s.energy, s.lane.map(u => (u ? [u.cid, u.atk, u.hp, u.max, u.shield, u.mark && u.mark.el] : 0)), s.bench.map(u => (u ? u.cid : 0))]), t = JSON.stringify([G.round, x]); let h = 5381;
-  for (let i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) >>> 0; return h;
-}
-function cknStart(role, hostDeck, guestDeck, oppName, send) {
-  if (ckDeckShapeOk(hostDeck) || ckDeckShapeOk(guestDeck)) return toast("That deck is not valid.");
-  ckNew(hostDeck, guestDeck, { ui: true, ai: 0 }); ME = role; G.online = true; G.fx = ckFx; G.level = 0; G.mode = { kind: "online" }; CKU = { sel: null, mode: null, busy: false, msg: "", opp: oppName || "Friend" };
-  ONL = { send, role, myActs: [], theirPlans: {}, sums: {}, mySums: {}, snap: JSON.stringify(G.s), sent: 0, revealing: false, opp: oppName };
-  closeModal(); $("#ck").hidden = false; musicMode("match"); ckRender();
-}
-async function cknFight() {
-  if (!ONL || CKU.busy || G.phase !== "plan") return; CKU.busy = true; CKU.sel = null; CKU.mode = null; CKU.msg = "Waiting for your opponent…"; ckRender();
-  ONL.sent = G.round; ONL.send({ k: "plan", r: G.round, a: ONL.myActs }); cknTryReveal();
-}
+let ONL = null;   // { send, role, opp } while an online match is on; the match itself is the real-time arena (arenaui.js: arStartOnline)
+function cknStart(role, hostDeck, guestDeck, oppName, send) { arStartOnline(role, hostDeck, guestDeck, oppName, send, send === cknRoomSend); }
 function cknGot(m) {
   if (!ONL || !G || !m) return;
-  if (m.k === "plan") { ONL.theirPlans[m.r] = m.a || []; cknTryReveal(); }
-  else if (m.k === "sum") { ONL.sums[m.r] = m.h; cknCheckSum(m.r); }
-  else if (m.k === "to") { (G.to = G.to || [0, 0])[1 - ME] = m.n; if (m.n) toast("Your opponent ran out of time (" + m.n + "/" + TURN_MAX_OUT + ")."); }
-  else if (m.k === "forfeit") ckForfeit(1 - ME, "Opponent disqualified: ran out of time twice");
-  else if (m.k === "bye") { toast("Your opponent left."); if (!G.over) { G.over = true; G.winner = ME; ckResult(); } }
-}
-async function cknApply(s, a) {
-  if (a.k === "s") ckSwap(s, a.b, a.l); else if (a.k === "h") ckShift(s, a.l, a.d); else if (a.k === "u") await ckUse(s, a.l, a.t);
-  ckRender(); await sleep(260 / (G.speed || 1));
-}
-async function cknTryReveal() {
-  if (!ONL || ONL.revealing || G.phase !== "plan" || G.over) return; const r = G.round; if (ONL.sent !== r || !ONL.theirPlans[r]) return; ONL.revealing = true;
-  const mine = ONL.myActs, theirs = ONL.theirPlans[r]; G.s = JSON.parse(ONL.snap); CKU.sel = null; CKU.mode = null; CKU.msg = ""; ckRender();
-  for (const side of [0, 1]) { const acts = side === ME ? mine : theirs; for (const a of acts) { if (G.over) break; await cknApply(side, a); } }
-  if (!G.over) await ckBattle();
-  const h = cknHash(); ONL.mySums[r] = h; ONL.send({ k: "sum", r, h });
-  ONL.snap = JSON.stringify(G.s); ONL.myActs = []; delete ONL.theirPlans[r]; CKU.busy = false; CKU.msg = ""; ONL.revealing = false; ckRender(); cknCheckSum(r);
-  if (G.over) ckResult(); else cknTryReveal();
-}
-function cknCheckSum(r) {
-  if (!ONL || ONL.mySums[r] == null || ONL.sums[r] == null) return;
-  if (ONL.mySums[r] !== ONL.sums[r]) { toast("The two games went out of sync, so the match was stopped."); G.over = true; G.winner = -1; CKU.busy = false; ckRender(); openSheet(`<span class="ribbon">OUT OF SYNC</span><p class="note" style="text-align:center">The two phones disagreed about the board, so this match was stopped. Both players need the same app version (${VER}).</p><div class="row c" style="margin-top:12px"><button class="btn dark" data-ck="leave">Back</button></div>`); }
+  if (m.k === "bye") arWin("Your opponent left.");
+  else arNetGot(m);
 }
 function cknBye() {
   if (ONL) { try { ONL.send({ k: "bye" }); } catch (_) {} ONL = null; }
@@ -1900,18 +1925,18 @@ function cknSrvConnect(code, opts) {
   ws.onmessage = e => {
     let m; try { m = JSON.parse(e.data); } catch (_) { return; }
     if (m.t === "hello") me.role = m.seat;
-    else if (m.t === "peer") send({ t: "deck", deck, name: playerName(), rating: opts.ranked ? P.rank.pts : 0 });
+    else if (m.t === "peer") send({ t: "deck", deck, name: playerName(), rating: opts.ranked ? P.rank.pts : 0, ver: VER });
     else if (m.t === "deck") {
-      if (me.started) return; if (ckDeckShapeOk(m.deck)) { toast("Your opponent's deck is not valid."); return ws.close(); }
+      if (me.started) return; if (m.ver && m.ver !== VER) { toast("Your opponent has a different app version."); return ws.close(); } if (ckDeckShapeOk(m.deck)) { toast("Your opponent's deck is not valid."); return ws.close(); }
       me.started = true; closeModal(); const mine = me.role === 0;
       cknStart(me.role, mine ? deck : m.deck, mine ? m.deck : deck, m.name, x => send({ t: "ck", m: x }));
       if (opts.ranked) G.mode = { kind: "ranked", opp: m.rating || 800 };
     } else if (m.t === "ck") cknGot(m.m);
-    else if (m.t === "left") { if (G && G.online && !G.over) { toast("Your opponent left."); G.over = true; G.winner = ME; ckResult(); } else if (!me.started) toast("Your friend left the room."); }
+    else if (m.t === "left") { if (G && G.online && !G.over) arWin("Your opponent left."); else if (!me.started) toast("Your friend left the room."); }
     else if (m.t === "full") toast("That room is full.");
   };
   ws.onerror = () => { if (!me.started) toast("Could not reach the server."); };
-  ws.onclose = () => { if (SRVC === me && G && G.online && !G.over && me.started) { toast("Connection lost."); G.over = true; G.winner = ME; ckResult(); } };
+  ws.onclose = () => { if (SRVC === me && G && G.online && !G.over && me.started) arWin("Connection lost.") };
   return me;
 }
 function cknSrvCreate() {
