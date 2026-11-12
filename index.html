@@ -694,12 +694,35 @@ select:focus, input:focus { outline: 1px solid var(--gold); }
 .ku::before { content: ""; position: absolute; inset: var(--bwu); background: linear-gradient(#0b1328, #060a18); border-radius: 4px; z-index: 0; }
 .ku.empty::before { display: none; }
 
+/* ================= SHOP ================= */
+.packw { --pa: #3a58b0; --pb: color-mix(in srgb, var(--pa) 38%, #070b1c); }
+.packw.k-prem { --pa: #8a52e0; }
+.packw .pgfx { background: linear-gradient(155deg, var(--pa) 0%, var(--pb) 58%, #050816 100%); }
+.econ { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 4px; }
+.ec { display: flex; flex-direction: column; align-items: center; padding: 8px 4px 6px; border-radius: 12px; background: var(--glass); border: 1px solid var(--line-soft); }
+.ec svg { width: 20px; height: 20px; } .ec b { font: 700 18px/1.1 var(--num); color: #fff; margin-top: 2px; } .ec small { font: 700 8px var(--display); letter-spacing: .18em; color: var(--muted); text-transform: uppercase; }
+.ec.c svg, .pill.c svg { color: var(--gold); } .ec.g svg, .pill.g svg { color: #7fe0ff; } .ec.s svg { color: #c9a0ff; } .ec.t svg { color: #b8f0d0; }
+.shoplist { display: flex; flex-direction: column; gap: 12px; }
+.shopitem { display: grid; grid-template-columns: 96px 1fr; gap: 14px; align-items: center; }
+.shopitem.tone-prem { border-color: #8a52e066; } .shopitem.tone-feat { border-color: color-mix(in srgb, var(--ft, #e3bf66) 55%, transparent); }
+.shopitem.tone-feat::after { content: ""; position: absolute; right: -30px; top: -30px; width: 120px; height: 120px; border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--ft, #e3bf66) 30%, transparent), transparent 70%); pointer-events: none; }
+.packwrap { width: 96px; height: 150px; position: relative; } .packwrap .packw { position: absolute; left: 0; top: 0; transform-origin: 0 0; transform: scale(.62); animation: none; }
+.packwrap .packw.mini { animation: none; }
+.si b.fat { display: block; font-size: 14px; } .si > small { display: block; margin: 3px 0 8px; font: 600 11px/1.35 var(--body); color: var(--muted); }
+.si .pity { margin: 0; text-align: left; } .si .pity small { display: flex; justify-content: space-between; gap: 6px; font: 700 8px var(--display); letter-spacing: .12em; color: var(--muted); margin-bottom: 3px; }
+.cp { display: inline-flex; align-items: center; gap: 4px; font-family: var(--num); letter-spacing: 0; } .cp svg { width: 14px; height: 14px; }
+.setrows { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; } .setrows div { display: flex; flex-direction: column; align-items: center; gap: 4px; } .setrows b { font: 700 15px var(--num); }
+.earn { margin: 0; padding-left: 16px; font: 600 12px/1.5 var(--body); color: #cfdaf3; } .earn li { margin: 4px 0; } .earn b { color: var(--gold-hi); }
+.rchip.s .ri svg { color: #c9a0ff; }
+
 @media (prefers-reduced-motion: reduce) { * { animation-duration: .01s !important; } }
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="i-ticket" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M3 7h18v3.2a2 2 0 0 0 0 3.6V17H3v-3.2a2 2 0 0 0 0-3.6z"/><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M9.5 7.5v9" stroke-dasharray="1.6 2"/></symbol>
   <symbol id="i-gem" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M12 3l8 6-8 12L4 9z"/><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M4 9h16M9 9l3-6 3 6M9 9l3 12 3-12"/></symbol>
+  <symbol id="i-coin" viewBox="0 0 24 24"><circle fill="none" stroke="currentColor" stroke-width="1.7" cx="12" cy="12" r="8.5"/><circle fill="none" stroke="currentColor" stroke-width="1.2" cx="12" cy="12" r="5.4"/><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" d="M12 9v6M10 10.5c1.2-.8 3-.5 3 .8 0 1.2-2.4 1-3 2.2"/></symbol>
+  <symbol id="i-shard" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" d="M12 2.5 18 9l-3 12.5H9L6 9z"/><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" d="M6 9h12M12 2.5 9 9l3 12.5L15 9z"/></symbol>
   <symbol id="i-xp" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M12 2l9 5v10l-9 5-9-5V7z"/><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M9 10l3 5 3-5"/></symbol>
   <symbol id="i-cards" viewBox="0 0 24 24"><rect fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" x="4" y="6" width="10" height="14" rx="2" transform="rotate(-10 9 13)"/><rect fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" x="10" y="4" width="10" height="14" rx="2" transform="rotate(8 15 11)"/></symbol>
   <symbol id="i-summon" viewBox="0 0 24 24"><circle fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" cx="12" cy="12" r="8"/><circle fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" cx="12" cy="12" r="3.2"/><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3"/></symbol>
@@ -896,7 +919,7 @@ function cardHtml(c, o = {}) {
   const rr = rarOf(c), k = arCard(c), cls = ["card", "ar", "r" + rr, "el-" + k.el, "lv" + c.lv, c.ex ? "ex" : "", o.cls || "", o.miss ? "miss" : "", o.tilt ? "tilt" : ""].join(" ");
   return `<div class="${cls}" ${o.attr || ""}><div class="win"><img class="art" data-id="${c.id}" alt="" src="${artSrc(c)}"></div><div class="holo"></div><div class="glare"></div><i class="crn"></i>` +
     `<b class="cst">${k.cost}</b><i class="esig">${elIco(k.el, "")}</i>` + (o.count > 1 ? `<span class="cnt">×${o.count}</span>` : "") +
-    `<div class="stats"><span class="a"><svg><use href="#i-atk"/></svg>${k.atk}</span><span class="h"><svg><use href="#i-hp"/></svg>${hpOf(k)}</span><span class="s"><svg><use href="#i-spd"/></svg>${k.spd.toFixed(1)}</span></div>` +
+    `<div class="stats"><span class="a"><svg><use href="#i-atk"/></svg>${Math.round(k.atk * AR.ATKX)}</span><span class="h"><svg><use href="#i-hp"/></svg>${hpOf(k)}</span><span class="s"><svg><use href="#i-spd"/></svg>${k.spd.toFixed(1)}</span></div>` +
     `<div class="plate"><b class="nm">${esc(c.name)}</b><small class="sub"><i></i>${esc(FAC[k.fac] || k.fac)} · ${RNAME[rr]}</small></div><div class="tint"></div></div>`;
 }
 /* the classic triad card (four side numbers), for the old Triad match and its deck editor only */
@@ -920,7 +943,7 @@ let P = null, db = null, uid = null, myName = "", saveMode = "wait", saving = fa
 const today = () => { const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); };
 function newProfile() {
   const own = {}; STARTER.forEach(id => own[id] = 1);
-  return { v: 1, tickets: 10, dust: 0, xp: 0, lv: 1, own, decks: [{ name: "Starter", cards: STARTER.slice(0, 5) }], deck: 0, pityHi: 0, pityTop: 0, pulls: 0, cleared: {}, day: "", login: false, mis: { win: 0, play: 0, cap: 0, sum: 0, claimed: {} }, claims: [], wins: 0, plays: 0, name: "", recent: [] };
+  return { v: 1, tickets: 10, dust: 0, coins: 300, gems: 0, pityPrem: 0, pityFeat: 0, xp: 0, lv: 1, own, decks: [{ name: "Starter", cards: STARTER.slice(0, 5) }], deck: 0, pityHi: 0, pityTop: 0, pulls: 0, cleared: {}, day: "", login: false, mis: { win: 0, play: 0, cap: 0, sum: 0, claimed: {} }, claims: [], wins: 0, plays: 0, name: "", recent: [] };
 }
 const need = lv => 80 + lv * 30;
 function rollover() { if (P.day !== today()) { P.day = today(); P.login = false; P.mis = { win: 0, play: 0, cap: 0, sum: 0, claimed: {} }; } }
@@ -940,7 +963,7 @@ async function loadProfile() {
   } else saveMode = "local";
   if (!P) { try { const t = localStorage.getItem("triad.profile"); if (t) P = JSON.parse(t); } catch (_) {} }
   if (!P) { P = newProfile(); scheduleSave(); }
-  rollover(); chrome(); show(tab);
+  econInit(); rollover(); chrome(); show(tab);
 }
 const NAME_A = ["Lucky", "Wild", "Royal", "Sly", "Neon", "Golden", "Daring", "Cosmic", "Velvet", "Brave", "Crimson", "Clever"];
 const NAME_B = ["Ace", "Joker", "Shark", "Fox", "Dealer", "Knight", "Spade", "Comet", "Falcon", "Queen", "Rogue", "Bandit"];
@@ -951,7 +974,7 @@ function nameSheet(first) {
 }
 function playerName() { return (P && P.name) || myName || "Player"; }
 function toast(m) { const t = $("#toast"); t.textContent = m; t.classList.add("on"); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove("on"), 2400); }
-function gainXp(x) { P.xp += x; const ups = []; while (P.xp >= need(P.lv)) { P.xp -= need(P.lv); P.lv++; const t = 1 + (P.lv % 5 === 0 ? 2 : 0); P.tickets += t; ups.push("Level " + P.lv + ": +" + t + " tickets"); } return ups; }
+function gainXp(x) { P.xp += x; const ups = []; while (P.xp >= need(P.lv)) { P.xp -= need(P.lv); P.lv++; const t = 1 + (P.lv % 5 === 0 ? 2 : 0); P.tickets += t; let g = ""; if (P.lv % 5 === 0) { P.gems = (P.gems || 0) + ECON.level5.gems; g = " and " + ECON.level5.gems + " gems"; } ups.push("Level " + P.lv + ": +" + t + " tickets" + g); } return ups; }
 /* A new card joins the collection. Copies stack to three (a deck holds at most three); past that a duplicate becomes dust, which crafts cards. */
 function addCard(id) {
   const n = P.own[id] || 0, c = BY[id];
@@ -984,7 +1007,7 @@ const TABS = [["summon", "Packs", "summon"], ["cards", "Cards", "cards"], ["batt
 function chrome() {
   if (!P) { $("#hud").innerHTML = ""; return; }
   const pct = Math.floor(100 * P.xp / need(P.lv));
-  $("#hud").innerHTML = `<div class="hexw"><div class="hex"><span>♠</span></div><b class="lvbadge">${P.lv}</b></div><div class="who" data-act="nameEdit"><b class="fat">${esc(playerName())} ✎</b><div class="xp"><i style="width:${pct}%"></i><small>${P.xp} / ${need(P.lv)}${saveMode === "local" ? " · on this device" : ""}</small></div></div><div class="pills"><span class="pill">${ic("ticket", "")}${P.tickets}</span><span class="pill">${ic("gem", "")}${P.dust}</span></div><button class="mute" data-act="muteAll" aria-label="Sound">${AU.sfx || AU.bgm ? "🔊" : "🔇"}</button>`;
+  $("#hud").innerHTML = `<div class="hexw"><div class="hex"><span>♠</span></div><b class="lvbadge">${P.lv}</b></div><div class="who" data-act="nameEdit"><b class="fat">${esc(playerName())} ✎</b><div class="xp"><i style="width:${pct}%"></i><small>${P.xp} / ${need(P.lv)}${saveMode === "local" ? " · on this device" : ""}</small></div></div><div class="pills"><span class="pill c">${ic("coin", "")}${P.coins == null ? 0 : P.coins}</span><span class="pill g">${ic("gem", "")}${P.gems == null ? 0 : P.gems}</span></div><button class="mute" data-act="muteAll" aria-label="Sound">${AU.sfx || AU.bgm ? "🔊" : "🔇"}</button>`;
   const claimable = !P.login || missions().some(m => m.have >= m.need && !P.mis.claimed[m.id]);
   $("#nav").innerHTML = TABS.map(([k, n, i]) => `<button data-act="tab" data-k="${k}" class="${tab === k ? "on" : ""}"><span class="dia">${ic(i, "")}</span><span class="lb">${n.toUpperCase()}</span>${k === "daily" && claimable ? '<i class="dot"></i>' : ""}</button>`).join("");
 }
@@ -1192,7 +1215,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.11.12-e";
+const VER = "2026.11.12-g";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -1290,29 +1313,10 @@ const PACK_SLOTS = [   // [rarity, % chance] per slot; "ex" is a Secret Rare
   [[1, 75], [2, 25]], [[1, 72], [2, 28]], [[1, 68], [2, 32]], [[2, 55], [3, 40], [4, 5]], [[3, 52], [4, 30], [5, 14], ["ex", 4]],
 ];
 const wpick = l => { let r = Math.random() * 100; for (const [k, w] of l) { r -= w; if (r < 0) return k; } return l[0][0]; };
-function cardOfPool(pool, taken) {
-  const list = pool === "ex" ? POOL.filter(c => c.ex) : POOL.filter(c => !c.ex && c.lv === pool);
-  for (let t = 0; t < 4; t++) { const c = list[Math.floor(Math.random() * list.length)]; if (!taken.includes(c.id)) return c; }
-  return list[Math.floor(Math.random() * list.length)];
-}
-function pullPack() {
-  const out = []; P.pulls++;
-  PACK_SLOTS.forEach((rates, i) => { let pool = wpick(rates); if (i === PACK.size - 1 && (P.pityTop || 0) >= PACK.pity - 1) pool = Math.random() < .2 ? "ex" : 5; out.push(cardOfPool(pool, out.map(c => c.id))); });
-  if (Math.max(...out.map(rarOf)) >= 5) P.pityTop = 0; else P.pityTop = (P.pityTop || 0) + 1;
-  return out.sort((a, b) => rarOf(a) - rarOf(b));
-}
-function freeInfo() {
-  const now = Date.now(); if (!P.fp) P.fp = { n: 1, t: now };
-  while (P.fp.n < PACK.freeMax && now - P.fp.t >= PACK.freeEvery) { P.fp.n++; P.fp.t += PACK.freeEvery; }
-  if (P.fp.n >= PACK.freeMax) P.fp.t = now; return { n: P.fp.n, next: P.fp.t + PACK.freeEvery - now };
-}
-const fmtT = ms => { const m = Math.max(1, Math.ceil(ms / 60000)), h = Math.floor(m / 60); return h ? h + "h " + (m % 60) + "m" : m + "m"; };
-const packsLeft = () => freeInfo().n + P.tickets;
-
 /* ----- the pack itself, drawn in CSS ----- */
-function packGfx() { return `<div class="pgfx"><div class="crimp t"></div><div class="crimp b"></div><div class="emb"><svg viewBox="0 0 32 32"><use href="#i-spade"/></svg><b class="fat">TRIAD</b><i class="fat">SUMMONS</i><small>STANDARD PACK</small><span>★ ★ ★ ★ ★</span></div><div class="sheen"></div></div>`; }
-const packHtml = (cls = "") => `<div class="packw ${cls}">${packGfx()}</div>`;
-const packTearHtml = () => `<div class="packw big" id="pw"><div class="pbot">${packGfx()}</div><div class="ptop" id="ptop">${packGfx()}</div></div>`;
+function packGfx(kind = "std") { const sub = kind === "feat" ? "FEATURED · " + FAC[featFac()].toUpperCase() : PACKS[kind].name.toUpperCase(); return `<div class="pgfx"><div class="crimp t"></div><div class="crimp b"></div><div class="emb"><svg viewBox="0 0 32 32"><use href="#i-spade"/></svg><b class="fat">TRIAD</b><i class="fat">SUMMONS</i><small>${sub}</small><span>★ ★ ★ ★ ★</span></div><div class="sheen"></div></div>`; }
+const packHtml = (cls = "", kind = "std") => `<div class="packw ${cls} k-${kind}" ${kind === "feat" ? `style="--pa:${FAC_TONE[featFac()]}"` : ""}>${packGfx(kind)}</div>`;
+const packTearHtml = (kind = "std") => `<div class="packw big k-${kind}" id="pw" ${kind === "feat" ? `style="--pa:${FAC_TONE[featFac()]}"` : ""}><div class="pbot">${packGfx(kind)}</div><div class="ptop" id="ptop">${packGfx(kind)}</div></div>`;
 
 /* ----- tilt: a device sensor when the browser allows it, else a slow sway; a finger or mouse on a card overrides it ----- */
 const TILT = { on: true, gyro: false, last: 0, x: 0, y: 0, tx: 0, ty: 0, bound: false };
@@ -1336,31 +1340,11 @@ function tiltAsk() {   // must run inside a tap: iOS asks the player for motion 
   requestAnimationFrame(tiltLoop);
 })();
 
-/* ----- the Packs tab ----- */
-function viewSummon(v) {
-  const fi = freeInfo(), rec = (P.recent || []).slice(0, 10);
-  v.innerHTML = `<span class="ribbon">PACKS</span><div class="packstage" data-act="openPack">${packHtml("mini")}</div>` +
-    `<div class="row c" style="margin-top:6px"><button class="btn yellow big" data-act="openPack" ${packsLeft() < 1 ? "disabled" : ""}>Open a pack</button></div>` +
-    `<p class="note" style="text-align:center;margin:8px 0 0">Free packs <b>${fi.n}/${PACK.freeMax}</b>${fi.n < PACK.freeMax ? " · the next in " + fmtT(fi.next) : ""} · Earned packs <b>${P.tickets}</b></p>` +
-    `<div class="panel" style="margin-top:12px"><div class="pity" style="margin:0"><small><span>A LEGENDARY OR SECRET RARE IS GUARANTEED WITHIN</span><span>${Math.max(0, PACK.pity - (P.pityTop || 0))} packs</span></small><div class="bar"><i style="width:${Math.min(100, 100 * (P.pityTop || 0) / PACK.pity)}%"></i></div></div></div>` +
-    (rec.length ? `<span class="ribbon green">RECENT PULLS</span><div class="recent">${rec.map(id => BY[id] ? cardHtml(BY[id], { attr: `data-act="detail" data-id="${id}"` }) : "").join("")}</div>` : "") +
-    `<div class="row c" style="margin-top:12px"><button class="btn sm dark" data-act="odds">Odds</button><button class="btn sm dark" data-act="tiltToggle">Foil tilt: ${TILT.on ? "On" : "Off"}</button></div>` +
-    `<p class="note" style="text-align:center">Each pack holds five cards, and the last one is the hit. Copies past 3 turn into dust, which crafts any card that is not Secret Rare. Packs come from daily missions, wins and levelling up, and a free pack recharges every 8 hours.</p>`;
-}
-
 /* ----- opening a pack: tear it, then flip the cards one at a time ----- */
 let PK = null;
-function openPack() {
-  rollover(); const fi = freeInfo(); if (fi.n < 1 && P.tickets < 1) return toast("No packs left. Daily missions, wins and levelling up earn more, and a free pack recharges every 8 hours.");
-  tiltAsk();
-  if (fi.n >= 1) { P.fp.n--; if (P.fp.n === PACK.freeMax - 1) P.fp.t = Date.now(); } else P.tickets--;
-  P.mis.sum++; const res = pullPack().map(c => ({ c, r: addCard(c.id) }));
-  res.forEach(x => { P.recent = [x.c.id].concat((P.recent || []).filter(i => i !== x.c.id)).slice(0, 16); });
-  scheduleSave(); chrome(); PK = { res, i: 0, flipped: false, torn: false }; packStage();
-}
 function packStage() {
   const m = $("#modal"); m.hidden = false;
-  if (!PK.torn) { m.innerHTML = `<div class="packfs"><div class="plbl">Swipe across the top of the pack</div>${packTearHtml()}<button class="btn sm dark" data-act="packTear" style="margin-top:14px">Tap to open</button></div>`; packTearBind(); return; }
+  if (!PK.torn) { m.innerHTML = `<div class="packfs"><div class="plbl">Swipe across the top of the pack</div>${packTearHtml(PK.kind)}<button class="btn sm dark" data-act="packTear" style="margin-top:14px">Tap to open</button></div>`; packTearBind(); return; }
   if (PK.i >= PK.res.length) return packSummary();
   const x = PK.res[PK.i], c = x.c, r = rarOf(c);
   m.innerHTML = `<div class="packfs fx-r${r}" data-act="packNext" id="pfs"><div class="pcount">${PK.i + 1} / ${PK.res.length}</div><div class="pc ${PK.flipped ? "flipped" : ""}" id="pcard"><div class="pback"><svg viewBox="0 0 32 32"><use href="#i-spade"/></svg></div><div class="pface">${cardHtml(c, { tilt: true })}</div></div><div class="pinfo ${PK.flipped ? "on" : ""}" id="pinfo"><span><em>Passive</em>${esc(PASS[arCard(c).passive][0])}</span><span><em>Skill</em>${esc(actName(arCard(c)))}</span></div><div class="phint" id="phint">${PK.flipped ? "Tap for the next card" : "Tap to reveal"}</div></div>`;
@@ -1390,10 +1374,6 @@ function packSummary() {
 }
 function packDone() { PK = null; closeModal(); if (tab === "summon") show("summon"); }
 function tiltToggle() { TILT.on = !TILT.on; try { localStorage.setItem("triad.tilt", TILT.on ? "1" : "0"); } catch (_) {} if (TILT.on) tiltAsk(); else { const m = $("#modal"); m.style.setProperty("--tx", 0); m.style.setProperty("--ty", 0); } show("summon"); }
-function oddsModal() {
-  const ex = POOL.filter(c => c.ex).length, cnt = l => POOL.filter(c => !c.ex && c.lv === l).length, row = (r, n, s) => `<tr><td><span class="rtag r${r}">${RNAME[r].toUpperCase()}</span> ${n} cards</td><td>${s}</td></tr>`;
-  openSheet(`<h2 class="fat">PACK ODDS</h2><p class="note">Five cards a pack. Chance per slot:</p><table class="odds"><tr><td>Slots 1 to 3</td><td>Common 68 to 75%, Uncommon 25 to 32%</td></tr><tr><td>Slot 4</td><td>Uncommon 55%, Rare 40%, Epic 5%</td></tr><tr><td>Slot 5 (the hit)</td><td>Rare 52%, Epic 30%, Legendary 14%, Secret Rare 4%</td></tr></table><table class="odds" style="margin-top:8px">${row(1, cnt(1), "")}${row(2, cnt(2), "")}${row(3, cnt(3), "")}${row(4, cnt(4), "")}${row(5, cnt(5), "")}${row(6, ex, "")}</table><p class="note">Every card of a rarity is equally likely. Secret Rares only come from packs. If ${PACK.pity - 1} packs in a row hold no Legendary or Secret Rare, the next pack's last card is one.</p><div class="row c"><button class="btn dark" data-act="closeModal">Close</button></div>`);
-}
 
 /* ===== CLASH: 5 v 5 lane duels with 8-card decks (5 front, 3 backup), energy, elements and reactions. Rules: GAME_RULES.md ===== */
 const EL = { fire: ["Fire", "🔥", "#ff6a3a"], water: ["Water", "💧", "#3aa0ff"], wind: ["Wind", "🌀", "#5fe0a0"], earth: ["Earth", "⛰️", "#c9a05a"], lightning: ["Lightning", "⚡", "#ffe03a"], ice: ["Ice", "❄️", "#9fe6ff"], light: ["Light", "✨", "#fff3b0"], dark: ["Dark", "🌙", "#b074ff"] };
@@ -1672,19 +1652,19 @@ function setKit(c, k) {
    compute the identical fight. Everything marked [placeholder] in AR is a tuning number, not design. */
 const AR = {
   DT: .1, MATCH: 180, LAST: 60,      // tick length, match length, the closing stretch with doubled energy (seconds)
-  E0: 4, EMAX: 10, ERATE: 2.8,       // starting energy, cap, seconds per energy
+  E0: 5, EMAX: 10, ERATE: 1.2,       // starting energy, cap, seconds per energy
   SWAP_E: 2, SWAP_CD: 8,             // bringing a reserve in: energy, and the wait before that slot can swap again
-  IV: 2, STRIKE: .5,                 // seconds between basic strikes at speed 1.0, and the share of ATK a strike deals
+  IV: 6, STRIKE: .5, ATKX: 8,      // seconds between basic strikes at speed 1.0, the share of ATK a strike deals, and the factor from a card's base attack to its fight attack (slower, bigger hits)
   FOCUS_SUPPORT: 16, AI_EVERY: [15, 10, 5], AI_SLIP: [.5, .25, 0],   // AI: HP value of a healer/buffer when picking a focus target; ticks between its decisions and the share of ready skills it fumbles, by level
-  MARK_T: 6, CORE: 40, HPX: 8, SKILL_CD: 6, GROW_T: 8, SURGE_AT: 60, SURGE_T: 10, INPUT_DELAY: 3, RETARGET: 1,
+  MARK_T: 8, CORE: 40, HPX: 8, SKILL_CD: 4, GROW_T: 8, SURGE_AT: 60, SURGE_T: 10, INPUT_DELAY: 3, RETARGET: 1,
 };
 const ACOST = { mend: 2, empower: 2, ward: 2, overgrow: 5, volley: 3, disrupt: 1, strike: 3, mark: 1, gale: 2, arc: 3, freeze: 2, cleanse: 2, pact: 1 };
 /* skill strengths in 'stat points' (HP-type ones are multiplied by HPX): the numbers the balance sweep tunes */
 /* passive strengths (same idea) */
 /* rarity: extra health on top of the card's own stats, by rarity (1 = common ... 6) */
-AR.RHP = { 1: 1.4, 2: 1.31, 3: 1.08, 4: 1.05, 5: .8, 6: .8 };
-AR.PS = { mender: .1, fortify: .36, rally: .2, grow: .17, lastwords: .3, battery: .15, berserk: 5.5, amp: 1.4, overkill: 5, thorns: .8, spongeT: 6, pack: 1.6, guard: .8, pierce: .3, swift: 1.3, vamp: .7, soul: .4, laststand: 3, lsGuard: .8, blood: .9, bloodCost: .03, chainAmp: .6, decree: .8, phoenix: .4, formation: 1.6, treasure: 7, regen: .01, crit: 1.45, voideater: 1.25 };
-AR.SK = { mend: .35, empower: 3, empowerT: 8, overgrow: 1.8, ward: 1.2, volley: 2.5, strike: 1.35, gale: 1.8, galeT: 6, arc: .7, freezeT: 2, cleanse: .8, pact: 6, pactT: 8, pactCost: .1 };
+AR.RHP = { 1: 1.4, 2: 1.42, 3: 1.26, 4: 1.11, 5: 1.05, 6: 1.05 };
+AR.PS = { mender: 0.3, fortify: 0.6, rally: 0.12, grow: 0.17, lastwords: 0.22, battery: 0.13, berserk: 5.5, amp: 2.6, overkill: 1, thorns: 0.35, spongeT: 10, pack: 1, guard: 0.85, pierce: 0.3, swift: 1.2, vamp: 0.75, soul: 0.15, laststand: 3, lsGuard: 0.7, blood: 0.6, bloodCost: 0.05, chainAmp: 1.6, decree: 0.8, phoenix: 0.15, formation: 0.5, treasure: 7, regen: 0.015, crit: 2.2, voideater: 1.15 };
+AR.SK = { mend: 1, empower: 5, empowerT: 8, overgrow: 0.8, ward: 2.4, volley: 0.45, strike: 0.38, gale: 2.4, galeT: 6, arc: 0.3, freezeT: 1.6, cleanse: 0.7, pact: 20, pactT: 8, pactCost: 0.1 };
 const TGT_BY = { weapon: "strongest", hero: "opposite", monster: "nearest", folk: "support", armor: "opposite", esper: "weakest", relic: "support", dominant: "strongest" };
 const TGT_NAME = { opposite: "Opposite", nearest: "Nearest", weakest: "Weakest", strongest: "Strongest", support: "Support-first" };
 const SUPPORT_ACT = { mend: 1, ward: 1, empower: 1, overgrow: 1, cleanse: 1, gale: 1 };
@@ -1697,8 +1677,8 @@ function arCard(c) {
 }
 function arUnit(A, cid) {
   const k = arCard(BY[cid]), spd = k.spd * (k.passive === "swift" ? AR.PS.swift : 1);
-  const rm = AR.RHP[k.rar] || 1, hp = k.hp * AR.HPX * rm * (k.nudge || 1);
-  return { uid: ++A.uid, cid, name: k.name, el: k.el, tribe: k.tribe, atk: k.atk, hp, max: hp, cost: k.cost, spd, tm: k.tm, passive: k.passive, active: k.active, acost: k.acost, rar: k.rar,
+  const rm = AR.RHP[k.rar] || 1, hp = k.hp * AR.HPX * rm * (k.nudge || 1), atk = k.atk * AR.ATKX;
+  return { uid: ++A.uid, cid, name: k.name, el: k.el, tribe: k.tribe, atk, hp, max: hp, cost: k.cost, spd, tm: k.tm, passive: k.passive, active: k.active, acost: k.acost, rar: k.rar,
     cd: AR.IV / spd * .6, skcd: 0, lock: null, mark: null, frozen: 0, shield: 0, tmp: 0, tmpT: 0, pb: { a: 0, h: 0 }, pt: AR.GROW_T, sponge: k.passive === "sponge", spT: 0, fac: k.fac, n: 0, used: false, hasteT: 0, by: null, bys: 0 };
 }
 function arNew(deck0, deck1, o = {}) {
@@ -1713,8 +1693,8 @@ const arLane = (A, s, i) => A.s[s].lane[i];
 const arLive = (A, s) => A.s[s].lane.map((u, i) => ({ u, i })).filter(x => x.u);
 function arAtk(A, s, u) {
   const surge = A.t >= AR.SURGE_AT ? Math.floor((A.t - AR.SURGE_AT) / AR.SURGE_T) + 1 : 0;
-  return Math.max(0, u.atk + (u.tmpT > 0 ? u.tmp : 0) + (u.passive === "berserk" && u.hp * 2 < u.max ? AR.PS.berserk : 0) + (u.passive === "pack" ? A.s[s].lane.filter(x => x && x !== u && x.fac === u.fac).length * AR.PS.pack : 0) + (u.passive === "laststand" && u.hp < u.max * .3 ? AR.PS.laststand : 0) +
-    (u.passive === "formation" ? [A.s[s].lane[A.s[s].lane.indexOf(u) - 1], A.s[s].lane[A.s[s].lane.indexOf(u) + 1]].filter(Boolean).length * AR.PS.formation : 0) + A.s[s].lane.filter(x => x && x !== u && x.passive === "decree" && x.fac === u.fac).length * AR.PS.decree + surge);
+  return Math.max(0, u.atk + AR.ATKX * ((u.tmpT > 0 ? u.tmp : 0) + (u.passive === "berserk" && u.hp * 2 < u.max ? AR.PS.berserk : 0) + (u.passive === "pack" ? A.s[s].lane.filter(x => x && x !== u && x.fac === u.fac).length * AR.PS.pack : 0) + (u.passive === "laststand" && u.hp < u.max * .3 ? AR.PS.laststand : 0) +
+    (u.passive === "formation" ? [A.s[s].lane[A.s[s].lane.indexOf(u) - 1], A.s[s].lane[A.s[s].lane.indexOf(u) + 1]].filter(Boolean).length * AR.PS.formation : 0) + A.s[s].lane.filter(x => x && x !== u && x.passive === "decree" && x.fac === u.fac).length * AR.PS.decree + surge));
 }
 function arCoreHit(A, ts, d) { A.s[ts].core -= d; arLog(A, (ts ? "Enemy" : "Your") + " core takes " + Math.round(d)); arEv(A, { t: "core", s: ts, d }); }
 /* who a card strikes: its locked target, else its targeting behavior; -1 means the enemy field is empty (the core) */
@@ -1737,7 +1717,7 @@ function arHit(A, src, ss, ts, ti, dmg, el, o = {}) {
   if (el && T.mark && REACT[T.mark.el + ">" + el]) {
     react = REACT[T.mark.el + ">" + el]; const amp = src && (src.passive === "amp" ? AR.PS.amp : src.passive === "chain" ? AR.PS.chainAmp : 0); d = dmg * ((react.mul || 1) + (react.mul > 1 ? amp : 0));
     if (react.strip) { T.atk = Math.max(1, T.atk - T.pb.a); T.max = Math.max(1, T.max - T.pb.h); T.hp = Math.min(T.hp, T.max); T.pb = { a: 0, h: 0 }; T.shield = 0; T.tmpT = 0; }
-    if (react.freeze) { T.frozen = 2; T.cd += 2; } T.mark = null; arLog(A, react.n + "! on " + T.name);
+    if (react.freeze) { T.frozen = AR.IV * .75; T.cd += AR.IV * .75; } T.mark = null; arLog(A, react.n + "! on " + T.name);
     if (src && src.passive === "chain") for (const j of [ti - 1, ti + 1]) { const N = A.s[ts].lane[j]; if (N && !N.mark) N.mark = { el, t: AR.MARK_T }; }   // Chain Reaction: the neighbors are marked too
   }
   if (src && src.passive === "voideater" && o.melee) { T.shield = 0; T.tmpT = 0; }
@@ -1746,8 +1726,9 @@ function arHit(A, src, ss, ts, ti, dmg, el, o = {}) {
   if (T.sponge) { T.sponge = false; T.spT = AR.PS.spongeT; d = 0; }
   const ab = Math.min(T.shield, d); T.shield -= ab; d -= ab; T.hp -= d;
   if (el && !react) T.mark = { el, t: AR.MARK_T };
-  if (src) { if (src.passive === "vamp" && d > 0) src.hp = Math.min(src.max, src.hp + d * AR.PS.vamp); if (T.passive === "thorns" && o.melee) src.hp -= AR.PS.thorns; if (src.passive === "overkill" && T.hp < 0) arCoreHit(A, ts, -T.hp * AR.PS.overkill); }
+  if (src) { if (src.passive === "vamp" && d > 0) src.hp = Math.min(src.max, src.hp + d * AR.PS.vamp); if (T.passive === "thorns" && o.melee) src.hp -= AR.PS.thorns * AR.ATKX; if (src.passive === "overkill" && T.hp < 0) arCoreHit(A, ts, -T.hp * AR.PS.overkill); }
   arEv(A, { t: "hit", s: ts, i: ti, d, el, react: react && react.n });
+  if (src && !o.noStat) { const st = A.stat || (A.stat = { auto: 0, skill: 0, uses: 0 }); if (o.melee) st.auto += d; else st.skill += d; }   // balance counters (not part of the fight)
   if (react && react.splash) for (const j of [ti - 1, ti + 1]) { const N = A.s[ts].lane[j]; if (N) { N.hp -= d * react.splash; arEv(A, { t: "hit", s: ts, i: j, d: d * react.splash }); } }
   if (src && o.melee && src.passive === "pierce") { const j = A.s[ts].lane[ti + 1] ? ti + 1 : ti - 1, N = A.s[ts].lane[j]; if (N) { N.hp -= d * AR.PS.pierce; arEv(A, { t: "hit", s: ts, i: j, d: d * AR.PS.pierce }); } }
   return d;
@@ -1757,9 +1738,9 @@ function arSweep(A) {
     const u = A.s[s].lane[i]; if (!u || u.hp > 0) continue;
     if (u.passive === "phoenix" && !u.used) { u.used = true; u.hp = u.max * AR.PS.phoenix; u.shield = 0; u.mark = null; u.frozen = 0; arLog(A, u.name + " is reborn"); arEv(A, { t: "buff", s, i, text: "reborn" }); continue; }
     A.s[s].lane[i] = null; arLog(A, u.name + " falls"); arEv(A, { t: "die", s, i, name: u.name });
-    for (let q = 0; q < 2; q++) for (const x of arLive(A, q)) if (x.u.passive === "soul") x.u.atk += AR.PS.soul;   // Soul Collector
+    for (let q = 0; q < 2; q++) for (const x of arLive(A, q)) if (x.u.passive === "soul") x.u.atk += AR.PS.soul * AR.ATKX;   // Soul Collector
     if (u.by && u.by.passive === "treasure" && u.by.hp > 0) A.s[u.bys].energy = Math.min(AR.EMAX, A.s[u.bys].energy + AR.PS.treasure);   // Treasure Hunter
-    if (u.passive === "lastwords") for (const x of arLive(A, s)) { const g = AR.PS.lastwords; x.u.atk += g; x.u.max += g * AR.HPX; x.u.hp += g * AR.HPX; x.u.pb.a += g; x.u.pb.h += g * AR.HPX; }
+    if (u.passive === "lastwords") for (const x of arLive(A, s)) { const g = AR.PS.lastwords; x.u.atk += g * AR.ATKX; x.u.max += g * AR.HPX; x.u.hp += g * AR.HPX; x.u.pb.a += g * AR.ATKX; x.u.pb.h += g * AR.HPX; }
     const ri = A.s[s].bench.findIndex(b => b && b.passive === "reserve");
     if (ri >= 0) { const b = A.s[s].bench[ri]; A.s[s].bench[ri] = null; b.cd = AR.IV / b.spd; A.s[s].lane[i] = b; arLog(A, b.name + " steps in"); arEv(A, { t: "enter", s, i }); }
   }
@@ -1775,20 +1756,21 @@ function arRun(A, c) {
   } else if (c.k === "use") {
     const u = S.lane[c.i]; if (!u || u.skcd > 0 || S.energy < u.acost) return; const a = ACT[u.active];
     const T = a.t === "ally" ? S.lane[c.t] : a.t === "enemy" ? F.lane[c.t] : null; if (a.t !== "none" && !T) return;
+    (A.stat || (A.stat = { auto: 0, skill: 0, uses: 0 })).uses++;
     S.energy -= u.acost; u.skcd = AR.SKILL_CD; arLog(A, (c.s ? "Enemy" : "You") + ": " + u.name + " uses " + actName(u)); arEv(A, { t: "skill", s: c.s, i: c.i, name: actName(u) });
     switch (u.active) {
       case "mend": T.hp = Math.min(T.max, T.hp + AR.SK.mend * AR.HPX); arEv(A, { t: "heal", s: c.s, i: c.t, d: AR.SK.mend * AR.HPX }); break;
-      case "empower": T.tmp = AR.SK.empower; T.tmpT = AR.SK.empowerT; arEv(A, { t: "buff", s: c.s, i: c.t, text: "+" + AR.SK.empower + " ATK" }); break;
-      case "overgrow": { const g = AR.SK.overgrow; T.atk += g; T.max += g * AR.HPX; T.hp += g * AR.HPX; T.pb.a += g; T.pb.h += g * AR.HPX; arEv(A, { t: "buff", s: c.s, i: c.t, text: "+" + g + "/+" + g }); break; }
+      case "empower": T.tmp = AR.SK.empower; T.tmpT = AR.SK.empowerT; arEv(A, { t: "buff", s: c.s, i: c.t, text: "+" + Math.round(AR.SK.empower * AR.ATKX) + " ATK" }); break;
+      case "overgrow": { const g = AR.SK.overgrow; T.atk += g * AR.ATKX; T.max += g * AR.HPX; T.hp += g * AR.HPX; T.pb.a += g * AR.ATKX; T.pb.h += g * AR.HPX; arEv(A, { t: "buff", s: c.s, i: c.t, text: "+" + Math.round(g * AR.ATKX) + " ATK" }); break; }
       case "ward": T.shield += AR.SK.ward * AR.HPX; arEv(A, { t: "buff", s: c.s, i: c.t, text: "+" + AR.SK.ward + " ward" }); break;
-      case "volley": for (const { i } of arLive(A, 1 - c.s)) arHit(A, u, c.s, 1 - c.s, i, AR.SK.volley, null); break;
+      case "volley": for (const { i } of arLive(A, 1 - c.s)) arHit(A, u, c.s, 1 - c.s, i, AR.SK.volley * AR.ATKX, null); break;
       case "disrupt": T.atk = Math.max(1, T.atk - T.pb.a); T.max = Math.max(1, T.max - T.pb.h); T.hp = Math.min(T.hp, T.max); T.pb = { a: 0, h: 0 }; T.tmpT = 0; T.shield = 0; T.mark = null; arEv(A, { t: "buff", s: 1 - c.s, i: c.t, text: "stripped" }); break;
-      case "strike": arHit(A, u, c.s, 1 - c.s, c.t, Math.max(3, arAtk(A, c.s, u)) * AR.SK.strike, u.el); break;
+      case "strike": arHit(A, u, c.s, 1 - c.s, c.t, Math.max(3 * AR.ATKX, arAtk(A, c.s, u)) * AR.SK.strike, u.el); break;
       case "gale": T.hasteT = AR.SK.galeT; arEv(A, { t: "buff", s: c.s, i: c.t, text: "haste" }); break;
-      case "arc": { const base = Math.max(3, arAtk(A, c.s, u)) * AR.SK.arc; arHit(A, u, c.s, 1 - c.s, c.t, base, u.el); for (const j of [c.t - 1, c.t + 1]) if (F.lane[j]) arHit(A, u, c.s, 1 - c.s, j, base * .5, u.el); break; }
+      case "arc": { const base = Math.max(3 * AR.ATKX, arAtk(A, c.s, u)) * AR.SK.arc; arHit(A, u, c.s, 1 - c.s, c.t, base, u.el); for (const j of [c.t - 1, c.t + 1]) if (F.lane[j]) arHit(A, u, c.s, 1 - c.s, j, base * .5, u.el); break; }
       case "freeze": T.frozen = AR.SK.freezeT; T.cd += AR.SK.freezeT; arEv(A, { t: "buff", s: 1 - c.s, i: c.t, text: "frozen" }); break;
       case "cleanse": T.mark = null; T.shield += AR.SK.cleanse * AR.HPX; arEv(A, { t: "buff", s: c.s, i: c.t, text: "cleansed" }); break;
-      case "pact": u.hp = Math.max(1, u.hp - u.max * AR.SK.pactCost); T.tmp = AR.SK.pact; T.tmpT = AR.SK.pactT; arEv(A, { t: "buff", s: c.s, i: c.t, text: "+" + AR.SK.pact + " ATK" }); break;
+      case "pact": u.hp = Math.max(1, u.hp - u.max * AR.SK.pactCost); T.tmp = AR.SK.pact; T.tmpT = AR.SK.pactT; arEv(A, { t: "buff", s: c.s, i: c.t, text: "+" + Math.round(AR.SK.pact * AR.ATKX) + " ATK" }); break;
       case "mark": T.mark = { el: u.el, t: AR.MARK_T }; arEv(A, { t: "buff", s: 1 - c.s, i: c.t, text: EL[u.el][1] + " marked" }); break;
     }
     arSweep(A);
@@ -1808,7 +1790,7 @@ function arStep(A) {
       if (u.spT > 0 && (u.spT -= dt) <= 0 && u.passive === "sponge") u.sponge = true;
       if ((u.pt -= dt) <= 0) {
         if (u.passive === "mender") { u.pt = 4; const t = arLive(A, s).map(x => x.u).sort((a, b) => a.hp / a.max - b.hp / b.max)[0]; if (t && t.hp < t.max) t.hp = Math.min(t.max, t.hp + AR.PS.mender * AR.HPX); }
-        else { u.pt = AR.GROW_T; if (u.passive === "grow") u.atk += AR.PS.grow; if (u.passive === "fortify") { u.max += AR.PS.fortify * AR.HPX; u.hp += AR.PS.fortify * AR.HPX; } if (u.passive === "rally") [i - 1, i + 1].forEach(j => { const a = S.lane[j]; if (a) a.atk += AR.PS.rally; }); }
+        else { u.pt = AR.GROW_T; if (u.passive === "grow") u.atk += AR.PS.grow * AR.ATKX; if (u.passive === "fortify") { u.max += AR.PS.fortify * AR.HPX; u.hp += AR.PS.fortify * AR.HPX; } if (u.passive === "rally") [i - 1, i + 1].forEach(j => { const a = S.lane[j]; if (a) a.atk += AR.PS.rally * AR.ATKX; }); }
       }
     }
   }
@@ -1861,9 +1843,9 @@ function arAi(A, s) {
     else if (u.active === "overgrow") { const t = allies.slice().sort((p, q) => q.u.atk - p.u.atk)[0]; if (t && A.t < 90) tgt = t.i; }
     else if (u.active === "volley") { if (foes.length >= 3) tgt = 0; }
     else if (u.active === "disrupt") { const t = foes.filter(x => x.u.pb.a + x.u.pb.h + x.u.shield > 0 || x.u.mark).sort((p, q) => (q.u.pb.a + q.u.pb.h) - (p.u.pb.a + p.u.pb.h))[0]; if (t) tgt = t.i; }
-    else if (u.active === "strike") { const combo = foes.find(x => x.u.mark && reacts(x.u.mark.el, u.el)), kill = foes.filter(x => x.u.hp <= Math.max(3, arAtk(A, s, u)) * AR.SK.strike + x.u.shield).sort((p, q) => q.u.atk - p.u.atk)[0], t = combo || kill || foes.slice().sort((p, q) => q.u.atk - p.u.atk)[0]; if (t) tgt = t.i; }
+    else if (u.active === "strike") { const combo = foes.find(x => x.u.mark && reacts(x.u.mark.el, u.el)), kill = foes.filter(x => x.u.hp <= Math.max(3 * AR.ATKX, arAtk(A, s, u)) * AR.SK.strike + x.u.shield).sort((p, q) => q.u.atk - p.u.atk)[0], t = combo || kill || foes.slice().sort((p, q) => q.u.atk - p.u.atk)[0]; if (t) tgt = t.i; }
     else if (u.active === "gale") { const t = allies.slice().sort((p, q) => arAtk(A, s, q.u) - arAtk(A, s, p.u))[0]; if (t && foes.length && t.u.hasteT <= 0) tgt = t.i; }
-    else if (u.active === "arc") { const kill = foes.filter(x => x.u.hp <= Math.max(3, arAtk(A, s, u)) * AR.SK.arc + x.u.shield).sort((p, q) => q.u.atk - p.u.atk)[0], t = kill || foes.slice().sort((p, q) => foes.filter(f => Math.abs(f.i - q.i) === 1).length - foes.filter(f => Math.abs(f.i - p.i) === 1).length || q.u.atk - p.u.atk)[0]; if (t) tgt = t.i; }
+    else if (u.active === "arc") { const kill = foes.filter(x => x.u.hp <= Math.max(3 * AR.ATKX, arAtk(A, s, u)) * AR.SK.arc + x.u.shield).sort((p, q) => q.u.atk - p.u.atk)[0], t = kill || foes.slice().sort((p, q) => foes.filter(f => Math.abs(f.i - q.i) === 1).length - foes.filter(f => Math.abs(f.i - p.i) === 1).length || q.u.atk - p.u.atk)[0]; if (t) tgt = t.i; }
     else if (u.active === "freeze") { const t = foes.filter(x => x.u.frozen <= 0).sort((p, q) => arAtk(A, 1 - s, q.u) - arAtk(A, 1 - s, p.u))[0]; if (t) tgt = t.i; }
     else if (u.active === "cleanse") { const t = allies.filter(x => x.u.mark || x.u.hp < x.u.max * .7).sort((p, q) => p.u.hp / p.u.max - q.u.hp / q.u.max)[0]; if (t) tgt = t.i; }
     else if (u.active === "pact") { const t = allies.slice().sort((p, q) => arAtk(A, s, q.u) - arAtk(A, s, p.u))[0]; if (t && foes.length && u.hp > u.max * .5) tgt = t.i; }
@@ -1892,7 +1874,7 @@ function kuHtml(u, s, i, kind, o = {}) {
   const c = BY[u.cid], a = G ? atkOf(u, s) : u.atk;
   return `<div class="ku ${s !== ME ? "foe" : "me"} ${o.sel ? "sel" : ""} ${o.tgt ? "tgt" : ""} ${o.mini ? "mini" : ""} el-${u.el} r${rarOf(c)}" data-ck="unit" data-s="${s}" data-i="${i}" data-kind="${kind}"><div class="kart"><img src="${artSrc(c)}" alt=""></div><i class="kel">${EL[u.el][1]}</i><b class="kcost">${u.cost}</b>${u.mark ? `<i class="kmk">${EL[u.mark.el][1]}</i>` : ""}<div class="kname">${esc(kshort(u.name))}</div><div class="kst"><b class="a">${a}</b><b class="h ${u.hp < u.max ? "hurt" : ""}">${u.hp}</b></div>${u.shield ? `<i class="ksh">🛡${u.shield}</i>` : ""}${u.frozen ? '<i class="kfr">❄️</i>' : ""}${u.tmp ? '<i class="ktmp">▲</i>' : ""}</div>`;
 }
-const kcardMini = (id, extra = "") => { const k = ckCard(BY[id]); return `<div class="ku mini el-${k.el} r${k.rar} ${extra}"><div class="kart"><img src="${artSrc(BY[id])}" alt=""></div><i class="kel">${elIco(k.el, "")}</i><b class="kcost">${k.cost}</b><div class="kname">${esc(kshort(k.name, 10))}</div><div class="kst"><b class="a">${k.atk}</b><b class="h">${hpOf(k)}</b></div></div>`; };
+const kcardMini = (id, extra = "") => { const k = ckCard(BY[id]); return `<div class="ku mini el-${k.el} r${k.rar} ${extra}"><div class="kart"><img src="${artSrc(BY[id])}" alt=""></div><i class="kel">${elIco(k.el, "")}</i><b class="kcost">${k.cost}</b><div class="kname">${esc(kshort(k.name, 10))}</div><div class="kst"><b class="a">${Math.round(k.atk * AR.ATKX)}</b><b class="h">${hpOf(k)}</b></div></div>`; };
 
 /* ----- the campaign: five regions of six opponents ----- */
 const CAMP = [
@@ -2021,25 +2003,25 @@ async function ckFight(auto) {
 }
 /* ----- rewards by mode ----- */
 function ckResult() {
-  const w = G.winner, win = w === ME, draw = w === -1, mode = G.mode || { kind: "practice" }, L = G.level || 0; rollover(); P.mis.play++; let dust = 0, packs = 0, xp = 0, extra = "";
+  const w = G.winner, win = w === ME, draw = w === -1, mode = G.mode || { kind: "practice" }, L = G.level || 0; rollover(); P.mis.play++; let dust = 0, packs = 0, xp = 0, extra = "", coins = 0, gems = 0;
   if (win) P.mis.win++;
-  if (mode.kind === "practice") { P.ck.w += win ? 1 : 0; P.ck.l += win || draw ? 0 : 1; dust = win ? 15 + L * 10 : 5; xp = win ? 25 + 10 * L : 10; }
+  if (mode.kind === "practice") { P.ck.w += win ? 1 : 0; P.ck.l += win || draw ? 0 : 1; dust = win ? 15 + L * 10 : 5; xp = win ? 25 + 10 * L : 10; coins = win ? 25 + 10 * L : 5; }
   else if (mode.kind === "camp") {
     const key = mode.ch + "-" + mode.k, first = !P.camp.cl[key]; xp = win ? 30 : 10;
-    if (win) { if (first) { P.camp.cl[key] = true; if (mode.k === 5) { packs = 3; extra = "Region cleared!"; } else if (mode.k % 2) packs = 1; else dust = 30; } else dust = 10; } else dust = 5;
+    if (win) { if (first) { P.camp.cl[key] = true; if (mode.k === 5) { packs = 3; extra = "Region cleared!"; coins = 250; gems = ECON.region.gems; } else { if (mode.k % 2) packs = 1; else dust = 30; coins = 100; } } else { dust = 10; coins = 30; } } else { dust = 5; coins = 5; }
   } else if (mode.kind === "ranked") {
     rankInit(); const rk = P.rank, opp = mode.opp, E = 1 / (1 + Math.pow(10, (opp - rk.pts) / 400)), S = win ? 1 : draw ? .5 : 0, before = rankTier(rk.pts), delta = Math.round(32 * (S - E)); rk.pts = Math.max(0, rk.pts + delta); win ? rk.w++ : draw ? 0 : rk.l++; const after = rankTier(rk.pts);
-    extra = (delta >= 0 ? "+" : "") + delta + " points · " + TIERS_R[after][0] + " " + rk.pts; xp = win ? 40 : 15; dust = win ? 25 : 8;
+    extra = (delta >= 0 ? "+" : "") + delta + " points · " + TIERS_R[after][0] + " " + rk.pts; xp = win ? 40 : 15; dust = win ? 25 : 8; coins = win ? 40 : 10;
     if (win && rk.day !== today()) { rk.day = today(); packs += 1; }
-    if (after > rk.tierBest) { rk.tierBest = after; packs += 3; extra += " · NEW TIER, +3 packs"; }
-  } else if (mode.kind === "online") { dust = win ? 10 : 5; xp = win ? 20 : 10; }
+    if (after > rk.tierBest) { rk.tierBest = after; packs += 3; gems += ECON.tierUp.gems; extra += " · NEW TIER, +3 packs, +" + ECON.tierUp.gems + " gems"; }
+  } else if (mode.kind === "online") { dust = win ? 10 : 5; xp = win ? 20 : 10; coins = win ? 30 : 10; }
   if (G.note) extra = G.note + (extra ? " · " + extra : "");
-  P.dust += dust; P.tickets += packs; const ups = xp ? gainXp(xp) : []; scheduleSave(); chrome(); sfx(win ? "win" : draw ? "draw" : "lose");
+  P.dust += dust; P.tickets += packs; earn(coins, gems); const ups = xp ? gainXp(xp) : []; scheduleSave(); chrome(); sfx(win ? "win" : draw ? "draw" : "lose");
   const again = mode.kind === "online" || G.online ? "" : `<button class="btn yellow" data-ck="rematch">${mode.kind === "camp" ? "Again" : "Rematch"}</button>`;
   const chip = (cls, icon, n, lab) => `<div class="rchip ${cls}"><span class="ri">${icon}</span><b>${n}</b><small>${lab}</small></div>`;
   openSheet(`<div class="res ${win ? "win" : draw ? "draw" : "lose"}"><b class="rtitle">${win ? "VICTORY" : draw ? "DRAW" : "DEFEAT"}</b><small class="rsub">${G.arena ? "Match time " + arClock(G.time) : "Round " + Math.min(G.round, CK.MAXR)}</small>` +
     `<div class="rcores"><div class="me"><small>YOU</small><b>${Math.max(0, Math.ceil(G.s[ME].core))}</b></div><i>CORE</i><div class="foe"><small>${esc(((G.arena && AM && AM.opp) || "FOE").toString().toUpperCase().slice(0, 9))}</small><b>${Math.max(0, Math.ceil(G.s[1 - ME].core))}</b></div></div>` +
-    `<div class="rrow">${dust ? chip("g", ic("gem", ""), "+" + dust, "dust") : ""}${packs ? chip("p", ic("ticket", ""), "+" + packs, packs > 1 ? "packs" : "pack") : ""}${xp ? chip("x", ic("xp", ""), "+" + xp, "xp") : ""}</div>` +
+    `<div class="rrow">${coins ? chip("g", ic("coin", ""), "+" + coins, "coins") : ""}${gems ? chip("p", ic("gem", ""), "+" + gems, "gems") : ""}${dust ? chip("s", ic("shard", ""), "+" + dust, "shards") : ""}${packs ? chip("p", ic("ticket", ""), "+" + packs, packs > 1 ? "packs" : "pack") : ""}${xp ? chip("x", ic("xp", ""), "+" + xp, "xp") : ""}</div>` +
     `${extra ? `<p class="rnote">${esc(extra)}</p>` : ""}${ups.length ? `<p class="rnote up">${ups.map(esc).join("<br>")}</p>` : ""}</div><div class="row c" style="margin-top:14px">${again}<button class="btn dark" data-ck="leave">Back</button></div>`);
 }
 function ckLeave() { if (AM) { cancelAnimationFrame(AM.raf); clearInterval(AM.ka); AM = null; } if (G && G.online) cknBye(); G = null; $("#ck").hidden = true; closeModal(); musicMode("menu"); chrome(); show(tab); }
@@ -2113,20 +2095,20 @@ setInterval(() => {
    The board is built once and updated in place every frame, so taps are never lost to a redraw. */
 let AM = null;   // { A, speed, auto, sel:{s,i,kind}|null, mode:{act,i}|null, last, acc, raf, sig, opp, done, sfxAt }
 const arClock = s => Math.floor(s / 60) + ":" + String(Math.floor(s % 60)).padStart(2, "0");
-const passText = k => { const P = AR.PS, hp = x => Math.round(x * AR.HPX), pc = x => Math.round(x * 100) + "%", n = x => +x.toFixed(2); return ({
-  grow: `+${n(P.grow)} attack every ${AR.GROW_T} s`, fortify: `+${hp(P.fortify)} HP every ${AR.GROW_T} s`, thorns: `Deals ${n(P.thorns)} damage back to whatever strikes it`, guard: `Takes ${pc(1 - P.guard)} less from every hit`, swift: `Strikes ${pc(P.swift - 1)} faster`,
-  vamp: `Heals ${pc(P.vamp)} of the damage it deals`, lastwords: `When it falls, your other cards get +${n(P.lastwords)} attack and +${hp(P.lastwords)} HP`, rally: `Adjacent cards get +${n(P.rally)} attack every ${AR.GROW_T} s`, pack: `+${n(P.pack)} attack for each other card of its kind`,
+const passText = k => { const P = AR.PS, hp = x => Math.round(x * AR.HPX), pc = x => Math.round(x * 100) + "%", n = x => +x.toFixed(2), ax = x => +(x * AR.ATKX).toFixed(1); return ({
+  grow: `+${ax(P.grow)} attack every ${AR.GROW_T} s`, fortify: `+${hp(P.fortify)} HP every ${AR.GROW_T} s`, thorns: `Deals ${ax(P.thorns)} damage back to whatever strikes it`, guard: `Takes ${pc(1 - P.guard)} less from every hit`, swift: `Strikes ${pc(P.swift - 1)} faster`,
+  vamp: `Heals ${pc(P.vamp)} of the damage it deals`, lastwords: `When it falls, your other cards get +${ax(P.lastwords)} attack and +${hp(P.lastwords)} HP`, rally: `Adjacent cards get +${ax(P.rally)} attack every ${AR.GROW_T} s`, pack: `+${ax(P.pack)} attack for each other card of its kind`,
   reserve: "From the backups: steps in free when a front card falls",
-  soul: `Gains +${n(P.soul)} attack whenever any card falls`, laststand: `Below 30% health: +${P.laststand} attack and ${pc(1 - P.lsGuard)} less damage taken`, blood: `Strikes hit ${pc(P.blood)} harder but cost it ${pc(P.bloodCost)} of its health`,
-  chain: `Reactions it triggers hit ${pc(P.chainAmp)} harder and mark the neighbors of the target too`, decree: `Other allies of its faction gain +${n(P.decree)} attack`, mimic: "On its first strike it copies the passive of the card it hit",
-  phoenix: `Once per match, returns with ${pc(P.phoenix)} health when it would fall`, voideater: `Strikes hit ${pc(P.voideater - 1)} harder, ignore shields and strip buffs`, formation: `+${n(P.formation)} attack for each neighbor beside it`,
-  treasure: `A kill by it refunds ${P.treasure} energy`, protector: "Enemies must strike it before anything else", regen: `Heals ${pc(P.regen)} of its health every second`, echo: "Every third strike hits twice", crit: `Every fourth strike hits for ${P.crit}×`, overkill: `Excess damage hits the enemy core (×${P.overkill})`, mender: `Heals your most hurt card for ${hp(P.mender)} every 4 s`, berserk: `+${P.berserk} attack below half health`,
+  soul: `Gains +${ax(P.soul)} attack whenever any card falls`, laststand: `Below 30% health: +${ax(P.laststand)} attack and ${pc(1 - P.lsGuard)} less damage taken`, blood: `Strikes hit ${pc(P.blood)} harder but cost it ${pc(P.bloodCost)} of its health`,
+  chain: `Reactions it triggers hit ${pc(P.chainAmp)} harder and mark the neighbors of the target too`, decree: `Other allies of its faction gain +${ax(P.decree)} attack`, mimic: "On its first strike it copies the passive of the card it hit",
+  phoenix: `Once per match, returns with ${pc(P.phoenix)} health when it would fall`, voideater: `Strikes hit ${pc(P.voideater - 1)} harder, ignore shields and strip buffs`, formation: `+${ax(P.formation)} attack for each neighbor beside it`,
+  treasure: `A kill by it refunds ${P.treasure} energy`, protector: "Enemies must strike it before anything else", regen: `Heals ${pc(P.regen)} of its health every second`, echo: "Every third strike hits twice", crit: `Every fourth strike hits for ${P.crit}×`, overkill: `Excess damage hits the enemy core (×${P.overkill})`, mender: `Heals your most hurt card for ${hp(P.mender)} every 4 s`, berserk: `+${ax(P.berserk)} attack below half health`,
   pierce: `Strikes also hit a neighbor for ${pc(P.pierce)}`, battery: `Your energy regenerates ${pc(P.battery)} faster`, amp: `Reactions it triggers hit for ${pc(P.amp)} more`, sponge: `Absorbs the first hit, recharges after ${P.spongeT} s`,
 }[k] || ""); };
 const actText = k => ({
-  mend: `Heal a card for ${Math.round(AR.SK.mend * AR.HPX)}`, empower: `A card gets +${AR.SK.empower} attack for ${AR.SK.empowerT} s`, overgrow: `A card gets +${AR.SK.overgrow} attack and +${Math.round(AR.SK.overgrow * AR.HPX)} HP for good`, ward: `A card absorbs the next ${Math.round(AR.SK.ward * AR.HPX)} damage`,
-  volley: `${AR.SK.volley} damage to every enemy`, disrupt: "Strip an enemy's buffs and mark", gale: `A card strikes ${AR.SK.gale}× as fast for ${AR.SK.galeT} s`, arc: `A hit for ${AR.SK.arc}× attack that also hits both neighbors for half`, freeze: `An enemy cannot strike for ${AR.SK.freezeT} s`,
-  cleanse: `Clear a card's mark and give it ${Math.round(AR.SK.cleanse * AR.HPX)} shield`, pact: `Pay ${Math.round(AR.SK.pactCost * 100)}% of its health: a card gets +${AR.SK.pact} attack for ${AR.SK.pactT} s`, strike: `A heavy hit (${AR.SK.strike}× attack, at least ${+(3 * AR.SK.strike).toFixed(1)}) with its element (reacts, then marks)`, mark: "Mark an enemy with its element (no damage)",
+  mend: `Heal a card for ${Math.round(AR.SK.mend * AR.HPX)}`, empower: `A card gets +${+(AR.SK.empower * AR.ATKX).toFixed(1)} attack for ${AR.SK.empowerT} s`, overgrow: `A card gets +${+(AR.SK.overgrow * AR.ATKX).toFixed(1)} attack and +${Math.round(AR.SK.overgrow * AR.HPX)} HP for good`, ward: `A card absorbs the next ${Math.round(AR.SK.ward * AR.HPX)} damage`,
+  volley: `${+(AR.SK.volley * AR.ATKX).toFixed(1)} damage to every enemy`, disrupt: "Strip an enemy's buffs and mark", gale: `A card strikes ${AR.SK.gale}× as fast for ${AR.SK.galeT} s`, arc: `A hit for ${AR.SK.arc}× attack that also hits both neighbors for half`, freeze: `An enemy cannot strike for ${AR.SK.freezeT} s`,
+  cleanse: `Clear a card's mark and give it ${Math.round(AR.SK.cleanse * AR.HPX)} shield`, pact: `Pay ${Math.round(AR.SK.pactCost * 100)}% of its health: a card gets +${+(AR.SK.pact * AR.ATKX).toFixed(1)} attack for ${AR.SK.pactT} s`, strike: `A heavy hit (${AR.SK.strike}× attack, at least ${+(3 * AR.ATKX * AR.SK.strike).toFixed(1)}) with its element (reacts, then marks)`, mark: "Mark an enemy with its element (no damage)",
 }[k] || "");
 
 function arStart(level, mode = { kind: "practice" }) {
@@ -2400,6 +2382,114 @@ function rankedFind() {
 let RFIND = null;
 document.addEventListener("click", e => { if (e.target.closest("[data-ck='findCancel']")) { RFIND && RFIND(); closeModal(); } });
 
+/* ===== SHOP and ECONOMY =====
+   Currencies:  Coins (soft: earned from every fight, spent on Standard packs), Gems (premium: rarer, spent on Premium and Featured packs),
+                Shards (what a spare copy breaks into; crafts one specific card), Pack tokens (earned Standard packs).
+   There is no real-money purchase anywhere. Every price and payout below is a placeholder for tuning (ECON, PACKS). Rules: GAME_RULES_v2.md section 8. */
+const ECON = {
+  startCoins: 300, startGems: 0,
+  sell: { 1: 10, 2: 20, 3: 50, 4: 120, 5: 300, 6: 500 },     // coins for selling one spare copy by rarity
+  login: { coins: 50, tickets: 1 }, allFour: { gems: 10, tickets: 1 }, level5: { gems: 20 }, region: { gems: 30 }, tierUp: { gems: 25 },
+};
+const PREM_SLOTS = [[[1, 60], [2, 40]], [[1, 50], [2, 50]], [[2, 70], [3, 30]], [[3, 70], [4, 30]], [[3, 35], [4, 40], [5, 20], ["ex", 5]]];
+const PACKS = {
+  std: { name: "Standard Pack", coins: 100, slots: PACK_SLOTS, pity: 14, key: "pityTop", line: "Five cards. The last one is the hit.", tone: "std" },
+  prem: { name: "Premium Pack", gems: 50, slots: PREM_SLOTS, pity: 8, key: "pityPrem", line: "Five cards, at least two Uncommon or better, a stronger hit.", tone: "prem" },
+  feat: { name: "Featured Pack", gems: 70, slots: PREM_SLOTS, pity: 8, key: "pityFeat", line: "Premium odds. This week's faction is four times as likely, and the hit card is always from it.", tone: "feat", featured: true },
+};
+const BUNDLE = { n: 5, coins: 450 };
+const FAC_ORDER = ["H", "C", "D", "A", "M", "U", "B", "V"], FAC_TONE = { C: "#ffe08a", D: "#ff5a6e", A: "#d9a45a", M: "#9fb4d4", U: "#6fe0a0", B: "#ffb066", H: "#6fb4ff", V: "#b98aff" };
+const weekNo = () => Math.floor(Date.now() / (7 * 864e5));
+const featFac = () => FAC_ORDER[weekNo() % FAC_ORDER.length];
+const featDays = () => Math.max(1, Math.ceil(((weekNo() + 1) * 7 * 864e5 - Date.now()) / 864e5));
+const econInit = () => { if (P.coins == null) P.coins = ECON.startCoins; if (P.gems == null) P.gems = ECON.startGems; if (P.pityPrem == null) P.pityPrem = 0; if (P.pityFeat == null) P.pityFeat = 0; };
+const packCost = k => { const K = PACKS[k]; return K.coins ? K.coins + " coins" : K.gems + " gems"; };
+
+/* ----- drawing a card out of a pool; a featured pack leans towards one faction ----- */
+function poolCard(pool, taken, fac, force) {
+  let list = pool === "ex" ? POOL.filter(c => c.ex) : POOL.filter(c => !c.ex && c.lv === pool);
+  if (fac) { const f = list.filter(c => facOf(c) === fac); if (f.length) { if (force) list = f; else list = list.concat(f, f, f); } }   // featured faction: x4 weight, or forced for the hit
+  for (let t = 0; t < 5; t++) { const c = list[Math.floor(Math.random() * list.length)]; if (!taken.includes(c.id)) return c; }
+  return list[Math.floor(Math.random() * list.length)];
+}
+function pullPack(kind = "std") {
+  const K = PACKS[kind], out = [], fac = K.featured ? featFac() : null; P.pulls++;
+  K.slots.forEach((rates, i) => {
+    let pool = wpick(rates); const top = i === PACK.size - 1;
+    if (top && (P[K.key] || 0) >= K.pity - 1) pool = Math.random() < .2 ? "ex" : 5;
+    out.push(poolCard(pool, out.map(c => c.id), fac, top && K.featured));
+  });
+  P[K.key] = Math.max(...out.map(rarOf)) >= 5 ? 0 : (P[K.key] || 0) + 1;
+  return out.sort((a, b) => rarOf(a) - rarOf(b));
+}
+
+/* ----- paying for and opening a pack ----- */
+function packOffer(kind) {   // what pressing the button on this pack will do, and what it costs
+  const K = PACKS[kind];
+  if (kind === "std") { const fi = freeInfo(); if (fi.n >= 1) return { how: "free", label: "Open free pack", ok: true }; if (P.tickets >= 1) return { how: "token", label: "Open · 1 token", ok: true }; return { how: "coins", label: "Buy & open · " + K.coins, ico: "coin", ok: P.coins >= K.coins }; }
+  return { how: "gems", label: "Open · " + K.gems, ico: "gem", ok: P.gems >= K.gems };
+}
+function openPack(kind = "std") {
+  rollover(); const K = PACKS[kind], o = packOffer(kind);
+  if (!o.ok) return toast(o.how === "coins" ? "Not enough coins. Winning fights earns more." : "Not enough gems. Region clears, ranked tiers and daily goals earn them.");
+  tiltAsk();
+  if (o.how === "free") { const fi = freeInfo(); P.fp.n--; if (P.fp.n === PACK.freeMax - 1) P.fp.t = Date.now(); } else if (o.how === "token") P.tickets--; else if (o.how === "coins") P.coins -= K.coins; else P.gems -= K.gems;
+  P.mis.sum++; const res = pullPack(kind).map(c => ({ c, r: addCard(c.id) }));
+  res.forEach(x => { P.recent = [x.c.id].concat((P.recent || []).filter(i => i !== x.c.id)).slice(0, 16); });
+  scheduleSave(); chrome(); PK = { res, i: 0, flipped: false, torn: false, kind }; packStage();
+}
+function buyBundle() {
+  if (P.coins < BUNDLE.coins) return toast("Not enough coins."); P.coins -= BUNDLE.coins; P.tickets += BUNDLE.n; scheduleSave(); chrome(); toast("+" + BUNDLE.n + " pack tokens"); show("summon");
+}
+/* spare copies: sell one for coins, or break it into shards */
+function sellCopy(id) { const c = BY[id], n = P.own[id] || 0; if (n < 2) return toast("Keep at least one copy."); P.own[id]--; const v = ECON.sell[rarOf(c)]; P.coins += v; scheduleSave(); chrome(); toast("+" + v + " coins"); detail(id); }
+function breakCopy(id) { const c = BY[id], n = P.own[id] || 0; if (n < 2) return toast("Keep at least one copy."); P.own[id]--; const v = DUST[c.ex ? "ex" : c.lv]; P.dust += v; scheduleSave(); chrome(); toast("+" + v + " shards"); detail(id); }
+/* income (called from the reward screens) */
+function earn(coins, gems) { P.coins = (P.coins || 0) + (coins || 0); P.gems = (P.gems || 0) + (gems || 0); }
+
+/* ----- the Shop tab ----- */
+function setProgress() {
+  const rows = [1, 2, 3, 4, 5, 6].map(r => { const all = POOL.filter(c => rarOf(c) === r), have = all.filter(c => (P.own[c.id] || 0) > 0).length; return { r, have, n: all.length }; });
+  const have = rows.reduce((a, x) => a + x.have, 0);
+  return `<div class="panel"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><b class="fat" style="font-size:13px">SET 1</b><span class="note">${have} / ${POOL.length} cards</span></div><div class="bar" style="margin:6px 0 10px"><i style="width:${100 * have / POOL.length}%"></i></div><div class="setrows">${rows.map(x => `<div><span class="rtag r${x.r}">${RNAME[x.r]}</span><b>${x.have}/${x.n}</b></div>`).join("")}</div></div>`;
+}
+function shopItem(kind) {
+  const K = PACKS[kind], o = packOffer(kind), pity = Math.max(0, K.pity - (P[K.key] || 0)), fac = K.featured ? featFac() : null;
+  const art = `<div class="packwrap">${packHtml("mini", kind)}</div>`;
+  const price = o.ico ? `${ic(o.ico, "")}${o.label.replace(/^.* · /, "")}` : "";
+  return `<div class="panel shopitem tone-${K.tone}" ${fac ? `style="--ft:${FAC_TONE[fac]}"` : ""}>${art}<div class="si"><b class="fat">${esc(K.name)}${fac ? ` · ${FAC[fac]}` : ""}</b><small>${esc(K.line)}</small>` +
+    `<div class="pity"><small><span>${K.key === "pityTop" ? "LEGENDARY OR SECRET RARE" : "LEGENDARY OR BETTER"} WITHIN</span><span>${pity} pack${pity === 1 ? "" : "s"}</span></small><div class="bar"><i style="width:${Math.min(100, 100 * (P[K.key] || 0) / K.pity)}%"></i></div></div>` +
+    (fac ? `<small class="note">Featured faction changes in ${featDays()} day${featDays() === 1 ? "" : "s"}.</small>` : "") +
+    `<div class="row" style="margin-top:8px;flex-wrap:nowrap"><button class="btn sm ${o.ok ? "yellow" : ""}" data-act="openPack" data-k="${kind}" ${o.ok ? "" : "disabled"}>${o.ico ? `<span class="cp">${price}</span> ` : ""}${o.ico ? "Open" : o.label}</button><button class="btn sm dark" data-act="odds" data-k="${kind}">Odds</button></div></div></div>`;
+}
+function viewSummon(v) {
+  econInit(); const fi = freeInfo(), rec = (P.recent || []).slice(0, 10);
+  v.innerHTML = `<div class="econ"><span class="ec c">${ic("coin", "")}<b>${P.coins}</b><small>Coins</small></span><span class="ec g">${ic("gem", "")}<b>${P.gems}</b><small>Gems</small></span><span class="ec s">${ic("shard", "")}<b>${P.dust}</b><small>Shards</small></span><span class="ec t">${ic("ticket", "")}<b>${P.tickets}</b><small>Tokens</small></span></div>` +
+    `<span class="ribbon">PACKS</span><div class="shoplist">${shopItem("std")}${shopItem("prem")}${shopItem("feat")}</div>` +
+    `<p class="note" style="text-align:center;margin:10px 0 0">Free Standard packs: <b>${fi.n}/${PACK.freeMax}</b>${fi.n < PACK.freeMax ? " · the next in " + fmtT(fi.next) : ""}</p>` +
+    `<div class="panel" style="margin-top:12px"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><div><b class="fat" style="font-size:12px">${BUNDLE.n} STANDARD PACKS</b><br><small class="note">Saves ${BUNDLE.n * PACKS.std.coins - BUNDLE.coins} coins. Adds ${BUNDLE.n} tokens.</small></div><button class="btn sm yellow" data-act="buyBundle" ${P.coins >= BUNDLE.coins ? "" : "disabled"}><span class="cp">${ic("coin", "")}${BUNDLE.coins}</span> Buy</button></div></div>` +
+    `<span class="ribbon">COLLECTION</span>${setProgress()}` +
+    (rec.length ? `<span class="ribbon green">RECENT PULLS</span><div class="recent">${rec.map(id => BY[id] ? cardHtml(BY[id], { attr: `data-act="detail" data-id="${id}"` }) : "").join("")}</div>` : "") +
+    `<span class="ribbon">EARNING</span><div class="panel"><ul class="earn"><li><b>Coins</b> from every fight: wins pay more, campaign first clears pay most, and the daily login pays 50.</li><li><b>Gems</b> from clearing a campaign region, climbing a ranked tier, finishing the daily list and every 5th level.</li><li><b>Shards</b> from spare copies (a fourth copy breaks down by itself, or break or sell one yourself from a card's page). Shards craft a card you are missing.</li><li><b>Tokens</b> from missions and levels. A free Standard pack recharges every 8 hours.</li></ul></div>` +
+    `<div class="row c" style="margin-top:12px"><button class="btn sm dark" data-act="tiltToggle">Foil tilt: ${TILT.on ? "On" : "Off"}</button></div>`;
+}
+function oddsModal(kind = "std") {
+  const K = PACKS[kind], cnt = l => POOL.filter(c => !c.ex && c.lv === l).length, ex = POOL.filter(c => c.ex).length, fac = K.featured ? featFac() : null;
+  const label = { 1: "Common", 2: "Uncommon", 3: "Rare", 4: "Epic", 5: "Legendary", ex: "Secret Rare" }, fmt = rates => rates.map(([r, w]) => label[r] + " " + w + "%").join(", ");
+  const rows = K.slots.map((rates, i) => `<tr><td>Card ${i + 1}${i === PACK.size - 1 ? " (the hit)" : ""}</td><td>${fmt(rates)}</td></tr>`).join("");
+  openSheet(`<h2 class="fat">${esc(K.name)} ODDS</h2><p class="note">Five cards. Chance per card:</p><table class="odds">${rows}</table>` +
+    `<table class="odds" style="margin-top:8px">${[1, 2, 3, 4, 5].map(r => `<tr><td><span class="rtag r${r}">${RNAME[r].toUpperCase()}</span> ${cnt(r)} cards</td><td></td></tr>`).join("")}<tr><td><span class="rtag r6">SECRET RARE</span> ${ex} cards</td><td></td></tr></table>` +
+    `<p class="note">Within a rarity every card is equally likely${fac ? `, except that ${FAC[fac]} cards count four times, and the hit card is always a ${FAC[fac]} card when its rarity has one` : ""}. Secret Rares only come from packs. If ${K.pity - 1} ${K.name}s in a row hold no Legendary or Secret Rare, the next one's last card is one (a Secret Rare 1 time in 5). Price: ${packCost(kind)}.</p><div class="row c"><button class="btn dark" data-act="closeModal">Close</button></div>`);
+}
+
+/* ----- the free Standard pack: two stored, one recharges every 8 hours ----- */
+function freeInfo() {
+  const now = Date.now(); if (!P.fp) P.fp = { n: 1, t: now };
+  while (P.fp.n < PACK.freeMax && now - P.fp.t >= PACK.freeEvery) { P.fp.n++; P.fp.t += PACK.freeEvery; }
+  if (P.fp.n >= PACK.freeMax) P.fp.t = now; return { n: P.fp.n, next: P.fp.t + PACK.freeEvery - now };
+}
+const fmtT = ms => { const m = Math.max(1, Math.ceil(ms / 60000)), h = Math.floor(m / 60); return h ? h + "h " + (m % 60) + "m" : m + "m"; };
+
 
 /* ===== cards: collection, detail, decks ===== */
 let F = { q: "", own: "all", lv: 0, grp: "all" };
@@ -2418,10 +2508,10 @@ function fillColl() {
 function openSheet(h) { const m = $("#modal"); m.hidden = false; m.innerHTML = `<div class="sheet">${h}</div>`; }
 function detail(id) {
   const c = BY[id], n = P.own[id] || 0, cost = c.ex ? 0 : CRAFT[c.lv], k = arCard(c), rr = rarOf(c);
-  openSheet(`<div class="row" style="align-items:flex-start;flex-wrap:nowrap;gap:14px"><div style="width:44%;flex:none">${cardHtml(c, { miss: !n, tilt: true })}</div><div style="min-width:0;flex:1"><h2 class="fat" style="text-align:left;font-size:18px;margin:2px 0 8px;line-height:1.15">${esc(c.name)}</h2><div class="row" style="gap:8px"><span class="rtag r${rr}">${RNAME[rr]}</span><span class="elchip el-${k.el}">${elIco(k.el)}${EL[k.el][0]}</span></div><p class="note" style="margin:8px 0 0;line-height:1.5">${esc(FAC[k.fac] || k.fac)}<br>Targets: ${TGT_NAME[k.tm]}<br>Strike ${+(k.atk * AR.STRIKE).toFixed(1)} every ${+(AR.IV / k.spd).toFixed(1)} s<br>Owned ${n} / 3</p></div></div>` +
-    `<div class="cstat"><div class="a"><b>${k.atk}</b><small>Attack</small></div><div class="h"><b>${hpOf(k)}</b><small>Health</small></div><div class="s"><b>${k.spd.toFixed(2)}</b><small>Speed</small></div><div class="c"><b>${k.cost}</b><small>Cost</small></div></div>` +
+  openSheet(`<div class="row" style="align-items:flex-start;flex-wrap:nowrap;gap:14px"><div style="width:44%;flex:none">${cardHtml(c, { miss: !n, tilt: true })}</div><div style="min-width:0;flex:1"><h2 class="fat" style="text-align:left;font-size:18px;margin:2px 0 8px;line-height:1.15">${esc(c.name)}</h2><div class="row" style="gap:8px"><span class="rtag r${rr}">${RNAME[rr]}</span><span class="elchip el-${k.el}">${elIco(k.el)}${EL[k.el][0]}</span></div><p class="note" style="margin:8px 0 0;line-height:1.5">${esc(FAC[k.fac] || k.fac)}<br>Targets: ${TGT_NAME[k.tm]}<br>Strike ${+(k.atk * AR.ATKX * AR.STRIKE).toFixed(1)} every ${+(AR.IV / k.spd).toFixed(1)} s<br>Owned ${n} / 3</p></div></div>` +
+    `<div class="cstat"><div class="a"><b>${Math.round(k.atk * AR.ATKX)}</b><small>Attack</small></div><div class="h"><b>${hpOf(k)}</b><small>Health</small></div><div class="s"><b>${k.spd.toFixed(2)}</b><small>Speed</small></div><div class="c"><b>${k.cost}</b><small>Cost</small></div></div>` +
     `<div class="skillbox"><em>Passive · ${esc(PASS[k.passive][0])}</em>${passText(k.passive)}</div><div class="skillbox"><em>Skill · ${esc(actName(k))} · ${k.acost} energy</em>${actText(k.active)}</div>` +
-    `<div class="row c" style="margin-top:14px">${c.ex ? '<span class="note">Only a pack gives this card.</span>' : `<button class="btn yellow sm" data-act="craft" data-id="${id}" ${P.dust < cost || n >= 3 ? "disabled" : ""}>Craft · ${cost} ${ic("gem")}</button>`}<button class="btn dark sm" data-act="closeModal">Close</button></div>`);
+    `<div class="row c" style="margin-top:14px">${c.ex ? '<span class="note">Only a pack gives this card.</span>' : `<button class="btn yellow sm" data-act="craft" data-id="${id}" ${P.dust < cost || n >= 3 ? "disabled" : ""}>Craft · ${cost} ${ic("shard")}</button>`}${n > 1 ? `<button class="btn sm" data-act="sell" data-id="${id}">Sell 1 · ${ECON.sell[rr]} ${ic("coin")}</button><button class="btn sm" data-act="breakc" data-id="${id}">Break 1 · ${DUST[c.ex ? "ex" : c.lv]} ${ic("shard")}</button>` : ""}<button class="btn dark sm" data-act="closeModal">Close</button></div>`);
 }
 let DE = null;
 function editDeck(i) { DE = { i, name: P.decks[i].name, cards: P.decks[i].cards.slice() }; deckSheet(); }
@@ -2439,9 +2529,9 @@ function missions() {
 }
 function viewDaily(v) {
   rollover(); const ms = missions(), all = ms.every(m => P.mis.claimed[m.id]);
-  v.innerHTML = `<span class="ribbon">DAILY</span><div class="list"><div class="panel item"><div class="t"><b>Daily ticket</b><small>1 ${ic("ticket")} for dropping in</small></div><button class="btn sm yellow" data-act="login" ${P.login ? "disabled" : ""}>${P.login ? "Claimed" : "Claim"}</button></div>` +
-    ms.map(m => `<div class="panel item"><div class="t"><b>${m.t}</b><small>${Math.min(m.have, m.need)} / ${m.need} · reward ${m.tk ? m.tk + " " + ic("ticket") : m.dust + " " + ic("gem")}</small><div class="bar" style="margin-top:5px"><i style="width:${Math.min(100, 100 * m.have / m.need)}%"></i></div></div><button class="btn sm ${m.have >= m.need && !P.mis.claimed[m.id] ? "yellow" : ""}" data-act="claimM" data-id="${m.id}" ${m.have >= m.need && !P.mis.claimed[m.id] ? "" : "disabled"}>${P.mis.claimed[m.id] ? "Done" : "Claim"}</button></div>`).join("") +
-    `<div class="panel item"><div class="t"><b>All four</b><small>+2 ${ic("ticket")} bonus</small></div><span class="tag ${all ? "ok" : ""}">${all ? "EARNED" : "FINISH THE LIST"}</span></div></div>` +
+  v.innerHTML = `<span class="ribbon">DAILY</span><div class="list"><div class="panel item"><div class="t"><b>Daily ticket</b><small>${ECON.login.coins} ${ic("coin")} and 1 ${ic("ticket")} for dropping in</small></div><button class="btn sm yellow" data-act="login" ${P.login ? "disabled" : ""}>${P.login ? "Claimed" : "Claim"}</button></div>` +
+    ms.map(m => `<div class="panel item"><div class="t"><b>${m.t}</b><small>${Math.min(m.have, m.need)} / ${m.need} · reward ${m.tk ? m.tk + " " + ic("ticket") : m.dust + " " + ic("shard")}</small><div class="bar" style="margin-top:5px"><i style="width:${Math.min(100, 100 * m.have / m.need)}%"></i></div></div><button class="btn sm ${m.have >= m.need && !P.mis.claimed[m.id] ? "yellow" : ""}" data-act="claimM" data-id="${m.id}" ${m.have >= m.need && !P.mis.claimed[m.id] ? "" : "disabled"}>${P.mis.claimed[m.id] ? "Done" : "Claim"}</button></div>`).join("") +
+    `<div class="panel item"><div class="t"><b>All four</b><small>+${ECON.allFour.tickets} ${ic("ticket")} and ${ECON.allFour.gems} ${ic("gem")} bonus</small></div><span class="tag ${all ? "ok" : ""}">${all ? "EARNED" : "FINISH THE LIST"}</span></div></div>` +
     `<span class="ribbon green">YOU</span><div class="panel"><div class="row"><input type="text" id="pname" maxlength="14" value="${esc(P.name || "")}" placeholder="${esc(myName || "Your name")}" style="flex:1"><button class="btn sm" data-act="saveName">Save name</button></div><p class="note" style="margin:10px 0 0">Matches played ${P.plays} · won ${P.wins} · cards ${ownedList().length}/${C.length} · summons ${P.pulls} · campaign ${Object.keys(P.cleared).length}/16</p></div>` + soundPanel();
 }
 
@@ -2615,12 +2705,15 @@ document.addEventListener("click", async e => {
     case "rematch": return rematch();
     case "take": return takeCard(d.id);
     case "vsGame": VSG = d.g; return show("versus");
-    case "openPack": return openPack();
+    case "openPack": return openPack(d.k || "std");
+    case "buyBundle": return buyBundle();
+    case "sell": return sellCopy(d.id);
+    case "breakc": return breakCopy(d.id);
     case "packTear": return packTear();
     case "packNext": return packNext();
     case "packDone": return packDone();
     case "tiltToggle": return tiltToggle();
-    case "odds": return oddsModal();
+    case "odds": return oddsModal(d.k || "std");
     case "closeModal": return closeModal();
     case "detail": return detail(d.id);
     case "craft": { const c = BY[d.id], cost = CRAFT[c.lv]; if (P.dust >= cost && (P.own[c.id] || 0) < 3) { P.dust -= cost; addCard(c.id); scheduleSave(); chrome(); toast(c.name + " crafted"); detail(c.id); if ($("#coll")) fillColl(); } return; }
@@ -2631,8 +2724,8 @@ document.addEventListener("click", async e => {
     case "deckAuto": { DE.cards = bestDeckIds(deckCap()); return deckSheet(); }
     case "deckSave": { P.decks[DE.i] = { name: (DE.name || "Deck").trim() || "Deck", cards: DE.cards.slice() }; P.deck = DE.i; scheduleSave(); closeModal(); toast("Deck saved"); return show("cards"); }
     case "deckDel": { P.decks.splice(DE.i, 1); P.deck = Math.min(P.deck, P.decks.length - 1); scheduleSave(); closeModal(); return show("cards"); }
-    case "login": P.login = true; P.tickets++; scheduleSave(); toast("+1 ticket"); return show("daily");
-    case "claimM": { const m = missions().find(x => x.id === d.id); if (m && m.have >= m.need && !P.mis.claimed[m.id]) { P.mis.claimed[m.id] = 1; if (m.tk) P.tickets += m.tk; else P.dust += m.dust; if (missions().every(x => P.mis.claimed[x.id])) { P.tickets += 1; toast("All four done: +1 ticket"); } scheduleSave(); } return show("daily"); }
+    case "login": P.login = true; P.tickets += ECON.login.tickets; earn(ECON.login.coins, 0); scheduleSave(); chrome(); toast("+" + ECON.login.coins + " coins, +1 token"); return show("daily");
+    case "claimM": { const m = missions().find(x => x.id === d.id); if (m && m.have >= m.need && !P.mis.claimed[m.id]) { P.mis.claimed[m.id] = 1; if (m.tk) P.tickets += m.tk; else P.dust += m.dust; if (missions().every(x => P.mis.claimed[x.id])) { P.tickets += ECON.allFour.tickets; earn(0, ECON.allFour.gems); chrome(); toast("All four done: +1 token, +" + ECON.allFour.gems + " gems"); } scheduleSave(); } return show("daily"); }
     case "muteAll": { const on = !(AU.sfx || AU.bgm); AU.sfx = on; AU.bgm = on; auSave(); if (on) { sfx("tap"); musicStart(); } else musicStop(); chrome(); if (tab === "daily") show("daily"); return; }
     case "sfxT": AU.sfx = !AU.sfx; auSave(); sfx("tap"); chrome(); return show("daily");
     case "bgmT": AU.bgm = !AU.bgm; auSave(); if (AU.bgm) musicStart(); else musicStop(); chrome(); return show("daily");
