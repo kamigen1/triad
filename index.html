@@ -1218,7 +1218,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.11.12-h";
+const VER = "2026.11.12-i";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -1595,7 +1595,7 @@ const FAC = { C: "Celestial", D: "Demonic", A: "Ancient", M: "Mechanical", U: "U
 const S1 = {
   // ---- Common (22) ----
   goblin: ["earth", "B", "pack", "strike"], slime: ["water", "B", "guard", "mend"], dracky: ["wind", "B", "swift", "gale"], she_slime: ["water", "B", "mender", "ward"], cactuar: ["earth", "B", "thorns", "ward", "t"],
-  shadow: ["dark", "V", "vamp", "pact"], bomb: ["fire", "D", "overkill", "strike", "g"], healslime: ["water", "B", "regen", "mend"], flan: ["ice", "V", "sponge", "freeze"], soldier: ["earth", "H", "formation", "ward"],
+  shadow: ["dark", "V", "vamp", "pact"], bomb: ["fire", "D", "overkill", "strike", "g"], healslime: ["water", "B", "regen", "mend"], flan: ["ice", "V", "sponge", "freeze"], soldier: ["earth", "H", "guard", "empower"],
   bandit: ["dark", "H", "crit", "strike", "g"], folk_priestess: ["light", "C", "mender", "cleanse"], folk_blacksmith: ["fire", "H", "rally", "empower"], folk_merchant: ["earth", "H", "battery", "strike"], folk_guide: ["wind", "H", "swift", "gale", "f"],
   folk_outrider: ["wind", "H", "swift", "strike"], w_mythril_sword: ["lightning", "M", "crit", "strike"], w_kingdom_key: ["light", "C", "formation", "empower"], op_chopper: ["water", "B", "mender", "mend"], ff_chocobo: ["wind", "B", "swift", "gale", "f"],
   dq_bubble_slime: ["water", "B", "thorns", "mend"], db_mr_satan: ["light", "H", "treasure", "empower"],
@@ -1609,13 +1609,13 @@ const S1 = {
   tonberry: ["water", "V", "laststand", "strike"], iron_giant: ["earth", "M", "guard", "ward", "t"], king_slime: ["water", "B", "decree", "mend"], frost_queen: ["ice", "A", "chain", "freeze"], forgemaster: ["fire", "M", "formation", "empower"],
   oracle: ["light", "C", "battery", "cleanse"], thornmother: ["earth", "B", "protector", "ward", "t"], behemoth: ["earth", "B", "berserk", "strike", "t"], hero_knight: ["light", "H", "laststand", "ward"], hero_ninja: ["lightning", "H", "echo", "strike"],
   hero_dragoon: ["wind", "H", "echo", "strike"], w_blood_sword: ["dark", "M", "blood", "strike", "g"], w_defender: ["earth", "M", "protector", "ward", "t"], a_adamant: ["earth", "M", "guard", "ward", "f"], r_hermes_sandals: ["wind", "M", "swift", "gale", "f"],
-  dq_hell_gladiator: ["dark", "D", "soul", "strike"], ff_yuna: ["water", "C", "mender", "empower"], db_piccolo: ["earth", "A", "laststand", "strike"], nr_kakashi: ["lightning", "H", "chain", "arc", "f"], op_sanji: ["fire", "H", "echo", "strike"],
+  dq_hell_gladiator: ["dark", "D", "soul", "strike"], ff_yuna: ["water", "C", "mender", "empower"], db_piccolo: ["earth", "A", "laststand", "strike"], nr_kakashi: ["lightning", "H", "echo", "arc", "f"], op_sanji: ["fire", "H", "echo", "strike"],
   op_law: ["water", "H", "pierce", "freeze"], bandit_chief: ["earth", "H", "decree", "mark"],
   // ---- Epic (20) ----
   archmage: ["lightning", "H", "chain", "arc"], blaze_lord: ["fire", "D", "berserk", "strike", "g"], herald: ["light", "C", "decree", "empower"], juggernaut: ["earth", "M", "laststand", "ward", "t"], oathbound: ["light", "H", "decree", "cleanse"],
   voidwalker: ["dark", "V", "voideater", "disrupt"], warlord: ["fire", "H", "decree", "empower"], withered_king: ["dark", "U", "soul", "disrupt"], garuda: ["wind", "A", "echo", "gale"], dominant_phoenix: ["fire", "A", "phoenix", "strike"],
-  dominant_shiva: ["ice", "A", "chain", "freeze"], w_excalibur: ["light", "M", "formation", "strike"], w_apocalypse: ["dark", "M", "blood", "strike"], a_dragon: ["fire", "A", "guard", "ward", "f"], r_phoenix_pinion: ["fire", "C", "phoenix", "mend"],
-  ff_exdeath: ["dark", "A", "soul", "pact"], ff_lightning: ["lightning", "H", "crit", "arc", "f"], dq_psaro: ["dark", "D", "blood", "volley"], db_frieza: ["ice", "D", "amp", "freeze"], nr_itachi: ["fire", "H", "crit", "pact"],
+  dominant_shiva: ["ice", "A", "chain", "freeze"], w_excalibur: ["light", "M", "formation", "strike"], w_apocalypse: ["dark", "M", "blood", "strike"], a_dragon: ["fire", "A", "berserk", "strike", "g"], r_phoenix_pinion: ["fire", "C", "phoenix", "mend"],
+  ff_exdeath: ["dark", "A", "soul", "pact"], ff_lightning: ["lightning", "H", "crit", "arc", "f"], dq_psaro: ["dark", "D", "blood", "volley"], db_frieza: ["ice", "D", "amp", "freeze"], nr_itachi: ["fire", "H", "crit", "strike"],
   // ---- Legendary (9) ----
   ifrit: ["fire", "A", "berserk", "strike"], shiva: ["ice", "C", "chain", "freeze"], ramuh: ["lightning", "C", "echo", "arc"], titan: ["earth", "A", "protector", "ward", "t"], phoenix: ["fire", "C", "phoenix", "mend"],
   bahamut: ["light", "A", "decree", "volley"], ff_sephiroth: ["dark", "H", "voideater", "strike"], nr_madara: ["dark", "H", "soul", "volley"], op_whitebeard: ["earth", "H", "regen", "arc", "g"],
@@ -1639,13 +1639,15 @@ Object.assign(PASS, {
   echo: ["Echo", "Every third strike hits twice"], crit: ["Overload", "Every fourth strike hits for double"],
 });
 /* role: [health multiplier, attack multiplier]; f (fast) is +0.1 speed, applied in arCard */
-/* NUDGE: a per-card multiplier on health and speed from the balance sweep (cards whose win rate sat more than 7 points off their rarity's average). Re-run the sweep after changing a kit. */
-const NUDGE = {"healslime":0.95,"flan":1.04,"coeurl":0.95,"zu":0.94,"black_mage":0.93,"killing_machine":0.95,"tonberry":0.95,"iron_giant":0.94,"behemoth":1.04,"frost_queen":1.07,"archmage":0.95,"shiva":1.06,"bandit_chief":0.92,"hero_black_mage":1.07,"hero_ninja":0.84,"folk_guide":0.95,"folk_merchant":1.08,"folk_outrider":0.92,"r_hermes_sandals":1.04,"x_esper_diabolos":1.08,"x_esper_carbuncle":0.95,"ff_sephiroth":0.95,"ff_yuna":0.91,"dq_bubble_slime":0.95,"dq_mimic":1.06,"db_krillin":1.1,"db_piccolo":1.07,"nr_rock_lee":1.08,"nr_kakashi":1.07,"nr_itachi":0.96,"op_chopper":1.06,"op_gol_d_roger":0.93};
+/* NUDGE: a per-card multiplier on health and speed from the balance sweep (cards whose win rate sat off their rarity's average, refit against the Hard AI, match levels and the current numbers). Re-run the sweep after changing a kit.
+   ATKADD: flat base attack for a card whose rarity budget leaves it with almost none (armour). */
+const NUDGE = {"healslime":0.83,"flan":1.07,"coeurl":0.95,"zu":0.94,"black_mage":0.95,"killing_machine":0.95,"tonberry":0.85,"iron_giant":0.76,"behemoth":1.09,"frost_queen":1.22,"archmage":0.95,"shiva":1.06,"bandit_chief":0.82,"hero_black_mage":1.56,"hero_ninja":0.81,"folk_guide":0.93,"folk_merchant":1.11,"folk_outrider":0.92,"r_hermes_sandals":1.26,"x_esper_diabolos":1.02,"ff_sephiroth":1.05,"ff_yuna":0.82,"dq_bubble_slime":0.79,"dq_mimic":1.09,"db_krillin":1.1,"db_piccolo":1.15,"nr_rock_lee":1.08,"nr_kakashi":1.32,"nr_itachi":0.88,"op_chopper":1.15,"op_gol_d_roger":0.9,"goblin":1.16,"dracky":1.24,"cactuar":1.14,"shadow":0.6,"bomb":0.94,"metal_slime":1.14,"dusk":0.88,"thornmother":0.85,"forgemaster":0.81,"juggernaut":1.08,"oathbound":0.79,"voidwalker":0.88,"withered_king":1.11,"ramuh":1.02,"titan":0.9,"phoenix":1.02,"bahamut":0.88,"bandit":1.05,"dominant_phoenix":1.26,"dominant_shiva":0.91,"hero_mime":0.85,"hero_thief":0.89,"hero_time_mage":0.9,"folk_blacksmith":0.77,"w_icebrand":0.87,"w_defender":0.89,"w_excalibur":1.05,"w_apocalypse":0.83,"a_dragon":0.85,"r_phoenix_pinion":1.08,"x_esper_leviathan":1.14,"ff_ahriman":0.89,"ff_exdeath":0.76,"ff_lightning":0.99,"op_sanji":1.12,"warlord":0.86,"hero_dragoon":1.05,"w_blood_sword":0.95,"king_slime":1.05,"oracle":0.94,"garuda":0.93,"ifrit":0.95,"w_kingdom_key":0.95,"x_esper_anima":0.94,"ff_chocobo":0.97,"dq_hell_gladiator":1.03,"herald":0.97,"dq_psaro":0.97,"op_whitebeard":1.03,"malboro":1.03,"r_protect_ring":0.96};
+const ATKADD = { a_dragon: 1 };
 const ROLE = { t: [1.4, .95], g: [.9, 1.25], f: [1, 1] };
 /* called by ckCard for cards in the set: replaces the generated element, passive and skill with the authored ones */
 function setKit(c, k) {
   const e = S1[c.id]; if (!e) { k.fac = facOf(c); return k; }
-  k.el = e[0]; k.fac = e[1]; k.passive = e[2]; k.active = e[3]; k.acost = (ACT[e[3]] || {}).c || k.acost; k.role = e[4] || ""; k.nudge = NUDGE[c.id] || 1;
+  k.el = e[0]; k.fac = e[1]; k.passive = e[2]; k.active = e[3]; k.acost = (ACT[e[3]] || {}).c || k.acost; k.role = e[4] || ""; k.nudge = NUDGE[c.id] || 1; if (ATKADD[c.id]) k.atk += ATKADD[c.id];
   const R = ROLE[k.role]; if (R) { k.hp = Math.max(2, Math.round(k.hp * R[0])); k.atk = Math.max(1, Math.round(k.atk * R[1])); }
   return k;
 }
@@ -1665,7 +1667,7 @@ const ACOST = { mend: 2, empower: 2, ward: 2, overgrow: 5, volley: 3, disrupt: 1
 /* skill strengths in 'stat points' (HP-type ones are multiplied by HPX): the numbers the balance sweep tunes */
 /* passive strengths (same idea) */
 /* rarity: extra health on top of the card's own stats, by rarity (1 = common ... 6) */
-AR.RHP = { 1: 1.4, 2: 1.21, 3: 1.1, 4: .97, 5: .83, 6: .83 };
+AR.RHP = { 1: 1.4, 2: 1.22, 3: 1.02, 4: .93, 5: .79, 6: .79 };
 AR.PS = { mender: 0.3, fortify: 0.6, rally: 0.12, grow: 0.17, lastwords: 0.22, battery: 0.1, berserk: 5.5, amp: 3.2, overkill: 1, thorns: 0.35, spongeT: 10, pack: 1.3, guard: 0.85, pierce: 0.3, swift: 1.15, vamp: 0.6, soul: 0.15, laststand: 3, lsGuard: 0.7, blood: 0.6, bloodCost: 0.05, chainAmp: 2.2, decree: 1.1, phoenix: 0.15, formation: 0.5, treasure: 7, regen: 0.011, crit: 2.2, voideater: 1.15 };
 AR.SK = { mend: 0.8, empower: 3.3, empowerT: 8, overgrow: 0.75, ward: 0.9, volley: 0.5, strike: 0.32, gale: 1.7, galeT: 6, arc: 0.22, freezeT: 1.3, cleanse: 0.7, pact: 8.5, pactT: 8, pactCost: 0.1 };
 /* MATCH LEVELS: every card grows during a match and is back to normal in the next one. xp: what it takes to reach level 2 and 3; atk/hp: total bonus at each level;
