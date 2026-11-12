@@ -100,11 +100,13 @@ async function sha(s) { return hex(await crypto.subtle.digest("SHA-256", new Tex
 
 export class Hub {
   constructor(state, env) {
-    this.state = state; this.env = env || {}; this.sql = state.storage.sql; this.tries = new Map();
+    this.state = state; this.env = env || {}; this.sql = state.storage.sql; this.tries = new Map(); this.lastPut = new Map();
     this.sql.exec(`CREATE TABLE IF NOT EXISTS accounts (lname TEXT PRIMARY KEY, name TEXT, salt TEXT, pw TEXT, created INTEGER);
       CREATE TABLE IF NOT EXISTS sessions (th TEXT PRIMARY KEY, lname TEXT, created INTEGER);
       CREATE TABLE IF NOT EXISTS friends (a TEXT, b TEXT, PRIMARY KEY (a, b));
       CREATE TABLE IF NOT EXISTS reqs (frm TEXT, too TEXT, PRIMARY KEY (frm, too));
+      CREATE TABLE IF NOT EXISTS profiles (lname TEXT PRIMARY KEY, rev INTEGER, data TEXT, at INTEGER);
+      CREATE TABLE IF NOT EXISTS pbak (lname TEXT, rev INTEGER, data TEXT, at INTEGER, PRIMARY KEY (lname, rev));
       CREATE TABLE IF NOT EXISTS oauth (provider TEXT, sub TEXT, lname TEXT, PRIMARY KEY (provider, sub));
       CREATE TABLE IF NOT EXISTS invites (frm TEXT, too TEXT, at INTEGER, PRIMARY KEY (frm, too));`);
   }
@@ -121,6 +123,20 @@ export class Hub {
     if (req.method !== "POST") return json({ ok: false, err: "post only" }, 405);
     let b = {}; try { b = await req.json(); } catch (_) {}
     if (p === "/auth/logout") { if (typeof b.token === "string") this.sql.exec("DELETE FROM sessions WHERE th=?", await sha(b.token)); return json({ ok: true }); }
+    if (p === "/profile/get" || p === "/profile/put") {   // the saved game: the server keeps it, the phone keeps a cache
+      const s = this.one("SELECT lname FROM sessions WHERE th=?", await sha(String(b.token || ""))); if (!s) return json({ ok: false, auth: true, err: "Please sign in again." }, 401);
+      const cur = this.one("SELECT rev, data FROM profiles WHERE lname=?", s.lname);
+      if (p === "/profile/get") return json({ ok: true, rev: cur ? cur.rev : 0, data: cur ? cur.data : null });
+      const now = Date.now(), last = this.lastPut.get(s.lname) || 0; if (now - last < 1500) return json({ ok: false, slow: true });
+      const data = typeof b.data === "string" ? b.data : ""; if (!data || data.length > 400000) return json({ ok: false, err: "Save too large." }, 413);
+      let o; try { o = JSON.parse(data); } catch (_) { return json({ ok: false, err: "Bad save." }, 400); }
+      if (!o || typeof o !== "object" || Array.isArray(o) || typeof o.own !== "object") return json({ ok: false, err: "Bad save." }, 400);
+      const have = cur ? cur.rev : 0; if ((+b.base || 0) !== have && !b.force) return json({ ok: false, conflict: true, rev: have });
+      const rev = have + 1; this.lastPut.set(s.lname, now); if (this.lastPut.size > 500) this.lastPut.clear();
+      if (cur) { this.sql.exec("INSERT OR REPLACE INTO pbak VALUES (?,?,?,?)", s.lname, have, cur.data, now); for (const o2 of this.all("SELECT rev FROM pbak WHERE lname=? ORDER BY rev DESC", s.lname).slice(8)) this.sql.exec("DELETE FROM pbak WHERE lname=? AND rev=?", s.lname, o2.rev); }
+      this.sql.exec("INSERT OR REPLACE INTO profiles VALUES (?,?,?,?)", s.lname, rev, data, now);
+      return json({ ok: true, rev });
+    }
     if (p === "/auth/oauth") {
       if (this.limited(req.headers.get("cf-connecting-ip") || "x")) return json({ ok: false, err: "Too many tries. Wait a minute." }, 429);
       const prov = String(b.provider || ""), aud = prov === "google" ? this.env.GOOGLE_CLIENT_ID : prov === "apple" ? this.env.APPLE_CLIENT_ID : "";

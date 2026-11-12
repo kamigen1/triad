@@ -1168,13 +1168,17 @@ function newProfile() {
 const need = lv => 80 + lv * 30;
 function rollover() { if (P.day !== today()) { P.day = today(); P.login = false; P.mis = { win: 0, play: 0, cap: 0, sum: 0, claimed: {} }; } }
 function scheduleSave() { dirty = true; clearTimeout(saveTimer); saveTimer = setTimeout(flush, 600); }
-async function flush() {
-  if (saving || !dirty || !P) return; saving = true; dirty = false;
+async function persist() {
   try {
     if (db && uid && saveMode === "db") await db.doc("data/users/" + uid + "/profile").set(JSON.parse(JSON.stringify(P)));
     else localStorage.setItem("triad.profile", JSON.stringify(P));
   } catch (e) { saveMode = "local"; try { localStorage.setItem("triad.profile", JSON.stringify(P)); } catch (_) {} }
-  saving = false; if (dirty) scheduleSave();
+}
+async function flush() {
+  if (saving || !dirty || !P) return; saving = true; dirty = false;
+  if (typeof ACC !== "undefined" && ACC) P.us = 1;   // changed since the last cloud save
+  await persist();
+  saving = false; if (typeof cloudPush === "function") cloudPush(); if (dirty) scheduleSave();
 }
 async function loadProfile() {
   try { db = await claude.use("db"); const u = await claude.use("user"); if (u) { uid = await u.id(); try { myName = (await u.me()).name || ""; } catch (_) {} } } catch (e) { db = null; }
@@ -1440,7 +1444,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.11.15-c";
+const VER = "2026.11.16-a";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -2830,7 +2834,7 @@ async function accOauth(provider, idToken, name) {
   }
   if (!r.ok) return toast(r.err || "Sign-in failed.");
   OAUTH_PENDING = null; ACC = { name: r.name, token: r.token }; accSave(); HUBSTOP = false; if (P) { P.name = r.name; P.named = true; scheduleSave(); }
-  closeModal(); toast("Signed in as " + r.name); hubConnect(); chrome(); show(tab);
+  closeModal(); toast("Signed in as " + r.name); hubConnect(); chrome(); show(tab); cloudSync();
 }
 function accSheet(mode) {
   const up = mode === "up";
@@ -2851,12 +2855,55 @@ async function accSubmit(mode) {
   if (!r.ok) { err.textContent = r.err || "Something went wrong."; btn.disabled = false; btn.textContent = mode === "up" ? "Create account" : "Sign in"; return; }
   ACC = { name: r.name, token: r.token }; accSave(); HUBSTOP = false;
   if (P) { P.name = r.name; P.named = true; scheduleSave(); }
-  closeModal(); toast(mode === "up" ? "Account created. Welcome, " + r.name + "!" : "Signed in as " + r.name); hubConnect(); chrome(); show(tab);
+  closeModal(); toast(mode === "up" ? "Account created. Welcome, " + r.name + "!" : "Signed in as " + r.name); hubConnect(); chrome(); show(tab); cloudSync();
 }
-function accLogout() {
-  const t = ACC && ACC.token; ACC = null; accSave(); HUBSTOP = true; hubStop(); HUBST = { on: false, me: "", friends: [], reqs: [] }; INVIN = []; INVOUT = null; invHide();
-  if (t) accCall("/auth/logout", { token: t }); toast("Signed out."); show(tab);
+async function accLogout() {
+  if (P && P.us && CLOUD.on) { toast("Saving…"); await cloudPushNow(); if (P.us && !confirm("Your latest progress could not be saved online yet. Sign out anyway and lose it?")) return; }
+  const t = ACC && ACC.token; ACC = null; accSave(); HUBSTOP = true; hubStop(); HUBST = { on: false, me: "", friends: [], reqs: [] }; INVIN = []; INVOUT = null; invHide(); CLOUD = { on: false, conflict: false };
+  if (t) accCall("/auth/logout", { token: t });
+  P = newProfile(); econInit(); rollover(); await persist(); toast("Signed out. This phone no longer holds your save."); chrome(); show(tab);
 }
+/* ----- the saved game lives on the server. The phone keeps a cache so the game works offline; P.rev is the server revision this copy came from, P.us marks unsent changes. ----- */
+let CLOUD = { on: false, conflict: false }, CP = { busy: false, tm: 0, t: 0 };
+async function cloudCall(path, body) {
+  if (!ACC) return { ok: false };
+  try { const r = await fetch(SERVER_HTTP + path, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ token: ACC.token, ...body }), keepalive: !!body.keep }); const j = await r.json(); if (j.auth) { ACC = null; accSave(); HUBSTOP = true; CLOUD.on = false; toast("Please sign in again."); } return j; }
+  catch (_) { return { ok: false, net: true }; }
+}
+const meaningful = p => !!p && ((p.pulls || 0) > 0 || (p.plays || 0) > 0 || (p.lv || 1) > 1);
+function takeServer(raw, rev) {
+  let o; try { o = JSON.parse(raw); } catch (_) { return toast("The cloud save could not be read."); }
+  P = o; P.acct = ACC.name; P.rev = rev; P.us = 0; econInit(); rollover(); CLOUD.on = true; CLOUD.conflict = false; persist(); chrome(); show(tab);
+}
+async function cloudSync() {
+  if (!ACC || !srvOn() || !P) return; const r = await cloudCall("/profile/get", {}); if (!r.ok) return;
+  if (!r.data) {   // a new account: this device's progress becomes its saved game
+    P.acct = ACC.name; P.rev = 0; CLOUD.on = true; CLOUD.conflict = false; const u = await cloudCall("/profile/put", { base: 0, data: JSON.stringify(P) });
+    if (u.ok) { P.rev = u.rev; P.us = 0; persist(); toast("Your progress is now saved to your account."); } else cloudPush(true); return;
+  }
+  if (P.acct === ACC.name && P.rev === r.rev) { CLOUD.on = true; CLOUD.conflict = false; if (P.us) cloudPush(true); return; }
+  if (P.acct === ACC.name && P.rev < r.rev && !P.us) return takeServer(r.data, r.rev);
+  if (!meaningful(P) && !P.us) return takeServer(r.data, r.rev);
+  cloudChoice(r);
+}
+function cloudChoice(r) {
+  CLOUD.on = false; CLOUD.conflict = true;
+  openSheet(`<h2 class="fat">TWO SAVED GAMES</h2><p class="note" style="text-align:center;margin:0 0 10px">${esc(ACC.name)} already has a saved game online, and this phone has different progress. Which one should this account keep?</p>` +
+    `<div class="row c" style="flex-direction:column;gap:8px"><button class="btn yellow" data-ac="useCloud">Use the online save (recommended)</button><button class="btn dark" data-ac="useLocal">Replace it with this phone's progress</button></div>`);
+  CLOUD.pendingRev = r.rev; CLOUD.pendingData = r.data;
+}
+function cloudPush(now) {
+  if (!ACC || !CLOUD.on || CLOUD.conflict || !P || !P.us) return;
+  clearTimeout(CP.tm); CP.tm = setTimeout(cloudPushNow, now ? 0 : Math.max(0, 4000 - (Date.now() - CP.t)));
+}
+async function cloudPushNow(keep) {
+  if (CP.busy || !ACC || !CLOUD.on || CLOUD.conflict || !P) return; CP.busy = true; CP.t = Date.now();
+  const r = await cloudCall("/profile/put", { base: P.rev || 0, data: JSON.stringify(P), keep: !!keep }); CP.busy = false;
+  if (r.ok) { P.rev = r.rev; if (!dirty && !saving) P.us = 0; persist(); if (P.us) cloudPush(); return true; }
+  if (r.conflict) { cloudChoice({ rev: r.rev, data: null }); cloudCall("/profile/get", {}).then(g => { if (g.ok) { CLOUD.pendingRev = g.rev; CLOUD.pendingData = g.data; } }); return false; }
+  if (r.slow || r.net) { clearTimeout(CP.tm); CP.tm = setTimeout(cloudPushNow, 8000); } return false;
+}
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden" && ACC && P && P.us) cloudPushNow(true); });
 
 /* ----- the live connection ----- */
 function hubStop() { clearTimeout(HUBTIMER); clearInterval(HUBPING); if (HUB) { const w = HUB; HUB = null; try { w.close(); } catch (_) {} } }
@@ -2926,8 +2973,8 @@ function accPanelHtml() {
 function hubRender() { const e = document.getElementById("vsAcc"); if (e && tab === "versus") { const keep = document.getElementById("frName"), v = keep ? keep.value : ""; e.innerHTML = accPanelHtml(); const k = document.getElementById("frName"); if (k && v) k.value = v; } const p = document.getElementById("profAcc"); if (p) p.innerHTML = accProfileHtml(); }
 function accProfileHtml() {
   if (!srvOn()) return "";
-  return ACC ? `<div class="row"><span class="note" style="flex:1">Online account: <b style="color:var(--yellow)">${esc(ACC.name)}</b></span><button class="btn sm dark" data-ac="logout">Sign out</button></div>` :
-    `<div class="row"><span class="note" style="flex:1">No online account yet. Make one to add friends.</span><button class="btn sm yellow" data-ac="up">Create</button><button class="btn sm dark" data-ac="in">Sign in</button></div>`;
+  return ACC ? `<div class="row"><span class="note" style="flex:1">Online account: <b style="color:var(--yellow)">${esc(ACC.name)}</b><br>${CLOUD.on ? (P && P.us ? "Saving to your account…" : "Progress saved online ✓") : "Save sync paused"}</span><button class="btn sm dark" data-ac="logout">Sign out</button></div>` :
+    `<div class="row"><span class="note" style="flex:1">Playing as a guest: progress lives only on this phone. Make an account to save it online and add friends.</span><button class="btn sm yellow" data-ac="up">Create</button><button class="btn sm dark" data-ac="in">Sign in</button></div>`;
 }
 
 document.addEventListener("click", e => {
@@ -2936,6 +2983,8 @@ document.addEventListener("click", e => {
     case "up": case "in": return accSheet(a);
     case "submit": return accSubmit(el.dataset.m);
     case "apple": return accApple();
+    case "useCloud": closeModal(); return takeServer(CLOUD.pendingData, CLOUD.pendingRev);
+    case "useLocal": closeModal(); CLOUD.conflict = false; CLOUD.on = true; P.acct = ACC.name; P.us = 1; return void cloudCall("/profile/put", { base: CLOUD.pendingRev, force: true, data: JSON.stringify(P) }).then(r => { if (r.ok) { P.rev = r.rev; P.us = 0; persist(); toast("This phone's progress is now your online save."); } else cloudPush(true); });
     case "oauthName": return OAUTH_PENDING && accOauth(OAUTH_PENDING.provider, OAUTH_PENDING.idToken, ($("#acName").value || "").trim());
     case "logout": return accLogout();
     case "reconnect": HUBSTOP = false; HUBRETRY = 0; return hubConnect();
@@ -3456,6 +3505,6 @@ document.addEventListener("pointerup", unlockAudio, true); document.addEventList
 window.addEventListener("pagehide", () => { dirty = true; flush(); });
 document.addEventListener("pointermove", tiltMove); document.addEventListener("pointerup", tiltEnd); document.addEventListener("pointerleave", tiltEnd, true);
 chrome(); bgmLoad();
-(async () => { const t0 = Date.now(); await loadProfile(); await sleep(Math.max(0, 1100 - (Date.now() - t0))); $("#splash").classList.add("gone"); setTimeout(() => { const s = $("#splash"); if (s) s.remove(); }, 600); if (P && !P.named && !P.name && !ACC) setTimeout(() => nameSheet(true), 500); if (ACC && P && ACC.name !== P.name) { P.name = ACC.name; P.named = true; } hubConnect(); setTimeout(iosHint, 2500); })();
+(async () => { const t0 = Date.now(); await loadProfile(); await sleep(Math.max(0, 1100 - (Date.now() - t0))); $("#splash").classList.add("gone"); setTimeout(() => { const s = $("#splash"); if (s) s.remove(); }, 600); if (P && !P.named && !P.name && !ACC) setTimeout(() => nameSheet(true), 500); if (ACC && P && ACC.name !== P.name) { P.name = ACC.name; P.named = true; } hubConnect(); cloudSync(); setTimeout(iosHint, 2500); })();
 </script>
 <script>if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) navigator.serviceWorker.register('sw.js');</script>
