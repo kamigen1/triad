@@ -739,6 +739,25 @@ select:focus, input:focus { outline: 1px solid var(--gold); }
 .card.ar .evtag { position: absolute; left: 50%; top: calc(var(--bw) + 1cqw); transform: translateX(-50%); z-index: 4; font: 700 4.2cqw/1 var(--display); letter-spacing: .2em; padding: 1cqw 2.6cqw; color: #1b1100; background: linear-gradient(#fff3bf, #d9a437); border-radius: 0 0 2cqw 2cqw; box-shadow: 0 0 2cqw #e3bf6688; font-style: normal; }
 @container (max-width: 112px) { .card.ar .evtag { font-size: 5.6cqw; padding: .6cqw 2cqw; } }
 
+/* ================= COMBAT LOG ================= */
+.arlog { position: absolute; left: 8px; right: 8px; bottom: 8px; height: 40%; overflow-y: auto; z-index: 12; padding: 6px 8px; border-radius: 14px; background: linear-gradient(#0c1430f2, #060a18f7); border: 1px solid var(--line); box-shadow: 0 -10px 30px #000b; backdrop-filter: blur(3px); }
+.arlog .lg { display: flex; gap: 6px; align-items: baseline; padding: 2px 0 2px 6px; border-left: 3px solid #ffffff22; font: 600 11px/1.3 var(--body); color: #cfdaf3; }
+.arlog .lg.me { border-left-color: #5db4ff; } .arlog .lg.foe { border-left-color: #d9475b; }
+.arlog .lt { flex: none; width: 30px; font: 700 10px var(--num); color: var(--muted); } .arlog .li { flex: none; width: 12px; text-align: center; color: var(--gold); }
+.arlog .k-react .li { color: #8fe4ff; } .arlog .k-die .li { color: var(--bad); } .arlog .k-passive .li { color: #c9a0ff; } .arlog .k-level .li { color: var(--gold-hi); }
+.arlog .k-react .lx, .arlog .k-passive .lx { color: #e7eeff; }
+
+/* ================= VARIANTS (cosmetic only) ================= */
+.card.ar .vtag { position: absolute; right: var(--bw); bottom: 31cqw; z-index: 4; font: 700 4.6cqw/1 var(--display); letter-spacing: .14em; padding: 1cqw 2.4cqw; border-radius: 2cqw 0 0 0; font-style: normal; color: #fff; background: #050914e6; }
+.card.ar.vr-holo .holo { opacity: .95; animation: holo 4s ease-in-out infinite; } .card.ar.vr-holo .vtag { color: #8fe4ff; }
+.card.ar.vr-holo::before { content: ""; position: absolute; inset: 0; z-index: 5; pointer-events: none; background: linear-gradient(105deg, transparent 36%, #ffffff77 48%, transparent 60%); background-size: 280% 100%; animation: sheen 2.8s linear infinite; mix-blend-mode: overlay; }
+.card.ar.vr-alt .art { filter: hue-rotate(150deg) saturate(1.35) contrast(1.06); } .card.ar.vr-alt .plate { background: linear-gradient(#1b1608, #090703); } .card.ar.vr-alt .vtag { color: var(--gold-hi); }
+.card.ar.vr-alt .win::after { box-shadow: inset 0 -14cqw 12cqw -8cqw #050914, inset 0 0 0 .8cqw #e3bf66aa, inset 0 0 4cqw #000a; }
+.card.ar.vr-secret { --frame: linear-gradient(150deg, #8a8f9c 0%, #101219 38%, #a6acba 52%, #0a0b10 100%); --gl: 22px; }
+.card.ar.vr-secret .art { filter: grayscale(.55) contrast(1.3) brightness(.85); } .card.ar.vr-secret .plate { background: linear-gradient(#0b0c12, #030306); } .card.ar.vr-secret .vtag { color: #e6e9f5; }
+.card.ar.vr-secret .holo { opacity: .35; }
+.card.ar.vr-secret::before { content: ""; position: absolute; inset: 0; z-index: 5; pointer-events: none; background-image: radial-gradient(circle, #fff 0 .5cqw, transparent .7cqw), radial-gradient(circle, #cfe 0 .4cqw, transparent .6cqw); background-size: 19cqw 23cqw, 31cqw 27cqw; background-position: 3cqw 5cqw, 14cqw 12cqw; animation: twinkle 2.2s steps(1) infinite; mix-blend-mode: screen; opacity: .8; }
+
 @media (prefers-reduced-motion: reduce) { * { animation-duration: .01s !important; } }
 </style>
 
@@ -941,8 +960,8 @@ const elIco = (el, cls = "eico") => `<svg class="${cls}"><use href="#i-el-${el}"
 const hpOf = k => Math.round(k.hp * AR.HPX * (AR.RHP[k.rar] || 1));
 function cardHtml(c, o = {}) {
   if (o.triad) return cardTriad(c, o);
-  const rr = rarOf(c), k = arCard(c), cls = ["card", "ar", "r" + rr, "el-" + k.el, "lv" + c.lv, c.ex ? "ex" : "", o.cls || "", o.miss ? "miss" : "", o.tilt ? "tilt" : ""].join(" ");
-  return `<div class="${cls}" ${o.attr || ""}><div class="win"><img class="art" data-id="${c.id}" alt="" src="${artSrc(c)}"></div><div class="holo"></div><div class="glare"></div><i class="crn"></i>${c.ev ? `<i class="evtag">EVENT</i>` : ""}` +
+  const rr = rarOf(c), k = arCard(c), v = o.v !== undefined ? o.v : selVariant(c.id), cls = ["card", "ar", "r" + rr, "el-" + k.el, v ? "vr-" + v : "", "lv" + c.lv, c.ex ? "ex" : "", o.cls || "", o.miss ? "miss" : "", o.tilt ? "tilt" : ""].join(" ");
+  return `<div class="${cls}" ${o.attr || ""}><div class="win"><img class="art" data-id="${c.id}" alt="" src="${artSrc(c)}"></div><div class="holo"></div><div class="glare"></div><i class="crn"></i>${c.ev ? `<i class="evtag">EVENT</i>` : ""}${v ? `<i class="vtag">${VARIANTS[v].short}</i>` : ""}` +
     `<b class="cst">${k.cost}</b><i class="esig">${elIco(k.el, "")}</i>` + (o.count > 1 ? `<span class="cnt">×${o.count}</span>` : "") +
     `<div class="stats"><span class="a"><svg><use href="#i-atk"/></svg>${Math.round(k.atk * AR.ATKX)}</span><span class="h"><svg><use href="#i-hp"/></svg>${hpOf(k)}</span><span class="s"><svg><use href="#i-spd"/></svg>${k.spd.toFixed(1)}</span></div>` +
     `<div class="plate"><b class="nm">${esc(c.name)}</b><small class="sub"><i></i>${esc(FAC[k.fac] || k.fac)} · ${c.ev ? "Event " : ""}${RNAME[rr]}</small></div><div class="tint"></div></div>`;
@@ -1240,7 +1259,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.11.13-c";
+const VER = "2026.11.13-d";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -1373,7 +1392,7 @@ function packStage() {
   if (!PK.torn) { m.innerHTML = `<div class="packfs"><div class="plbl">Swipe across the top of the pack</div>${packTearHtml(PK.kind)}<button class="btn sm dark" data-act="packTear" style="margin-top:14px">Tap to open</button></div>`; packTearBind(); return; }
   if (PK.i >= PK.res.length) return packSummary();
   const x = PK.res[PK.i], c = x.c, r = rarOf(c);
-  m.innerHTML = `<div class="packfs fx-r${r}" data-act="packNext" id="pfs"><div class="pcount">${PK.i + 1} / ${PK.res.length}</div><div class="pc ${PK.flipped ? "flipped" : ""}" id="pcard"><div class="pback"><svg viewBox="0 0 32 32"><use href="#i-spade"/></svg></div><div class="pface">${cardHtml(c, { tilt: true })}</div></div><div class="pinfo ${PK.flipped ? "on" : ""}" id="pinfo"><span><em>Passive</em>${esc(PASS[arCard(c).passive][0])}</span><span><em>Skill</em>${esc(actName(arCard(c)))}</span></div><div class="phint" id="phint">${PK.flipped ? "Tap for the next card" : "Tap to reveal"}</div></div>`;
+  m.innerHTML = `<div class="packfs fx-r${r}" data-act="packNext" id="pfs"><div class="pcount">${PK.i + 1} / ${PK.res.length}</div><div class="pc ${PK.flipped ? "flipped" : ""}" id="pcard"><div class="pback"><svg viewBox="0 0 32 32"><use href="#i-spade"/></svg></div><div class="pface">${cardHtml(c, { tilt: true, v: x.v })}</div></div><div class="pinfo ${PK.flipped ? "on" : ""}" id="pinfo"><span><em>Passive</em>${esc(PASS[arCard(c).passive][0])}</span><span><em>Skill</em>${esc(actName(arCard(c)))}</span></div><div class="phint" id="phint">${PK.flipped ? "Tap for the next card" : "Tap to reveal"}</div></div>`;
 }
 function packTearBind() {
   const w = $("#pw"), top = $("#ptop"); if (!w) return; let x0 = null, y0 = 0, p = 0;
@@ -1395,7 +1414,7 @@ function packNext() {
 }
 function packSummary() {
   const m = $("#modal"); m.hidden = false; const best = Math.max(...PK.res.map(x => rarOf(x.c))), order = PK.multi ? PK.res.slice().sort((p, q) => rarOf(q.c) - rarOf(p.c)) : PK.res, news = PK.res.filter(x => x.r.isNew).length;
-  m.innerHTML = `<div class="packfs sum"><span class="ribbon gold" style="font-size:22px">${best >= 5 ? "AMAZING PULL" : "YOUR PULL"}</span><p class="note" style="margin:0;text-align:center">${PK.multi ? PK.n + " summons · " + PK.res.length + " cards · " : ""}${news} new · +${PK.medals} medals${PK.evm ? " · +" + PK.evm + " event medals" : ""}</p><div class="psum">${order.map(x => `<div class="wrap">${cardHtml(x.c, { tilt: !PK.multi })}<div class="tg ${x.r.dup ? "d" : ""}">${x.r.dup ? "+" + x.r.dust : x.r.isNew ? "NEW" : ""}</div></div>`).join("")}</div><div class="row c" style="margin-top:12px"><button class="btn dark" data-act="packDone">Done</button><button class="btn yellow" data-act="summon" data-k="${PK.kind}" data-n="1">Summon again</button></div></div>`;
+  m.innerHTML = `<div class="packfs sum"><span class="ribbon gold" style="font-size:22px">${best >= 5 ? "AMAZING PULL" : "YOUR PULL"}</span><p class="note" style="margin:0;text-align:center">${PK.multi ? PK.n + " summons · " + PK.res.length + " cards · " : ""}${news} new · +${PK.medals} medals${PK.evm ? " · +" + PK.evm + " event medals" : ""}</p><div class="psum">${order.map(x => `<div class="wrap">${cardHtml(x.c, { tilt: !PK.multi, v: x.v })}<div class="tg ${x.r.dup ? "d" : ""}">${x.r.dup ? "+" + x.r.dust : x.r.isNew ? "NEW" : ""}${x.v ? (x.r.dup || x.r.isNew ? " · " : "") + VARIANTS[x.v].short : ""}</div></div>`).join("")}</div><div class="row c" style="margin-top:12px"><button class="btn dark" data-act="packDone">Done</button><button class="btn yellow" data-act="summon" data-k="${PK.kind}" data-n="1">Summon again</button></div></div>`;
   if (tab === "summon") show("summon");
 }
 function packDone() { PK = null; closeModal(); if (tab === "summon") show("summon"); }
@@ -1742,7 +1761,8 @@ function arNew(deck0, deck1, o = {}) {
   return A;
 }
 const arRand = A => { A.seed = (A.seed * 1103515245 + 12345) & 0x7fffffff; return A.seed / 0x7fffffff; };
-const arLog = (A, t) => { A.log.push(t); if (A.log.length > 80) A.log.shift(); };
+/* the combat log: every skill, reaction and passive trigger is written down with the side it happened to (GAME_RULES_v2: no invisible procs). kind: skill, react, passive, die, swap, level, core */
+const arLog = (A, t, s, k) => { A.log.push({ tk: A.tick, s, k: k || "", t }); if (A.log.length > 120) A.log.shift(); };
 const arEv = (A, e) => { if (A.ui) { A.ev.push(e); if (A.ev.length > 300) A.ev.shift(); } };
 const arLane = (A, s, i) => A.s[s].lane[i];
 const arLive = (A, s) => A.s[s].lane.map((u, i) => ({ u, i })).filter(x => x.u);
@@ -1751,7 +1771,7 @@ function arAtk(A, s, u) {
   return Math.max(0, u.atk * (1 + AR.LV.atk[u.lv - 1]) + AR.ATKX * ((u.tmpT > 0 ? u.tmp : 0) + (u.passive === "berserk" && u.hp * 2 < u.max ? AR.PS.berserk : 0) + (u.passive === "pack" ? A.s[s].lane.filter(x => x && x !== u && x.fac === u.fac).length * AR.PS.pack : 0) + (u.passive === "laststand" && u.hp < u.max * .3 ? AR.PS.laststand : 0) +
     (u.passive === "formation" ? [A.s[s].lane[A.s[s].lane.indexOf(u) - 1], A.s[s].lane[A.s[s].lane.indexOf(u) + 1]].filter(Boolean).length * AR.PS.formation : 0) + A.s[s].lane.filter(x => x && x !== u && x.passive === "decree" && x.fac === u.fac).length * AR.PS.decree + surge));
 }
-function arCoreHit(A, ts, d) { A.s[ts].core -= d; arLog(A, (ts ? "Enemy" : "Your") + " core takes " + Math.round(d)); arEv(A, { t: "core", s: ts, d }); }
+function arCoreHit(A, ts, d) { A.s[ts].core -= d; arLog(A, "Core takes " + Math.round(d), ts, "core"); arEv(A, { t: "core", s: ts, d }); }
 /* who a card strikes: its locked target, else its targeting behavior; -1 means the enemy field is empty (the core) */
 function arTarget(A, s, i) {
   const u = A.s[s].lane[i], all = arLive(A, 1 - s); if (!all.length) return -1;
@@ -1771,7 +1791,7 @@ function arGain(A, u, x) {
   while (u.lv < 3 && u.xp >= AR.LV.xp[u.lv - 1]) {
     const L = AR.LV, prev = L.hp[u.lv - 1]; u.lv++; const inc = u.max * (L.hp[u.lv - 1] - prev) / (1 + prev); u.max += inc; u.hp += inc; u.spd *= L.spd[u.lv - 1];
     if (u.lv === 3) u.acost = Math.max(1, u.acost - 1);
-    const s = A.s[0].lane.includes(u) ? 0 : 1; arLog(A, u.name + " reaches level " + u.lv); arEv(A, { t: "level", s, i: A.s[s].lane.indexOf(u), lv: u.lv });
+    const s = A.s[0].lane.includes(u) ? 0 : 1; arLog(A, u.name + " reaches level " + u.lv, s, "level"); arEv(A, { t: "level", s, i: A.s[s].lane.indexOf(u), lv: u.lv });
   }
 }
 /* one hit: reactions, guard, shield, marks and the passives that fire on a hit */
@@ -1780,16 +1800,17 @@ function arHit(A, src, ss, ts, ti, dmg, el, o = {}) {
   if (el && T.mark && REACT[T.mark.el + ">" + el]) {
     react = REACT[T.mark.el + ">" + el]; const amp = src && (src.passive === "amp" ? AR.PS.amp : src.passive === "chain" ? AR.PS.chainAmp : 0); d = dmg * ((react.mul || 1) + (react.mul > 1 ? amp : 0));
     if (react.strip) { T.atk = Math.max(1, T.atk - T.pb.a); T.max = Math.max(1, T.max - T.pb.h); T.hp = Math.min(T.hp, T.max); T.pb = { a: 0, h: 0 }; T.shield = 0; T.tmpT = 0; }
-    if (react.freeze) { T.frozen = AR.IV * .75; T.cd += AR.IV * .75; } T.mark = null; arLog(A, react.n + "! on " + T.name);
+    if (react.freeze) { T.frozen = AR.IV * .75; T.cd += AR.IV * .75; } T.mark = null; arLog(A, react.n + "! on " + T.name + (src ? " (hit by " + src.name + ")" : ""), ts, "react");
     if (src && src.passive === "chain") for (const j of [ti - 1, ti + 1]) { const N = A.s[ts].lane[j]; if (N && !N.mark) N.mark = { el, t: AR.MARK_T }; }   // Chain Reaction: the neighbors are marked too
+    if (src && src.passive === "chain") arLog(A, src.name + " spreads the mark to the neighbors (Chain Reaction)", ss, "passive");
   }
-  if (src && src.passive === "voideater" && o.melee) { T.shield = 0; T.tmpT = 0; }
+  if (src && src.passive === "voideater" && o.melee) { if (T.shield > 0) arLog(A, src.name + " breaks " + T.name + "'s shield (Void Eater)", ss, "passive"); T.shield = 0; T.tmpT = 0; }
   if (T.passive === "laststand" && T.hp < T.max * .3) d *= AR.PS.lsGuard;
   if (T.passive === "guard") d = Math.max(.5, d * AR.PS.guard);
-  if (T.sponge) { T.sponge = false; T.spT = AR.PS.spongeT; d = 0; }
+  if (T.sponge) { T.sponge = false; T.spT = AR.PS.spongeT; d = 0; arLog(A, T.name + " absorbs the hit (Sponge)", ts, "passive"); }
   const ab = Math.min(T.shield, d); T.shield -= ab; d -= ab; T.hp -= d;
   if (el && !react) T.mark = { el, t: AR.MARK_T };
-  if (src) { if (src.passive === "vamp" && d > 0) src.hp = Math.min(src.max, src.hp + d * AR.PS.vamp); if (T.passive === "thorns" && o.melee) src.hp -= AR.PS.thorns * AR.ATKX; if (src.passive === "overkill" && T.hp < 0) arCoreHit(A, ts, -T.hp * AR.PS.overkill); }
+  if (src) { if (src.passive === "vamp" && d > 0) src.hp = Math.min(src.max, src.hp + d * AR.PS.vamp); if (T.passive === "thorns" && o.melee) { src.hp -= AR.PS.thorns * AR.ATKX; if (!T.thT || A.tick - T.thT > 30) { T.thT = A.tick; arLog(A, T.name + " reflects damage (Thorns)", ts, "passive"); } } if (src.passive === "overkill" && T.hp < 0) { arLog(A, src.name + "'s excess damage hits the core (Overkill)", ss, "passive"); arCoreHit(A, ts, -T.hp * AR.PS.overkill); } }
   arEv(A, { t: "hit", s: ts, i: ti, d, el, react: react && react.n });
   if (src && !o.noStat) { const st = A.stat || (A.stat = { auto: 0, skill: 0, uses: 0 }); if (o.melee) st.auto += d; else st.skill += d; }   // balance counters (not part of the fight)
   if (react && react.splash) for (const j of [ti - 1, ti + 1]) { const N = A.s[ts].lane[j]; if (N) { N.hp -= d * react.splash; arEv(A, { t: "hit", s: ts, i: j, d: d * react.splash }); } }
@@ -1799,14 +1820,15 @@ function arHit(A, src, ss, ts, ti, dmg, el, o = {}) {
 function arSweep(A) {
   for (let s = 0; s < 2; s++) for (let i = 0; i < 5; i++) {
     const u = A.s[s].lane[i]; if (!u || u.hp > 0) continue;
-    if (u.passive === "phoenix" && !u.used) { u.used = true; u.hp = u.max * AR.PS.phoenix; u.shield = 0; u.mark = null; u.frozen = 0; arLog(A, u.name + " is reborn"); arEv(A, { t: "buff", s, i, text: "reborn" }); continue; }
-    A.s[s].lane[i] = null; arLog(A, u.name + " falls"); arEv(A, { t: "die", s, i, name: u.name });
-    for (let q = 0; q < 2; q++) for (const x of arLive(A, q)) if (x.u.passive === "soul") x.u.atk += AR.PS.soul * AR.ATKX;   // Soul Collector
+    if (u.passive === "phoenix" && !u.used) { u.used = true; u.hp = u.max * AR.PS.phoenix; u.shield = 0; u.mark = null; u.frozen = 0; arLog(A, u.name + " is reborn (Phoenix Rebirth)", s, "passive"); arEv(A, { t: "buff", s, i, text: "reborn" }); continue; }
+    A.s[s].lane[i] = null; arLog(A, u.name + " falls", s, "die"); arEv(A, { t: "die", s, i, name: u.name });
+    for (let q = 0; q < 2; q++) for (const x of arLive(A, q)) if (x.u.passive === "soul") { x.u.atk += AR.PS.soul * AR.ATKX; arLog(A, x.u.name + " gains attack (Soul Collector)", q, "passive"); }   // Soul Collector
     if (u.by && u.by.hp > 0 && u.bys !== s) arGain(A, u.by, AR.LV.kill);
-    if (u.by && u.by.passive === "treasure" && u.by.hp > 0) A.s[u.bys].energy = Math.min(AR.EMAX, A.s[u.bys].energy + AR.PS.treasure);   // Treasure Hunter
+    if (u.by && u.by.passive === "treasure" && u.by.hp > 0) { A.s[u.bys].energy = Math.min(AR.EMAX, A.s[u.bys].energy + AR.PS.treasure); arLog(A, u.by.name + " refunds " + AR.PS.treasure + " energy (Treasure Hunter)", u.bys, "passive"); }   // Treasure Hunter
+    if (u.passive === "lastwords") arLog(A, u.name + "'s allies are empowered (Last Words)", s, "passive");
     if (u.passive === "lastwords") for (const x of arLive(A, s)) { const g = AR.PS.lastwords; x.u.atk += g * AR.ATKX; x.u.max += g * AR.HPX; x.u.hp += g * AR.HPX; x.u.pb.a += g * AR.ATKX; x.u.pb.h += g * AR.HPX; }
     const ri = A.s[s].bench.findIndex(b => b && b.passive === "reserve");
-    if (ri >= 0) { const b = A.s[s].bench[ri]; A.s[s].bench[ri] = null; b.cd = AR.IV / b.spd; A.s[s].lane[i] = b; arLog(A, b.name + " steps in"); arEv(A, { t: "enter", s, i }); }
+    if (ri >= 0) { const b = A.s[s].bench[ri]; A.s[s].bench[ri] = null; b.cd = AR.IV / b.spd; A.s[s].lane[i] = b; arLog(A, b.name + " steps in (Reserve)", s, "passive"); arEv(A, { t: "enter", s, i }); }
   }
 }
 /* ----- player (or AI) commands: {s, k:"lock"|"use"|"swap", ...}. They run on a stated tick so both phones apply them on the same one. ----- */
@@ -1816,12 +1838,12 @@ function arRun(A, c) {
   if (c.k === "lock") { const u = S.lane[c.i]; if (u && (c.t == null || F.lane[c.t])) { u.lock = c.t == null ? null : c.t; arEv(A, { t: "lock", s: c.s, i: c.i, to: u.lock }); } }
   else if (c.k === "swap") {
     const u = S.bench[c.b]; if (!u || S.energy < AR.SWAP_E || S.swapcd[c.l] > 0) return; S.energy -= AR.SWAP_E; S.swapcd[c.l] = AR.SWAP_CD;
-    S.bench[c.b] = S.lane[c.l]; S.lane[c.l] = u; u.cd = AR.IV / u.spd; u.lock = null; arLog(A, (c.s ? "Enemy" : "You") + " bring in " + u.name); arEv(A, { t: "enter", s: c.s, i: c.l });
+    S.bench[c.b] = S.lane[c.l]; S.lane[c.l] = u; u.cd = AR.IV / u.spd; u.lock = null; arLog(A, u.name + " is brought in", c.s, "swap"); arEv(A, { t: "enter", s: c.s, i: c.l });
   } else if (c.k === "use") {
     const u = S.lane[c.i]; if (!u || u.skcd > 0 || S.energy < u.acost) return; const a = ACT[u.active];
     const T = a.t === "ally" ? S.lane[c.t] : a.t === "enemy" ? F.lane[c.t] : null; if (a.t !== "none" && !T) return;
     (A.stat || (A.stat = { auto: 0, skill: 0, uses: 0 })).uses++;
-    S.energy -= u.acost; u.skcd = AR.SKILL_CD * (u.lv >= 3 ? AR.LV.cd : 1); arLog(A, (c.s ? "Enemy" : "You") + ": " + u.name + " uses " + actName(u)); arEv(A, { t: "skill", s: c.s, i: c.i, name: actName(u) });
+    S.energy -= u.acost; u.skcd = AR.SKILL_CD * (u.lv >= 3 ? AR.LV.cd : 1); arLog(A, u.name + " uses " + actName(u), c.s, "skill"); arEv(A, { t: "skill", s: c.s, i: c.i, name: actName(u) });
     const E = u.lv >= 3 ? AR.LV.enhance : 1;   // the enhanced skill unlocked at match level 3
     switch (u.active) {
       case "mend": T.hp = Math.min(T.max, T.hp + AR.SK.mend * AR.HPX * E); arEv(A, { t: "heal", s: c.s, i: c.t, d: AR.SK.mend * AR.HPX * E }); break;
@@ -1862,17 +1884,17 @@ function arStep(A) {
   }
   const strikes = [];   // everything that is ready strikes this tick, simultaneously
   for (let s = 0; s < 2; s++) for (const { u, i } of arLive(A, s)) if (u.cd <= 0) {
-    u.n++; let d = arAtk(A, s, u) * AR.STRIKE; if (u.passive === "crit" && u.n % 4 === 0) d *= AR.PS.crit; if (u.passive === "blood") d *= 1 + AR.PS.blood; if (u.passive === "voideater") d *= AR.PS.voideater;
+    u.n++; let d = arAtk(A, s, u) * AR.STRIKE; if (u.passive === "crit" && u.n % 4 === 0) { d *= AR.PS.crit; arLog(A, u.name + " lands a " + AR.PS.crit + "× hit (Overload)", s, "passive"); } if (u.passive === "blood") d *= 1 + AR.PS.blood; if (u.passive === "voideater") d *= AR.PS.voideater;
     strikes.push({ s, i, u, ti: arTarget(A, s, i), d, twice: u.passive === "echo" && u.n % 3 === 0 }); u.cd += AR.IV / (u.spd * (u.hasteT > 0 ? AR.SK.gale : 1));
   }
   for (const k of strikes) {
     arEv(A, { t: "strike", s: k.s, i: k.i, ti: k.ti });
     if (k.ti < 0) { arCoreHit(A, 1 - k.s, k.d * (k.twice ? 2 : 1)); arGain(A, k.u, AR.LV.strike); continue; }
     const T = A.s[1 - k.s].lane[k.ti];
-    arHit(A, k.u, k.s, 1 - k.s, k.ti, k.d, k.u.el, { melee: true }); if (k.twice && A.s[1 - k.s].lane[k.ti]) arHit(A, k.u, k.s, 1 - k.s, k.ti, k.d, k.u.el, { melee: true });
+    arHit(A, k.u, k.s, 1 - k.s, k.ti, k.d, k.u.el, { melee: true }); if (k.twice && A.s[1 - k.s].lane[k.ti]) { arLog(A, k.u.name + " strikes twice (Echo)", k.s, "passive"); arHit(A, k.u, k.s, 1 - k.s, k.ti, k.d, k.u.el, { melee: true }); }
     arGain(A, k.u, AR.LV.strike);
     if (k.u.passive === "blood") k.u.hp = Math.max(1, k.u.hp - k.u.max * AR.PS.bloodCost);
-    if (k.u.passive === "mimic" && T && T.passive !== "mimic") { k.u.passive = T.passive; k.u.sponge = T.passive === "sponge"; if (T.passive === "swift") k.u.spd *= AR.PS.swift; arLog(A, k.u.name + " mimics " + (PASS[T.passive] || ["?"])[0]); arEv(A, { t: "buff", s: k.s, i: k.i, text: "mimic" }); }
+    if (k.u.passive === "mimic" && T && T.passive !== "mimic") { k.u.passive = T.passive; k.u.sponge = T.passive === "sponge"; if (T.passive === "swift") k.u.spd *= AR.PS.swift; arLog(A, k.u.name + " mimics " + (PASS[T.passive] || ["?"])[0] + " (Mimic)", k.s, "passive"); arEv(A, { t: "buff", s: k.s, i: k.i, text: "mimic" }); }
   }
   arSweep(A); arCheck(A); return true;
 }
@@ -2303,10 +2325,10 @@ function arWin(msg) {
 function arBuild() {
   const slots = (s, kind, n) => Array.from({ length: n }, (_, i) => `<div class="ku slot empty" data-ar="slot" data-s="${s}" data-i="${i}" data-kind="${kind}"></div>`).join("");
   const core = s => `<div class="coreb ${s === 0 ? "me" : "foe"}" id="core${s}"><span>${s === 0 ? "YOU" : esc(AM.opp.toUpperCase().slice(0, 7))}</span><div class="cbar"><i></i><em></em></div>${s === 1 ? `<div class="pips">${"<i></i>".repeat(AR.EMAX)}</div>` : ""}</div>`;
-  $("#ck").innerHTML = `<div class="ckwrap arwrap"><div class="ckhud"><button class="btn sm red" data-ar="menu">✕</button><b class="fat" id="arclock">3:00</b><span class="surge" id="arsurge"></span><button class="btn sm dark" data-ar="auto" id="arauto">Auto</button><button class="btn sm dark" data-ar="speed" id="arspeed">1×</button></div>` +
+  $("#ck").innerHTML = `<div class="ckwrap arwrap"><div class="ckhud"><button class="btn sm red" data-ar="menu">✕</button><b class="fat" id="arclock">3:00</b><span class="surge" id="arsurge"></span><button class="btn sm dark" data-ar="log" id="arlogb">Log</button><button class="btn sm dark" data-ar="auto" id="arauto">Auto</button><button class="btn sm dark" data-ar="speed" id="arspeed">1×</button></div>` +
     `<div class="side foe"><div class="bench" id="arb1">${slots(1, "bench", 3)}</div>${core(1)}<div class="lanes" id="arl1">${slots(1, "lane", 5)}</div></div><div class="vsline"><span id="armsg"></span></div>` +
     `<div class="side me"><div class="lanes" id="arl0">${slots(0, "lane", 5)}</div>${core(0)}<div class="bench" id="arb0">${slots(0, "bench", 3)}</div></div>` +
-    `<div class="aren"><b>⚡</b><div class="aepips">${"<i><u></u></i>".repeat(AR.EMAX)}</div><span id="arenum">4</span></div><div class="ckpanel" id="arpanel"></div></div>`;
+    `<div class="aren"><b>⚡</b><div class="aepips">${"<i><u></u></i>".repeat(AR.EMAX)}</div><span id="arenum">4</span></div><div class="ckpanel" id="arpanel"></div><div class="arlog" id="arlog" hidden></div></div>`;
 }
 const arSlotEl = (s, i, kind) => document.querySelector(`#ck .slot[data-s="${s}"][data-i="${i}"][data-kind="${kind}"]`);
 function arFill(el, u, s, kind) {
@@ -2357,7 +2379,13 @@ function arUpdate(now) {
     for (let i = 0; i < 3; i++) arSlotUpd(arSlotEl(s, i, "bench"), S.bench[i], s, "bench", now);
   }
   const en = A.s[AM.me].energy; document.querySelectorAll("#ck .aepips i").forEach((p, k) => { p.firstChild.style.width = Math.max(0, Math.min(1, en - k)) * 100 + "%"; }); $("#arenum").textContent = en.toFixed(1);
-  arPanel(); arEvents(now);
+  arPanel(); arEvents(now); arLogDraw();
+}
+const LOG_ICON = { skill: "⚡", react: "✶", passive: "◆", die: "✖", swap: "⇄", level: "★", core: "♥" };
+function arLogDraw() {
+  if (!AM.logOpen) return; const A = AM.A, L = A.log, sig = L.length + ":" + (L.length ? L[L.length - 1].tk : 0); if (sig === AM.logSig) return; AM.logSig = sig;
+  const me = AM.me, tm = tk => arClock(tk * AR.DT);
+  $("#arlog").innerHTML = L.slice(-40).reverse().map(e => `<div class="lg ${e.s == null ? "" : e.s === me ? "me" : "foe"} k-${e.k}"><span class="lt">${tm(e.tk)}</span><span class="li">${LOG_ICON[e.k] || "·"}</span><span class="lx">${esc(e.t)}</span></div>`).join("") || '<p class="note" style="text-align:center">Nothing has happened yet.</p>';
 }
 function arEvents(now) {
   const A = AM.A, ev = A.ev, me = AM.me; A.ev = []; const snd = (n, a) => { if (now - AM.sfxAt > 120) { AM.sfxAt = now; sfx(n, a); } };
@@ -2423,6 +2451,7 @@ document.addEventListener("click", e => {
     case "speed": AM.speed = AM.speed === 1 ? 2 : 1; el.textContent = AM.speed + "×"; return;
     case "auto": AM.auto = !AM.auto; el.textContent = AM.auto ? "Auto: ON" : "Auto"; el.className = "btn sm " + (AM.auto ? "yellow" : "dark"); return;
     case "cancel": AM.mode = null; AM.sig = ""; return;
+    case "log": AM.logOpen = !AM.logOpen; $("#arlog").hidden = !AM.logOpen; el.className = "btn sm " + (AM.logOpen ? "yellow" : "dark"); AM.logSig = ""; return;
     case "unlock": { const sel = AM.sel; if (sel) arPut({ k: "lock", i: sel.i, t: null }); AM.sig = ""; return; }
     case "skill": {
       const sel = AM.sel, u = sel && A.s[AM.me].lane[sel.i]; if (!u) return; if (u.skcd > 0 || A.s[AM.me].energy < u.acost) return toast("Not ready.");
@@ -2553,6 +2582,16 @@ const econInit = () => {
   if (P.shop.w !== weekNo()) { for (const k of Object.keys(P.shop.b)) if (k[0] === "w" || k[0] === "e") delete P.shop.b[k]; P.shop.w = weekNo(); }
 };
 
+/* ----- card variants: cosmetic only, never stronger (GAME_RULES_v2 section 8) -----
+   Any pulled card can come out Holographic (foil), Alternate Art or Secret. Rolled per card, shown in the reveal, kept per card in P.vars; the player picks which one a card shows. */
+const VARIANTS = { holo: { name: "Holographic", short: "HOLO", chance: .08 }, alt: { name: "Alternate Art", short: "ALT ART", chance: .03 }, secret: { name: "Secret", short: "SECRET", chance: .005 } };
+const VAR_ORDER = ["secret", "alt", "holo"];
+function rollVariant() { let r = Math.random(); for (const k of VAR_ORDER) { r -= VARIANTS[k].chance; if (r < 0) return k; } return ""; }
+function grantVariant(id, v) { P.vars = P.vars || {}; const a = (P.vars[id] = P.vars[id] || []); if (a.includes(v)) return false; a.push(v); return true; }
+const varsOwned = id => ((P && P.vars && P.vars[id]) || []).filter(k => VARIANTS[k]);
+function selVariant(id) { const own = varsOwned(id), s = P && P.vsel && P.vsel[id]; if (s === "std") return ""; if (s && own.includes(s)) return s; return VAR_ORDER.find(k => own.includes(k)) || ""; }
+function setVar(id, v) { P.vsel = P.vsel || {}; P.vsel[id] = v; scheduleSave(); detail(id); }
+
 /* ----- the pools on offer right now ----- */
 const STD_RATES = { slots: PACK_SLOTS };
 function activePools() {
@@ -2616,7 +2655,7 @@ function summon(key, n = 1) {
   if (plan.free) { P.fp.n--; if (P.fp.n === PACK.freeMax - 1) P.fp.t = Date.now(); }
   P.tickets -= plan.tok; P.ev.tickets -= plan.evt; P.coins -= plan.coins; P.gems -= plan.gems;
   P.mis.sum += n; let medals = 0, evm = 0; const res = [];
-  for (let i = 0; i < n; i++) for (const c of pullOne(pool)) { const m = ECON.medal[rarOf(c)]; medals += m; if (pool.event) evm += m; res.push({ c, r: addCard(c.id) }); }
+  for (let i = 0; i < n; i++) for (const c of pullOne(pool)) { const m = ECON.medal[rarOf(c)]; medals += m; if (pool.event) evm += m; { const v = rollVariant(); res.push({ c, r: addCard(c.id), v, nv: v ? grantVariant(c.id, v) : false }); } }
   P.medals += medals; if (pool.event) P.ev.medals += evm;
   res.forEach(x => { P.recent = [x.c.id].concat((P.recent || []).filter(i => i !== x.c.id)).slice(0, 16); });
   scheduleSave(); chrome(); PK = { res, i: 0, flipped: false, torn: false, kind: key, multi: n > 1, n, medals, evm };
@@ -2732,7 +2771,7 @@ function oddsModal(key = "std") {
   if (p.bias) extra = ` ${p.biasName} cards count four times in every rarity, and the hit card is always a ${p.biasName} card when its rarity has one.`;
   if (p.exclusive) extra += " The two featured cards are event exclusives: they are in no other pool and cannot be crafted or exchanged. This festival returns every eight weeks.";
   const price = Object.entries(p.cost).map(([r, n]) => n + " " + (r === "evt" ? "event ticket" : r)).join(" or ");
-  openSheet(`<h2 class="fat">${esc(p.name)} ODDS</h2><p class="note">Five cards per summon. Chance per card:</p><table class="odds">${rows}</table><table class="odds" style="margin-top:8px">${[1, 2, 3, 4, 5].map(r => `<tr><td><span class="rtag r${r}">${RNAME[r].toUpperCase()}</span> ${cnt(r)} cards</td><td></td></tr>`).join("")}<tr><td><span class="rtag r6">SECRET RARE</span> ${ex} cards</td><td></td></tr></table><p class="note">Within a rarity every card is equally likely.${extra} Secret Rares only come from summons. If ${p.pity - 1} summons in a row hold no Legendary or better, the next one's last card is one (a Secret Rare 1 time in 5). The counter belongs to this pool${p.ends ? " and resets when it ends" : ""}. Price: ${price}; ten summons cost nine.</p><div class="row c"><button class="btn dark" data-act="closeModal">Close</button></div>`);
+  openSheet(`<h2 class="fat">${esc(p.name)} ODDS</h2><p class="note">Five cards per summon. Chance per card:</p><table class="odds">${rows}</table><table class="odds" style="margin-top:8px">${[1, 2, 3, 4, 5].map(r => `<tr><td><span class="rtag r${r}">${RNAME[r].toUpperCase()}</span> ${cnt(r)} cards</td><td></td></tr>`).join("")}<tr><td><span class="rtag r6">SECRET RARE</span> ${ex} cards</td><td></td></tr></table><p class="note">Within a rarity every card is equally likely.${extra} Secret Rares only come from summons. Variants are cosmetic only and never stronger: any card can come out Holographic (${VARIANTS.holo.chance * 100}%), Alternate Art (${VARIANTS.alt.chance * 100}%) or Secret (${VARIANTS.secret.chance * 100}%), whatever the pool. If ${p.pity - 1} summons in a row hold no Legendary or better, the next one's last card is one (a Secret Rare 1 time in 5). The counter belongs to this pool${p.ends ? " and resets when it ends" : ""}. Price: ${price}; ten summons cost nine.</p><div class="row c"><button class="btn dark" data-act="closeModal">Close</button></div>`);
 }
 
 /* ----- the free Standard pack: two stored, one recharges every 8 hours ----- */
@@ -2762,7 +2801,7 @@ function openSheet(h) { const m = $("#modal"); m.hidden = false; m.innerHTML = `
 function detail(id) {
   const c = BY[id], n = P.own[id] || 0, cost = c.ex ? 0 : CRAFT[c.lv], k = arCard(c), rr = rarOf(c);
   openSheet(`<div class="row" style="align-items:flex-start;flex-wrap:nowrap;gap:14px"><div style="width:44%;flex:none">${cardHtml(c, { miss: !n, tilt: true })}</div><div style="min-width:0;flex:1"><h2 class="fat" style="text-align:left;font-size:18px;margin:2px 0 8px;line-height:1.15">${esc(c.name)}</h2><div class="row" style="gap:8px"><span class="rtag r${rr}">${RNAME[rr]}</span><span class="elchip el-${k.el}">${elIco(k.el)}${EL[k.el][0]}</span></div><p class="note" style="margin:8px 0 0;line-height:1.5">${esc(FAC[k.fac] || k.fac)}<br>Targets: ${TGT_NAME[k.tm]}<br>Strike ${+(k.atk * AR.ATKX * AR.STRIKE).toFixed(1)} every ${+(AR.IV / k.spd).toFixed(1)} s<br>Owned ${n} / 3</p></div></div>` +
-    `<div class="cstat"><div class="a"><b>${Math.round(k.atk * AR.ATKX)}</b><small>Attack</small></div><div class="h"><b>${hpOf(k)}</b><small>Health</small></div><div class="s"><b>${k.spd.toFixed(2)}</b><small>Speed</small></div><div class="c"><b>${k.cost}</b><small>Cost</small></div></div>` +
+    `${varsOwned(id).length ? `<div class="row c" style="margin:6px 0 0"><span class="note">Variant</span>${["std"].concat(VAR_ORDER.filter(x => varsOwned(id).includes(x))).map(x => `<button class="btn sm ${(selVariant(id) || "std") === x ? "yellow" : "dark"}" data-act="setvar" data-id="${id}" data-v="${x}">${x === "std" ? "Standard" : VARIANTS[x].name}</button>`).join("")}</div>` : ""}<div class="cstat"><div class="a"><b>${Math.round(k.atk * AR.ATKX)}</b><small>Attack</small></div><div class="h"><b>${hpOf(k)}</b><small>Health</small></div><div class="s"><b>${k.spd.toFixed(2)}</b><small>Speed</small></div><div class="c"><b>${k.cost}</b><small>Cost</small></div></div>` +
     `<div class="skillbox"><em>Passive · ${esc(PASS[k.passive][0])}</em>${passText(k.passive)}</div><div class="skillbox"><em>Skill · ${esc(actName(k))} · ${k.acost} energy</em>${actText(k.active)}</div>` +
     `<div class="row c" style="margin-top:14px">${c.ev ? '<span class="note">Only its Event Summon or Event shop gives this card.</span>' : c.ex ? '<span class="note">Only a pack gives this card.</span>' : `<button class="btn yellow sm" data-act="craft" data-id="${id}" ${P.dust < cost || n >= 3 ? "disabled" : ""}>Craft · ${cost} ${ic("shard")}</button>`}${n > 1 ? `<button class="btn sm" data-act="sell" data-id="${id}">Sell 1 · ${ECON.sell[rr]} ${ic("coin")}</button><button class="btn sm" data-act="breakc" data-id="${id}">Break 1 · ${DUST[c.ex ? "ex" : c.lv]} ${ic("shard")}</button>` : ""}<button class="btn dark sm" data-act="closeModal">Close</button></div>`);
 }
@@ -2965,6 +3004,7 @@ document.addEventListener("click", async e => {
     case "buyOffer": return buyOffer(d.id);
     case "pickGo": return pickGo(d.o, d.id);
     case "evLogin": return evLogin();
+    case "setvar": return setVar(d.id, d.v);
     case "openPack": return summon(SEL, 1);
     case "buyBundle": return buyBundle();
     case "sell": return sellCopy(d.id);
