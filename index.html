@@ -715,6 +715,9 @@ select:focus, input:focus { outline: 1px solid var(--gold); }
 .earn { margin: 0; padding-left: 16px; font: 600 12px/1.5 var(--body); color: #cfdaf3; } .earn li { margin: 4px 0; } .earn b { color: var(--gold-hi); }
 .rchip.s .ri svg { color: #c9a0ff; }
 
+.ku .klv { position: absolute; left: 4px; top: 22px; z-index: 4; font-style: normal; font: 700 8px/1 var(--num); color: var(--gold-hi); text-shadow: 0 0 4px #000, 0 0 6px var(--gold); letter-spacing: 0; pointer-events: none; }
+.ku .klv:empty { display: none; }
+
 @media (prefers-reduced-motion: reduce) { * { animation-duration: .01s !important; } }
 </style>
 
@@ -1215,7 +1218,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.11.12-g";
+const VER = "2026.11.12-h";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -1655,16 +1658,19 @@ const AR = {
   E0: 5, EMAX: 10, ERATE: 1.2,       // starting energy, cap, seconds per energy
   SWAP_E: 2, SWAP_CD: 8,             // bringing a reserve in: energy, and the wait before that slot can swap again
   IV: 6, STRIKE: .5, ATKX: 8,      // seconds between basic strikes at speed 1.0, the share of ATK a strike deals, and the factor from a card's base attack to its fight attack (slower, bigger hits)
-  FOCUS_SUPPORT: 16, AI_EVERY: [15, 10, 5], AI_SLIP: [.5, .25, 0],   // AI: HP value of a healer/buffer when picking a focus target; ticks between its decisions and the share of ready skills it fumbles, by level
+  FOCUS_SUPPORT: 16, AI_EVERY: [10, 10, 5], AI_SLIP: [.4, .2, 0], EASY_FOCUS: .2, AI_TH: 3,   // AI: HP value of a healer/buffer when picking a focus target; ticks between its decisions and the share of ready skills it fumbles, by level
   MARK_T: 8, CORE: 40, HPX: 8, SKILL_CD: 4, GROW_T: 8, SURGE_AT: 60, SURGE_T: 10, INPUT_DELAY: 3, RETARGET: 1,
 };
 const ACOST = { mend: 2, empower: 2, ward: 2, overgrow: 5, volley: 3, disrupt: 1, strike: 3, mark: 1, gale: 2, arc: 3, freeze: 2, cleanse: 2, pact: 1 };
 /* skill strengths in 'stat points' (HP-type ones are multiplied by HPX): the numbers the balance sweep tunes */
 /* passive strengths (same idea) */
 /* rarity: extra health on top of the card's own stats, by rarity (1 = common ... 6) */
-AR.RHP = { 1: 1.4, 2: 1.42, 3: 1.26, 4: 1.11, 5: 1.05, 6: 1.05 };
-AR.PS = { mender: 0.3, fortify: 0.6, rally: 0.12, grow: 0.17, lastwords: 0.22, battery: 0.13, berserk: 5.5, amp: 2.6, overkill: 1, thorns: 0.35, spongeT: 10, pack: 1, guard: 0.85, pierce: 0.3, swift: 1.2, vamp: 0.75, soul: 0.15, laststand: 3, lsGuard: 0.7, blood: 0.6, bloodCost: 0.05, chainAmp: 1.6, decree: 0.8, phoenix: 0.15, formation: 0.5, treasure: 7, regen: 0.015, crit: 2.2, voideater: 1.15 };
-AR.SK = { mend: 1, empower: 5, empowerT: 8, overgrow: 0.8, ward: 2.4, volley: 0.45, strike: 0.38, gale: 2.4, galeT: 6, arc: 0.3, freezeT: 1.6, cleanse: 0.7, pact: 20, pactT: 8, pactCost: 0.1 };
+AR.RHP = { 1: 1.4, 2: 1.21, 3: 1.1, 4: .97, 5: .83, 6: .83 };
+AR.PS = { mender: 0.3, fortify: 0.6, rally: 0.12, grow: 0.17, lastwords: 0.22, battery: 0.1, berserk: 5.5, amp: 3.2, overkill: 1, thorns: 0.35, spongeT: 10, pack: 1.3, guard: 0.85, pierce: 0.3, swift: 1.15, vamp: 0.6, soul: 0.15, laststand: 3, lsGuard: 0.7, blood: 0.6, bloodCost: 0.05, chainAmp: 2.2, decree: 1.1, phoenix: 0.15, formation: 0.5, treasure: 7, regen: 0.011, crit: 2.2, voideater: 1.15 };
+AR.SK = { mend: 0.8, empower: 3.3, empowerT: 8, overgrow: 0.75, ward: 0.9, volley: 0.5, strike: 0.32, gale: 1.7, galeT: 6, arc: 0.22, freezeT: 1.3, cleanse: 0.7, pact: 8.5, pactT: 8, pactCost: 0.1 };
+/* MATCH LEVELS: every card grows during a match and is back to normal in the next one. xp: what it takes to reach level 2 and 3; atk/hp: total bonus at each level;
+   at level 3 the card also unlocks its enhanced skill (costs 1 less, recharges faster, hits harder). Earned by striking, using the skill, taking hits and killing. */
+AR.LV = { xp: [10, 26], atk: [0, .2, .4], hp: [0, .2, .4], spd: [1, 1.1, 1.05], cd: .75, enhance: 1.5, strike: 1, skill: 2, kill: 3, hurt: .25 };
 const TGT_BY = { weapon: "strongest", hero: "opposite", monster: "nearest", folk: "support", armor: "opposite", esper: "weakest", relic: "support", dominant: "strongest" };
 const TGT_NAME = { opposite: "Opposite", nearest: "Nearest", weakest: "Weakest", strongest: "Strongest", support: "Support-first" };
 const SUPPORT_ACT = { mend: 1, ward: 1, empower: 1, overgrow: 1, cleanse: 1, gale: 1 };
@@ -1679,7 +1685,7 @@ function arUnit(A, cid) {
   const k = arCard(BY[cid]), spd = k.spd * (k.passive === "swift" ? AR.PS.swift : 1);
   const rm = AR.RHP[k.rar] || 1, hp = k.hp * AR.HPX * rm * (k.nudge || 1), atk = k.atk * AR.ATKX;
   return { uid: ++A.uid, cid, name: k.name, el: k.el, tribe: k.tribe, atk, hp, max: hp, cost: k.cost, spd, tm: k.tm, passive: k.passive, active: k.active, acost: k.acost, rar: k.rar,
-    cd: AR.IV / spd * .6, skcd: 0, lock: null, mark: null, frozen: 0, shield: 0, tmp: 0, tmpT: 0, pb: { a: 0, h: 0 }, pt: AR.GROW_T, sponge: k.passive === "sponge", spT: 0, fac: k.fac, n: 0, used: false, hasteT: 0, by: null, bys: 0 };
+    cd: AR.IV / spd * .6, skcd: 0, lock: null, mark: null, frozen: 0, shield: 0, tmp: 0, tmpT: 0, pb: { a: 0, h: 0 }, pt: AR.GROW_T, sponge: k.passive === "sponge", spT: 0, fac: k.fac, n: 0, used: false, hasteT: 0, by: null, bys: 0, lv: 1, xp: 0 };
 }
 function arNew(deck0, deck1, o = {}) {
   const A = { t: 0, tick: 0, uid: 0, seed: 20261111, over: false, winner: null, ev: [], log: [], q: [], seq: [0, 0], ui: !!o.ui, level: o.level || [1, 1], mode: o.mode || {}, horizon: null, s: [] };
@@ -1693,7 +1699,7 @@ const arLane = (A, s, i) => A.s[s].lane[i];
 const arLive = (A, s) => A.s[s].lane.map((u, i) => ({ u, i })).filter(x => x.u);
 function arAtk(A, s, u) {
   const surge = A.t >= AR.SURGE_AT ? Math.floor((A.t - AR.SURGE_AT) / AR.SURGE_T) + 1 : 0;
-  return Math.max(0, u.atk + AR.ATKX * ((u.tmpT > 0 ? u.tmp : 0) + (u.passive === "berserk" && u.hp * 2 < u.max ? AR.PS.berserk : 0) + (u.passive === "pack" ? A.s[s].lane.filter(x => x && x !== u && x.fac === u.fac).length * AR.PS.pack : 0) + (u.passive === "laststand" && u.hp < u.max * .3 ? AR.PS.laststand : 0) +
+  return Math.max(0, u.atk * (1 + AR.LV.atk[u.lv - 1]) + AR.ATKX * ((u.tmpT > 0 ? u.tmp : 0) + (u.passive === "berserk" && u.hp * 2 < u.max ? AR.PS.berserk : 0) + (u.passive === "pack" ? A.s[s].lane.filter(x => x && x !== u && x.fac === u.fac).length * AR.PS.pack : 0) + (u.passive === "laststand" && u.hp < u.max * .3 ? AR.PS.laststand : 0) +
     (u.passive === "formation" ? [A.s[s].lane[A.s[s].lane.indexOf(u) - 1], A.s[s].lane[A.s[s].lane.indexOf(u) + 1]].filter(Boolean).length * AR.PS.formation : 0) + A.s[s].lane.filter(x => x && x !== u && x.passive === "decree" && x.fac === u.fac).length * AR.PS.decree + surge));
 }
 function arCoreHit(A, ts, d) { A.s[ts].core -= d; arLog(A, (ts ? "Enemy" : "Your") + " core takes " + Math.round(d)); arEv(A, { t: "core", s: ts, d }); }
@@ -1711,9 +1717,17 @@ function arTarget(A, s, i) {
     default: return near();
   }
 }
+function arGain(A, u, x) {
+  if (!u || u.hp <= 0 || u.lv >= 3) return; u.xp += x;
+  while (u.lv < 3 && u.xp >= AR.LV.xp[u.lv - 1]) {
+    const L = AR.LV, prev = L.hp[u.lv - 1]; u.lv++; const inc = u.max * (L.hp[u.lv - 1] - prev) / (1 + prev); u.max += inc; u.hp += inc; u.spd *= L.spd[u.lv - 1];
+    if (u.lv === 3) u.acost = Math.max(1, u.acost - 1);
+    const s = A.s[0].lane.includes(u) ? 0 : 1; arLog(A, u.name + " reaches level " + u.lv); arEv(A, { t: "level", s, i: A.s[s].lane.indexOf(u), lv: u.lv });
+  }
+}
 /* one hit: reactions, guard, shield, marks and the passives that fire on a hit */
 function arHit(A, src, ss, ts, ti, dmg, el, o = {}) {
-  const T = A.s[ts].lane[ti]; if (!T || dmg <= 0) return 0; let d = dmg, react = null; if (src) { T.by = src; T.bys = ss; }
+  const T = A.s[ts].lane[ti]; if (!T || dmg <= 0) return 0; let d = dmg, react = null; if (src) { T.by = src; T.bys = ss; arGain(A, T, AR.LV.hurt); }
   if (el && T.mark && REACT[T.mark.el + ">" + el]) {
     react = REACT[T.mark.el + ">" + el]; const amp = src && (src.passive === "amp" ? AR.PS.amp : src.passive === "chain" ? AR.PS.chainAmp : 0); d = dmg * ((react.mul || 1) + (react.mul > 1 ? amp : 0));
     if (react.strip) { T.atk = Math.max(1, T.atk - T.pb.a); T.max = Math.max(1, T.max - T.pb.h); T.hp = Math.min(T.hp, T.max); T.pb = { a: 0, h: 0 }; T.shield = 0; T.tmpT = 0; }
@@ -1739,6 +1753,7 @@ function arSweep(A) {
     if (u.passive === "phoenix" && !u.used) { u.used = true; u.hp = u.max * AR.PS.phoenix; u.shield = 0; u.mark = null; u.frozen = 0; arLog(A, u.name + " is reborn"); arEv(A, { t: "buff", s, i, text: "reborn" }); continue; }
     A.s[s].lane[i] = null; arLog(A, u.name + " falls"); arEv(A, { t: "die", s, i, name: u.name });
     for (let q = 0; q < 2; q++) for (const x of arLive(A, q)) if (x.u.passive === "soul") x.u.atk += AR.PS.soul * AR.ATKX;   // Soul Collector
+    if (u.by && u.by.hp > 0 && u.bys !== s) arGain(A, u.by, AR.LV.kill);
     if (u.by && u.by.passive === "treasure" && u.by.hp > 0) A.s[u.bys].energy = Math.min(AR.EMAX, A.s[u.bys].energy + AR.PS.treasure);   // Treasure Hunter
     if (u.passive === "lastwords") for (const x of arLive(A, s)) { const g = AR.PS.lastwords; x.u.atk += g * AR.ATKX; x.u.max += g * AR.HPX; x.u.hp += g * AR.HPX; x.u.pb.a += g * AR.ATKX; x.u.pb.h += g * AR.HPX; }
     const ri = A.s[s].bench.findIndex(b => b && b.passive === "reserve");
@@ -1757,22 +1772,24 @@ function arRun(A, c) {
     const u = S.lane[c.i]; if (!u || u.skcd > 0 || S.energy < u.acost) return; const a = ACT[u.active];
     const T = a.t === "ally" ? S.lane[c.t] : a.t === "enemy" ? F.lane[c.t] : null; if (a.t !== "none" && !T) return;
     (A.stat || (A.stat = { auto: 0, skill: 0, uses: 0 })).uses++;
-    S.energy -= u.acost; u.skcd = AR.SKILL_CD; arLog(A, (c.s ? "Enemy" : "You") + ": " + u.name + " uses " + actName(u)); arEv(A, { t: "skill", s: c.s, i: c.i, name: actName(u) });
+    S.energy -= u.acost; u.skcd = AR.SKILL_CD * (u.lv >= 3 ? AR.LV.cd : 1); arLog(A, (c.s ? "Enemy" : "You") + ": " + u.name + " uses " + actName(u)); arEv(A, { t: "skill", s: c.s, i: c.i, name: actName(u) });
+    const E = u.lv >= 3 ? AR.LV.enhance : 1;   // the enhanced skill unlocked at match level 3
     switch (u.active) {
-      case "mend": T.hp = Math.min(T.max, T.hp + AR.SK.mend * AR.HPX); arEv(A, { t: "heal", s: c.s, i: c.t, d: AR.SK.mend * AR.HPX }); break;
-      case "empower": T.tmp = AR.SK.empower; T.tmpT = AR.SK.empowerT; arEv(A, { t: "buff", s: c.s, i: c.t, text: "+" + Math.round(AR.SK.empower * AR.ATKX) + " ATK" }); break;
-      case "overgrow": { const g = AR.SK.overgrow; T.atk += g * AR.ATKX; T.max += g * AR.HPX; T.hp += g * AR.HPX; T.pb.a += g * AR.ATKX; T.pb.h += g * AR.HPX; arEv(A, { t: "buff", s: c.s, i: c.t, text: "+" + Math.round(g * AR.ATKX) + " ATK" }); break; }
-      case "ward": T.shield += AR.SK.ward * AR.HPX; arEv(A, { t: "buff", s: c.s, i: c.t, text: "+" + AR.SK.ward + " ward" }); break;
-      case "volley": for (const { i } of arLive(A, 1 - c.s)) arHit(A, u, c.s, 1 - c.s, i, AR.SK.volley * AR.ATKX, null); break;
+      case "mend": T.hp = Math.min(T.max, T.hp + AR.SK.mend * AR.HPX * E); arEv(A, { t: "heal", s: c.s, i: c.t, d: AR.SK.mend * AR.HPX * E }); break;
+      case "empower": T.tmp = AR.SK.empower * E; T.tmpT = AR.SK.empowerT; arEv(A, { t: "buff", s: c.s, i: c.t, text: "+" + Math.round(AR.SK.empower * E * AR.ATKX) + " ATK" }); break;
+      case "overgrow": { const g = AR.SK.overgrow * E; T.atk += g * AR.ATKX; T.max += g * AR.HPX; T.hp += g * AR.HPX; T.pb.a += g * AR.ATKX; T.pb.h += g * AR.HPX; arEv(A, { t: "buff", s: c.s, i: c.t, text: "+" + Math.round(g * AR.ATKX) + " ATK" }); break; }
+      case "ward": T.shield += AR.SK.ward * AR.HPX * E; arEv(A, { t: "buff", s: c.s, i: c.t, text: "+" + Math.round(AR.SK.ward * AR.HPX * E) + " ward" }); break;
+      case "volley": for (const { i } of arLive(A, 1 - c.s)) arHit(A, u, c.s, 1 - c.s, i, AR.SK.volley * AR.ATKX * E, null); break;
       case "disrupt": T.atk = Math.max(1, T.atk - T.pb.a); T.max = Math.max(1, T.max - T.pb.h); T.hp = Math.min(T.hp, T.max); T.pb = { a: 0, h: 0 }; T.tmpT = 0; T.shield = 0; T.mark = null; arEv(A, { t: "buff", s: 1 - c.s, i: c.t, text: "stripped" }); break;
-      case "strike": arHit(A, u, c.s, 1 - c.s, c.t, Math.max(3 * AR.ATKX, arAtk(A, c.s, u)) * AR.SK.strike, u.el); break;
-      case "gale": T.hasteT = AR.SK.galeT; arEv(A, { t: "buff", s: c.s, i: c.t, text: "haste" }); break;
-      case "arc": { const base = Math.max(3 * AR.ATKX, arAtk(A, c.s, u)) * AR.SK.arc; arHit(A, u, c.s, 1 - c.s, c.t, base, u.el); for (const j of [c.t - 1, c.t + 1]) if (F.lane[j]) arHit(A, u, c.s, 1 - c.s, j, base * .5, u.el); break; }
-      case "freeze": T.frozen = AR.SK.freezeT; T.cd += AR.SK.freezeT; arEv(A, { t: "buff", s: 1 - c.s, i: c.t, text: "frozen" }); break;
-      case "cleanse": T.mark = null; T.shield += AR.SK.cleanse * AR.HPX; arEv(A, { t: "buff", s: c.s, i: c.t, text: "cleansed" }); break;
-      case "pact": u.hp = Math.max(1, u.hp - u.max * AR.SK.pactCost); T.tmp = AR.SK.pact; T.tmpT = AR.SK.pactT; arEv(A, { t: "buff", s: c.s, i: c.t, text: "+" + Math.round(AR.SK.pact * AR.ATKX) + " ATK" }); break;
+      case "strike": arHit(A, u, c.s, 1 - c.s, c.t, Math.max(3 * AR.ATKX, arAtk(A, c.s, u)) * AR.SK.strike * E, u.el); break;
+      case "gale": T.hasteT = AR.SK.galeT * E; arEv(A, { t: "buff", s: c.s, i: c.t, text: "haste" }); break;
+      case "arc": { const base = Math.max(3 * AR.ATKX, arAtk(A, c.s, u)) * AR.SK.arc * E; arHit(A, u, c.s, 1 - c.s, c.t, base, u.el); for (const j of [c.t - 1, c.t + 1]) if (F.lane[j]) arHit(A, u, c.s, 1 - c.s, j, base * .5, u.el); break; }
+      case "freeze": T.frozen = AR.SK.freezeT * E; T.cd += AR.SK.freezeT * E; arEv(A, { t: "buff", s: 1 - c.s, i: c.t, text: "frozen" }); break;
+      case "cleanse": T.mark = null; T.shield += AR.SK.cleanse * AR.HPX * E; arEv(A, { t: "buff", s: c.s, i: c.t, text: "cleansed" }); break;
+      case "pact": u.hp = Math.max(1, u.hp - u.max * AR.SK.pactCost); T.tmp = AR.SK.pact * E; T.tmpT = AR.SK.pactT; arEv(A, { t: "buff", s: c.s, i: c.t, text: "+" + Math.round(AR.SK.pact * E * AR.ATKX) + " ATK" }); break;
       case "mark": T.mark = { el: u.el, t: AR.MARK_T }; arEv(A, { t: "buff", s: 1 - c.s, i: c.t, text: EL[u.el][1] + " marked" }); break;
     }
+    arGain(A, u, AR.LV.skill);
     arSweep(A);
   }
 }
@@ -1801,9 +1818,10 @@ function arStep(A) {
   }
   for (const k of strikes) {
     arEv(A, { t: "strike", s: k.s, i: k.i, ti: k.ti });
-    if (k.ti < 0) { arCoreHit(A, 1 - k.s, k.d * (k.twice ? 2 : 1)); continue; }
+    if (k.ti < 0) { arCoreHit(A, 1 - k.s, k.d * (k.twice ? 2 : 1)); arGain(A, k.u, AR.LV.strike); continue; }
     const T = A.s[1 - k.s].lane[k.ti];
     arHit(A, k.u, k.s, 1 - k.s, k.ti, k.d, k.u.el, { melee: true }); if (k.twice && A.s[1 - k.s].lane[k.ti]) arHit(A, k.u, k.s, 1 - k.s, k.ti, k.d, k.u.el, { melee: true });
+    arGain(A, k.u, AR.LV.strike);
     if (k.u.passive === "blood") k.u.hp = Math.max(1, k.u.hp - k.u.max * AR.PS.bloodCost);
     if (k.u.passive === "mimic" && T && T.passive !== "mimic") { k.u.passive = T.passive; k.u.sponge = T.passive === "sponge"; if (T.passive === "swift") k.u.spd *= AR.PS.swift; arLog(A, k.u.name + " mimics " + (PASS[T.passive] || ["?"])[0]); arEv(A, { t: "buff", s: k.s, i: k.i, text: "mimic" }); }
   }
@@ -1818,7 +1836,7 @@ function arCheck(A) {
 }
 /* ----- the computer player (also "Auto" mode for a human): decides every half second ----- */
 function arAi(A, s) {
-  if (A.over) return; const lvl = A.level[s]; if (A.tick % AR.AI_EVERY[lvl] !== 0) return; const S = A.s[s], F = A.s[1 - s], send = c => (A.hook ? A.hook(Object.assign({ s }, c)) : arInput(A, Object.assign({ s }, c), 1)); let en = S.energy; const used = {};
+  if (A.over) return; const lvl = A.level[s]; if (A.tick % AR.AI_EVERY[lvl] !== 0) return; if (lvl >= 2) return arAiPro(A, s); const S = A.s[s], F = A.s[1 - s], send = c => (A.hook ? A.hook(Object.assign({ s }, c)) : arInput(A, Object.assign({ s }, c), 1)); let en = S.energy; const used = {};
   const reacts = (m, e) => !!REACT[m + ">" + e];
   for (let i = 0; i < 5; i++) if (!S.lane[i] && S.swapcd[i] <= 0 && en >= AR.SWAP_E) {
     const b = S.bench.map((u, k) => ({ u, k })).filter(x => x.u && !used[x.k]).sort((p, q) => q.u.atk - p.u.atk)[0];
@@ -1827,11 +1845,11 @@ function arAi(A, s) {
   const allies = arLive(A, s), foes = arLive(A, 1 - s), needSwap = S.lane.some(u => !u) && S.bench.some(u => u);
   /* level 1 and up: everyone focuses one enemy (a healer or buffer first, else whoever is closest to dying) */
   let focus = null;
-  if (lvl >= 1 && foes.length) focus = foes.slice().sort((p, q) => (p.u.hp + p.u.shield - (SUPPORT_ACT[p.u.active] ? AR.FOCUS_SUPPORT : 0)) - (q.u.hp + q.u.shield - (SUPPORT_ACT[q.u.active] ? AR.FOCUS_SUPPORT : 0)) || p.i - q.i)[0].i;
+  if (foes.length && (lvl >= 1 || arRand(A) < AR.EASY_FOCUS)) focus = foes.slice().sort((p, q) => (p.u.hp + p.u.shield - (SUPPORT_ACT[p.u.active] ? AR.FOCUS_SUPPORT : 0)) - (q.u.hp + q.u.shield - (SUPPORT_ACT[q.u.active] ? AR.FOCUS_SUPPORT : 0)) || p.i - q.i)[0].i;
   for (let i = 0; i < 5; i++) {
     const u = S.lane[i]; if (!u) continue;
-    if (lvl >= 1 && foes.length) {
-      const cur = u.lock != null && F.lane[u.lock], combo = foes.find(x => x.u.mark && reacts(x.u.mark.el, u.el));
+    if (foes.length && (lvl >= 1 || focus != null)) {
+      const cur = u.lock != null && F.lane[u.lock], combo = lvl >= 1 ? foes.find(x => x.u.mark && reacts(x.u.mark.el, u.el)) : null;
       if (combo && (!cur || u.lock !== combo.i)) send({ k: "lock", i, t: combo.i });
       else if (!combo && focus != null) { if (u.lock !== focus) send({ k: "lock", i, t: focus }); }
       else if (!cur && u.lock != null) send({ k: "lock", i, t: null });
@@ -1853,6 +1871,68 @@ function arAi(A, s) {
     if (tgt !== null) { en -= u.acost; send({ k: "use", i, t: tgt }); }
   }
 }
+/* ----- the Hard computer player ("level 2", also what Auto does for a human).
+   It prices every skill it could use in health-equivalents, spends energy on the best price per energy (and holds it when nothing is worth it, unless the bar is nearly full or the bell is near),
+   guards a card that is about to fall, finishes cards with burst, retreats a nearly dead card for a healthy backup, and focuses fire without flip-flopping. ----- */
+function arAiPro(A, s) {
+  if (A.over) return; const S = A.s[s], F = A.s[1 - s], send = c => (A.hook ? A.hook(Object.assign({ s }, c)) : arInput(A, Object.assign({ s }, c), 1));
+  const AX = AR.ATKX, SK = AR.SK, st = (A.aiMem = A.aiMem || {})[s] || ((A.aiMem[s]) = { focus: 0 });
+  let en = S.energy; const used = {}, reacts = (m, e) => !!REACT[m + ">" + e];
+  const hit = (side, u) => arAtk(A, side, u) * AR.STRIKE, per = u => AR.IV / u.spd;
+  for (let i = 0; i < 5; i++) if (!S.lane[i] && S.swapcd[i] <= 0 && en >= AR.SWAP_E) {
+    const b = S.bench.map((u, k) => ({ u, k })).filter(x => x.u && !used[x.k]).sort((p, q) => q.u.atk * q.u.hp - p.u.atk * p.u.hp)[0];
+    if (b) { used[b.k] = 1; en -= AR.SWAP_E; send({ k: "swap", b: b.k, l: i }); }
+  }
+  const allies = arLive(A, s), foes = arLive(A, 1 - s); if (!foes.length || !allies.length) return;
+  const avgFoeHit = foes.reduce((a, x) => a + hit(1 - s, x.u), 0) / foes.length, danger = u => u.hp + u.shield < avgFoeHit * 2.4 * Math.min(3, Math.max(1, foes.length / 2));
+  const endgame = A.t > AR.MATCH - 14, left = Math.max(0, AR.MATCH - A.t);
+  // ---- price every skill that is ready ----
+  const cands = [];
+  for (const { u, i } of allies) {
+    if (u.skcd > 0) continue; const E = u.lv >= 3 ? AR.LV.enhance : 1, c = u.acost, push = (t, v) => { if (t != null && v > 0) cands.push({ i, t, v, c, sc: v / c }); };
+    const best = (list, f) => list.reduce((b, x) => { const v = f(x); return !b || v > b.v ? { t: x.i, v, x } : b; }, null);
+    switch (u.active) {
+      case "mend": { const amt = SK.mend * AR.HPX * E, b = best(allies, x => Math.min(x.u.max - x.u.hp, amt) * (danger(x.u) ? 2.6 : 1)); if (b) push(b.t, b.v); break; }
+      case "ward": { const amt = SK.ward * AR.HPX * E, b = best(allies, x => amt * (danger(x.u) ? 2.2 : .55)); if (b) push(b.t, b.v); break; }
+      case "cleanse": { const amt = SK.cleanse * AR.HPX * E, b = best(allies, x => amt * (danger(x.u) ? 2 : .5) + (x.u.mark && foes.some(f => reacts(x.u.mark.el, f.u.el)) ? 10 : 0)); if (b) push(b.t, b.v); break; }
+      case "empower": { const b = best(allies, x => SK.empower * E * AX * AR.STRIKE * (SK.empowerT / per(x.u)) * (danger(x.u) ? .5 : 1)); if (b) push(b.t, b.v); break; }
+      case "pact": { if (u.hp < u.max * .55) break; const b = best(allies, x => SK.pact * E * AX * AR.STRIKE * (SK.pactT / per(x.u)) * (danger(x.u) ? .5 : 1)); if (b) push(b.t, b.v - u.max * SK.pactCost); break; }
+      case "gale": { const b = best(allies, x => (x.u.hasteT > 0 ? 0 : hit(s, x.u) * (SK.galeT * E / per(x.u)) * (SK.gale * E - 1) / (SK.gale * E))); if (b) push(b.t, b.v); break; }
+      case "overgrow": { const g = SK.overgrow * E, b = best(allies, x => g * AX * AR.STRIKE * Math.min(10, left / per(x.u)) + g * AR.HPX * .5); if (b) push(b.t, b.v); break; }
+      case "strike": case "arc": {
+        const mul = u.active === "strike" ? SK.strike : SK.arc, base = Math.max(3 * AX, arAtk(A, s, u)) * mul * E, b = best(foes, x => {
+          const t = x.u, rx = t.mark && reacts(t.mark.el, u.el) ? 1.5 : 1, d = base * rx; let v = d + (t.hp + t.shield <= d ? t.max * .6 + hit(1 - s, t) * 4 : 0);
+          if (u.active === "arc") for (const j of [x.i - 1, x.i + 1]) { const n = F.lane[j]; if (n) { const nd = base * .5; v += nd + (n.hp + n.shield <= nd ? n.max * .6 + hit(1 - s, n) * 4 : 0); } }
+          return v; });
+        if (b) push(b.t, b.v); break;
+      }
+      case "volley": { const d = SK.volley * AX * E; let v = 0; for (const x of foes) v += d + (x.u.hp + x.u.shield <= d ? x.u.max * .6 : 0); push(0, v); break; }
+      case "freeze": { const b = best(foes, x => (x.u.frozen > 0 ? 0 : hit(1 - s, x.u) * Math.min(1.2, SK.freezeT * E / per(x.u)) * 1.1)); if (b) push(b.t, b.v); break; }
+      case "disrupt": { const b = best(foes, x => x.u.pb.a * AR.STRIKE * 6 + x.u.shield + (x.u.tmpT > 0 ? x.u.tmp * AX * AR.STRIKE * 3 : 0) + (x.u.mark ? 3 : 0)); if (b) push(b.t, b.v); break; }
+      case "mark": { const b = best(foes, x => (x.u.mark ? 0 : allies.filter(a => reacts(u.el, a.u.el)).length * AR.STRIKE * AX * 2)); if (b) push(b.t, b.v); break; }
+    }
+  }
+  cands.sort((p, q) => q.sc - p.sc); const doneCard = {}; let sent = 0;
+  for (const c of cands) {
+    if (doneCard[c.i] || en < c.c || sent >= 3) continue;
+    if (!(c.sc >= AR.AI_TH || en >= AR.EMAX - 1.2 || (endgame && c.sc >= 1))) continue;
+    en -= c.c; doneCard[c.i] = 1; sent++; send({ k: "use", i: c.i, t: c.t });
+  }
+  // ---- retreat a card that is about to fall ----
+  if (en >= AR.SWAP_E + 1) {
+    const li = allies.filter(x => x.u.hp < x.u.max * .2 && x.u.shield <= 0 && S.swapcd[x.i] <= 0).sort((p, q) => p.u.hp / p.u.max - q.u.hp / q.u.max)[0];
+    const bi = S.bench.map((u, k) => ({ u, k })).filter(x => x.u && !used[x.k] && x.u.hp > x.u.max * .55).sort((p, q) => q.u.atk * q.u.hp - p.u.atk * p.u.hp)[0];
+    if (li && bi) { en -= AR.SWAP_E; send({ k: "swap", b: bi.k, l: li.i }); }
+  }
+  // ---- focus fire with some memory, and cash in reactions ----
+  const price = x => x.u.hp + x.u.shield - (SUPPORT_ACT[x.u.active] ? AR.FOCUS_SUPPORT : 0) + (x.u.passive === "phoenix" && !x.u.used ? 40 : 0);
+  const sorted = foes.slice().sort((p, q) => price(p) - price(q) || p.i - q.i), cur = foes.find(x => x.u.uid === st.focus), pick = cur && price(cur) <= price(sorted[0]) * 1.6 + 10 ? cur : sorted[0]; st.focus = pick.u.uid;
+  for (const { u, i } of allies) {
+    const have = u.lock != null && F.lane[u.lock], combo = foes.find(x => x.u.mark && reacts(x.u.mark.el, u.el));
+    if (combo && (!have || u.lock !== combo.i)) send({ k: "lock", i, t: combo.i });
+    else if (!combo && u.lock !== pick.i) send({ k: "lock", i, t: pick.i });
+  }
+}
 /* headless fight for balance runs: both sides played by the computer */
 function arSim(deck0, deck1, lv0 = 1, lv1 = 1, max = 2400) {
   const A = arNew(deck0, deck1, { level: [lv0, lv1] }); let n = 0;
@@ -1861,7 +1941,7 @@ function arSim(deck0, deck1, lv0 = 1, lv1 = 1, max = 2400) {
 }
 /* a short fingerprint of the board, compared between phones during an online match */
 function arHash(A) {
-  const r = x => Math.round(x * 100) / 100, t = JSON.stringify([A.tick, A.s.map(s => [r(s.core), r(s.energy), s.lane.map(u => (u ? [u.cid, u.passive, r(u.atk), r(u.hp), r(u.max), r(u.cd), r(u.shield), u.mark && u.mark.el] : 0)), s.bench.map(u => (u ? u.cid : 0))])]); let h = 5381;
+  const r = x => Math.round(x * 100) / 100, t = JSON.stringify([A.tick, A.s.map(s => [r(s.core), r(s.energy), s.lane.map(u => (u ? [u.cid, u.passive, u.lv, r(u.atk), r(u.hp), r(u.max), r(u.cd), r(u.shield), u.mark && u.mark.el] : 0)), s.bench.map(u => (u ? u.cid : 0))])]); let h = 5381;
   for (let i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) >>> 0; return h;
 }
 
@@ -1938,7 +2018,7 @@ function campSheet(ch, k) {
   openSheet(`<span class="ribbon">${esc(c.foes[k]).toUpperCase()}</span><p class="note" style="text-align:center;margin:0 0 8px">${esc(c.name)} · ${c.els.map(e => `<span class="elchip el-${e}">${elIco(e)}${EL[e][0]}</span>`).join(" + ")}${boss ? " · boss: +15 core, +1 energy" : ""}</p><div class="kd5">${deck.slice(0, 5).map(id => kcardMini(id)).join("")}</div><div class="kd3" style="margin-top:6px"><small>BACKUPS</small>${deck.slice(5).map(id => kcardMini(id)).join("")}</div><p class="note" style="text-align:center;margin:10px 0 0">${esc(c.hint)}</p><p class="note" style="text-align:center;margin:4px 0 0">${first ? "First win: " + (boss ? "3 packs" : k % 2 ? "1 pack" : "30 dust") + " and 30 XP." : "Beaten. A win pays 10 dust."}</p><div class="row c" style="margin-top:12px"><button class="btn yellow big" data-ck="campGo" data-ch="${ch}" data-k="${k}">FIGHT</button><button class="btn dark" data-act="closeModal">Back</button></div>`);
 }
 function rulesSheet() {
-  openSheet(`<h2 class="fat">HOW TO PLAY</h2><div class="rules"><p><b>The goal:</b> bring the enemy core from 40 to 0 before the 3:00 clock ends (then the higher core wins; if the cores are equal, the side with more card health left).</p><p><b>Your deck:</b> 8 cards. 5 stand on the field, 3 wait as backups.</p><p><b>Fighting:</b> your cards strike by themselves. Each picks a target by its own habit (shown on the card): Nearest, Weakest, Strongest, Opposite or Support-first. Tap one of your cards, then an enemy, to lock its target.</p><p><b>Energy:</b> one shared pool that refills over time (max 10). Basic strikes are free. Spend it on a card's <b>skill</b> (tap the card, press its skill button) or to <b>swap a backup in</b> (2 energy).</p><p><b>Elements:</b> a hit marks its target with the attacker's element for 6 seconds. Hit a marked card with a reacting element for a bonus: Water then Lightning (Conduct ×1.5), Ice then Fire (Melt ×1.5), Wind then Earth (Sandblast ×1.5), Water then Ice (Freeze), Fire then Wind (Blaze splash), Light and Dark (Eclipse).</p><p><b>Auto:</b> let the computer play your cards if you only want to watch.</p><p><b>The surge:</b> after one minute every card gains attack every 10 seconds, and in the last minute energy refills twice as fast.</p></div><div class="row c" style="margin-top:12px"><button class="btn yellow" data-act="closeModal">Got it</button></div>`);
+  openSheet(`<h2 class="fat">HOW TO PLAY</h2><div class="rules"><p><b>The goal:</b> bring the enemy core from 40 to 0 before the 3:00 clock ends (then the higher core wins; if the cores are equal, the side with more card health left).</p><p><b>Your deck:</b> 8 cards. 5 stand on the field, 3 wait as backups.</p><p><b>Fighting:</b> your cards strike by themselves. Each picks a target by its own habit (shown on the card): Nearest, Weakest, Strongest, Opposite or Support-first. Tap one of your cards, then an enemy, to lock its target.</p><p><b>Energy:</b> one shared pool that refills over time (max 10). Basic strikes are free. Spend it on a card's <b>skill</b> (tap the card, press its skill button) or to <b>swap a backup in</b> (2 energy).</p><p><b>Elements:</b> a hit marks its target with the attacker's element for 6 seconds. Hit a marked card with a reacting element for a bonus: Water then Lightning (Conduct ×1.5), Ice then Fire (Melt ×1.5), Wind then Earth (Sandblast ×1.5), Water then Ice (Freeze), Fire then Wind (Blaze splash), Light and Dark (Eclipse).</p><p><b>Auto:</b> let the computer play your cards if you only want to watch.</p><p><b>Match levels:</b> cards grow during a match. Striking, using the skill, taking hits and winning kills fill a card's level bar; at level 2 it is stronger and faster, and at level 3 it unlocks an enhanced skill. It all resets for the next match.</p><p><b>The surge:</b> after one minute every card gains attack every 10 seconds, and in the last minute energy refills twice as fast.</p></div><div class="row c" style="margin-top:12px"><button class="btn yellow" data-act="closeModal">Got it</button></div>`);
 }
 
 /* ----- deck editor ----- */
@@ -2095,6 +2175,13 @@ setInterval(() => {
    The board is built once and updated in place every frame, so taps are never lost to a redraw. */
 let AM = null;   // { A, speed, auto, sel:{s,i,kind}|null, mode:{act,i}|null, last, acc, raf, sig, opp, done, sfxAt }
 const arClock = s => Math.floor(s / 60) + ":" + String(Math.floor(s % 60)).padStart(2, "0");
+/* what the next match level gives, from AR.LV */
+const lvText = u => {
+  const L = AR.LV, pc = x => Math.round(x * 100) + "%";
+  if (u.lv >= 3) return "max: enhanced skill unlocked (costs 1 less, recharges " + pc(1 - L.cd) + " faster, " + L.enhance + "× effect)";
+  const nl = u.lv + 1, gain = nl === 2 ? `+${pc(L.atk[1])} attack and health, +${pc(L.spd[1] - 1)} speed` : `+${pc(L.atk[2])} attack and health in all, unlocks the enhanced skill (costs 1 less, recharges ${pc(1 - L.cd)} faster, ${L.enhance}× effect)`;
+  return Math.floor(u.xp) + " / " + L.xp[u.lv - 1] + " to level " + nl + ": " + gain;
+};
 const passText = k => { const P = AR.PS, hp = x => Math.round(x * AR.HPX), pc = x => Math.round(x * 100) + "%", n = x => +x.toFixed(2), ax = x => +(x * AR.ATKX).toFixed(1); return ({
   grow: `+${ax(P.grow)} attack every ${AR.GROW_T} s`, fortify: `+${hp(P.fortify)} HP every ${AR.GROW_T} s`, thorns: `Deals ${ax(P.thorns)} damage back to whatever strikes it`, guard: `Takes ${pc(1 - P.guard)} less from every hit`, swift: `Strikes ${pc(P.swift - 1)} faster`,
   vamp: `Heals ${pc(P.vamp)} of the damage it deals`, lastwords: `When it falls, your other cards get +${ax(P.lastwords)} attack and +${hp(P.lastwords)} HP`, rally: `Adjacent cards get +${ax(P.rally)} attack every ${AR.GROW_T} s`, pack: `+${ax(P.pack)} attack for each other card of its kind`,
@@ -2176,8 +2263,8 @@ const arSlotEl = (s, i, kind) => document.querySelector(`#ck .slot[data-s="${s}"
 function arFill(el, u, s, kind) {
   el._u = u ? u.uid : 0; el._fx = {};
   if (!u) { el.innerHTML = `<span>${kind === "lane" && s === 0 ? "+" : ""}</span>`; el._r = null; return; }
-  el.innerHTML = `<div class="kart"><img src="${artSrc(BY[u.cid])}" alt=""></div><i class="kcd"></i><i class="kel">${elIco(u.el, "")}</i><b class="kcost">${u.cost}</b><i class="kmk"></i><div class="kname">${esc(kshort(u.name))}</div><div class="khp"><i></i></div><div class="kst"><b class="a"></b><b class="h"></b></div><i class="ksh"></i><i class="kfr">❄️</i><i class="kskl">⚡</i>`;
-  const q = c => el.querySelector(c); el._r = { cd: q(".kcd"), mk: q(".kmk"), hp: q(".khp i"), a: q(".kst .a"), h: q(".kst .h"), sh: q(".ksh"), fr: q(".kfr"), sk: q(".kskl") };
+  el.innerHTML = `<div class="kart"><img src="${artSrc(BY[u.cid])}" alt=""></div><i class="kcd"></i><i class="kel">${elIco(u.el, "")}</i><b class="kcost">${u.cost}</b><i class="kmk"></i><div class="kname">${esc(kshort(u.name))}</div><div class="khp"><i></i></div><div class="kst"><b class="a"></b><b class="h"></b></div><i class="ksh"></i><i class="kfr">❄️</i><i class="kskl">⚡</i><i class="klv"></i>`;
+  const q = c => el.querySelector(c); el._r = { cd: q(".kcd"), mk: q(".kmk"), hp: q(".khp i"), a: q(".kst .a"), h: q(".kst .h"), sh: q(".ksh"), fr: q(".kfr"), sk: q(".kskl"), lv: q(".klv") };
 }
 function arSlotUpd(el, u, s, kind, now) {
   const A = AM.A, me = AM.me, ss = s ^ me, uid = u ? u.uid : 0; if (el._u !== uid) arFill(el, u, s, kind);
@@ -2191,6 +2278,7 @@ function arSlotUpd(el, u, s, kind, now) {
   r.hp.style.width = Math.max(0, 100 * u.hp / u.max) + "%"; r.hp.className = u.hp < u.max * .3 ? "low" : "";
   r.cd.style.width = kind === "lane" ? Math.max(0, Math.min(100, 100 * (1 - u.cd / (AR.IV / u.spd)))) + "%" : "0";
   { const mk = u.mark ? u.mark.el : ""; if (r.mkv !== mk) { r.mkv = mk; r.mk.innerHTML = mk ? elIco(mk, "") : ""; r.mk.style.setProperty("--elc", mk ? EL[mk][2] : "#fff"); } } r.sh.textContent = u.shield > 0 ? "🛡" + Math.ceil(u.shield) : ""; r.fr.style.display = u.frozen > 0 ? "" : "none";
+  { const lt = u.lv > 1 ? "★".repeat(u.lv - 1) : ""; if (r.lvt !== lt) { r.lvt = lt; r.lv.textContent = lt; } }
   r.sk.style.display = s === 0 && kind === "lane" && u.skcd <= 0 && A.s[me].energy >= u.acost && !A.over ? "" : "none";
 }
 function arPanel() {
@@ -2202,7 +2290,7 @@ function arPanel() {
   else {
     const mine = sel.s === 0, ready = mine && sel.kind === "lane" && u.skcd <= 0 && S0.energy >= u.acost, tl = u.lock != null && A.s[1 - me].lane[u.lock];
     sig = [sel.s, sel.i, sel.kind, u.uid, ready, !!tl, S0.energy >= AR.SWAP_E, u.skcd > 0].join();
-    h = `<div class="kp2"><div class="kinfo"><b>${esc(u.name)}</b> <span class="elchip el-${u.el}">${elIco(u.el)}${EL[u.el][0]}</span> <small>${esc(FAC[u.fac] || u.fac)} · cost ${u.cost} · speed ${u.spd.toFixed(2)} · ${TGT_NAME[u.tm]}</small><br><em>${PASS[u.passive][0]}:</em> ${passText(u.passive)}<br><em>${actName(u)} (${u.acost}⚡):</em> ${actText(u.active)}${u.mark ? `<br><em>Marked:</em> <span class="elchip el-${u.mark.el}">${elIco(u.mark.el)}${EL[u.mark.el][0]}</span>` : ""}</div>`;
+    h = `<div class="kp2"><div class="kinfo"><b>${esc(u.name)}</b> <span class="elchip el-${u.el}">${elIco(u.el)}${EL[u.el][0]}</span> <small>${esc(FAC[u.fac] || u.fac)} · cost ${u.cost} · speed ${u.spd.toFixed(2)} · ${TGT_NAME[u.tm]}</small><br><em>${PASS[u.passive][0]}:</em> ${passText(u.passive)}<br><em>${actName(u)} (${u.acost}⚡):</em> ${actText(u.active)}<br><em>Match level ${u.lv}</em> ${lvText(u)}${u.mark ? `<br><em>Marked:</em> <span class="elchip el-${u.mark.el}">${elIco(u.mark.el)}${EL[u.mark.el][0]}</span>` : ""}</div>`;
     if (mine && sel.kind === "lane") h += `<div class="kbtns"><button class="btn sm yellow" data-ar="skill" ${ready ? "" : "disabled"}>${u.skcd > 0 ? "Recharging" : esc(actName(u)) + " · " + u.acost + "⚡"}</button>${tl ? '<button class="btn sm dark" data-ar="unlock">Auto-target</button>' : ""}</div>`;
     else if (mine && sel.kind === "bench") h += `<div class="kbtns"><span class="note">Tap a lane to swap it in for ${AR.SWAP_E}⚡ (that slot then recharges ${AR.SWAP_CD} s).</span></div>`;
     h += "</div>";
@@ -2234,6 +2322,7 @@ function arEvents(now) {
     else if (e.t === "enter") { if (el && el._fx) el._fx.enter = now + 500; }
     else if (e.t === "skill") { $("#armsg").textContent = (e.s ? "Enemy: " : "") + e.name; sfx("ping", 3); }
     else if (e.t === "heal") { if (el) kpop(el, "+" + Math.round(e.d), "heal"); snd("level"); }
+    else if (e.t === "level") { if (el) { kpop(el, "LEVEL " + e.lv, "react"); if (el._fx) el._fx.enter = now + 700; } snd("level"); }
     else if (e.t === "buff") { if (el) kpop(el, e.text, "heal"); snd("ping", 3); }
   }
 }
