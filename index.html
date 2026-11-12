@@ -897,7 +897,7 @@ function cardHtml(c, o = {}) {
   return `<div class="${cls}" ${o.attr || ""}><div class="win"><img class="art" data-id="${c.id}" alt="" src="${artSrc(c)}"></div><div class="holo"></div><div class="glare"></div><i class="crn"></i>` +
     `<b class="cst">${k.cost}</b><i class="esig">${elIco(k.el, "")}</i>` + (o.count > 1 ? `<span class="cnt">×${o.count}</span>` : "") +
     `<div class="stats"><span class="a"><svg><use href="#i-atk"/></svg>${k.atk}</span><span class="h"><svg><use href="#i-hp"/></svg>${hpOf(k)}</span><span class="s"><svg><use href="#i-spd"/></svg>${k.spd.toFixed(1)}</span></div>` +
-    `<div class="plate"><b class="nm">${esc(c.name)}</b><small class="sub"><i></i>${esc(GROUPS[c.grp] || c.grp)} · ${RNAME[rr]}</small></div><div class="tint"></div></div>`;
+    `<div class="plate"><b class="nm">${esc(c.name)}</b><small class="sub"><i></i>${esc(FAC[k.fac] || k.fac)} · ${RNAME[rr]}</small></div><div class="tint"></div></div>`;
 }
 /* the classic triad card (four side numbers), for the old Triad match and its deck editor only */
 function cardTriad(c, o = {}) {
@@ -1192,7 +1192,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.11.12-d";
+const VER = "2026.11.12-e";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -1291,7 +1291,7 @@ const PACK_SLOTS = [   // [rarity, % chance] per slot; "ex" is a Secret Rare
 ];
 const wpick = l => { let r = Math.random() * 100; for (const [k, w] of l) { r -= w; if (r < 0) return k; } return l[0][0]; };
 function cardOfPool(pool, taken) {
-  const list = pool === "ex" ? C.filter(c => c.ex) : C.filter(c => !c.ex && c.lv === pool);
+  const list = pool === "ex" ? POOL.filter(c => c.ex) : POOL.filter(c => !c.ex && c.lv === pool);
   for (let t = 0; t < 4; t++) { const c = list[Math.floor(Math.random() * list.length)]; if (!taken.includes(c.id)) return c; }
   return list[Math.floor(Math.random() * list.length)];
 }
@@ -1391,7 +1391,7 @@ function packSummary() {
 function packDone() { PK = null; closeModal(); if (tab === "summon") show("summon"); }
 function tiltToggle() { TILT.on = !TILT.on; try { localStorage.setItem("triad.tilt", TILT.on ? "1" : "0"); } catch (_) {} if (TILT.on) tiltAsk(); else { const m = $("#modal"); m.style.setProperty("--tx", 0); m.style.setProperty("--ty", 0); } show("summon"); }
 function oddsModal() {
-  const ex = C.filter(c => c.ex).length, cnt = l => C.filter(c => !c.ex && c.lv === l).length, row = (r, n, s) => `<tr><td><span class="rtag r${r}">${RNAME[r].toUpperCase()}</span> ${n} cards</td><td>${s}</td></tr>`;
+  const ex = POOL.filter(c => c.ex).length, cnt = l => POOL.filter(c => !c.ex && c.lv === l).length, row = (r, n, s) => `<tr><td><span class="rtag r${r}">${RNAME[r].toUpperCase()}</span> ${n} cards</td><td>${s}</td></tr>`;
   openSheet(`<h2 class="fat">PACK ODDS</h2><p class="note">Five cards a pack. Chance per slot:</p><table class="odds"><tr><td>Slots 1 to 3</td><td>Common 68 to 75%, Uncommon 25 to 32%</td></tr><tr><td>Slot 4</td><td>Uncommon 55%, Rare 40%, Epic 5%</td></tr><tr><td>Slot 5 (the hit)</td><td>Rare 52%, Epic 30%, Legendary 14%, Secret Rare 4%</td></tr></table><table class="odds" style="margin-top:8px">${row(1, cnt(1), "")}${row(2, cnt(2), "")}${row(3, cnt(3), "")}${row(4, cnt(4), "")}${row(5, cnt(5), "")}${row(6, ex, "")}</table><p class="note">Every card of a rarity is equally likely. Secret Rares only come from packs. If ${PACK.pity - 1} packs in a row hold no Legendary or Secret Rare, the next pack's last card is one.</p><div class="row c"><button class="btn dark" data-act="closeModal">Close</button></div>`);
 }
 
@@ -1438,7 +1438,7 @@ function ckCard(c) {
   const pool = rar <= 2 ? LOW_P : rar === 3 ? MID_P : HIGH_P, passive = pool[Math.floor(r() * pool.length)];
   let aid; const roll = r();
   if (roll < .26) aid = "strike"; else if (roll < .5) aid = "mark"; else { const u = UTIL_BY[c.grp] || ["mend", "empower", "ward", "volley"]; aid = r() < .6 ? u[Math.floor(r() * u.length)] : ["mend", "empower", "ward", "overgrow", "volley", "disrupt"][Math.floor(r() * 6)]; }
-  return (KC[c.id] = { id: c.id, name: c.name, cost, atk, hp, el, tribe: c.grp, rar, passive, active: aid, acost: ACT[aid].c });
+  return (KC[c.id] = setKit(c, { id: c.id, name: c.name, cost, atk, hp, el, tribe: c.grp, rar, passive, active: aid, acost: ACT[aid].c }));
 }
 const actName = (k) => (k.active === "strike" || k.active === "mark" ? EL[k.el][0] + " " + ACT[k.active].n : ACT[k.active].n);
 let UID = 0;
@@ -1595,11 +1595,76 @@ function ckInit() {
 }
 function ckAiDeck(level) {
   const pairs = [["water", "lightning"], ["ice", "fire"], ["wind", "earth"], ["fire", "wind"], ["light", "dark"], ["water", "ice"]], pair = pairs[Math.floor(Math.random() * pairs.length)];
-  const maxR = level === 0 ? 2 : level === 1 ? 4 : 6, pool = C.filter(c => rarOf(c) <= maxR && !(c.ex && level < 2)), shuffle = a => a.sort(() => Math.random() - .5), pick = [], n = {};
+  const maxR = level === 0 ? 2 : level === 1 ? 4 : 6, pool = POOL.filter(c => rarOf(c) <= maxR && !(c.ex && level < 2)), shuffle = a => a.sort(() => Math.random() - .5), pick = [], n = {};
   const take = list => { for (const c of shuffle(list.slice())) { if (pick.length >= 8) return; if ((n[c.id] || 0) >= (rarOf(c) >= 5 ? 1 : 2)) continue; pick.push(c.id); n[c.id] = (n[c.id] || 0) + 1; } };
   const of = (el, k) => shuffle(pool.filter(c => ckCard(c).el === el)).slice(0, k);
   take(of(pair[0], 4)); take(of(pair[1], 3)); take(pool); while (pick.length < 8) take(pool);
   return shuffle(pick.slice(0, 8));
+}
+
+/* ===== SET 1: the first 100 hand-built cards =====
+   Instead of a thousand generic cards, a hundred that each do something. Every card in the set has an authored element, faction, passive and skill. Stats still come from the rarity budget (ckCard),
+   with an optional role: t = tank (+25% health, -10% attack), g = glass (+25% attack, -10% health), f = fast (+0.1 speed).
+   Cards outside the set (the other 200 in cards.json) stay readable if a player already owns them, but no pack, opponent or campaign deck draws from them any more.
+   Every number here is a placeholder for the balance sweep. Rules: GAME_RULES_v2.md. */
+const FAC = { C: "Celestial", D: "Demonic", A: "Ancient", M: "Mechanical", U: "Undead", B: "Beast", H: "Human", V: "Void" };
+/* id: [element, faction, passive, skill, role?] */
+const S1 = {
+  // ---- Common (22) ----
+  goblin: ["earth", "B", "pack", "strike"], slime: ["water", "B", "guard", "mend"], dracky: ["wind", "B", "swift", "gale"], she_slime: ["water", "B", "mender", "ward"], cactuar: ["earth", "B", "thorns", "ward", "t"],
+  shadow: ["dark", "V", "vamp", "pact"], bomb: ["fire", "D", "overkill", "strike", "g"], healslime: ["water", "B", "regen", "mend"], flan: ["ice", "V", "sponge", "freeze"], soldier: ["earth", "H", "formation", "ward"],
+  bandit: ["dark", "H", "crit", "strike", "g"], folk_priestess: ["light", "C", "mender", "cleanse"], folk_blacksmith: ["fire", "H", "rally", "empower"], folk_merchant: ["earth", "H", "battery", "strike"], folk_guide: ["wind", "H", "swift", "gale", "f"],
+  folk_outrider: ["wind", "H", "swift", "strike"], w_mythril_sword: ["lightning", "M", "crit", "strike"], w_kingdom_key: ["light", "C", "formation", "empower"], op_chopper: ["water", "B", "mender", "mend"], ff_chocobo: ["wind", "B", "swift", "gale", "f"],
+  dq_bubble_slime: ["water", "B", "thorns", "mend"], db_mr_satan: ["light", "H", "treasure", "empower"],
+  // ---- Uncommon (22) ----
+  coeurl: ["lightning", "B", "crit", "arc", "f"], zu: ["wind", "B", "swift", "volley"], black_mage: ["dark", "V", "soul", "strike", "g"], metal_slime: ["earth", "M", "sponge", "ward", "t"], dusk: ["dark", "U", "vamp", "pact"],
+  golem: ["earth", "A", "guard", "ward", "t"], killing_machine: ["lightning", "M", "berserk", "arc"], malboro: ["dark", "D", "thorns", "disrupt"], hero_white_mage: ["light", "C", "mender", "cleanse"], hero_black_mage: ["fire", "H", "amp", "strike", "g"],
+  hero_monk: ["earth", "H", "echo", "strike", "f"], hero_thief: ["wind", "H", "treasure", "gale", "f"], hero_time_mage: ["ice", "H", "battery", "freeze"], hero_mime: ["light", "H", "mimic", "mark"], w_flametongue: ["fire", "M", "amp", "strike"],
+  w_icebrand: ["ice", "M", "pierce", "freeze"], r_protect_ring: ["light", "M", "protector", "ward"], r_sprint_shoes: ["wind", "M", "swift", "gale", "f"], dq_mimic: ["dark", "V", "mimic", "disrupt"], ff_ahriman: ["dark", "V", "crit", "disrupt"],
+  db_krillin: ["light", "H", "mender", "empower"], nr_rock_lee: ["wind", "H", "echo", "strike", "f"],
+  // ---- Rare (22) ----
+  tonberry: ["water", "V", "laststand", "strike"], iron_giant: ["earth", "M", "guard", "ward", "t"], king_slime: ["water", "B", "decree", "mend"], frost_queen: ["ice", "A", "chain", "freeze"], forgemaster: ["fire", "M", "formation", "empower"],
+  oracle: ["light", "C", "battery", "cleanse"], thornmother: ["earth", "B", "protector", "ward", "t"], behemoth: ["earth", "B", "berserk", "strike", "t"], hero_knight: ["light", "H", "laststand", "ward"], hero_ninja: ["lightning", "H", "echo", "strike"],
+  hero_dragoon: ["wind", "H", "echo", "strike"], w_blood_sword: ["dark", "M", "blood", "strike", "g"], w_defender: ["earth", "M", "protector", "ward", "t"], a_adamant: ["earth", "M", "guard", "ward", "f"], r_hermes_sandals: ["wind", "M", "swift", "gale", "f"],
+  dq_hell_gladiator: ["dark", "D", "soul", "strike"], ff_yuna: ["water", "C", "mender", "empower"], db_piccolo: ["earth", "A", "laststand", "strike"], nr_kakashi: ["lightning", "H", "chain", "arc", "f"], op_sanji: ["fire", "H", "echo", "strike"],
+  op_law: ["water", "H", "pierce", "freeze"], bandit_chief: ["earth", "H", "decree", "mark"],
+  // ---- Epic (20) ----
+  archmage: ["lightning", "H", "chain", "arc"], blaze_lord: ["fire", "D", "berserk", "strike", "g"], herald: ["light", "C", "decree", "empower"], juggernaut: ["earth", "M", "laststand", "ward", "t"], oathbound: ["light", "H", "decree", "cleanse"],
+  voidwalker: ["dark", "V", "voideater", "disrupt"], warlord: ["fire", "H", "decree", "empower"], withered_king: ["dark", "U", "soul", "disrupt"], garuda: ["wind", "A", "echo", "gale"], dominant_phoenix: ["fire", "A", "phoenix", "strike"],
+  dominant_shiva: ["ice", "A", "chain", "freeze"], w_excalibur: ["light", "M", "formation", "strike"], w_apocalypse: ["dark", "M", "blood", "strike"], a_dragon: ["fire", "A", "guard", "ward", "f"], r_phoenix_pinion: ["fire", "C", "phoenix", "mend"],
+  ff_exdeath: ["dark", "A", "soul", "pact"], ff_lightning: ["lightning", "H", "crit", "arc", "f"], dq_psaro: ["dark", "D", "blood", "volley"], db_frieza: ["ice", "D", "amp", "freeze"], nr_itachi: ["fire", "H", "crit", "pact"],
+  // ---- Legendary (9) ----
+  ifrit: ["fire", "A", "berserk", "strike"], shiva: ["ice", "C", "chain", "freeze"], ramuh: ["lightning", "C", "echo", "arc"], titan: ["earth", "A", "protector", "ward", "t"], phoenix: ["fire", "C", "phoenix", "mend"],
+  bahamut: ["light", "A", "decree", "volley"], ff_sephiroth: ["dark", "H", "voideater", "strike"], nr_madara: ["dark", "H", "soul", "volley"], op_whitebeard: ["earth", "H", "regen", "arc", "g"],
+  // ---- Secret Rare (5) ----
+  x_esper_anima: ["dark", "V", "voideater", "pact"], x_esper_diabolos: ["dark", "D", "blood", "disrupt"], x_esper_leviathan: ["water", "A", "regen", "volley"], x_esper_carbuncle: ["light", "C", "regen", "cleanse"], op_gol_d_roger: ["lightning", "H", "decree", "arc"],
+};
+const POOL = C.filter(c => S1[c.id]);            // what packs, opponents and the campaign draw from
+const inSet = id => !!S1[id];
+const FAC_BY_GRP = { monster: "B", hero: "H", folk: "H", weapon: "M", armor: "M", relic: "M", esper: "C", dominant: "A", ff: "H", dq: "D", db: "H", nr: "H", op: "H" };
+const facOf = c => (S1[c.id] ? S1[c.id][1] : FAC_BY_GRP[c.grp] || "H");
+/* skills and passives the set adds on top of the first eight and eighteen (names here, numbers in arena.js: AR.SK / AR.PS) */
+Object.assign(ACT, {
+  gale: { n: "Gale", c: 2, t: "ally", d: "A card strikes faster for a while" }, arc: { n: "Arc", c: 3, t: "enemy", d: "A heavy lightning hit that jumps to the neighbors" }, freeze: { n: "Freeze", c: 2, t: "enemy", d: "An enemy cannot strike for a few seconds" },
+  cleanse: { n: "Cleanse", c: 2, t: "ally", d: "Clear a card's mark and give it a shield" }, pact: { n: "Pact", c: 1, t: "ally", d: "Pay health to give a card a burst of attack" },
+});
+Object.assign(PASS, {
+  soul: ["Soul Collector", "Gains attack whenever any card falls"], laststand: ["Last Stand", "Fights harder and takes less damage when nearly dead"], blood: ["Blood Contract", "Hits much harder, but every strike costs it health"],
+  chain: ["Chain Reaction", "Its reactions hit harder and also mark the neighbors"], decree: ["Royal Decree", "Allies of its faction gain attack"], mimic: ["Mimic", "Copies the passive of the first card it strikes"],
+  phoenix: ["Phoenix Rebirth", "Returns once from defeat"], voideater: ["Void Eater", "Its strikes ignore shields and strip buffs"], formation: ["Formation Leader", "Stronger for each neighbor beside it"],
+  treasure: ["Treasure Hunter", "A kill by it refunds energy"], protector: ["Protector", "Enemies must strike it first"], regen: ["Regeneration", "Slowly heals itself"],
+  echo: ["Echo", "Every third strike hits twice"], crit: ["Overload", "Every fourth strike hits for double"],
+});
+/* role: [health multiplier, attack multiplier]; f (fast) is +0.1 speed, applied in arCard */
+/* NUDGE: a per-card multiplier on health and speed from the balance sweep (cards whose win rate sat more than 7 points off their rarity's average). Re-run the sweep after changing a kit. */
+const NUDGE = {"healslime":0.95,"flan":1.04,"coeurl":0.95,"zu":0.94,"black_mage":0.93,"killing_machine":0.95,"tonberry":0.95,"iron_giant":0.94,"behemoth":1.04,"frost_queen":1.07,"archmage":0.95,"shiva":1.06,"bandit_chief":0.92,"hero_black_mage":1.07,"hero_ninja":0.84,"folk_guide":0.95,"folk_merchant":1.08,"folk_outrider":0.92,"r_hermes_sandals":1.04,"x_esper_diabolos":1.08,"x_esper_carbuncle":0.95,"ff_sephiroth":0.95,"ff_yuna":0.91,"dq_bubble_slime":0.95,"dq_mimic":1.06,"db_krillin":1.1,"db_piccolo":1.07,"nr_rock_lee":1.08,"nr_kakashi":1.07,"nr_itachi":0.96,"op_chopper":1.06,"op_gol_d_roger":0.93};
+const ROLE = { t: [1.4, .95], g: [.9, 1.25], f: [1, 1] };
+/* called by ckCard for cards in the set: replaces the generated element, passive and skill with the authored ones */
+function setKit(c, k) {
+  const e = S1[c.id]; if (!e) { k.fac = facOf(c); return k; }
+  k.el = e[0]; k.fac = e[1]; k.passive = e[2]; k.active = e[3]; k.acost = (ACT[e[3]] || {}).c || k.acost; k.role = e[4] || ""; k.nudge = NUDGE[c.id] || 1;
+  const R = ROLE[k.role]; if (R) { k.hp = Math.max(2, Math.round(k.hp * R[0])); k.atk = Math.max(1, Math.round(k.atk * R[1])); }
+  return k;
 }
 
 /* ===== ARENA: the real-time, semi-automatic battle. Rules: GAME_RULES_v2.md =====
@@ -1613,28 +1678,28 @@ const AR = {
   FOCUS_SUPPORT: 16, AI_EVERY: [15, 10, 5], AI_SLIP: [.5, .25, 0],   // AI: HP value of a healer/buffer when picking a focus target; ticks between its decisions and the share of ready skills it fumbles, by level
   MARK_T: 6, CORE: 40, HPX: 8, SKILL_CD: 6, GROW_T: 8, SURGE_AT: 60, SURGE_T: 10, INPUT_DELAY: 3, RETARGET: 1,
 };
-const ACOST = { mend: 2, empower: 2, ward: 2, overgrow: 5, volley: 3, disrupt: 1, strike: 3, mark: 1 };
+const ACOST = { mend: 2, empower: 2, ward: 2, overgrow: 5, volley: 3, disrupt: 1, strike: 3, mark: 1, gale: 2, arc: 3, freeze: 2, cleanse: 2, pact: 1 };
 /* skill strengths in 'stat points' (HP-type ones are multiplied by HPX): the numbers the balance sweep tunes */
 /* passive strengths (same idea) */
 /* rarity: extra health on top of the card's own stats, by rarity (1 = common ... 6) */
-AR.RHP = { 1: 1.4, 2: 1.1, 3: 1.05, 4: .84, 5: .82, 6: .82 };
-AR.PS = { mender: .12, fortify: .36, rally: .12, grow: .17, lastwords: .3, battery: .27, berserk: 5.5, amp: 1.4, overkill: 5, thorns: .5, spongeT: 6, pack: 1.25, guard: .85, pierce: .3, swift: 1.18, vamp: .42 };
-AR.SK = { mend: .5, empower: 3, empowerT: 8, overgrow: .6, ward: 1, volley: 2.5, strike: 1.35 };
+AR.RHP = { 1: 1.4, 2: 1.31, 3: 1.08, 4: 1.05, 5: .8, 6: .8 };
+AR.PS = { mender: .1, fortify: .36, rally: .2, grow: .17, lastwords: .3, battery: .15, berserk: 5.5, amp: 1.4, overkill: 5, thorns: .8, spongeT: 6, pack: 1.6, guard: .8, pierce: .3, swift: 1.3, vamp: .7, soul: .4, laststand: 3, lsGuard: .8, blood: .9, bloodCost: .03, chainAmp: .6, decree: .8, phoenix: .4, formation: 1.6, treasure: 7, regen: .01, crit: 1.45, voideater: 1.25 };
+AR.SK = { mend: .35, empower: 3, empowerT: 8, overgrow: 1.8, ward: 1.2, volley: 2.5, strike: 1.35, gale: 1.8, galeT: 6, arc: .7, freezeT: 2, cleanse: .8, pact: 6, pactT: 8, pactCost: .1 };
 const TGT_BY = { weapon: "strongest", hero: "opposite", monster: "nearest", folk: "support", armor: "opposite", esper: "weakest", relic: "support", dominant: "strongest" };
 const TGT_NAME = { opposite: "Opposite", nearest: "Nearest", weakest: "Weakest", strongest: "Strongest", support: "Support-first" };
-const SUPPORT_ACT = { mend: 1, ward: 1, empower: 1, overgrow: 1 };
+const SUPPORT_ACT = { mend: 1, ward: 1, empower: 1, overgrow: 1, cleanse: 1, gale: 1 };
 const SPD_BY = { weapon: 1.25, hero: 1.1, monster: 1, folk: 1, armor: .8, esper: 1, relic: .9, dominant: 1.1 };
 const ARC = {};
 function arCard(c) {
   if (ARC[c.id]) return ARC[c.id]; const k = ckCard(c), r = rngOf("ar" + c.id);
-  const spd = Math.round((SPD_BY[c.grp] || 1) * (.9 + r() * .2) * 100) / 100;
+  const spd = Math.round(((SPD_BY[c.grp] || 1) * (.9 + r() * .2) + (k.role === "f" ? .1 : 0)) * (k.nudge || 1) * 100) / 100;
   return (ARC[c.id] = Object.assign({}, k, { spd, tm: TGT_BY[c.grp] || "nearest", acost: ACOST[k.active] }));
 }
 function arUnit(A, cid) {
   const k = arCard(BY[cid]), spd = k.spd * (k.passive === "swift" ? AR.PS.swift : 1);
-  const rm = AR.RHP[k.rar] || 1, hp = k.hp * AR.HPX * rm;
+  const rm = AR.RHP[k.rar] || 1, hp = k.hp * AR.HPX * rm * (k.nudge || 1);
   return { uid: ++A.uid, cid, name: k.name, el: k.el, tribe: k.tribe, atk: k.atk, hp, max: hp, cost: k.cost, spd, tm: k.tm, passive: k.passive, active: k.active, acost: k.acost, rar: k.rar,
-    cd: AR.IV / spd * .6, skcd: 0, lock: null, mark: null, frozen: 0, shield: 0, tmp: 0, tmpT: 0, pb: { a: 0, h: 0 }, pt: AR.GROW_T, sponge: k.passive === "sponge", spT: 0 };
+    cd: AR.IV / spd * .6, skcd: 0, lock: null, mark: null, frozen: 0, shield: 0, tmp: 0, tmpT: 0, pb: { a: 0, h: 0 }, pt: AR.GROW_T, sponge: k.passive === "sponge", spT: 0, fac: k.fac, n: 0, used: false, hasteT: 0, by: null, bys: 0 };
 }
 function arNew(deck0, deck1, o = {}) {
   const A = { t: 0, tick: 0, uid: 0, seed: 20261111, over: false, winner: null, ev: [], log: [], q: [], seq: [0, 0], ui: !!o.ui, level: o.level || [1, 1], mode: o.mode || {}, horizon: null, s: [] };
@@ -1648,16 +1713,18 @@ const arLane = (A, s, i) => A.s[s].lane[i];
 const arLive = (A, s) => A.s[s].lane.map((u, i) => ({ u, i })).filter(x => x.u);
 function arAtk(A, s, u) {
   const surge = A.t >= AR.SURGE_AT ? Math.floor((A.t - AR.SURGE_AT) / AR.SURGE_T) + 1 : 0;
-  return Math.max(0, u.atk + (u.tmpT > 0 ? u.tmp : 0) + (u.passive === "berserk" && u.hp * 2 < u.max ? AR.PS.berserk : 0) + (u.passive === "pack" ? A.s[s].lane.filter(x => x && x !== u && x.tribe === u.tribe).length * AR.PS.pack : 0) + surge);
+  return Math.max(0, u.atk + (u.tmpT > 0 ? u.tmp : 0) + (u.passive === "berserk" && u.hp * 2 < u.max ? AR.PS.berserk : 0) + (u.passive === "pack" ? A.s[s].lane.filter(x => x && x !== u && x.fac === u.fac).length * AR.PS.pack : 0) + (u.passive === "laststand" && u.hp < u.max * .3 ? AR.PS.laststand : 0) +
+    (u.passive === "formation" ? [A.s[s].lane[A.s[s].lane.indexOf(u) - 1], A.s[s].lane[A.s[s].lane.indexOf(u) + 1]].filter(Boolean).length * AR.PS.formation : 0) + A.s[s].lane.filter(x => x && x !== u && x.passive === "decree" && x.fac === u.fac).length * AR.PS.decree + surge);
 }
 function arCoreHit(A, ts, d) { A.s[ts].core -= d; arLog(A, (ts ? "Enemy" : "Your") + " core takes " + Math.round(d)); arEv(A, { t: "core", s: ts, d }); }
 /* who a card strikes: its locked target, else its targeting behavior; -1 means the enemy field is empty (the core) */
 function arTarget(A, s, i) {
-  const u = A.s[s].lane[i], foes = arLive(A, 1 - s); if (!foes.length) return -1;
-  if (u.lock != null && A.s[1 - s].lane[u.lock]) return u.lock;
+  const u = A.s[s].lane[i], all = arLive(A, 1 - s); if (!all.length) return -1;
+  const prot = all.filter(x => x.u.passive === "protector"), foes = prot.length ? prot : all;   // a Protector must be struck first
+  if (u.lock != null && A.s[1 - s].lane[u.lock] && foes.some(x => x.i === u.lock)) return u.lock;
   const near = () => foes.slice().sort((p, q) => Math.abs(p.i - i) - Math.abs(q.i - i) || p.i - q.i)[0].i;
   switch (u.tm) {
-    case "opposite": return A.s[1 - s].lane[i] ? i : near();
+    case "opposite": return foes.some(x => x.i === i) ? i : near();
     case "weakest": return foes.slice().sort((p, q) => p.u.hp - q.u.hp || p.i - q.i)[0].i;
     case "strongest": return foes.slice().sort((p, q) => arAtk(A, 1 - s, q.u) - arAtk(A, 1 - s, p.u) || p.i - q.i)[0].i;
     case "support": { const sp = foes.filter(x => SUPPORT_ACT[x.u.active]).sort((p, q) => p.i - q.i)[0]; return sp ? sp.i : near(); }
@@ -1666,12 +1733,15 @@ function arTarget(A, s, i) {
 }
 /* one hit: reactions, guard, shield, marks and the passives that fire on a hit */
 function arHit(A, src, ss, ts, ti, dmg, el, o = {}) {
-  const T = A.s[ts].lane[ti]; if (!T || dmg <= 0) return 0; let d = dmg, react = null;
+  const T = A.s[ts].lane[ti]; if (!T || dmg <= 0) return 0; let d = dmg, react = null; if (src) { T.by = src; T.bys = ss; }
   if (el && T.mark && REACT[T.mark.el + ">" + el]) {
-    react = REACT[T.mark.el + ">" + el]; const amp = src && src.passive === "amp" ? AR.PS.amp : 0; d = dmg * ((react.mul || 1) + (react.mul > 1 ? amp : 0));
+    react = REACT[T.mark.el + ">" + el]; const amp = src && (src.passive === "amp" ? AR.PS.amp : src.passive === "chain" ? AR.PS.chainAmp : 0); d = dmg * ((react.mul || 1) + (react.mul > 1 ? amp : 0));
     if (react.strip) { T.atk = Math.max(1, T.atk - T.pb.a); T.max = Math.max(1, T.max - T.pb.h); T.hp = Math.min(T.hp, T.max); T.pb = { a: 0, h: 0 }; T.shield = 0; T.tmpT = 0; }
     if (react.freeze) { T.frozen = 2; T.cd += 2; } T.mark = null; arLog(A, react.n + "! on " + T.name);
+    if (src && src.passive === "chain") for (const j of [ti - 1, ti + 1]) { const N = A.s[ts].lane[j]; if (N && !N.mark) N.mark = { el, t: AR.MARK_T }; }   // Chain Reaction: the neighbors are marked too
   }
+  if (src && src.passive === "voideater" && o.melee) { T.shield = 0; T.tmpT = 0; }
+  if (T.passive === "laststand" && T.hp < T.max * .3) d *= AR.PS.lsGuard;
   if (T.passive === "guard") d = Math.max(.5, d * AR.PS.guard);
   if (T.sponge) { T.sponge = false; T.spT = AR.PS.spongeT; d = 0; }
   const ab = Math.min(T.shield, d); T.shield -= ab; d -= ab; T.hp -= d;
@@ -1684,7 +1754,11 @@ function arHit(A, src, ss, ts, ti, dmg, el, o = {}) {
 }
 function arSweep(A) {
   for (let s = 0; s < 2; s++) for (let i = 0; i < 5; i++) {
-    const u = A.s[s].lane[i]; if (!u || u.hp > 0) continue; A.s[s].lane[i] = null; arLog(A, u.name + " falls"); arEv(A, { t: "die", s, i, name: u.name });
+    const u = A.s[s].lane[i]; if (!u || u.hp > 0) continue;
+    if (u.passive === "phoenix" && !u.used) { u.used = true; u.hp = u.max * AR.PS.phoenix; u.shield = 0; u.mark = null; u.frozen = 0; arLog(A, u.name + " is reborn"); arEv(A, { t: "buff", s, i, text: "reborn" }); continue; }
+    A.s[s].lane[i] = null; arLog(A, u.name + " falls"); arEv(A, { t: "die", s, i, name: u.name });
+    for (let q = 0; q < 2; q++) for (const x of arLive(A, q)) if (x.u.passive === "soul") x.u.atk += AR.PS.soul;   // Soul Collector
+    if (u.by && u.by.passive === "treasure" && u.by.hp > 0) A.s[u.bys].energy = Math.min(AR.EMAX, A.s[u.bys].energy + AR.PS.treasure);   // Treasure Hunter
     if (u.passive === "lastwords") for (const x of arLive(A, s)) { const g = AR.PS.lastwords; x.u.atk += g; x.u.max += g * AR.HPX; x.u.hp += g * AR.HPX; x.u.pb.a += g; x.u.pb.h += g * AR.HPX; }
     const ri = A.s[s].bench.findIndex(b => b && b.passive === "reserve");
     if (ri >= 0) { const b = A.s[s].bench[ri]; A.s[s].bench[ri] = null; b.cd = AR.IV / b.spd; A.s[s].lane[i] = b; arLog(A, b.name + " steps in"); arEv(A, { t: "enter", s, i }); }
@@ -1710,6 +1784,11 @@ function arRun(A, c) {
       case "volley": for (const { i } of arLive(A, 1 - c.s)) arHit(A, u, c.s, 1 - c.s, i, AR.SK.volley, null); break;
       case "disrupt": T.atk = Math.max(1, T.atk - T.pb.a); T.max = Math.max(1, T.max - T.pb.h); T.hp = Math.min(T.hp, T.max); T.pb = { a: 0, h: 0 }; T.tmpT = 0; T.shield = 0; T.mark = null; arEv(A, { t: "buff", s: 1 - c.s, i: c.t, text: "stripped" }); break;
       case "strike": arHit(A, u, c.s, 1 - c.s, c.t, Math.max(3, arAtk(A, c.s, u)) * AR.SK.strike, u.el); break;
+      case "gale": T.hasteT = AR.SK.galeT; arEv(A, { t: "buff", s: c.s, i: c.t, text: "haste" }); break;
+      case "arc": { const base = Math.max(3, arAtk(A, c.s, u)) * AR.SK.arc; arHit(A, u, c.s, 1 - c.s, c.t, base, u.el); for (const j of [c.t - 1, c.t + 1]) if (F.lane[j]) arHit(A, u, c.s, 1 - c.s, j, base * .5, u.el); break; }
+      case "freeze": T.frozen = AR.SK.freezeT; T.cd += AR.SK.freezeT; arEv(A, { t: "buff", s: 1 - c.s, i: c.t, text: "frozen" }); break;
+      case "cleanse": T.mark = null; T.shield += AR.SK.cleanse * AR.HPX; arEv(A, { t: "buff", s: c.s, i: c.t, text: "cleansed" }); break;
+      case "pact": u.hp = Math.max(1, u.hp - u.max * AR.SK.pactCost); T.tmp = AR.SK.pact; T.tmpT = AR.SK.pactT; arEv(A, { t: "buff", s: c.s, i: c.t, text: "+" + AR.SK.pact + " ATK" }); break;
       case "mark": T.mark = { el: u.el, t: AR.MARK_T }; arEv(A, { t: "buff", s: 1 - c.s, i: c.t, text: EL[u.el][1] + " marked" }); break;
     }
     arSweep(A);
@@ -1724,7 +1803,8 @@ function arStep(A) {
     const S = A.s[s]; S.energy = Math.min(AR.EMAX, S.energy + dt / AR.ERATE * (A.t > AR.MATCH - AR.LAST ? 2 : 1) * (S.eMul || 1) * (1 + AR.PS.battery * S.lane.filter(u => u && u.passive === "battery").length));
     for (let i = 0; i < 5; i++) if (S.swapcd[i] > 0) S.swapcd[i] = Math.max(0, S.swapcd[i] - dt);
     for (const { u, i } of arLive(A, s)) {
-      u.cd -= dt; if (u.skcd > 0) u.skcd -= dt; if (u.frozen > 0) u.frozen -= dt; if (u.tmpT > 0) u.tmpT -= dt; if (u.mark && (u.mark.t -= dt) <= 0) u.mark = null;
+      u.cd -= dt; if (u.skcd > 0) u.skcd -= dt; if (u.frozen > 0) u.frozen -= dt; if (u.tmpT > 0) u.tmpT -= dt; if (u.hasteT > 0) u.hasteT -= dt; if (u.mark && (u.mark.t -= dt) <= 0) u.mark = null;
+      if (u.passive === "regen" && u.hp < u.max) u.hp = Math.min(u.max, u.hp + u.max * AR.PS.regen * dt);
       if (u.spT > 0 && (u.spT -= dt) <= 0 && u.passive === "sponge") u.sponge = true;
       if ((u.pt -= dt) <= 0) {
         if (u.passive === "mender") { u.pt = 4; const t = arLive(A, s).map(x => x.u).sort((a, b) => a.hp / a.max - b.hp / b.max)[0]; if (t && t.hp < t.max) t.hp = Math.min(t.max, t.hp + AR.PS.mender * AR.HPX); }
@@ -1733,10 +1813,17 @@ function arStep(A) {
     }
   }
   const strikes = [];   // everything that is ready strikes this tick, simultaneously
-  for (let s = 0; s < 2; s++) for (const { u, i } of arLive(A, s)) if (u.cd <= 0) { strikes.push({ s, i, u, ti: arTarget(A, s, i), d: arAtk(A, s, u) * AR.STRIKE }); u.cd += AR.IV / u.spd; }
+  for (let s = 0; s < 2; s++) for (const { u, i } of arLive(A, s)) if (u.cd <= 0) {
+    u.n++; let d = arAtk(A, s, u) * AR.STRIKE; if (u.passive === "crit" && u.n % 4 === 0) d *= AR.PS.crit; if (u.passive === "blood") d *= 1 + AR.PS.blood; if (u.passive === "voideater") d *= AR.PS.voideater;
+    strikes.push({ s, i, u, ti: arTarget(A, s, i), d, twice: u.passive === "echo" && u.n % 3 === 0 }); u.cd += AR.IV / (u.spd * (u.hasteT > 0 ? AR.SK.gale : 1));
+  }
   for (const k of strikes) {
     arEv(A, { t: "strike", s: k.s, i: k.i, ti: k.ti });
-    if (k.ti < 0) arCoreHit(A, 1 - k.s, k.d); else arHit(A, k.u, k.s, 1 - k.s, k.ti, k.d, k.u.el, { melee: true });
+    if (k.ti < 0) { arCoreHit(A, 1 - k.s, k.d * (k.twice ? 2 : 1)); continue; }
+    const T = A.s[1 - k.s].lane[k.ti];
+    arHit(A, k.u, k.s, 1 - k.s, k.ti, k.d, k.u.el, { melee: true }); if (k.twice && A.s[1 - k.s].lane[k.ti]) arHit(A, k.u, k.s, 1 - k.s, k.ti, k.d, k.u.el, { melee: true });
+    if (k.u.passive === "blood") k.u.hp = Math.max(1, k.u.hp - k.u.max * AR.PS.bloodCost);
+    if (k.u.passive === "mimic" && T && T.passive !== "mimic") { k.u.passive = T.passive; k.u.sponge = T.passive === "sponge"; if (T.passive === "swift") k.u.spd *= AR.PS.swift; arLog(A, k.u.name + " mimics " + (PASS[T.passive] || ["?"])[0]); arEv(A, { t: "buff", s: k.s, i: k.i, text: "mimic" }); }
   }
   arSweep(A); arCheck(A); return true;
 }
@@ -1775,6 +1862,11 @@ function arAi(A, s) {
     else if (u.active === "volley") { if (foes.length >= 3) tgt = 0; }
     else if (u.active === "disrupt") { const t = foes.filter(x => x.u.pb.a + x.u.pb.h + x.u.shield > 0 || x.u.mark).sort((p, q) => (q.u.pb.a + q.u.pb.h) - (p.u.pb.a + p.u.pb.h))[0]; if (t) tgt = t.i; }
     else if (u.active === "strike") { const combo = foes.find(x => x.u.mark && reacts(x.u.mark.el, u.el)), kill = foes.filter(x => x.u.hp <= Math.max(3, arAtk(A, s, u)) * AR.SK.strike + x.u.shield).sort((p, q) => q.u.atk - p.u.atk)[0], t = combo || kill || foes.slice().sort((p, q) => q.u.atk - p.u.atk)[0]; if (t) tgt = t.i; }
+    else if (u.active === "gale") { const t = allies.slice().sort((p, q) => arAtk(A, s, q.u) - arAtk(A, s, p.u))[0]; if (t && foes.length && t.u.hasteT <= 0) tgt = t.i; }
+    else if (u.active === "arc") { const kill = foes.filter(x => x.u.hp <= Math.max(3, arAtk(A, s, u)) * AR.SK.arc + x.u.shield).sort((p, q) => q.u.atk - p.u.atk)[0], t = kill || foes.slice().sort((p, q) => foes.filter(f => Math.abs(f.i - q.i) === 1).length - foes.filter(f => Math.abs(f.i - p.i) === 1).length || q.u.atk - p.u.atk)[0]; if (t) tgt = t.i; }
+    else if (u.active === "freeze") { const t = foes.filter(x => x.u.frozen <= 0).sort((p, q) => arAtk(A, 1 - s, q.u) - arAtk(A, 1 - s, p.u))[0]; if (t) tgt = t.i; }
+    else if (u.active === "cleanse") { const t = allies.filter(x => x.u.mark || x.u.hp < x.u.max * .7).sort((p, q) => p.u.hp / p.u.max - q.u.hp / q.u.max)[0]; if (t) tgt = t.i; }
+    else if (u.active === "pact") { const t = allies.slice().sort((p, q) => arAtk(A, s, q.u) - arAtk(A, s, p.u))[0]; if (t && foes.length && u.hp > u.max * .5) tgt = t.i; }
     else if (u.active === "mark") { const t = foes.find(x => !x.u.mark && allies.some(m => reacts(u.el, m.u.el))); if (t) tgt = t.i; }
     if (tgt !== null) { en -= u.acost; send({ k: "use", i, t: tgt }); }
   }
@@ -1787,7 +1879,7 @@ function arSim(deck0, deck1, lv0 = 1, lv1 = 1, max = 2400) {
 }
 /* a short fingerprint of the board, compared between phones during an online match */
 function arHash(A) {
-  const r = x => Math.round(x * 100) / 100, t = JSON.stringify([A.tick, A.s.map(s => [r(s.core), r(s.energy), s.lane.map(u => (u ? [u.cid, r(u.atk), r(u.hp), r(u.max), r(u.cd), r(u.shield), u.mark && u.mark.el] : 0)), s.bench.map(u => (u ? u.cid : 0))])]); let h = 5381;
+  const r = x => Math.round(x * 100) / 100, t = JSON.stringify([A.tick, A.s.map(s => [r(s.core), r(s.energy), s.lane.map(u => (u ? [u.cid, u.passive, r(u.atk), r(u.hp), r(u.max), r(u.cd), r(u.shield), u.mark && u.mark.el] : 0)), s.bench.map(u => (u ? u.cid : 0))])]); let h = 5381;
   for (let i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) >>> 0; return h;
 }
 
@@ -1813,7 +1905,7 @@ const CAMP = [
 const campOpen = (ch, k) => (ch === 0 && k === 0) || !!(P.camp && P.camp.cl[k === 0 ? (ch - 1) + "-5" : ch + "-" + (k - 1)]);
 function campDeck(ch, k) {
   const r = rngOf("camp" + ch + "-" + k), cap = Math.min(6, 2 + Math.ceil(ch * .8) + (k >= 4 ? 1 : 0) + (k === 5 ? 1 : 0)), els = CAMP[ch].els;
-  const pool = C.filter(c => rarOf(c) <= cap && (!c.ex || cap >= 6)).sort((a, b) => a.i - b.i), pick = [], n = {};
+  const pool = POOL.filter(c => rarOf(c) <= cap && (!c.ex || cap >= 6)).sort((a, b) => a.i - b.i), pick = [], n = {};
   const take = (list, cnt) => { const L = list.slice(); for (let t = 0; t < cnt && L.length; t++) { const c = L.splice(Math.floor(r() * L.length), 1)[0]; if ((n[c.id] || 0) >= (rarOf(c) >= 5 ? 1 : 2)) { t--; continue; } pick.push(c.id); n[c.id] = (n[c.id] || 0) + 1; } };
   take(pool.filter(c => ckCard(c).el === els[0]), 4); take(pool.filter(c => ckCard(c).el === els[1]), 3); take(pool, 1); while (pick.length < 8) take(pool, 1);
   const deck = pick.slice(0, 8); for (let i = 4; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [deck[i], deck[j]] = [deck[j], deck[i]]; } return deck;
@@ -2024,12 +2116,17 @@ const arClock = s => Math.floor(s / 60) + ":" + String(Math.floor(s % 60)).padSt
 const passText = k => { const P = AR.PS, hp = x => Math.round(x * AR.HPX), pc = x => Math.round(x * 100) + "%", n = x => +x.toFixed(2); return ({
   grow: `+${n(P.grow)} attack every ${AR.GROW_T} s`, fortify: `+${hp(P.fortify)} HP every ${AR.GROW_T} s`, thorns: `Deals ${n(P.thorns)} damage back to whatever strikes it`, guard: `Takes ${pc(1 - P.guard)} less from every hit`, swift: `Strikes ${pc(P.swift - 1)} faster`,
   vamp: `Heals ${pc(P.vamp)} of the damage it deals`, lastwords: `When it falls, your other cards get +${n(P.lastwords)} attack and +${hp(P.lastwords)} HP`, rally: `Adjacent cards get +${n(P.rally)} attack every ${AR.GROW_T} s`, pack: `+${n(P.pack)} attack for each other card of its kind`,
-  reserve: "From the backups: steps in free when a front card falls", overkill: `Excess damage hits the enemy core (×${P.overkill})`, mender: `Heals your most hurt card for ${hp(P.mender)} every 4 s`, berserk: `+${P.berserk} attack below half health`,
+  reserve: "From the backups: steps in free when a front card falls",
+  soul: `Gains +${n(P.soul)} attack whenever any card falls`, laststand: `Below 30% health: +${P.laststand} attack and ${pc(1 - P.lsGuard)} less damage taken`, blood: `Strikes hit ${pc(P.blood)} harder but cost it ${pc(P.bloodCost)} of its health`,
+  chain: `Reactions it triggers hit ${pc(P.chainAmp)} harder and mark the neighbors of the target too`, decree: `Other allies of its faction gain +${n(P.decree)} attack`, mimic: "On its first strike it copies the passive of the card it hit",
+  phoenix: `Once per match, returns with ${pc(P.phoenix)} health when it would fall`, voideater: `Strikes hit ${pc(P.voideater - 1)} harder, ignore shields and strip buffs`, formation: `+${n(P.formation)} attack for each neighbor beside it`,
+  treasure: `A kill by it refunds ${P.treasure} energy`, protector: "Enemies must strike it before anything else", regen: `Heals ${pc(P.regen)} of its health every second`, echo: "Every third strike hits twice", crit: `Every fourth strike hits for ${P.crit}×`, overkill: `Excess damage hits the enemy core (×${P.overkill})`, mender: `Heals your most hurt card for ${hp(P.mender)} every 4 s`, berserk: `+${P.berserk} attack below half health`,
   pierce: `Strikes also hit a neighbor for ${pc(P.pierce)}`, battery: `Your energy regenerates ${pc(P.battery)} faster`, amp: `Reactions it triggers hit for ${pc(P.amp)} more`, sponge: `Absorbs the first hit, recharges after ${P.spongeT} s`,
 }[k] || ""); };
 const actText = k => ({
   mend: `Heal a card for ${Math.round(AR.SK.mend * AR.HPX)}`, empower: `A card gets +${AR.SK.empower} attack for ${AR.SK.empowerT} s`, overgrow: `A card gets +${AR.SK.overgrow} attack and +${Math.round(AR.SK.overgrow * AR.HPX)} HP for good`, ward: `A card absorbs the next ${Math.round(AR.SK.ward * AR.HPX)} damage`,
-  volley: `${AR.SK.volley} damage to every enemy`, disrupt: "Strip an enemy's buffs and mark", strike: `A heavy hit (${AR.SK.strike}× attack, at least ${+(3 * AR.SK.strike).toFixed(1)}) with its element (reacts, then marks)`, mark: "Mark an enemy with its element (no damage)",
+  volley: `${AR.SK.volley} damage to every enemy`, disrupt: "Strip an enemy's buffs and mark", gale: `A card strikes ${AR.SK.gale}× as fast for ${AR.SK.galeT} s`, arc: `A hit for ${AR.SK.arc}× attack that also hits both neighbors for half`, freeze: `An enemy cannot strike for ${AR.SK.freezeT} s`,
+  cleanse: `Clear a card's mark and give it ${Math.round(AR.SK.cleanse * AR.HPX)} shield`, pact: `Pay ${Math.round(AR.SK.pactCost * 100)}% of its health: a card gets +${AR.SK.pact} attack for ${AR.SK.pactT} s`, strike: `A heavy hit (${AR.SK.strike}× attack, at least ${+(3 * AR.SK.strike).toFixed(1)}) with its element (reacts, then marks)`, mark: "Mark an enemy with its element (no damage)",
 }[k] || "");
 
 function arStart(level, mode = { kind: "practice" }) {
@@ -2123,7 +2220,7 @@ function arPanel() {
   else {
     const mine = sel.s === 0, ready = mine && sel.kind === "lane" && u.skcd <= 0 && S0.energy >= u.acost, tl = u.lock != null && A.s[1 - me].lane[u.lock];
     sig = [sel.s, sel.i, sel.kind, u.uid, ready, !!tl, S0.energy >= AR.SWAP_E, u.skcd > 0].join();
-    h = `<div class="kp2"><div class="kinfo"><b>${esc(u.name)}</b> <span class="elchip el-${u.el}">${elIco(u.el)}${EL[u.el][0]}</span> <small>${esc(GROUPS[u.tribe] || u.tribe)} · cost ${u.cost} · speed ${u.spd.toFixed(2)} · ${TGT_NAME[u.tm]}</small><br><em>${PASS[u.passive][0]}:</em> ${passText(u.passive)}<br><em>${actName(u)} (${u.acost}⚡):</em> ${actText(u.active)}${u.mark ? `<br><em>Marked:</em> <span class="elchip el-${u.mark.el}">${elIco(u.mark.el)}${EL[u.mark.el][0]}</span>` : ""}</div>`;
+    h = `<div class="kp2"><div class="kinfo"><b>${esc(u.name)}</b> <span class="elchip el-${u.el}">${elIco(u.el)}${EL[u.el][0]}</span> <small>${esc(FAC[u.fac] || u.fac)} · cost ${u.cost} · speed ${u.spd.toFixed(2)} · ${TGT_NAME[u.tm]}</small><br><em>${PASS[u.passive][0]}:</em> ${passText(u.passive)}<br><em>${actName(u)} (${u.acost}⚡):</em> ${actText(u.active)}${u.mark ? `<br><em>Marked:</em> <span class="elchip el-${u.mark.el}">${elIco(u.mark.el)}${EL[u.mark.el][0]}</span>` : ""}</div>`;
     if (mine && sel.kind === "lane") h += `<div class="kbtns"><button class="btn sm yellow" data-ar="skill" ${ready ? "" : "disabled"}>${u.skcd > 0 ? "Recharging" : esc(actName(u)) + " · " + u.acost + "⚡"}</button>${tl ? '<button class="btn sm dark" data-ar="unlock">Auto-target</button>' : ""}</div>`;
     else if (mine && sel.kind === "bench") h += `<div class="kbtns"><span class="note">Tap a lane to swap it in for ${AR.SWAP_E}⚡ (that slot then recharges ${AR.SWAP_CD} s).</span></div>`;
     h += "</div>";
@@ -2307,21 +2404,21 @@ document.addEventListener("click", e => { if (e.target.closest("[data-ck='findCa
 /* ===== cards: collection, detail, decks ===== */
 let F = { q: "", own: "all", lv: 0, grp: "all" };
 function viewCards(v) {
-  ckInit(); const have = ownedList().length;
+  ckInit(); const have = ownedList().filter(c => inSet(c.id)).length;
   v.innerHTML = `<span class="ribbon">DECKS</span><div class="list">${P.cd.map((d, i) => { const ok = !ckDeckOk(d.cards); return `<button class="panel item" data-ck="deckOpen" data-i="${i}" style="${i === P.cdi ? "border-color:var(--line)" : ""}"><div class="t"><b>${esc(d.name)}</b><small>${d.cards.map(id => esc(BY[id] ? BY[id].name : "?")).join(", ") || "empty"}</small></div><span class="tag ${i === P.cdi ? "gold" : ok ? "ok" : ""}">${i === P.cdi ? "ACTIVE" : ok ? "READY" : "INCOMPLETE"}</span></button>`; }).join("")}</div><div class="row c" style="margin-top:10px"><button class="btn sm yellow" data-ck="deckNew" ${P.cd.length >= 8 ? "disabled" : ""}>New deck</button></div>` +
     `<details class="panel" style="margin-top:12px"><summary class="note" style="cursor:pointer">Classic Triad decks (the old 5-card mode)</summary><div class="list" style="margin-top:8px">${P.decks.map((d, i) => `<button class="panel item" data-act="editDeck" data-i="${i}"><div class="t"><b>${esc(d.name)}</b><small>${d.cards.map(id => esc(BY[id] ? BY[id].name : "?")).join(", ") || "empty"}</small></div><span class="tag ${i === P.deck ? "gold" : ""}">${i === P.deck ? "ACTIVE" : deckOk(d) ? "READY" : "INCOMPLETE"} · ${deckCost(d)}/${deckCap()}</span></button>`).join("")}</div><div class="row c" style="margin-top:8px"><button class="btn sm dark" data-act="newDeck" ${P.decks.length >= 10 ? "disabled" : ""}>New classic deck</button></div></details>` +
-    `<span class="ribbon">COLLECTION · ${have}/${C.length}</span><div class="filters"><input type="search" id="fq" placeholder="Search" value="${esc(F.q)}"><select id="fown" data-act="filt"><option value="all">All</option><option value="own" ${F.own === "own" ? "selected" : ""}>Owned</option><option value="miss" ${F.own === "miss" ? "selected" : ""}>Missing</option><option value="ex" ${F.own === "ex" ? "selected" : ""}>Secret Rare</option></select><select id="flv" data-act="filt"><option value="0">Any rarity</option>${[1, 2, 3, 4, 5].map(l => `<option value="${l}" ${F.lv === l ? "selected" : ""}>${RNAME[l]}</option>`).join("")}</select><select id="fgrp" data-act="filt">${Object.entries(GROUPS).map(([k, n]) => `<option value="${k}" ${F.grp === k ? "selected" : ""}>${n}</option>`).join("")}</select></div><div class="grid" id="coll"></div>`;
+    `<span class="ribbon">SET 1 · ${have}/${POOL.length}</span><div class="filters"><input type="search" id="fq" placeholder="Search" value="${esc(F.q)}"><select id="fown" data-act="filt"><option value="all">All</option><option value="own" ${F.own === "own" ? "selected" : ""}>Owned</option><option value="miss" ${F.own === "miss" ? "selected" : ""}>Missing</option><option value="ex" ${F.own === "ex" ? "selected" : ""}>Secret Rare</option></select><select id="flv" data-act="filt"><option value="0">Any rarity</option>${[1, 2, 3, 4, 5].map(l => `<option value="${l}" ${F.lv === l ? "selected" : ""}>${RNAME[l]}</option>`).join("")}</select><select id="fgrp" data-act="filt">${Object.entries(GROUPS).map(([k, n]) => `<option value="${k}" ${F.grp === k ? "selected" : ""}>${n}</option>`).join("")}</select></div><div class="grid" id="coll"></div>`;
   fillColl(); const q = $("#fq"); q.oninput = () => { F.q = q.value; fillColl(); };
 }
 function fillColl() {
-  const q = F.q.toLowerCase(), list = C.filter(c => (!q || c.name.toLowerCase().includes(q)) && (F.lv === 0 || c.lv === F.lv) && (F.grp === "all" || c.grp === F.grp) && (F.own === "all" || (F.own === "own" ? (P.own[c.id] || 0) > 0 : F.own === "miss" ? !(P.own[c.id] > 0) : c.ex)))
+  const q = F.q.toLowerCase(), list = C.filter(c => (inSet(c.id) || P.own[c.id] > 0) && (!q || c.name.toLowerCase().includes(q)) && (F.lv === 0 || c.lv === F.lv) && (F.grp === "all" || c.grp === F.grp) && (F.own === "all" || (F.own === "own" ? (P.own[c.id] || 0) > 0 : F.own === "miss" ? !(P.own[c.id] > 0) : c.ex)))
     .sort((a, b) => b.lv - a.lv || a.name.localeCompare(b.name));
   $("#coll").innerHTML = list.map(c => cardHtml(c, { count: P.own[c.id] || 0, miss: !(P.own[c.id] > 0), attr: `data-act="detail" data-id="${c.id}"` })).join("") || '<p class="note">No cards match.</p>';
 }
 function openSheet(h) { const m = $("#modal"); m.hidden = false; m.innerHTML = `<div class="sheet">${h}</div>`; }
 function detail(id) {
   const c = BY[id], n = P.own[id] || 0, cost = c.ex ? 0 : CRAFT[c.lv], k = arCard(c), rr = rarOf(c);
-  openSheet(`<div class="row" style="align-items:flex-start;flex-wrap:nowrap;gap:14px"><div style="width:44%;flex:none">${cardHtml(c, { miss: !n, tilt: true })}</div><div style="min-width:0;flex:1"><h2 class="fat" style="text-align:left;font-size:18px;margin:2px 0 8px;line-height:1.15">${esc(c.name)}</h2><div class="row" style="gap:8px"><span class="rtag r${rr}">${RNAME[rr]}</span><span class="elchip el-${k.el}">${elIco(k.el)}${EL[k.el][0]}</span></div><p class="note" style="margin:8px 0 0;line-height:1.5">${esc(GROUPS[c.grp] || c.grp)}<br>Targets: ${TGT_NAME[k.tm]}<br>Strike ${+(k.atk * AR.STRIKE).toFixed(1)} every ${+(AR.IV / k.spd).toFixed(1)} s<br>Owned ${n} / 3</p></div></div>` +
+  openSheet(`<div class="row" style="align-items:flex-start;flex-wrap:nowrap;gap:14px"><div style="width:44%;flex:none">${cardHtml(c, { miss: !n, tilt: true })}</div><div style="min-width:0;flex:1"><h2 class="fat" style="text-align:left;font-size:18px;margin:2px 0 8px;line-height:1.15">${esc(c.name)}</h2><div class="row" style="gap:8px"><span class="rtag r${rr}">${RNAME[rr]}</span><span class="elchip el-${k.el}">${elIco(k.el)}${EL[k.el][0]}</span></div><p class="note" style="margin:8px 0 0;line-height:1.5">${esc(FAC[k.fac] || k.fac)}<br>Targets: ${TGT_NAME[k.tm]}<br>Strike ${+(k.atk * AR.STRIKE).toFixed(1)} every ${+(AR.IV / k.spd).toFixed(1)} s<br>Owned ${n} / 3</p></div></div>` +
     `<div class="cstat"><div class="a"><b>${k.atk}</b><small>Attack</small></div><div class="h"><b>${hpOf(k)}</b><small>Health</small></div><div class="s"><b>${k.spd.toFixed(2)}</b><small>Speed</small></div><div class="c"><b>${k.cost}</b><small>Cost</small></div></div>` +
     `<div class="skillbox"><em>Passive · ${esc(PASS[k.passive][0])}</em>${passText(k.passive)}</div><div class="skillbox"><em>Skill · ${esc(actName(k))} · ${k.acost} energy</em>${actText(k.active)}</div>` +
     `<div class="row c" style="margin-top:14px">${c.ex ? '<span class="note">Only a pack gives this card.</span>' : `<button class="btn yellow sm" data-act="craft" data-id="${id}" ${P.dust < cost || n >= 3 ? "disabled" : ""}>Craft · ${cost} ${ic("gem")}</button>`}<button class="btn dark sm" data-act="closeModal">Close</button></div>`);
