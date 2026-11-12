@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-title" content="Triad Summons">
 <link rel="apple-touch-icon" href="icon-180.png">
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Nunito:wght@600;700;800&family=Rajdhani:wght@600;700&display=swap">
 <style>
 /* Layout: a one-screen phone game. Hex player badge and currency pills on top, the current tab in the middle, a five-button bar with a raised diamond PLAY at the bottom; matches, sheets and the splash lay over it.
    Look: a casino at night. Felt green, gold-yellow, signal red and near-black, chunky outlined type, bevelled buttons with a hard bottom edge, ribbon banners. One committed dark theme. */
@@ -46,14 +46,14 @@ h1, h2, h3 { margin: 0; font-family: var(--display); font-weight: 400; }
 .hex { position: relative; width: 54px; height: 60px; flex: none; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); background: var(--yellow); display: grid; place-items: center; }
 .hex::before { content: ""; position: absolute; inset: 3px; clip-path: inherit; background: radial-gradient(circle at 40% 30%, #2b2f2d, #080a09); }
 .hex span { position: relative; font-size: 26px; color: var(--yellow); line-height: 1; }
-.lvbadge { position: absolute; left: -2px; bottom: -3px; background: #000; color: #fff; font: 400 13px var(--display); border: 2px solid var(--yellow); border-radius: 8px; padding: 0 6px; z-index: 2; }
+.lvbadge { position: absolute; left: -2px; bottom: -3px; background: #000; color: #fff; font: 700 13px var(--display); border: 2px solid var(--yellow); border-radius: 8px; padding: 0 6px; z-index: 2; }
 .who { flex: 1; min-width: 0; }
-.who b { font: 400 15px var(--display); display: block; letter-spacing: .03em; }
+.who b { font: 700 15px var(--display); display: block; letter-spacing: .03em; }
 .xp { height: 12px; border: 2px solid #000; border-radius: 7px; background: #031a10; overflow: hidden; position: relative; margin-top: 3px; }
 .xp i { display: block; height: 100%; background: linear-gradient(#ffe57a, var(--yellow-d)); }
 .xp small { position: absolute; inset: 0; text-align: center; font: 800 9px/10px var(--body); color: #fff; text-shadow: 0 1px 0 #000, 0 0 3px #000; }
 .pills { display: flex; gap: 6px; }
-.pill { display: flex; align-items: center; gap: 4px; background: linear-gradient(#000d, #0a1a12); clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 0 100%); padding: 3px 16px 3px 6px; font: 400 17px var(--display); font-variant-numeric: tabular-nums; }
+.pill { display: flex; align-items: center; gap: 4px; background: linear-gradient(#000d, #0a1a12); clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 0 100%); padding: 3px 16px 3px 6px; font: 700 17px var(--display); font-variant-numeric: tabular-nums; }
 .pill svg { width: 22px; height: 22px; }
 .ico { width: 1em; height: 1em; display: inline-block; vertical-align: -.15em; }
 main { flex: 1; overflow-y: auto; overflow-x: hidden; min-height: 0; padding: 4px 0 14px; scrollbar-width: none; }
@@ -61,7 +61,7 @@ main::-webkit-scrollbar { display: none; }
 
 /* bottom bar: a dark bar of diamond icons; the selected one rises into a notched tab and shows its name */
 nav { display: grid; grid-template-columns: repeat(5, 1fr); align-items: end; padding: 0 0 max(0px, env(safe-area-inset-bottom, 0px)); background: linear-gradient(#0c2217, #040a07); border-top: 3px solid #000; box-shadow: 0 -3px 0 var(--edge); min-height: 62px; margin: 0 -14px; padding-left: 14px; padding-right: 14px; }
-nav button { background: none; border: 0; padding: 7px 0 6px; color: var(--yellow); font: 400 12px var(--display); letter-spacing: .05em; position: relative; display: flex; flex-direction: column; align-items: center; gap: 0; height: 62px; justify-content: center; }
+nav button { background: none; border: 0; padding: 7px 0 6px; color: var(--yellow); font: 700 12px var(--display); letter-spacing: .05em; position: relative; display: flex; flex-direction: column; align-items: center; gap: 0; height: 62px; justify-content: center; }
 nav .dia { width: 40px; height: 40px; transform: rotate(45deg); border-radius: 9px; background: linear-gradient(135deg, #1f4636, #0a1812); border: 3px solid #000; box-shadow: inset 0 0 0 2px #2d7352; display: grid; place-items: center; }
 nav .dia svg { transform: rotate(-45deg); width: 24px; height: 24px; opacity: .8; }
 nav .lb { display: none; margin-top: 1px; text-shadow: 0 2px 0 #000; -webkit-text-stroke: .1em #000; paint-order: stroke fill; color: #fff; }
@@ -72,7 +72,7 @@ nav button.on .lb { display: block; }
 nav .dot { position: absolute; top: 8px; right: 22%; width: 13px; height: 13px; border-radius: 50%; background: var(--red); border: 2px solid #000; }
 
 /* buttons, panels, ribbons */
-.btn { font: 400 17px var(--display); letter-spacing: .03em; color: #fff; background: linear-gradient(#2f9e68, #146c42); border: 3px solid #000; border-radius: 14px; padding: 9px 16px; box-shadow: inset 0 2px 0 #ffffff55, 0 5px 0 #000; -webkit-text-stroke: .1em #000; paint-order: stroke fill; text-shadow: 0 2px 0 #000; transition: transform .06s, box-shadow .06s; }
+.btn { font: 700 17px var(--display); letter-spacing: .03em; color: #fff; background: linear-gradient(#2f9e68, #146c42); border: 3px solid #000; border-radius: 14px; padding: 9px 16px; box-shadow: inset 0 2px 0 #ffffff55, 0 5px 0 #000; -webkit-text-stroke: .1em #000; paint-order: stroke fill; text-shadow: 0 2px 0 #000; transition: transform .06s, box-shadow .06s; }
 .btn:active:not(:disabled) { transform: translateY(4px); box-shadow: inset 0 2px 0 #ffffff55, 0 1px 0 #000; }
 .btn.yellow { background: linear-gradient(#fff08a, var(--yellow) 45%, var(--yellow-d)); color: #fff; }
 .btn.red { background: linear-gradient(#ff7886, var(--red) 50%, var(--red-d)); }
@@ -81,7 +81,7 @@ nav .dot { position: absolute; top: 8px; right: 22%; width: 13px; height: 13px; 
 .btn.sm { font-size: 14px; padding: 6px 12px; border-radius: 11px; box-shadow: inset 0 2px 0 #ffffff55, 0 3px 0 #000; }
 .btn:disabled { filter: grayscale(1) brightness(.6); cursor: default; }
 .panel { background: linear-gradient(#0f2e21, var(--panel)); border: 3px solid #000; border-radius: 16px; box-shadow: inset 0 0 0 2px var(--edge), 0 4px 0 #000a; padding: 12px; }
-.ribbon { display: block; margin: 14px auto 10px; width: max-content; max-width: 100%; padding: 5px 34px 6px; font: 400 20px var(--display); letter-spacing: .04em; color: #fff; -webkit-text-stroke: .1em #000; paint-order: stroke fill; text-shadow: 0 2px 0 #000; background: linear-gradient(#ff6372, var(--red) 55%, var(--red-d)); clip-path: polygon(0 0, 100% 0, calc(100% - 14px) 50%, 100% 100%, 0 100%, 14px 50%); text-align: center; filter: drop-shadow(0 3px 0 #000); }
+.ribbon { display: block; margin: 14px auto 10px; width: max-content; max-width: 100%; padding: 5px 34px 6px; font: 700 20px var(--display); letter-spacing: .04em; color: #fff; -webkit-text-stroke: .1em #000; paint-order: stroke fill; text-shadow: 0 2px 0 #000; background: linear-gradient(#ff6372, var(--red) 55%, var(--red-d)); clip-path: polygon(0 0, 100% 0, calc(100% - 14px) 50%, 100% 100%, 0 100%, 14px 50%); text-align: center; filter: drop-shadow(0 3px 0 #000); }
 .ribbon.gold { background: linear-gradient(#fff08a, var(--yellow) 50%, var(--yellow-d)); }
 .ribbon.green { background: linear-gradient(#3fcb83, var(--felt) 55%, var(--felt-d)); }
 .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
@@ -90,9 +90,9 @@ nav .dot { position: absolute; top: 8px; right: 22%; width: 13px; height: 13px; 
 .list { display: flex; flex-direction: column; gap: 10px; }
 .item { display: flex; gap: 10px; align-items: center; text-align: left; width: 100%; }
 .item .t { flex: 1; min-width: 0; }
-.item .t b { display: block; font: 400 17px var(--display); letter-spacing: .02em; }
+.item .t b { display: block; font: 700 17px var(--display); letter-spacing: .02em; }
 .item .t small { color: var(--muted); font-weight: 700; }
-.tag { font: 400 12px var(--display); padding: 2px 9px; border-radius: 9px; background: #000a; border: 2px solid #000; color: var(--muted); white-space: nowrap; }
+.tag { font: 700 12px var(--display); padding: 2px 9px; border-radius: 9px; background: #000a; border: 2px solid #000; color: var(--muted); white-space: nowrap; }
 .tag.ok { color: var(--ok); } .tag.gold { color: var(--yellow); }
 select, input[type=text], input[type=search], textarea { background: #05150d; color: #fff; border: 3px solid #000; box-shadow: inset 0 0 0 2px var(--edge); border-radius: 12px; padding: 9px 10px; font: 800 15px var(--body); min-width: 0; user-select: text; -webkit-user-select: text; }
 textarea { width: 100%; resize: none; font: 700 11px/1.3 ui-monospace, Menlo, Consolas, monospace; word-break: break-all; }
@@ -112,9 +112,9 @@ textarea { width: 100%; resize: none; font: 700 11px/1.3 ui-monospace, Menlo, Co
 .badge::before { content: ""; position: absolute; inset: 4px; clip-path: inherit; background: linear-gradient(#18523a, #0a2a1c); }
 .badge::after { content: ""; position: absolute; inset: 0; clip-path: inherit; box-shadow: inset 0 0 0 3px var(--yellow); pointer-events: none; }
 .badge > * { position: relative; z-index: 1; display: block; }
-.badge small { font: 400 12px var(--display); color: var(--muted); letter-spacing: .06em; }
-.badge b { font: 400 17px/1.05 var(--display); padding: 2px 12px; }
-.badge i { font: 400 38px/1 var(--display); font-style: normal; color: var(--yellow); }
+.badge small { font: 700 12px var(--display); color: var(--muted); letter-spacing: .06em; }
+.badge b { font: 700 17px/1.05 var(--display); padding: 2px 12px; }
+.badge i { font: 700 38px/1 var(--display); font-style: normal; color: var(--yellow); }
 .playwrap { position: absolute; left: 0; right: 0; bottom: 4px; display: flex; justify-content: center; }
 .nodes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 8px; }
 .node { position: relative; aspect-ratio: 1; border: 0; padding: 0; display: grid; place-items: center; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); background: var(--yellow); }
@@ -123,8 +123,8 @@ textarea { width: 100%; resize: none; font: 700 11px/1.3 ui-monospace, Menlo, Co
 .node.lock { background: #2a3a32; } .node.lock::before { background: #101a15; }
 .node.next { background: #fff; animation: glow 1.4s ease-in-out infinite; }
 @keyframes glow { 50% { filter: drop-shadow(0 0 8px #ffd23f); } }
-.node span { position: relative; font: 400 24px var(--display); -webkit-text-stroke: .1em #000; paint-order: stroke fill; }
-.node small { position: absolute; bottom: 12%; z-index: 1; font: 400 10px var(--display); color: var(--yellow); }
+.node span { position: relative; font: 700 24px var(--display); -webkit-text-stroke: .1em #000; paint-order: stroke fill; }
+.node small { position: absolute; bottom: 12%; z-index: 1; font: 700 10px var(--display); color: var(--yellow); }
 .node.lock span { color: #6b8274; }
 .node.boss span { color: var(--red); }
 
@@ -147,14 +147,14 @@ textarea { width: 100%; resize: none; font: 700 11px/1.3 ui-monospace, Menlo, Co
 @keyframes sheen { from { background-position: 160% 0; } to { background-position: -110% 0; } }
 .card .gems { position: absolute; left: 6.5cqw; top: 6.5cqw; display: flex; flex-direction: column; gap: 1.2cqw; z-index: 3; }
 .card .gems i { width: 4.2cqw; height: 4.2cqw; transform: rotate(45deg); background: linear-gradient(135deg, #fff, var(--c) 60%, var(--cd)); border: .6cqw solid #000; box-shadow: 0 0 1.6cqw var(--c); }
-.card .cnt { position: absolute; top: 5cqw; right: 6cqw; z-index: 4; background: #000d; color: var(--r5); border-radius: 999px; font: 400 9cqw var(--display); padding: .5cqw 3cqw; }
-.card .cost { position: absolute; right: 6.4cqw; bottom: 21cqw; z-index: 4; width: 13cqw; height: 13cqw; display: grid; place-items: center; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); background: linear-gradient(#ffe57a, #c98a0c); font: 400 9cqw/1 var(--display); color: #2a1a00; }
-.card .n { position: absolute; z-index: 3; width: 16cqw; height: 16cqw; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle at 35% 28%, #3a424a, #090c0f 75%); border: 1cqw solid var(--c); box-shadow: 0 0 0 .6cqw #000, 0 .8cqw 1.4cqw #000a; font: 400 11.5cqw/1 var(--display); color: #fff; text-shadow: 0 .7cqw 0 #000; }
+.card .cnt { position: absolute; top: 5cqw; right: 6cqw; z-index: 4; background: #000d; color: var(--r5); border-radius: 999px; font: 700 9cqw var(--display); padding: .5cqw 3cqw; }
+.card .cost { position: absolute; right: 6.4cqw; bottom: 21cqw; z-index: 4; width: 13cqw; height: 13cqw; display: grid; place-items: center; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); background: linear-gradient(#ffe57a, #c98a0c); font: 700 9cqw/1 var(--display); color: #2a1a00; }
+.card .n { position: absolute; z-index: 3; width: 16cqw; height: 16cqw; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle at 35% 28%, #3a424a, #090c0f 75%); border: 1cqw solid var(--c); box-shadow: 0 0 0 .6cqw #000, 0 .8cqw 1.4cqw #000a; font: 700 11.5cqw/1 var(--display); color: #fff; text-shadow: 0 .7cqw 0 #000; }
 .card .n.t { top: 6cqw; left: 50%; transform: translateX(-50%); } .card .n.b { bottom: 21cqw; left: 50%; transform: translateX(-50%); }
 .card .n.r { right: 6.6cqw; top: 50cqw; } .card .n.l { left: 6.6cqw; top: 50cqw; }
 .card .plate { position: absolute; left: 3.6cqw; right: 3.6cqw; bottom: 3.6cqw; height: 12.4cqw; z-index: 3; background: linear-gradient(#141a20, #04070a); border: .7cqw solid #000; border-radius: 2.6cqw; box-shadow: inset 0 .7cqw 0 var(--c); display: flex; flex-direction: column; justify-content: center; text-align: center; padding: 0 2cqw; }
-.card .plate .nm { font: 400 8.2cqw/1.05 var(--display); color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: .02em; }
-.card .plate .sub { font: 400 4.2cqw/1.3 var(--display); color: var(--c); letter-spacing: .1em; text-transform: uppercase; white-space: nowrap; overflow: hidden; }
+.card .plate .nm { font: 700 8.2cqw/1.05 var(--display); color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: .02em; }
+.card .plate .sub { font: 700 4.2cqw/1.3 var(--display); color: var(--c); letter-spacing: .1em; text-transform: uppercase; white-space: nowrap; overflow: hidden; }
 @container (max-width: 112px) {
   .card .plate .sub { display: none; } .card .plate { height: 10.5cqw; } .card .plate .nm { font-size: 9.6cqw; }
   .card .win { bottom: 15cqw; } .card .n { width: 21cqw; height: 21cqw; font-size: 15.5cqw; } .card .n.t { top: 3cqw; } .card .n.b { bottom: 17cqw; } .card .n.r { right: 3.4cqw; top: 45cqw; } .card .n.l { left: 3.4cqw; top: 45cqw; }
@@ -169,7 +169,7 @@ textarea { width: 100%; resize: none; font: 700 11px/1.3 ui-monospace, Menlo, Co
 .card.flip { animation: flipc .5s ease-in-out; }
 @keyframes flipc { 0% { transform: rotateY(0); } 50% { transform: rotateY(90deg); } 100% { transform: rotateY(0); } }
 .card.tilt { transition: transform .12s ease-out; will-change: transform; }
-.rtag { display: inline-block; font: 400 12px var(--display); letter-spacing: .08em; padding: 1px 9px; border-radius: 8px; border: 2px solid #000; color: #fff; background: linear-gradient(var(--c), var(--cd)); -webkit-text-stroke: .08em #000; paint-order: stroke fill; }
+.rtag { display: inline-block; font: 700 12px var(--display); letter-spacing: .08em; padding: 1px 9px; border-radius: 8px; border: 2px solid #000; color: #fff; background: linear-gradient(var(--c), var(--cd)); -webkit-text-stroke: .08em #000; paint-order: stroke fill; }
 .rtag.r1 { --c: var(--r1); --cd: var(--r1d); } .rtag.r2 { --c: var(--r2); --cd: var(--r2d); } .rtag.r3 { --c: var(--r3); --cd: var(--r3d); } .rtag.r4 { --c: var(--r4); --cd: var(--r4d); } .rtag.r5 { --c: var(--r5); --cd: var(--r5d); } .rtag.r6 { --c: var(--r6); --cd: var(--r6d); }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 9px; }
 .grid .card { width: 100%; }
@@ -182,10 +182,10 @@ textarea { width: 100%; resize: none; font: 700 11px/1.3 ui-monospace, Menlo, Co
 .mtop { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; }
 .mtop > :last-child { justify-self: end; }
 .score { display: flex; gap: 6px; align-items: stretch; }
-.score .a, .score .b { min-width: 62px; text-align: center; font: 400 28px/1 var(--display); padding: 3px 10px 5px; border: 3px solid #000; border-radius: 12px; -webkit-text-stroke: .1em #000; paint-order: stroke fill; text-shadow: 0 2px 0 #000; box-shadow: 0 3px 0 #000; }
+.score .a, .score .b { min-width: 62px; text-align: center; font: 700 28px/1 var(--display); padding: 3px 10px 5px; border: 3px solid #000; border-radius: 12px; -webkit-text-stroke: .1em #000; paint-order: stroke fill; text-shadow: 0 2px 0 #000; box-shadow: 0 3px 0 #000; }
 .score .a { background: linear-gradient(#fff08a, var(--yellow-d)); } .score .b { background: linear-gradient(#ff7886, var(--red-d)); }
-.score small { display: block; font: 400 9px var(--display); letter-spacing: .06em; -webkit-text-stroke: 0; text-shadow: none; color: #000a; }
-.turn { text-align: center; min-height: 28px; font: 400 20px var(--display); letter-spacing: .06em; color: var(--yellow); -webkit-text-stroke: .12em #000; paint-order: stroke fill; text-shadow: 0 2px 0 #000; }
+.score small { display: block; font: 700 9px var(--display); letter-spacing: .06em; -webkit-text-stroke: 0; text-shadow: none; color: #000a; }
+.turn { text-align: center; min-height: 28px; font: 700 20px var(--display); letter-spacing: .06em; color: var(--yellow); -webkit-text-stroke: .12em #000; paint-order: stroke fill; text-shadow: 0 2px 0 #000; }
 .turn.foe { color: #ff8d98; }
 .tray { background: linear-gradient(#10261b, #07140d); border: 3px solid #000; border-radius: 16px; box-shadow: inset 0 0 0 2px var(--edge), 0 4px 0 #000a; padding: 8px 8px 6px; }
 .hand { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; }
@@ -198,7 +198,7 @@ textarea { width: 100%; resize: none; font: 700 11px/1.3 ui-monospace, Menlo, Co
 .cell.hint { background: #ffd23f33; border: 3px solid var(--yellow); box-shadow: 0 0 14px #ffd23f99; animation: glow 1.2s ease-in-out infinite; }
 .cell.hint2 { background: #ffd23f77; box-shadow: 0 0 22px #ffd23f; }
 .cell .card { position: absolute; inset: 0; width: 100%; height: 100%; }
-.word { position: absolute; left: 50%; top: 38%; transform: translate(-50%, 0); font: 400 26px var(--display); color: #fff; -webkit-text-stroke: .14em #000; paint-order: stroke fill; text-shadow: 0 3px 0 #000; pointer-events: none; animation: rise 1s ease-out forwards; z-index: 3; white-space: nowrap; }
+.word { position: absolute; left: 50%; top: 38%; transform: translate(-50%, 0); font: 700 26px var(--display); color: #fff; -webkit-text-stroke: .14em #000; paint-order: stroke fill; text-shadow: 0 3px 0 #000; pointer-events: none; animation: rise 1s ease-out forwards; z-index: 3; white-space: nowrap; }
 .word.s { color: #ffe066; } .word.p { color: #7be0ff; } .word.c { color: #ff9ad5; } .word.ouch { color: #ff7b86; } .word.cap { color: #9dffae; }
 @keyframes rise { 0% { opacity: 0; transform: translate(-50%, 10px) scale(.5); } 20% { opacity: 1; transform: translate(-50%, 0) scale(1.2); } 100% { opacity: 0; transform: translate(-50%, -30px) scale(1); } }
 
@@ -211,30 +211,30 @@ textarea { width: 100%; resize: none; font: 700 11px/1.3 ui-monospace, Menlo, Co
 .rw { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin: 8px 0; }
 .rwi { position: relative; width: 62px; height: 62px; display: grid; place-items: center; border: 3px solid #000; border-radius: 8px; box-shadow: 0 3px 0 #000a; }
 .rwi svg { width: 38px; height: 38px; }
-.rwi b { position: absolute; right: 4px; bottom: 0; font: 400 14px var(--display); color: #fff; -webkit-text-stroke: .14em #000; paint-order: stroke fill; }
+.rwi b { position: absolute; right: 4px; bottom: 0; font: 700 14px var(--display); color: #fff; -webkit-text-stroke: .14em #000; paint-order: stroke fill; }
 .rwi.p { background: linear-gradient(#a56bff, #5a2bb0); box-shadow: inset 0 0 0 2px #d9bcff, 0 3px 0 #000a; }
 .rwi.b { background: linear-gradient(#5cc8ff, #1f6fb5); box-shadow: inset 0 0 0 2px #bfe8ff, 0 3px 0 #000a; }
 .rwi.g { background: linear-gradient(#ffe57a, var(--yellow-d)); box-shadow: inset 0 0 0 2px #fff3b0, 0 3px 0 #000a; }
 .hexgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 6px 0 14px; }
 .hx { position: relative; aspect-ratio: 0.9; clip-path: polygon(50% 0, 100% 24%, 100% 76%, 50% 100%, 0 76%, 0 24%); background: #c7ced4; display: grid; place-items: center; }
 .hx::before { content: ""; position: absolute; inset: 4px; clip-path: inherit; background: linear-gradient(#8e979e, #6d767d); }
-.hx.q span { position: relative; font: 400 40px var(--display); color: #c7ced4; opacity: .8; }
+.hx.q span { position: relative; font: 700 40px var(--display); color: #c7ced4; opacity: .8; }
 .hx.f { background: var(--c); } .hx.f::before { background: #08150f; }
 .hx.f img { position: absolute; inset: 6px; width: calc(100% - 12px); height: calc(100% - 12px); clip-path: polygon(50% 0, 100% 24%, 100% 76%, 50% 100%, 0 76%, 0 24%); object-fit: cover; image-rendering: pixelated; }
-.hx.f small { position: absolute; bottom: 14%; left: 0; right: 0; text-align: center; font: 400 11px var(--display); color: #fff; -webkit-text-stroke: .16em #000; paint-order: stroke fill; }
+.hx.f small { position: absolute; bottom: 14%; left: 0; right: 0; text-align: center; font: 700 11px var(--display); color: #fff; -webkit-text-stroke: .16em #000; paint-order: stroke fill; }
 .hx.r1 { --c: var(--r1); } .hx.r2 { --c: var(--r2); } .hx.r3 { --c: var(--r3); } .hx.r4 { --c: var(--r4); } .hx.r5 { --c: var(--r5); } .hx.r6 { --c: var(--r6); }
 .bighex { position: relative; width: 240px; height: 270px; margin: 20px auto; clip-path: polygon(50% 0, 100% 24%, 100% 76%, 50% 100%, 0 76%, 0 24%); background: #c7ced4; display: grid; place-items: center; animation: shk .5s ease-in-out infinite; }
 .bighex::before { content: ""; position: absolute; inset: 7px; clip-path: inherit; background: linear-gradient(#aeb7be, #7d868d); }
-.bighex span { position: relative; font: 400 120px var(--display); color: #e4e9ec; opacity: .85; }
+.bighex span { position: relative; font: 700 120px var(--display); color: #e4e9ec; opacity: .85; }
 @keyframes shk { 25% { transform: rotate(-2deg); } 75% { transform: rotate(2deg); } }
-.stagehint { text-align: center; font: 400 22px var(--display); color: #b8c8ff; -webkit-text-stroke: .1em #000; paint-order: stroke fill; animation: glow 1.2s ease-in-out infinite; }
-#toast { position: fixed; left: 50%; top: calc(14px + env(safe-area-inset-top, 0px)); transform: translate(-50%, -20px); background: linear-gradient(#fff, #cfe9ff); color: #123; border: 3px solid #000; box-shadow: 0 4px 0 #000; padding: 8px 18px; border-radius: 999px; z-index: 80; pointer-events: none; opacity: 0; transition: opacity .25s, transform .25s; max-width: 92%; text-align: center; font: 400 15px var(--display); }
+.stagehint { text-align: center; font: 700 22px var(--display); color: #b8c8ff; -webkit-text-stroke: .1em #000; paint-order: stroke fill; animation: glow 1.2s ease-in-out infinite; }
+#toast { position: fixed; left: 50%; top: calc(14px + env(safe-area-inset-top, 0px)); transform: translate(-50%, -20px); background: linear-gradient(#fff, #cfe9ff); color: #123; border: 3px solid #000; box-shadow: 0 4px 0 #000; padding: 8px 18px; border-radius: 999px; z-index: 80; pointer-events: none; opacity: 0; transition: opacity .25s, transform .25s; max-width: 92%; text-align: center; font: 700 15px var(--display); }
 #toast.on { opacity: 1; transform: translate(-50%, 0); }
 #splash { position: fixed; inset: 0; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: radial-gradient(ellipse at 50% 30%, #1aa664, var(--felt-d) 55%, var(--felt-dd)); transition: opacity .5s; }
 #splash.gone { opacity: 0; pointer-events: none; }
 #splash .logo { font-size: 66px; line-height: .9; color: #fff; text-align: center; transform: rotate(-3deg); }
 #splash .logo i { display: block; font-style: normal; color: var(--yellow); font-size: 50px; }
-#splash small { position: absolute; bottom: calc(40px + env(safe-area-inset-bottom, 0px)); font: 400 18px var(--display); color: #fff; -webkit-text-stroke: .12em #000; paint-order: stroke fill; }
+#splash small { position: absolute; bottom: calc(40px + env(safe-area-inset-bottom, 0px)); font: 700 18px var(--display); color: #fff; -webkit-text-stroke: .12em #000; paint-order: stroke fill; }
 
 /* summon */
 .mach { position: relative; margin: 6px auto 0; width: min(100%, 360px); padding: 22px 14px 18px; border-radius: 26px; background: linear-gradient(#1b1f1d, #060807); border: 4px solid #000; box-shadow: inset 0 0 0 3px var(--yellow), 0 6px 0 #000a; text-align: center; }
@@ -242,15 +242,15 @@ textarea { width: 100%; resize: none; font: 700 11px/1.3 ui-monospace, Menlo, Co
 @keyframes bulbs { 50% { border-color: var(--red); } }
 .orb { position: relative; width: 168px; height: 168px; margin: 8px auto 14px; border-radius: 50%; background: radial-gradient(circle at 35% 28%, #fff7c2, var(--yellow) 30%, var(--red) 66%, #2a0509); border: 5px solid #000; box-shadow: 0 0 36px #ffd23faa, 0 0 80px #ec3d4c66, inset 0 -10px 20px #0006; animation: orb 2.6s ease-in-out infinite; display: grid; place-items: center; }
 .orb::after { content: ""; position: absolute; width: 56px; height: 28px; left: 24px; top: 20px; border-radius: 50%; background: #fff9; transform: rotate(-30deg); filter: blur(2px); }
-.orb b { font: 400 28px var(--display); color: #fff; -webkit-text-stroke: .14em #000; paint-order: stroke fill; text-shadow: 0 3px 0 #000; position: relative; z-index: 1; }
+.orb b { font: 700 28px var(--display); color: #fff; -webkit-text-stroke: .14em #000; paint-order: stroke fill; text-shadow: 0 3px 0 #000; position: relative; z-index: 1; }
 @keyframes orb { 50% { transform: scale(1.05); box-shadow: 0 0 56px #ffd23f, 0 0 110px #ec3d4c99, inset 0 -10px 20px #0006; } }
 .pity { text-align: left; margin: 12px 0 4px; }
-.pity small { display: flex; justify-content: space-between; font: 400 12px var(--display); color: var(--muted); margin-bottom: 3px; }
+.pity small { display: flex; justify-content: space-between; font: 700 12px var(--display); color: var(--muted); margin-bottom: 3px; }
 .reveal { display: grid; gap: 9px; }
 .reveal .card { opacity: 0; width: 100%; }
 .reveal .card.in { animation: pop .45s ease-out forwards; }
 .reveal .wrap { position: relative; }
-.reveal .tg { position: absolute; left: 0; right: 0; bottom: -4px; text-align: center; font: 400 12px var(--display); color: var(--ok); -webkit-text-stroke: .14em #000; paint-order: stroke fill; z-index: 3; }
+.reveal .tg { position: absolute; left: 0; right: 0; bottom: -4px; text-align: center; font: 700 12px var(--display); color: var(--ok); -webkit-text-stroke: .14em #000; paint-order: stroke fill; z-index: 3; }
 .reveal .tg.d { color: #ffb0b8; }
 table.odds { width: 100%; border-collapse: collapse; } table.odds td { padding: 5px 0; border-bottom: 2px solid #ffffff22; } table.odds td:last-child { text-align: right; font-family: var(--display); font-variant-numeric: tabular-nums; }
 .slots { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; margin: 8px 0; }
@@ -330,8 +330,8 @@ table.odds { width: 100%; border-collapse: collapse; } table.odds td { padding: 
 .packw.torn .pbot { animation: pkfall .5s ease-in forwards; } .packw.torn .ptop { animation: pkfly .5s ease-in forwards; }
 @keyframes pkfall { to { transform: translateY(120px) scale(.9); opacity: 0; } } @keyframes pkfly { to { transform: translate(120px, -80px) rotate(40deg); opacity: 0; } }
 .packfs { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 16px; background: radial-gradient(circle at 50% 45%, var(--rc, #1d6a49) 0%, #04110b 70%); overflow: hidden; user-select: none; }
-.packfs .plbl, .packfs .phint { font: 400 16px var(--display); color: #fff; letter-spacing: .05em; text-shadow: 0 2px 0 #000; } .packfs .phint { opacity: .85; animation: hintp 1.4s ease-in-out infinite; } @keyframes hintp { 50% { opacity: .4; } }
-.packfs .pcount { position: absolute; top: calc(env(safe-area-inset-top, 0px) + 12px); font: 400 16px var(--display); color: #ffffffc0; }
+.packfs .plbl, .packfs .phint { font: 700 16px var(--display); color: #fff; letter-spacing: .05em; text-shadow: 0 2px 0 #000; } .packfs .phint { opacity: .85; animation: hintp 1.4s ease-in-out infinite; } @keyframes hintp { 50% { opacity: .4; } }
+.packfs .pcount { position: absolute; top: calc(env(safe-area-inset-top, 0px) + 12px); font: 700 16px var(--display); color: #ffffffc0; }
 .packfs.fx-r3 { --rc: #1c4f9a; } .packfs.fx-r4 { --rc: #5a2bb0; } .packfs.fx-r5 { --rc: #c4690a; } .packfs.fx-r6 { --rc: #b01228; }
 .packfs.hit.fx-r5, .packfs.hit.fx-r6, .packfs.hit.fx-r4 { animation: hitflash .7s ease-out; } @keyframes hitflash { 0% { filter: brightness(2.2); } 100% { filter: none; } }
 .pc { position: relative; width: min(62vw, 270px); aspect-ratio: 5 / 7; transform-style: preserve-3d; transition: transform .6s cubic-bezier(.2, .9, .3, 1.1); perspective: 900px; }
@@ -343,7 +343,7 @@ table.odds { width: 100%; border-collapse: collapse; } table.odds td { padding: 
 .packfs.big .pc.flipped { animation: bigpop .8s ease-out; } @keyframes bigpop { 0% { transform: rotateY(180deg) scale(.7); } 60% { transform: rotateY(180deg) scale(1.12); } 100% { transform: rotateY(180deg) scale(1); } }
 .packfs.sum { justify-content: center; overflow: auto; }
 .psum { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 10px; width: min(100%, 440px); }
-.psum .wrap { position: relative; } .psum .card { width: 100%; } .psum .tg { position: absolute; left: 0; right: 0; bottom: -4px; text-align: center; font: 400 12px var(--display); color: var(--ok); -webkit-text-stroke: .14em #000; paint-order: stroke fill; z-index: 8; } .psum .tg.d { color: #ffb0b8; }
+.psum .wrap { position: relative; } .psum .card { width: 100%; } .psum .tg { position: absolute; left: 0; right: 0; bottom: -4px; text-align: center; font: 700 12px var(--display); color: var(--ok); -webkit-text-stroke: .14em #000; paint-order: stroke fill; z-index: 8; } .psum .tg.d { color: #ffb0b8; }
 .recent { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; } .recent .card { width: 100%; }
 @media (orientation: landscape) and (max-height: 540px) { .pc { width: min(30vh, 170px); } .packw.big { width: 150px; height: 236px; } .psum { grid-template-columns: repeat(5, 1fr); } .packfs { flex-direction: column; } }
 
@@ -351,10 +351,10 @@ table.odds { width: 100%; border-collapse: collapse; } table.odds td { padding: 
 #ck { position: fixed; inset: 0; z-index: 20; background: radial-gradient(ellipse at 50% 40%, #12583a 0%, var(--felt-d) 55%, var(--felt-dd) 100%); }
 .sa #ck { bottom: auto; height: var(--app-h, 100%); } #ck[hidden] { display: none; }
 .ckwrap { height: 100%; display: flex; flex-direction: column; gap: 4px; padding: calc(env(safe-area-inset-top, 0px) + 6px) max(8px, env(safe-area-inset-left, 0px)) calc(env(safe-area-inset-bottom, 0px) + 8px) max(8px, env(safe-area-inset-right, 0px)); max-width: 560px; margin: 0 auto; }
-.ckhud { display: flex; align-items: center; justify-content: space-between; gap: 8px; } .ckhud b { font-size: 18px; } .surge { font: 400 12px var(--display); color: #ffb36b; }
+.ckhud { display: flex; align-items: center; justify-content: space-between; gap: 8px; } .ckhud b { font-size: 18px; } .surge { font: 700 12px var(--display); color: #ffb36b; }
 .side { display: flex; flex-direction: column; gap: 4px; } .lanes { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; } .bench { display: flex; gap: 5px; justify-content: center; } .bench .ku { width: 15%; }
-.vsline { text-align: center; min-height: 20px; font: 400 16px var(--display); color: var(--yellow); -webkit-text-stroke: .1em #000; paint-order: stroke fill; letter-spacing: .06em; }
-.coreb { display: flex; align-items: center; gap: 8px; } .coreb span { font: 400 11px var(--display); color: #fff; width: 44px; }
+.vsline { text-align: center; min-height: 20px; font: 700 16px var(--display); color: var(--yellow); -webkit-text-stroke: .1em #000; paint-order: stroke fill; letter-spacing: .06em; }
+.coreb { display: flex; align-items: center; gap: 8px; } .coreb span { font: 700 11px var(--display); color: #fff; width: 44px; }
 .cbar { position: relative; flex: 1; height: 14px; border: 2px solid #000; border-radius: 7px; background: #1a0508; overflow: hidden; } .coreb.me .cbar { background: #031a10; }
 .cbar i { position: absolute; left: 0; top: 0; bottom: 0; background: linear-gradient(#ff8d98, #d72b3c); transition: width .35s; } .coreb.me .cbar i { background: linear-gradient(#9dff6a, #35b520); } .cbar em { position: absolute; inset: 0; text-align: center; font: 800 10px/10px var(--body); color: #fff; text-shadow: 0 1px 0 #000; font-style: normal; }
 .pips { display: flex; gap: 3px; } .pips i { width: 10px; height: 14px; border-radius: 3px; background: #0a1a12; border: 1px solid #000; } .pips i.on { background: linear-gradient(#ffe57a, #e0a410); box-shadow: 0 0 6px #ffd23f99; }
@@ -364,24 +364,24 @@ table.odds { width: 100%; border-collapse: collapse; } table.odds td { padding: 
 .ku.el-fire { --elc: #ff6a3a; } .ku.el-water { --elc: #3aa0ff; } .ku.el-wind { --elc: #5fe0a0; } .ku.el-earth { --elc: #c9a05a; } .ku.el-lightning { --elc: #ffe03a; } .ku.el-ice { --elc: #9fe6ff; } .ku.el-light { --elc: #fff3b0; } .ku.el-dark { --elc: #b074ff; }
 .ku .kart { position: absolute; inset: 0 0 34% 0; background: #000; } .ku .kart img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .ku .kel { position: absolute; right: 2px; top: 2px; font-style: normal; font-size: 13px; text-shadow: 0 0 3px #000, 0 0 3px #000; } .ku .kmk { position: absolute; left: 2px; bottom: 36%; font-style: normal; font-size: 12px; background: #000b; border-radius: 6px; padding: 0 2px; }
-.ku .kcost { position: absolute; left: 2px; top: 2px; width: 16px; height: 16px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #5a9aff, #1a3c9a); border: 1.5px solid #000; font: 400 11px/13px var(--display); color: #fff; text-align: center; }
-.ku .kname { position: absolute; left: 0; right: 0; bottom: 18%; text-align: center; font: 400 9px/1.1 var(--display); color: #fff; -webkit-text-stroke: .12em #000; paint-order: stroke fill; white-space: nowrap; overflow: hidden; }
+.ku .kcost { position: absolute; left: 2px; top: 2px; width: 16px; height: 16px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #5a9aff, #1a3c9a); border: 1.5px solid #000; font: 700 11px/13px var(--display); color: #fff; text-align: center; }
+.ku .kname { position: absolute; left: 0; right: 0; bottom: 18%; text-align: center; font: 700 9px/1.1 var(--display); color: #fff; -webkit-text-stroke: .12em #000; paint-order: stroke fill; white-space: nowrap; overflow: hidden; }
 .ku .kst { position: absolute; left: 0; right: 0; bottom: 0; height: 18%; display: flex; justify-content: space-between; align-items: center; padding: 0 4px; background: #000b; }
-.ku .kst b { font: 400 13px var(--display); } .ku .kst .a { color: #ffb36b; } .ku .kst .a::before { content: "⚔"; font-size: 9px; margin-right: 1px; } .ku .kst .h { color: #7dff9a; } .ku .kst .h.hurt { color: #ff8d98; } .ku .kst .h::before { content: "♥"; font-size: 9px; margin-right: 1px; }
+.ku .kst b { font: 700 13px var(--display); } .ku .kst .a { color: #ffb36b; } .ku .kst .a::before { content: "⚔"; font-size: 9px; margin-right: 1px; } .ku .kst .h { color: #7dff9a; } .ku .kst .h.hurt { color: #ff8d98; } .ku .kst .h::before { content: "♥"; font-size: 9px; margin-right: 1px; }
 .ku .ksh { position: absolute; right: 2px; bottom: 36%; font-style: normal; font-size: 10px; background: #000b; border-radius: 6px; padding: 0 3px; color: #9fe6ff; } .ku .kfr { position: absolute; left: 50%; top: 30%; transform: translateX(-50%); font-style: normal; font-size: 22px; } .ku .ktmp { position: absolute; left: 20px; top: 2px; font-style: normal; font-size: 10px; color: #ffb36b; }
 .ku.foe { box-shadow: 0 0 0 2px #ec3d4c, 0 3px 0 #000a; } .ku.sel { transform: translateY(-5px) scale(1.04); box-shadow: 0 0 0 3px var(--yellow), 0 0 14px var(--yellow); z-index: 3; } .ku.tgt { animation: tgtp .8s ease-in-out infinite; box-shadow: 0 0 0 3px #fff, 0 0 12px #fff; }
-.ku.empty { background: #0003; border: 2px dashed #ffffff40; box-shadow: none; display: grid; place-items: center; } .ku.empty span { font: 400 22px var(--display); color: #ffffff60; }
+.ku.empty { background: #0003; border: 2px dashed #ffffff40; box-shadow: none; display: grid; place-items: center; } .ku.empty span { font: 700 22px var(--display); color: #ffffff60; }
 .ku.hurt { animation: shake .35s; filter: brightness(1.6) sepia(1) hue-rotate(-30deg) saturate(3); } .ku.act0 { transform: translateY(-14px) scale(1.06); z-index: 4; } .ku.act1 { transform: translateY(14px) scale(1.06); z-index: 4; }
 .ku.mini { cursor: default; } .ku.mini .kname { font-size: 8px; } .ku.mini .kst b { font-size: 11px; }
-.kpopn { position: absolute; left: 50%; top: 24%; transform: translateX(-50%); font: 400 20px var(--display); color: #fff; -webkit-text-stroke: .14em #000; paint-order: stroke fill; pointer-events: none; animation: rise 1s ease-out forwards; z-index: 9; white-space: nowrap; } .kpopn.react { color: #ffd23f; font-size: 24px; } .kpopn.rname { top: 52%; font-size: 13px; color: #7be0ff; } .kpopn.heal { color: #7dff9a; font-size: 14px; }
+.kpopn { position: absolute; left: 50%; top: 24%; transform: translateX(-50%); font: 700 20px var(--display); color: #fff; -webkit-text-stroke: .14em #000; paint-order: stroke fill; pointer-events: none; animation: rise 1s ease-out forwards; z-index: 9; white-space: nowrap; } .kpopn.react { color: #ffd23f; font-size: 24px; } .kpopn.rname { top: 52%; font-size: 13px; color: #7be0ff; } .kpopn.heal { color: #7dff9a; font-size: 14px; }
 .ckpanel { background: linear-gradient(#10261b, #07140d); border: 3px solid #000; border-radius: 14px; box-shadow: inset 0 0 0 2px var(--edge); padding: 6px 8px; min-height: 76px; font-size: 12px; font-weight: 700; }
 .kp1 { display: flex; align-items: center; gap: 8px; color: var(--muted); min-height: 56px; } .kp1 b { color: #fff; font-family: var(--display); }
-.kinfo { line-height: 1.35; } .kinfo b { font: 400 15px var(--display); } .kinfo em { color: var(--yellow); font-style: normal; } .kinfo small { color: var(--muted); } .kbtns { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; align-items: center; }
+.kinfo { line-height: 1.35; } .kinfo b { font: 700 15px var(--display); } .kinfo em { color: var(--yellow); font-style: normal; } .kinfo small { color: var(--muted); } .kbtns { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; align-items: center; }
 .fightbtn { margin: 2px auto 0; width: 70%; } .fightbtn:disabled { opacity: .6; }
 /* deck views */
-.kdeck { margin-top: 8px; } .kd5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; } .kd5.b3 { grid-template-columns: repeat(5, 1fr); } .kd5.b3 .kslot:nth-child(n+4) { display: none; } .kd3 { display: flex; gap: 5px; align-items: center; margin-top: 6px; } .kd3 .ku { width: 15%; } .kd3 small { font: 400 10px var(--display); color: var(--muted); width: 54px; }
+.kdeck { margin-top: 8px; } .kd5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; } .kd5.b3 { grid-template-columns: repeat(5, 1fr); } .kd5.b3 .kslot:nth-child(n+4) { display: none; } .kd3 { display: flex; gap: 5px; align-items: center; margin-top: 6px; } .kd3 .ku { width: 15%; } .kd3 small { font: 700 10px var(--display); color: var(--muted); width: 54px; }
 .kslot { border-radius: 10px; padding: 2px; } .kslot.on { background: var(--yellow); }
-.kpick { display: grid; grid-template-columns: repeat(auto-fill, minmax(62px, 1fr)); gap: 6px; max-height: 38vh; overflow-y: auto; padding: 2px; } .kp { position: relative; cursor: pointer; } .kp .kn { position: absolute; right: -2px; top: -4px; background: var(--yellow); color: #000; font: 400 11px var(--display); border-radius: 8px; padding: 0 4px; z-index: 5; }
+.kpick { display: grid; grid-template-columns: repeat(auto-fill, minmax(62px, 1fr)); gap: 6px; max-height: 38vh; overflow-y: auto; padding: 2px; } .kp { position: relative; cursor: pointer; } .kp .kn { position: absolute; right: -2px; top: -4px; background: var(--yellow); color: #000; font: 700 11px var(--display); border-radius: 8px; padding: 0 4px; z-index: 5; }
 .rules p { margin: 0 0 8px; font-size: 13px; line-height: 1.4; font-weight: 700; color: #dff7ea; }
 @media (orientation: landscape) and (max-height: 540px) { .ckwrap { max-width: none; flex-wrap: wrap; } }
 
@@ -402,22 +402,322 @@ table.odds { width: 100%; border-collapse: collapse; } table.odds td { padding: 
 .ku .kskl { position: absolute; right: 2px; top: 18px; font-style: normal; font-size: 13px; text-shadow: 0 0 4px #ffd23f, 0 0 8px #ffd23f; animation: tgtp .8s ease-in-out infinite; display: none; }
 .ku.dim { opacity: .55; } .ku.enter { animation: rise .01s; box-shadow: 0 0 0 3px #fff, 0 0 14px #fff; }
 .ku.empty.tgt { animation: tgtp .8s ease-in-out infinite; border-color: #fff; }
-.aren { display: flex; align-items: center; gap: 6px; } .aren b { font-size: 14px; } .aren span { font: 400 13px var(--display); color: #ffe57a; min-width: 30px; text-align: right; }
+.aren { display: flex; align-items: center; gap: 6px; } .aren b { font-size: 14px; } .aren span { font: 700 13px var(--display); color: #ffe57a; min-width: 30px; text-align: right; }
 .aepips { flex: 1; display: flex; gap: 3px; } .aepips i { flex: 1; height: 12px; border-radius: 3px; background: #0a1a12; border: 1px solid #000; overflow: hidden; } .aepips u { display: block; height: 100%; width: 0; background: linear-gradient(#ffe57a, #e0a410); text-decoration: none; }
+
+/* ===== THEME: "Night Court" visual language (see ART_DIRECTION.md) =====
+   Premium anime-fantasy collectible card game: dark navy / charcoal surfaces, gold and metal accents, rich elemental colours, thin engraved lines instead of chunky outlines.
+   This file is loaded LAST: it re-points the old colour tokens at the new palette, then restyles every shared component once (button, panel, section header, pill, bar, sheet, card, board slot)
+   so no screen styles itself. Screens only compose these components. Animation here is cosmetic (CSS only) and never touches battle logic. */
+:root {
+  /* surfaces */
+  --bg0: #05070f; --bg1: #0a1020; --bg2: #101a33; --bg3: #17233f; --glass: rgba(16, 26, 51, .72);
+  /* metal */
+  --gold: #e3bf66; --gold-hi: #f8e4a2; --gold-lo: #98722a; --line: rgba(227, 191, 102, .38); --line-soft: rgba(227, 191, 102, .16);
+  --ink: #eef2fb; --muted: #8e9cbd; --ok: #5fe3a1; --bad: #ff7d8c;
+  /* old tokens re-pointed so untouched rules inherit the new look */
+  --felt: #16223f; --felt-d: #0c1427; --felt-dd: #060a14; --black: #05070f; --panel: #0d1530; --panel-hi: #17233f; --edge: #2b3a63;
+  --yellow: #e3bf66; --yellow-d: #98722a; --red: #d9475b; --red-d: #7d1e2c;
+  /* type */
+  --display: "Cinzel", "Trajan Pro", Georgia, "Times New Roman", serif; --body: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif; --num: "Rajdhani", "Nunito", system-ui, sans-serif;
+  /* elements */
+  --el-fire: #ff6a3a; --el-water: #3aa0ff; --el-wind: #4fe0a4; --el-earth: #c9a05a; --el-lightning: #ffe03a; --el-ice: #9fe6ff; --el-light: #fff0b0; --el-dark: #b074ff;
+  /* rarity metals: 1 steel, 2 emerald, 3 sapphire, 4 amethyst, 5 gold, 6 crimson prism */
+  --r1: #c4cddb; --r1d: #6f7a8f; --r2: #55e0a0; --r2d: #137a50; --r3: #5db4ff; --r3d: #1a58b4; --r4: #c394ff; --r4d: #632bbd; --r5: #ffd05a; --r5d: #a8681a; --r6: #ff4a5e; --r6d: #6e0d1d;
+  color-scheme: dark;
+}
+@property --ang { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+html { background: var(--bg0); }
+body { background: radial-gradient(120% 70% at 50% -8%, #1b2a55 0%, #0e1630 38%, var(--bg0) 78%); font-weight: 700; color: var(--ink); }
+body::before { opacity: 1; background-image: radial-gradient(circle, #ffffff 0 .6px, transparent 1px), radial-gradient(circle, #e3bf66 0 .8px, transparent 1.4px), radial-gradient(circle, #9db6ff 0 .5px, transparent 1px); background-size: 140px 140px, 230px 230px, 90px 90px; background-position: 12px 20px, 80px 120px, 40px 60px; animation: drift 90s linear infinite; mask-image: radial-gradient(ellipse at 50% 30%, #000 0%, transparent 75%); -webkit-mask-image: radial-gradient(ellipse at 50% 30%, #000 0%, transparent 75%); opacity: .55; }
+@keyframes drift { to { background-position: 12px 1020px, 80px 1120px, 40px 960px; } }
+body::after { background: radial-gradient(ellipse at 50% 40%, transparent 50%, #000c 100%); }
+
+/* ---- type ---- */
+h1, h2, h3, .fat { font-family: var(--display); font-weight: 700; letter-spacing: .08em; -webkit-text-stroke: 0; paint-order: normal; text-shadow: 0 1px 0 #000a, 0 2px 12px #0008; text-transform: uppercase; }
+.fat { color: var(--gold-hi); }
+.note { color: var(--muted); font-weight: 600; }
+
+/* ---- top bar ---- */
+#hud { padding: 10px 0 8px; gap: 12px; }
+.hex { background: linear-gradient(160deg, var(--gold-hi), var(--gold-lo)); width: 50px; height: 56px; }
+.hex::before { background: radial-gradient(circle at 40% 25%, #26345f, #080d1d); inset: 2px; }
+.hex span { color: var(--gold); font-size: 22px; }
+.lvbadge { background: var(--bg0); border: 1px solid var(--gold); color: var(--gold-hi); font-family: var(--num); font-weight: 700; font-size: 13px; border-radius: 6px; padding: 0 6px; }
+.who b { font-size: 14px; letter-spacing: .1em; }
+.xp { height: 8px; border: 0; background: #0a1226; box-shadow: inset 0 0 0 1px var(--line-soft); border-radius: 4px; }
+.xp i { background: linear-gradient(90deg, var(--gold-lo), var(--gold-hi)); }
+.xp small { display: none; }
+.pill { clip-path: none; background: var(--glass); border: 1px solid var(--line-soft); border-radius: 999px; padding: 3px 12px 3px 7px; font: 700 15px var(--num); color: var(--ink); }
+.pill svg { width: 18px; height: 18px; color: var(--gold); }
+.mute { width: 34px; height: 34px; border: 1px solid var(--line-soft); background: var(--glass); box-shadow: none; }
+
+/* ---- bottom navigation ---- */
+nav { background: linear-gradient(#0b1226ee, #060a15); border-top: 1px solid var(--line); box-shadow: 0 -10px 30px #000a; min-height: 64px; }
+nav button { color: var(--muted); font: 700 10px var(--display); letter-spacing: .14em; height: 64px; }
+nav .dia { transform: none; width: 34px; height: 34px; border: 0; background: none; box-shadow: none; border-radius: 0; }
+nav .dia svg { transform: none; width: 25px; height: 25px; opacity: .75; color: var(--muted); }
+nav .lb { display: block; margin: 1px 0 0; text-shadow: none; -webkit-text-stroke: 0; color: inherit; }
+nav button.on { height: 64px; margin: 0; padding-top: 7px; clip-path: none; background: linear-gradient(#16224a00, #e3bf6622); box-shadow: inset 0 2px 0 var(--gold); color: var(--gold-hi); }
+nav button.on .dia { width: 34px; height: 34px; background: none; box-shadow: none; }
+nav button.on .dia svg { width: 25px; height: 25px; opacity: 1; color: var(--gold); filter: drop-shadow(0 0 6px #e3bf6699); }
+nav .dot { background: var(--gold); border: 2px solid var(--bg0); }
+
+/* ---- buttons ---- */
+.btn { font: 700 14px var(--display); letter-spacing: .1em; text-transform: uppercase; color: var(--ink); background: linear-gradient(#25345d, #131c38); border: 1px solid var(--line); border-radius: 10px; padding: 10px 18px; -webkit-text-stroke: 0; paint-order: normal; text-shadow: 0 1px 0 #000a; box-shadow: inset 0 1px 0 #ffffff1c, 0 4px 14px #0007; transition: transform .12s, filter .12s, box-shadow .12s; }
+.btn:hover:not(:disabled) { filter: brightness(1.12); }
+.btn:active:not(:disabled) { transform: translateY(1px) scale(.985); box-shadow: inset 0 1px 0 #ffffff10, 0 1px 4px #0007; }
+.btn.yellow { color: #2a1c02; background: linear-gradient(#fbe9ad, var(--gold) 48%, #b78a30); border-color: #fff1c0aa; text-shadow: 0 1px 0 #ffffff66; box-shadow: inset 0 1px 0 #fffbe0, 0 4px 18px #e3bf6640; }
+.btn.red { background: linear-gradient(#e0586b, #9b2a3c); border-color: #ff9aa8aa; }
+.btn.dark { background: #0d1530aa; border-color: var(--line-soft); color: var(--muted); box-shadow: none; }
+.btn.big { font-size: 17px; padding: 13px 30px; border-radius: 12px; letter-spacing: .16em; }
+.btn.sm { font-size: 11px; padding: 7px 12px; border-radius: 8px; box-shadow: inset 0 1px 0 #ffffff1c, 0 2px 8px #0007; letter-spacing: .12em; }
+.btn:disabled { filter: grayscale(.8) brightness(.55); }
+
+/* ---- surfaces ---- */
+.panel { background: linear-gradient(160deg, #141f3fcc, #0b1329e6); border: 1px solid var(--line-soft); border-radius: 14px; box-shadow: inset 0 1px 0 #ffffff10, 0 8px 24px #0006; position: relative; padding: 14px; }
+.panel::before { content: ""; position: absolute; left: 14px; right: 14px; top: -1px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity: .7; }
+.ribbon { display: flex; align-items: center; gap: 14px; width: 100%; max-width: none; margin: 22px 0 12px; padding: 0; background: none; clip-path: none; filter: none; color: var(--gold-hi); font: 700 13px var(--display); letter-spacing: .3em; text-transform: uppercase; text-shadow: 0 0 14px #e3bf6655; -webkit-text-stroke: 0; paint-order: normal; justify-content: center; text-align: center; }
+.ribbon::before, .ribbon::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--gold-lo)); } .ribbon::after { transform: scaleX(-1); }
+.ribbon.gold { color: #fff3c4; text-shadow: 0 0 18px #e3bf66; background: none; } .ribbon.green { color: #8de8bd; text-shadow: none; background: none; } .ribbon.green::before, .ribbon.green::after { background: linear-gradient(90deg, transparent, #2f8f68); }
+.tag { font: 700 11px var(--display); letter-spacing: .1em; background: #0d1530; border: 1px solid var(--line-soft); color: var(--muted); }
+.tag.gold { color: var(--gold-hi); border-color: var(--line); } .tag.ok { color: var(--ok); }
+select, input[type=text], input[type=search], textarea { background: #080e20; border: 1px solid var(--line-soft); box-shadow: inset 0 1px 6px #0008; color: var(--ink); border-radius: 10px; font-weight: 700; }
+select:focus, input:focus { outline: 1px solid var(--gold); }
+.bar { height: 8px; border: 0; background: #0a1226; border-radius: 4px; box-shadow: inset 0 0 0 1px var(--line-soft); }
+.bar i { background: linear-gradient(90deg, var(--gold-lo), var(--gold-hi)); }
+#modal { background: radial-gradient(ellipse at 50% 60%, #0a1230cc, #02040aee); backdrop-filter: blur(3px); }
+.sheet { background: linear-gradient(#111c3b, #080e20); border: 1px solid var(--line); border-bottom: 0; border-radius: 20px 20px 0 0; box-shadow: 0 -20px 60px #000a, inset 0 1px 0 #ffffff12; }
+.over .sheet { border-bottom: 1px solid var(--line); border-radius: 20px; }
+.sheet h2 { letter-spacing: .14em; font-size: 22px; }
+.rwi { border: 1px solid var(--line); border-radius: 10px; box-shadow: none; background: var(--glass); }
+.rwi b { -webkit-text-stroke: 0; font-family: var(--num); text-shadow: 0 1px 2px #000; }
+.rwi.p, .rwi.b, .rwi.g { background: linear-gradient(#1b2850, #0c1430); box-shadow: inset 0 0 0 1px var(--line-soft); }
+#toast { background: linear-gradient(#1a2750, #0e1634); color: var(--ink); border: 1px solid var(--line); box-shadow: 0 8px 26px #000b; font: 700 12px var(--display); letter-spacing: .08em; }
+#splash { background: radial-gradient(ellipse at 50% 35%, #1d2c5c, #0a1128 55%, #04060e); }
+#splash .logo { font-size: 44px; letter-spacing: .12em; transform: none; color: var(--gold-hi); line-height: 1.05; text-shadow: 0 0 30px #e3bf6688, 0 2px 0 #000; }
+#splash .logo i { color: #fff; font-size: 22px; letter-spacing: .5em; margin-top: 8px; font-weight: 500; text-indent: .5em; }
+#splash small { font: 600 11px var(--display); letter-spacing: .3em; color: var(--muted); -webkit-text-stroke: 0; }
+.stagehint { -webkit-text-stroke: 0; color: var(--gold-hi); font-size: 16px; }
+.rtag { font: 700 10px var(--display); letter-spacing: .14em; border: 0; color: #0a0f1f; -webkit-text-stroke: 0; border-radius: 999px; padding: 2px 10px; background: linear-gradient(135deg, var(--c), var(--cd)); }
+.rtag.r1 { color: #121826; } .rtag.r4, .rtag.r6, .rtag.r3 { color: #fff; }
+
+/* ---- element icons ---- */
+.eico { width: 1em; height: 1em; display: inline-block; vertical-align: -.14em; }
+.el-fire { --elc: var(--el-fire); } .el-water { --elc: var(--el-water); } .el-wind { --elc: var(--el-wind); } .el-earth { --elc: var(--el-earth); } .el-lightning { --elc: var(--el-lightning); } .el-ice { --elc: var(--el-ice); } .el-light { --elc: var(--el-light); } .el-dark { --elc: var(--el-dark); }
+
+/* ================= THE CARD =================
+   One component for the collection, packs, deck builder and detail sheet. Art window on top, a stat strip, a name plate. The frame is the rarity: each tier has its own metal, bezel width, glow and ornament,
+   so rarity reads at collection-grid size from the silhouette and colour alone. */
+.r1 { --frame: linear-gradient(150deg, #dfe5ef 0%, #8791a6 38%, #cfd6e2 52%, #6b768b 100%); --bw: 2.2cqw; --gl: 0px; }
+.r2 { --frame: linear-gradient(150deg, #9cf5c8 0%, #17835a 38%, #6fe3ac 52%, #0f5c3d 100%); --bw: 2.5cqw; --gl: 5px; }
+.r3 { --frame: linear-gradient(150deg, #a8d8ff 0%, #1d62c0 38%, #7cc2ff 52%, #153f86 100%); --bw: 2.9cqw; --gl: 9px; }
+.r4 { --frame: linear-gradient(150deg, #e3c8ff 0%, #6c33c8 38%, #bd8dff 52%, #43188c 100%); --bw: 3.3cqw; --gl: 13px; }
+.r5 { --frame: linear-gradient(150deg, #fff6c0 0%, #d9a437 36%, #fff0a8 52%, #9a6a18 100%); --bw: 3.7cqw; --gl: 18px; }
+.r6 { --frame: conic-gradient(from var(--ang), #ff4a5e, #ffb347, #fff6c0, #7be0ff, #c394ff, #ff4a5e); --bw: 4cqw; --gl: 22px; animation: spinframe 6s linear infinite; }
+@keyframes spinframe { to { --ang: 360deg; } }
+.card.ar { border-radius: 5.5% / 3.9%; background: var(--frame); box-shadow: 0 0 0 1px #000c, 0 6px 14px #0009, 0 0 var(--gl) var(--c); }
+.card.ar::after { content: ""; position: absolute; inset: var(--bw); border-radius: 3cqw; z-index: 3; pointer-events: none; box-shadow: inset 0 0 0 1px #000b, inset 0 0 0 1.6px #ffffff24; }
+.card.ar .win { left: var(--bw); right: var(--bw); top: var(--bw); bottom: 31cqw; border-radius: 2.4cqw 2.4cqw 0 0; box-shadow: none; }
+.card.ar .win::after { box-shadow: inset 0 -14cqw 12cqw -8cqw #050914, inset 0 0 4cqw #000a; }
+.card.ar .win::before { z-index: 1; }
+.card.ar .gems, .card.ar .n, .card.ar .cost { display: none; }
+/* top corners: cost gem (deploy/balance cost) and element sigil */
+.card.ar .cst { position: absolute; left: calc(var(--bw) + 1.6cqw); top: calc(var(--bw) + 1.6cqw); z-index: 4; width: 12cqw; height: 13.6cqw; display: grid; place-items: center; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); background: linear-gradient(#fff3bf, #b58a2e); font: 700 8.6cqw/1 var(--num); color: #231702; padding-bottom: .4cqw; }
+.card.ar .esig { position: absolute; right: calc(var(--bw) + 1.6cqw); top: calc(var(--bw) + 1.6cqw); z-index: 4; width: 12.6cqw; height: 12.6cqw; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle at 35% 28%, color-mix(in srgb, var(--elc) 55%, #fff), var(--elc) 55%, color-mix(in srgb, var(--elc) 45%, #000)); box-shadow: 0 0 0 .7cqw #000b, 0 0 3.4cqw var(--elc); color: #0a1020; }
+.card.ar .esig svg { width: 7.4cqw; height: 7.4cqw; }
+.card.ar .cnt { top: auto; right: var(--bw); bottom: 33cqw; z-index: 4; background: #050914e6; color: var(--gold-hi); font: 700 7cqw var(--num); border-radius: 2cqw 0 0 0; padding: .2cqw 2.6cqw; border: 0; }
+/* stat strip */
+.card.ar .stats { position: absolute; left: var(--bw); right: var(--bw); bottom: 20.5cqw; height: 10.5cqw; z-index: 4; display: grid; grid-template-columns: 1fr 1.2fr 1fr; background: linear-gradient(#0a1124, #050914); border-top: .5cqw solid color-mix(in srgb, var(--c) 70%, #000); font: 700 7.4cqw/1 var(--num); color: #fff; }
+.card.ar .stats span { display: flex; align-items: center; justify-content: center; gap: 1.2cqw; }
+.card.ar .stats svg { width: 5.2cqw; height: 5.2cqw; flex: none; }
+.card.ar .stats .a svg { color: #ffa86b; } .card.ar .stats .h svg { color: #6fe9a0; } .card.ar .stats .s svg { color: #7ec8ff; }
+.card.ar .stats .s { font-size: 6.4cqw; color: #bcd6f2; }
+/* name plate */
+.card.ar .plate { left: var(--bw); right: var(--bw); bottom: var(--bw); height: 17.5cqw; border: 0; border-radius: 0 0 2.4cqw 2.4cqw; background: linear-gradient(#0d1630, #060a18); box-shadow: none; gap: .6cqw; }
+.card.ar .plate .nm { font: 700 7.6cqw/1.05 var(--display); letter-spacing: .06em; color: #fff; text-transform: uppercase; }
+.card.ar .plate .sub { font: 600 4.3cqw/1.2 var(--display); letter-spacing: .14em; color: color-mix(in srgb, var(--c) 85%, #fff); display: flex; justify-content: center; align-items: center; gap: 1.6cqw; text-transform: uppercase; }
+.card.ar .plate .sub i { width: 2.2cqw; height: 2.2cqw; background: var(--c); transform: rotate(45deg); box-shadow: 0 0 2cqw var(--c); display: inline-block; }
+.card.ar .tint { border-radius: inherit; }
+.card.ar.miss { filter: grayscale(1) brightness(.4) contrast(.9); }
+.card.ar.sel { box-shadow: 0 0 0 1px #000, 0 0 0 2.4px var(--gold), 0 0 18px var(--gold); transform: translateY(-8px) scale(1.04); }
+/* rarity ornaments */
+.card.ar.r4 .win::after, .card.ar.r5 .win::after, .card.ar.r6 .win::after { box-shadow: inset 0 -14cqw 12cqw -8cqw #050914, inset 0 0 4cqw #000a, inset 0 0 0 .6cqw color-mix(in srgb, var(--c) 60%, transparent); }
+.card.ar.r5::before, .card.ar.r6::before { z-index: 5; }
+.card.ar.r6 .holo { opacity: 1; }
+.card.ar .crn { display: none; }
+.card.ar.r4 .crn, .card.ar.r5 .crn, .card.ar.r6 .crn { display: block; position: absolute; inset: calc(var(--bw) - .6cqw); z-index: 4; pointer-events: none; --k: 7cqw; background: linear-gradient(var(--c), var(--c)) 0 0 / var(--k) .7cqw no-repeat, linear-gradient(var(--c), var(--c)) 0 0 / .7cqw var(--k) no-repeat, linear-gradient(var(--c), var(--c)) 100% 0 / var(--k) .7cqw no-repeat, linear-gradient(var(--c), var(--c)) 100% 0 / .7cqw var(--k) no-repeat; filter: drop-shadow(0 0 1.4cqw var(--c)); }
+.card.ar.r5 .plate, .card.ar.r6 .plate { background: linear-gradient(#17120a, #080604); } .card.ar.r6 .plate { background: linear-gradient(#1a0810, #07030a); }
+@container (max-width: 112px) {
+  .card.ar .plate .sub { display: none; } .card.ar .plate { height: 14cqw; } .card.ar .win { bottom: 31cqw; }
+  .card.ar .stats { bottom: 16.5cqw; height: 14.5cqw; grid-template-columns: 1fr 1fr; font-size: 11.5cqw; } .card.ar .stats .s { display: none; } .card.ar .stats svg { width: 8cqw; height: 8cqw; }
+  .card.ar .plate .nm { font-size: 10.6cqw; letter-spacing: .02em; } .card.ar .cnt { bottom: 33cqw; font-size: 10cqw; }
+  .card.ar .cst { width: 15cqw; height: 17cqw; font-size: 11cqw; } .card.ar .esig { width: 15cqw; height: 15cqw; } .card.ar .esig svg { width: 9cqw; height: 9cqw; }
+}
+.ku .kmk:empty { display: none; }
+}
+.grid { grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 12px 9px; }
+
+/* ================= THE BATTLEFIELD ================= */
+#ck { background: radial-gradient(120% 55% at 50% 0%, #1b2a55 0%, #0b1330 45%, #04060e 100%); }
+#ck::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .5; background: radial-gradient(circle, #fff 0 .6px, transparent 1px), radial-gradient(circle, #e3bf66 0 .8px, transparent 1.4px); background-size: 120px 120px, 190px 190px; background-position: 10px 14px, 70px 90px; mask-image: radial-gradient(ellipse at 50% 50%, #000, transparent 80%); -webkit-mask-image: radial-gradient(ellipse at 50% 50%, #000, transparent 80%); }
+.ckwrap { position: relative; gap: 6px; }
+.ckhud { padding: 2px 0; }
+.ckhud .btn.sm { padding: 6px 10px; }
+.ckhud b.fat { font: 700 22px var(--num); letter-spacing: .12em; color: #fff; padding: 2px 18px; border: 1px solid var(--line); border-radius: 999px; background: var(--glass); text-shadow: none; }
+.surge { font: 700 10px var(--display); letter-spacing: .16em; color: #ffb36b; }
+.side { position: relative; padding: 8px 8px 6px; border-radius: 16px; border: 1px solid var(--line-soft); background: linear-gradient(#0f1a38aa, #070d1fcc); box-shadow: inset 0 1px 0 #ffffff0d, 0 8px 22px #0007; gap: 6px; }
+.side.foe { box-shadow: inset 0 1px 0 #ff6a7a22, 0 8px 22px #0007; border-color: #d9475b55; } .side.me { border-color: #5db4ff44; }
+.lanes { gap: 5px; }
+.vsline { min-height: 18px; font: 600 11px var(--display); letter-spacing: .18em; color: var(--gold); -webkit-text-stroke: 0; text-transform: uppercase; display: flex; align-items: center; gap: 10px; justify-content: center; }
+.vsline::before, .vsline::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--gold-lo)); } .vsline::after { transform: scaleX(-1); }
+.coreb { gap: 10px; } .coreb span { font: 700 10px var(--display); letter-spacing: .14em; color: var(--muted); width: 50px; }
+.cbar { height: 16px; border: 0; border-radius: 8px; background: #060a18; box-shadow: inset 0 0 0 1px #ffffff1c; }
+.cbar i { background: linear-gradient(#ff8896, #d9475b 60%, #8f1d2e); transition: width .35s; } .coreb.me .cbar i { background: linear-gradient(#9fe0ff, #3aa0ff 60%, #1a58b4); }
+.cbar em { font: 700 11px/16px var(--num); letter-spacing: .08em; text-shadow: 0 1px 2px #000; }
+.pips i { width: 9px; height: 14px; border-radius: 2px; background: #0a1226; border: 1px solid #ffffff1c; transform: skewX(-12deg); } .pips i.on { background: linear-gradient(#fff0b0, var(--gold)); border-color: #fff5; box-shadow: 0 0 7px #e3bf6699; }
+.aren { padding: 7px 10px; border-radius: 12px; border: 1px solid var(--line-soft); background: var(--glass); gap: 8px; } .aren b { color: var(--gold); font-size: 15px; } .aren span { font: 700 15px var(--num); color: var(--gold-hi); }
+.aepips { gap: 4px; } .aepips i { height: 12px; border-radius: 2px; background: #060a18; border: 1px solid #ffffff1c; transform: skewX(-14deg); } .aepips u { background: linear-gradient(90deg, #e3bf66, #fff0b0); box-shadow: 0 0 8px #e3bf66aa; }
+/* a card on the field: the same frame language as the collection card, scaled down */
+.ku { border: 0; border-radius: 7px; background: var(--frame, linear-gradient(#566, #233)); padding: 0; box-shadow: 0 0 0 1px #000c, 0 3px 8px #0009, 0 0 var(--gl, 0px) var(--elc); --elc: #7a8a9c; --bwu: 2.4px; --c: var(--elc); }
+.ku::after { content: ""; position: absolute; inset: var(--bwu); border-radius: 4px; box-shadow: inset 0 0 0 1px #000a; pointer-events: none; z-index: 3; }
+.ku .kart { inset: var(--bwu) var(--bwu) 36% var(--bwu); border-radius: 4px 4px 0 0; }
+.ku .kart::after { content: ""; position: absolute; inset: 0; box-shadow: inset 0 -10px 10px -6px #050914; }
+.ku .kel { left: auto; right: 4px; top: 4px; width: 16px; height: 16px; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle at 35% 28%, color-mix(in srgb, var(--elc) 55%, #fff), var(--elc) 60%, color-mix(in srgb, var(--elc) 40%, #000)); box-shadow: 0 0 0 1px #000b, 0 0 6px var(--elc); color: #0a1020; font-size: 0; }
+.ku .kel svg { width: 10px; height: 10px; }
+.ku .kmk { left: 4px; bottom: 38%; width: 15px; height: 15px; padding: 0; border-radius: 50%; background: #050914e6; display: grid; place-items: center; font-size: 0; box-shadow: 0 0 0 1px var(--elc); color: var(--elc); } .ku .kmk svg { width: 9px; height: 9px; }
+.ku .kcost { left: 4px; top: 4px; width: 14px; height: 16px; border-radius: 0; border: 0; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); background: linear-gradient(#fff3bf, #b58a2e); font: 700 10px/16px var(--num); color: #231702; }
+.ku .kname { left: var(--bwu); right: var(--bwu); bottom: calc(18% + 6px); font: 700 7.6px/1.1 var(--display); letter-spacing: .04em; -webkit-text-stroke: 0; paint-order: normal; text-shadow: 0 1px 2px #000; text-transform: uppercase; }
+.arwrap .kname { bottom: calc(18% + 6px); }
+.ku .kst { left: var(--bwu); right: var(--bwu); bottom: var(--bwu); height: calc(18% - 1px); background: linear-gradient(#0b1226, #050914); border-radius: 0 0 4px 4px; padding: 0 5px; }
+.ku .kst b { font: 700 13px var(--num); } .ku .kst .a::before, .ku .kst .h::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 2px; vertical-align: -1px; background: currentColor; -webkit-mask: var(--ic) center / contain no-repeat; mask: var(--ic) center / contain no-repeat; font-size: 0; }
+.ku .kst .a::before { --ic: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M5 20 18 7l1-4 4-1-1 4-4 1L6 21z'/></svg>"); }
+.ku .kst .h::before { --ic: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 21S3 15.5 3 9.5a5 5 0 0 1 9-3 5 5 0 0 1 9 3C21 15.5 12 21 12 21z'/></svg>"); }
+.ku .khp { left: var(--bwu); right: var(--bwu); bottom: 18%; height: 5px; background: #050914; } .ku .khp i { background: linear-gradient(#a8ffc8, #3fcf7f); } .ku .khp i.low { background: linear-gradient(#ff9aa6, #d9475b); }
+.ku .kcd { left: var(--bwu); top: var(--bwu); height: 2.5px; background: linear-gradient(90deg, var(--gold-lo), var(--gold-hi)); box-shadow: 0 0 5px var(--gold); }
+.ku .kskl { top: 24px; right: 5px; color: var(--gold-hi); text-shadow: 0 0 6px var(--gold), 0 0 12px var(--gold); font-size: 14px; }
+.ku .ksh { bottom: 38%; right: 4px; background: #050914e6; color: #9fe6ff; font: 700 10px var(--num); }
+.ku.foe { box-shadow: 0 0 0 1px #000c, 0 3px 8px #0009, 0 0 0 2px #d9475b88; }
+.ku.me { box-shadow: 0 0 0 1px #000c, 0 3px 8px #0009, 0 0 0 2px #5db4ff55; }
+.ku.sel { box-shadow: 0 0 0 1px #000, 0 0 0 3px var(--gold), 0 0 16px var(--gold); } .ku.tgt { box-shadow: 0 0 0 2px #fff, 0 0 14px #fff; }
+.ku.empty { background: #05091866; border: 1px dashed #e3bf6644; box-shadow: none; } .ku.empty::after { display: none; } .ku.empty span { font: 700 22px var(--display); color: #e3bf6666; }
+.ku.empty.tgt { border-color: var(--gold-hi); box-shadow: 0 0 14px #e3bf6688; }
+.kpopn { font: 700 20px var(--num); -webkit-text-stroke: 0; text-shadow: 0 2px 4px #000, 0 0 8px #000; } .kpopn.react { color: var(--gold-hi); font-size: 22px; letter-spacing: .05em; } .kpopn.rname { font: 700 11px var(--display); letter-spacing: .1em; color: #8fe4ff; } .kpopn.heal { color: var(--ok); font-size: 15px; }
+.ckpanel { background: linear-gradient(160deg, #141f3fe6, #0a1126f2); border: 1px solid var(--line-soft); border-radius: 14px; box-shadow: inset 0 1px 0 #ffffff10, 0 8px 22px #0007; padding: 8px 10px; font-weight: 600; color: #d4def5; }
+.kinfo b { font: 700 13px var(--display); letter-spacing: .08em; color: var(--gold-hi); text-transform: uppercase; } .kinfo em { color: var(--gold); } .kinfo small { color: var(--muted); }
+.kp1 b { font-family: var(--display); }
+@keyframes tgtp { 50% { box-shadow: 0 0 0 2px #fff, 0 0 18px #fff; } }
+
+/* ================= HOME (Battle tab) ================= */
+.homehero { position: relative; margin: 0 -14px; padding: 14px 14px 0; text-align: center; overflow: hidden; }
+.homehero::before { content: ""; position: absolute; left: 50%; top: 56%; width: 440px; height: 440px; transform: translate(-50%, -50%); border-radius: 50%; background: repeating-conic-gradient(from 0deg, #e3bf6622 0 2deg, transparent 2deg 15deg), radial-gradient(circle, #5db4ff2e 0%, #5db4ff10 40%, transparent 62%); -webkit-mask: radial-gradient(circle, #000 28%, transparent 64%); mask: radial-gradient(circle, #000 28%, transparent 64%); animation: spin 90s linear infinite; }
+.homehero::after { content: ""; position: absolute; left: 50%; top: 56%; width: 300px; height: 300px; transform: translate(-50%, -50%); border-radius: 50%; border: 1px solid #e3bf6633; box-shadow: 0 0 0 26px #e3bf6610, 0 0 0 27px #e3bf6622, inset 0 0 60px #5db4ff22; }
+@keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+.logo2 { position: relative; z-index: 2; font: 900 30px/1 var(--display); letter-spacing: .22em; color: var(--gold-hi); text-shadow: 0 0 26px #e3bf6677, 0 2px 0 #000; text-indent: .22em; }
+.logo2 small { display: block; margin-top: 8px; font: 600 10px var(--display); letter-spacing: .5em; text-indent: .5em; color: var(--muted); text-shadow: none; }
+.logo2::after { content: ""; display: block; width: 120px; height: 1px; margin: 10px auto 0; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+.hfan { position: relative; z-index: 2; height: 232px; margin-top: 6px; }
+.hfan .card { position: absolute; left: 50%; width: 112px; bottom: 6px; margin-left: -56px; transform-origin: 50% 160%; animation: hfloat 5s ease-in-out infinite; }
+.hfan .card:nth-child(1) { transform: rotate(-15deg) translateX(-62px); animation-delay: -1s; } .hfan .card:nth-child(3) { transform: rotate(15deg) translateX(62px); animation-delay: -3s; }
+.hfan .card:nth-child(2) { z-index: 2; width: 128px; margin-left: -64px; transform: translateY(-14px); }
+@keyframes hfloat { 50% { translate: 0 -8px; } }
+.hfan .shadow { position: absolute; left: 50%; bottom: 0; width: 240px; height: 26px; transform: translateX(-50%); background: radial-gradient(ellipse, #000a, transparent 70%); }
+.cta { position: relative; z-index: 3; display: block; width: calc(100% - 36px); margin: -4px auto 0; padding: 14px 16px; border-radius: 14px; text-align: center; }
+.cta b { display: block; font: 900 17px var(--display); letter-spacing: .22em; } .cta small { display: block; margin-top: 3px; font: 700 11px var(--body); letter-spacing: .04em; text-transform: none; opacity: .75; }
+.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+.tile { position: relative; text-align: left; padding: 12px 12px 12px 12px; border-radius: 14px; border: 1px solid var(--line-soft); background: linear-gradient(160deg, #16224688, #0a1229dd); box-shadow: inset 0 1px 0 #ffffff10, 0 6px 18px #0006; color: var(--ink); overflow: hidden; transition: transform .12s, border-color .12s; }
+.tile:active:not(:disabled) { transform: scale(.985); } .tile:hover:not(:disabled) { border-color: var(--line); }
+.tile svg.ti { width: 26px; height: 26px; color: var(--gold); margin-bottom: 8px; filter: drop-shadow(0 0 8px #e3bf6655); }
+.tile b { display: block; font: 700 12px var(--display); letter-spacing: .16em; color: var(--gold-hi); text-transform: uppercase; } .tile small { display: block; margin-top: 3px; font: 600 11px/1.3 var(--body); color: var(--muted); }
+.tile::after { content: ""; position: absolute; right: -24px; top: -24px; width: 70px; height: 70px; border-radius: 50%; background: radial-gradient(circle, #e3bf6622, transparent 70%); }
+.tile:disabled { opacity: .5; } .tile.lock svg.ti { color: var(--muted); filter: none; }
+.deckstrip { margin-top: 14px; }
+.deckstrip .row { flex-wrap: nowrap; }
+.dgrid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; margin-top: 10px; } .dgrid.b { margin-top: 8px; grid-template-columns: repeat(5, 1fr); } .dgrid .card { width: 100%; }
+.dlab { font: 700 9px var(--display); letter-spacing: .26em; color: var(--muted); margin: 10px 0 0; text-transform: uppercase; display: flex; align-items: center; gap: 10px; } .dlab::after { content: ""; flex: 1; height: 1px; background: var(--line-soft); }
+.chips { display: flex; gap: 8px; justify-content: center; }
+.chips .btn { flex: 1; max-width: 120px; }
+
+/* ================= PACKS / SHOP ================= */
+.mach { background: linear-gradient(160deg, #16224a, #0a1129); border: 1px solid var(--line); border-radius: 22px; box-shadow: 0 20px 50px #000a, inset 0 1px 0 #ffffff14; }
+.bulbs { display: none; }
+.orb { border: 0; background: radial-gradient(circle at 36% 30%, #fff4c8, var(--gold) 34%, #7a4f12 70%, #1a1004); box-shadow: 0 0 40px #e3bf6688, 0 0 90px #5db4ff44, inset 0 -10px 22px #0008; }
+.orb b { -webkit-text-stroke: 0; font-size: 20px; letter-spacing: .2em; color: #2a1c02; text-shadow: 0 1px 0 #fff8; }
+.packw .pgfx { background: linear-gradient(155deg, #3a58b0 0%, #1a2a66 56%, #0a1233 100%); box-shadow: inset 0 0 0 2px #e3bf66aa, inset 0 0 0 5px #0a1233, inset 0 0 0 6px #e3bf6644; }
+.packfs { background: radial-gradient(circle at 50% 45%, var(--rc, #1d2c5c) 0%, #04060e 72%); }
+.pc .pback { background: linear-gradient(155deg, #3a58b0, #1a2a66 60%, #0a1233); box-shadow: 0 0 0 1px #000, inset 0 0 0 3px #e3bf66aa; }
+.pc .pback svg { color: var(--gold); width: 36%; }
+.packfs .plbl, .packfs .phint, .packfs .pcount { font-family: var(--display); letter-spacing: .2em; text-transform: uppercase; font-size: 12px; color: var(--muted); }
+.packfs.fx-r3 { --rc: #1c4f9a; } .packfs.fx-r4 { --rc: #55259f; } .packfs.fx-r5 { --rc: #9a6516; } .packfs.fx-r6 { --rc: #8e1226; }
+
+/* ================= COLLECTION / DETAIL ================= */
+.cstat { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 10px 0 8px; }
+.cstat div { background: #060a18; border: 1px solid var(--line-soft); border-radius: 10px; padding: 6px 4px; text-align: center; }
+.cstat b { display: block; font: 700 18px/1 var(--num); color: #fff; } .cstat small { display: block; font: 700 8px var(--display); letter-spacing: .16em; color: var(--muted); margin-top: 3px; text-transform: uppercase; }
+.cstat .a b { color: #ffa86b; } .cstat .h b { color: #6fe9a0; } .cstat .s b { color: #7ec8ff; } .cstat .c b { color: var(--gold-hi); }
+.skillbox { margin-top: 8px; padding: 8px 10px; border-radius: 10px; background: #080e22; border: 1px solid var(--line-soft); font: 600 12px/1.4 var(--body); color: #cfdaf3; }
+.skillbox em { display: block; font: 700 10px var(--display); letter-spacing: .14em; color: var(--gold); font-style: normal; text-transform: uppercase; margin-bottom: 2px; }
+.elchip { display: inline-flex; align-items: center; gap: 5px; font: 700 11px var(--display); letter-spacing: .1em; text-transform: uppercase; color: var(--elc); }
+.elchip svg { width: 14px; height: 14px; }
+.region { border: 1px solid var(--line-soft); border-radius: 16px; background: linear-gradient(135deg, color-mix(in srgb, var(--rc) 28%, #0a1129), #080e22 70%); box-shadow: inset 0 1px 0 #ffffff10, 0 8px 22px #0006; }
+.node { clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); background: var(--gold-lo); } .node::before { background: linear-gradient(#1a2850, #0b1230); }
+.node.done::before { background: linear-gradient(#2f8f68, #145038); } .node.next { background: var(--gold-hi); } .node span { -webkit-text-stroke: 0; font-family: var(--num); font-weight: 700; } .node.boss span { color: var(--bad); }
+.mode { border: 1px solid var(--line-soft); background: linear-gradient(#16224688, #0a1229dd); box-shadow: none; } .mode b { color: var(--gold-hi); }
+.slots .empty, .ku.empty { border-color: #e3bf6644; }
+.kdeck { display: none; }
+@media (prefers-reduced-motion: reduce) { .homehero::before, body::before, .card.r6 { animation: none !important; } }
+
+.pinfo { display: flex; gap: 22px; justify-content: center; min-height: 34px; opacity: 0; transform: translateY(6px); transition: opacity .3s .25s, transform .3s .25s; }
+.pinfo.on { opacity: 1; transform: none; }
+.pinfo span { display: flex; flex-direction: column; align-items: center; font: 700 12px var(--display); letter-spacing: .1em; text-transform: uppercase; color: var(--gold-hi); }
+.pinfo em { font: 700 8px var(--display); letter-spacing: .22em; color: var(--muted); font-style: normal; margin-bottom: 2px; }
+
+/* ================= RESULTS ================= */
+.res { position: relative; text-align: center; padding: 8px 0 4px; }
+.res::before { content: ""; position: absolute; left: 50%; top: -30px; width: 340px; height: 340px; transform: translateX(-50%); pointer-events: none; opacity: .5; background: repeating-conic-gradient(from 0deg, var(--rc, #e3bf66) 0 3deg, transparent 3deg 14deg); -webkit-mask: radial-gradient(circle, #000 0%, transparent 62%); mask: radial-gradient(circle, #000 0%, transparent 62%); animation: spin 60s linear infinite; }
+.res.win { --rc: #e3bf6655; } .res.lose { --rc: #6d86c155; } .res.draw { --rc: #9fb0d044; }
+.rtitle { position: relative; display: block; font: 900 34px/1.1 var(--display); letter-spacing: .28em; text-indent: .28em; background: linear-gradient(#fff6c8, #e3bf66 55%, #98722a); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 2px 0 #000a) drop-shadow(0 0 18px #e3bf6666); animation: rise-in .5s ease-out both; }
+.res.lose .rtitle { background: linear-gradient(#e6ecfa, #8a9bc4 55%, #4a5a86); -webkit-background-clip: text; background-clip: text; filter: drop-shadow(0 2px 0 #000a); }
+.res.draw .rtitle { background: linear-gradient(#f2f5fb, #aab4cf 60%, #6c7898); -webkit-background-clip: text; background-clip: text; }
+.rsub { position: relative; display: block; margin-top: 4px; font: 700 10px var(--display); letter-spacing: .3em; color: var(--muted); text-transform: uppercase; }
+.rcores { position: relative; display: flex; align-items: center; justify-content: center; gap: 18px; margin: 16px 0 6px; }
+.rcores div { min-width: 92px; padding: 8px 10px; border-radius: 12px; background: #060a18; border: 1px solid var(--line-soft); }
+.rcores small { display: block; font: 700 9px var(--display); letter-spacing: .2em; color: var(--muted); } .rcores b { display: block; font: 700 30px/1.1 var(--num); color: #fff; }
+.rcores .me b { color: #8fd0ff; } .rcores .foe b { color: #ff8d9a; } .rcores i { font: 700 9px var(--display); letter-spacing: .3em; color: var(--gold); font-style: normal; }
+.rrow { position: relative; display: flex; gap: 10px; justify-content: center; margin: 12px 0 4px; flex-wrap: wrap; }
+.rchip { min-width: 76px; padding: 8px 10px; border-radius: 12px; background: linear-gradient(#1b2850, #0c1430); border: 1px solid var(--line); animation: rise-in .5s ease-out both; }
+.rchip:nth-child(2) { animation-delay: .12s; } .rchip:nth-child(3) { animation-delay: .24s; }
+.rchip .ri svg { width: 20px; height: 20px; color: var(--gold); } .rchip b { display: block; font: 700 20px/1.1 var(--num); color: var(--gold-hi); } .rchip small { display: block; font: 700 8px var(--display); letter-spacing: .2em; color: var(--muted); text-transform: uppercase; }
+.rchip.x .ri svg { color: #8fd0ff; } .rchip.p .ri svg { color: #b8f0d0; }
+.rnote { position: relative; margin: 8px 0 0; font: 700 12px var(--body); color: var(--gold-hi); } .rnote.up { color: var(--ok); }
+@keyframes rise-in { from { opacity: 0; transform: translateY(10px) scale(.96); } to { opacity: 1; transform: none; } }
+.ku::before { content: ""; position: absolute; inset: var(--bwu); background: linear-gradient(#0b1328, #060a18); border-radius: 4px; z-index: 0; }
+.ku.empty::before { display: none; }
 
 @media (prefers-reduced-motion: reduce) { * { animation-duration: .01s !important; } }
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <symbol id="i-ticket" viewBox="0 0 24 24"><path d="M2.5 6.5h19v3.5a2.2 2.2 0 0 0 0 4.4v3.1h-19v-3.1a2.2 2.2 0 0 0 0-4.4Z" fill="#ffd23f" stroke="#000" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 7.5v9" stroke="#000" stroke-width="1.4" stroke-dasharray="2 1.6"/><path d="M15.5 10.5l.7 1.4 1.5.2-1.1 1 .3 1.5-1.4-.8-1.4.8.3-1.5-1.1-1 1.5-.2Z" fill="#ec3d4c"/></symbol>
-  <symbol id="i-gem" viewBox="0 0 24 24"><path d="M12 3l8.5 6.2L12 21 3.5 9.2Z" fill="#ff5468" stroke="#000" stroke-width="1.8" stroke-linejoin="round"/><path d="M3.8 9.4h16.4M8.5 9.4 12 3l3.5 6.4M8.5 9.4 12 20.6l3.5-11.2" fill="none" stroke="#000" stroke-width="1" opacity=".45"/><path d="M8 7.2l2-1.6" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></symbol>
-  <symbol id="i-xp" viewBox="0 0 32 32"><path d="M16 2l12 7v14l-12 7L4 23V9Z" fill="#ffd23f" stroke="#000" stroke-width="2.4" stroke-linejoin="round"/><path d="M16 6l8.5 5v10L16 26l-8.5-5V11Z" fill="#f0a91a"/><text x="16" y="20" text-anchor="middle" font-family="Lilita One,Arial" font-size="10" fill="#fff" stroke="#000" stroke-width="2" paint-order="stroke">EXP</text></symbol>
-  <symbol id="i-cards" viewBox="0 0 32 32"><rect x="4" y="7" width="15" height="21" rx="3" transform="rotate(-12 11 17)" fill="#ec3d4c" stroke="#000" stroke-width="2.4"/><rect x="12" y="5" width="15" height="21" rx="3" transform="rotate(10 19 15)" fill="#ffd23f" stroke="#000" stroke-width="2.4"/><path d="M19.5 10.5l1.6 3.3 3.6.5-2.6 2.5.6 3.6-3.2-1.7-3.2 1.7.6-3.6-2.6-2.5 3.6-.5Z" fill="#ec3d4c" stroke="#000" stroke-width="1.2"/></symbol>
-  <symbol id="i-summon" viewBox="0 0 32 32"><circle cx="16" cy="16" r="11" fill="#ffd23f" stroke="#000" stroke-width="2.6"/><circle cx="16" cy="16" r="6.5" fill="#ec3d4c" stroke="#000" stroke-width="2"/><path d="M16 1v5M16 26v5M1 16h5M26 16h5M5.5 5.5l3.5 3.5M23 23l3.5 3.5M26.5 5.5L23 9M9 23l-3.5 3.5" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></symbol>
-  <symbol id="i-spade" viewBox="0 0 32 32"><path d="M16 3C11 10 5 13 5 19a6 6 0 0 0 10 4c0 3-1 5-3 7h8c-2-2-3-4-3-7a6 6 0 0 0 10-4c0-6-6-9-11-16Z" fill="#ffd23f" stroke="#000" stroke-width="2.4" stroke-linejoin="round"/></symbol>
-  <symbol id="i-swords" viewBox="0 0 32 32"><g stroke="#000" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5l11 11M27 5L16 16" fill="none" stroke="#fff"/><path d="M5 5l11 11M27 5L16 16" fill="none" stroke-width="1" stroke="#000"/><path d="M9 19l-4 4M23 19l4 4M13 15l-4 4M19 15l4 4" fill="none" stroke="#ffd23f"/><path d="M6 27l4-4M26 27l-4-4" stroke="#ec3d4c"/></g></symbol>
-  <symbol id="i-daily" viewBox="0 0 32 32"><rect x="4" y="6" width="24" height="22" rx="4" fill="#fff" stroke="#000" stroke-width="2.6"/><rect x="4" y="6" width="24" height="7" rx="3" fill="#ec3d4c" stroke="#000" stroke-width="2.6"/><path d="M10 20l4 4 8-9" fill="none" stroke="#12834f" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-  <symbol id="i-vs" viewBox="0 0 32 32"><circle cx="11" cy="12" r="6" fill="#ffd23f" stroke="#000" stroke-width="2.4"/><circle cx="21" cy="12" r="6" fill="#ec3d4c" stroke="#000" stroke-width="2.4"/><path d="M2 28c0-6 4-9 9-9s9 3 9 9M12 28c0-6 4-9 9-9s9 3 9 9" fill="#12834f" stroke="#000" stroke-width="2.4" stroke-linejoin="round"/></symbol>
+  <symbol id="i-ticket" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M3 7h18v3.2a2 2 0 0 0 0 3.6V17H3v-3.2a2 2 0 0 0 0-3.6z"/><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M9.5 7.5v9" stroke-dasharray="1.6 2"/></symbol>
+  <symbol id="i-gem" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M12 3l8 6-8 12L4 9z"/><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M4 9h16M9 9l3-6 3 6M9 9l3 12 3-12"/></symbol>
+  <symbol id="i-xp" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M12 2l9 5v10l-9 5-9-5V7z"/><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M9 10l3 5 3-5"/></symbol>
+  <symbol id="i-cards" viewBox="0 0 24 24"><rect fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" x="4" y="6" width="10" height="14" rx="2" transform="rotate(-10 9 13)"/><rect fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" x="10" y="4" width="10" height="14" rx="2" transform="rotate(8 15 11)"/></symbol>
+  <symbol id="i-summon" viewBox="0 0 24 24"><circle fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" cx="12" cy="12" r="8"/><circle fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" cx="12" cy="12" r="3.2"/><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3"/></symbol>
+  <symbol id="i-spade" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C9 8 4 10 4 15a4.2 4.2 0 0 0 7 3c0 2-.8 3.2-2 4h6c-1.2-.8-2-2-2-4a4.2 4.2 0 0 0 7-3c0-5-5-7-8-13z"/></symbol>
+  <symbol id="i-swords" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M4 4l10 10M20 4L10 14M4 20l3-3M20 20l-3-3M9 15l-3 3M15 15l3 3"/><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M4 4h4M4 4v4M20 4h-4M20 4v4"/></symbol>
+  <symbol id="i-daily" viewBox="0 0 24 24"><rect fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" x="4" y="5" width="16" height="15" rx="3"/><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M4 10h16M9 3v4M15 3v4M9 15l2.2 2.2L15.5 13"/></symbol>
+  <symbol id="i-vs" viewBox="0 0 24 24"><circle fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" cx="8.5" cy="9" r="3.2"/><circle fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" cx="16.5" cy="9" r="3.2"/><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M2.5 20c0-3.6 2.6-5.6 6-5.6s6 2 6 5.6M12 15.2c1-.5 2.3-.8 4.5-.8 3.4 0 5 2 5 5.6"/></symbol>
+  <symbol id="i-atk" viewBox="0 0 24 24"><path fill="currentColor" d="M5 20 18 7l1-4 4-1-1 4-4 1L6 21z" transform="translate(-1 0)"/></symbol>
+  <symbol id="i-hp" viewBox="0 0 24 24"><path fill="currentColor" d="M12 21S3 15.5 3 9.5a5 5 0 0 1 9-3 5 5 0 0 1 9 3C21 15.5 12 21 12 21z"/></symbol>
+  <symbol id="i-spd" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 5l7 7-7 7M13 5l7 7-7 7"/></symbol>
+  <symbol id="i-el-fire" viewBox="0 0 24 24"><path fill="currentColor" d="M12.5 2c.6 3.4 5 5.6 5 10.4A5.5 5.5 0 0 1 12 18a5.5 5.5 0 0 1-5.5-5.6c0-2.2 1-3.6 2.2-4.8.1 1.8.9 2.8 2 3.3C10.4 7.8 11.2 4.6 12.5 2z"/></symbol>
+  <symbol id="i-el-water" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.5s6.2 6.4 6.2 11A6.2 6.2 0 0 1 5.8 13.5c0-4.6 6.2-11 6.2-11z"/></symbol>
+  <symbol id="i-el-wind" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" d="M3 9h10.5a3 3 0 1 0-3-3M3 14.5h14a3 3 0 1 1-3 3M3 19.5h6"/></symbol>
+  <symbol id="i-el-earth" viewBox="0 0 24 24"><path fill="currentColor" d="M2.5 20 9 8.5l3.6 5.6 2.4-3.4 6.5 9.3z"/></symbol>
+  <symbol id="i-el-lightning" viewBox="0 0 24 24"><path fill="currentColor" d="M13.5 2 5 13.5h6L9.8 22 19 10h-6.2z"/></symbol>
+  <symbol id="i-el-ice" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 2v20M3.5 7l17 10M3.5 17l17-10M9.5 3.8 12 6l2.5-2.2M9.5 20.2 12 18l2.5 2.2"/></symbol>
+  <symbol id="i-el-light" viewBox="0 0 24 24"><circle fill="currentColor" cx="12" cy="12" r="4.4"/><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1"/></symbol>
+  <symbol id="i-el-dark" viewBox="0 0 24 24"><path fill="currentColor" d="M20 14.6A8.6 8.6 0 1 1 9.4 4a7.2 7.2 0 0 0 10.6 10.6z"/></symbol>
 </svg>
 
 <div id="app">
@@ -429,7 +729,7 @@ table.odds { width: 100%; border-collapse: collapse; } table.odds td { padding: 
 <div id="ck" hidden></div>
 <div id="modal" hidden></div>
 <div id="toast"></div>
-<div id="splash"><div class="logo fat">TRIAD<i>SUMMONS</i></div><small>Loading…</small></div>
+<div id="splash"><div class="logo fat">TRIAD<i>SUMMONS</i></div><small>Loading</small></div>
 
 <script>
 /* ===== the card table (triad_app/gen_cards.py): id, name, level, top, right, bottom, left, summon-only, group ===== */
@@ -588,7 +888,19 @@ function artUri(c) {
   return (ART[c.id] = "data:image/svg+xml;utf8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="248" viewBox="0 0 100 124" preserveAspectRatio="xMidYMid slice">${g}</svg>`));
 }
 const artSrc = c => ARTMAP[c.id] || artUri(c);
+/* The collection card. Shows what the card does in a fight (attack, health, speed, element, deploy cost), not the old triad side numbers. A card's stats come from arCard(), the same source the arena uses. */
+const elIco = (el, cls = "eico") => `<svg class="${cls}"><use href="#i-el-${el}"/></svg>`;
+const hpOf = k => Math.round(k.hp * AR.HPX * (AR.RHP[k.rar] || 1));
 function cardHtml(c, o = {}) {
+  if (o.triad) return cardTriad(c, o);
+  const rr = rarOf(c), k = arCard(c), cls = ["card", "ar", "r" + rr, "el-" + k.el, "lv" + c.lv, c.ex ? "ex" : "", o.cls || "", o.miss ? "miss" : "", o.tilt ? "tilt" : ""].join(" ");
+  return `<div class="${cls}" ${o.attr || ""}><div class="win"><img class="art" data-id="${c.id}" alt="" src="${artSrc(c)}"></div><div class="holo"></div><div class="glare"></div><i class="crn"></i>` +
+    `<b class="cst">${k.cost}</b><i class="esig">${elIco(k.el, "")}</i>` + (o.count > 1 ? `<span class="cnt">×${o.count}</span>` : "") +
+    `<div class="stats"><span class="a"><svg><use href="#i-atk"/></svg>${k.atk}</span><span class="h"><svg><use href="#i-hp"/></svg>${hpOf(k)}</span><span class="s"><svg><use href="#i-spd"/></svg>${k.spd.toFixed(1)}</span></div>` +
+    `<div class="plate"><b class="nm">${esc(c.name)}</b><small class="sub"><i></i>${esc(GROUPS[c.grp] || c.grp)} · ${RNAME[rr]}</small></div><div class="tint"></div></div>`;
+}
+/* the classic triad card (four side numbers), for the old Triad match and its deck editor only */
+function cardTriad(c, o = {}) {
   const rr = rarOf(c), cls = ["card", "r" + rr, "lv" + c.lv, c.ex ? "ex" : "", o.cls || "", o.miss ? "miss" : "", o.tilt ? "tilt" : ""].join(" ");
   return `<div class="${cls}" ${o.attr || ""}><div class="win"><img class="art" data-id="${c.id}" alt="" src="${artSrc(c)}"></div><div class="holo"></div><div class="glare"></div><div class="gems">${"<i></i>".repeat(c.lv)}</div>` +
     (o.count > 1 ? `<span class="cnt">×${o.count}</span>` : "") + (o.cost ? `<span class="cost">${o.cost}</span>` : "") +
@@ -735,15 +1047,15 @@ function drawMatch(ownerOverride) {
   if (!M) return; const st = M.state, me = M.me, myTurn = !st.over && st.status !== "wait" && st.turn === me;
   const hint = M.hints && myTurn && M.sel !== null && M.tier !== 3, rel = o => (o === me ? "me" : "foe"), cells = [];
   for (let i = 0; i < 9; i++) {
-    let inner = ""; if (st.board[i] >= 0) inner = cardHtml(C[st.board[i]], { cls: rel((ownerOverride || st.owner)[i]) });
+    let inner = ""; if (st.board[i] >= 0) inner = cardHtml(C[st.board[i]], { triad: true, cls: rel((ownerOverride || st.owner)[i]) });
     let cls = "cell"; if (hint && st.board[i] < 0) { const t = preview(st, st.hands[me][M.sel], i, me); if (t > 0) cls += " hint" + (t > 1 ? " hint2" : ""); }
     cells.push(`<div class="${cls}" data-act="cell" data-i="${i}">${inner}</div>`);
   }
   const foeSide = 1 - me, waiting = st.status === "wait";
   $("#match").innerHTML = `<div class="inner"><div class="mtop"><button class="btn sm red" data-act="leave">✕</button><div class="score"><div class="a"><small>${esc(playerName()).slice(0, 8).toUpperCase()}</small>${scoreOf(st, me)}</div><div class="b"><small>${esc(M.oppName || "FOE").slice(0, 8).toUpperCase()}</small>${scoreOf(st, foeSide)}</div></div><button class="btn sm ${M.hints && M.tier !== 3 ? "yellow" : "dark"}" data-act="hints">Hints</button></div>` +
-    `<div class="tray"><div class="hand foe">${st.hands[foeSide].map(i => cardHtml(C[i], { cls: "foe" })).join("") || '<div style="grid-column:1/-1;height:40px"></div>'}</div></div>` +
+    `<div class="tray"><div class="hand foe">${st.hands[foeSide].map(i => cardHtml(C[i], { triad: true, cls: "foe" })).join("") || '<div style="grid-column:1/-1;height:40px"></div>'}</div></div>` +
     `<div class="turn ${myTurn ? "" : "foe"}">${st.over ? "" : waiting ? "WAITING FOR A FRIEND…" : myTurn ? "YOUR MOVE" : esc((M.oppName || "Foe").toUpperCase()) + "'S TURN"}</div><div id="board">${cells.join("")}</div>` +
-    `<div class="tray"><div class="hand mine">${st.hands[me].map((i, k) => cardHtml(C[i], { cls: "me" + (M.sel === k ? " sel" : ""), attr: `data-act="hand" data-k="${k}"` })).join("") || '<div style="grid-column:1/-1;height:40px"></div>'}</div></div></div>`;
+    `<div class="tray"><div class="hand mine">${st.hands[me].map((i, k) => cardHtml(C[i], { triad: true, cls: "me" + (M.sel === k ? " sel" : ""), attr: `data-act="hand" data-k="${k}"` })).join("") || '<div style="grid-column:1/-1;height:40px"></div>'}</div></div></div>`;
 }
 function playFx(fx, ownersBefore, me) {
   const board = $("#board"); if (!board) return Promise.resolve();
@@ -801,7 +1113,7 @@ function endMatch() {
   M.claimKey = claimKey;
   setTimeout(() => {
     if (!M) return; sfx(win ? "win" : draw ? "draw" : "lose"); if (ups.length) setTimeout(() => sfx("level"), 1100); const tail = `<div class="row c" style="margin-top:12px">${M.kind === "ai" ? '<button class="btn yellow" data-act="again">Again</button>' : (M.host ? '<button class="btn yellow" data-act="rematch">Rematch</button>' : "")}<button class="btn dark" data-act="leave">Done</button></div>`;
-    $("#match").insertAdjacentHTML("beforeend", `<div class="over" id="modal2"><div class="sheet"><span class="ribbon ${win ? "gold" : ""}" style="font-size:30px">${win ? "VICTORY!" : draw ? "DRAW" : "DEFEAT"}</span><p class="note" style="text-align:center;margin:0">${a} – ${b}${win ? "" : " · you keep every card"}</p><div class="rw">${chips.join("")}</div>${ups.length ? `<p class="note" style="text-align:center">${ups.map(esc).join(" · ")}</p>` : ""}${canPick ? `<div class="pickbox"><p style="text-align:center;margin:6px 0">Take a copy of one of their cards</p><div class="grid" style="grid-template-columns:repeat(5,1fr)">${oppDeck.map(id => cardHtml(BY[id], { attr: `data-act="take" data-id="${id}"` })).join("")}</div></div>` : ""}${tail}</div></div>`);
+    $("#match").insertAdjacentHTML("beforeend", `<div class="over" id="modal2"><div class="sheet"><span class="ribbon ${win ? "gold" : ""}" style="font-size:30px">${win ? "VICTORY!" : draw ? "DRAW" : "DEFEAT"}</span><p class="note" style="text-align:center;margin:0">${a} – ${b}${win ? "" : " · you keep every card"}</p><div class="rw">${chips.join("")}</div>${ups.length ? `<p class="note" style="text-align:center">${ups.map(esc).join(" · ")}</p>` : ""}${canPick ? `<div class="pickbox"><p style="text-align:center;margin:6px 0">Take a copy of one of their cards</p><div class="grid" style="grid-template-columns:repeat(5,1fr)">${oppDeck.map(id => cardHtml(BY[id], { triad: true, attr: `data-act="take" data-id="${id}"` })).join("")}</div></div>` : ""}${tail}</div></div>`);
   }, 700);
 }
 function takeCard(id) {
@@ -880,7 +1192,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.11.12-c";
+const VER = "2026.11.12-d";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -1051,7 +1363,7 @@ function packStage() {
   if (!PK.torn) { m.innerHTML = `<div class="packfs"><div class="plbl">Swipe across the top of the pack</div>${packTearHtml()}<button class="btn sm dark" data-act="packTear" style="margin-top:14px">Tap to open</button></div>`; packTearBind(); return; }
   if (PK.i >= PK.res.length) return packSummary();
   const x = PK.res[PK.i], c = x.c, r = rarOf(c);
-  m.innerHTML = `<div class="packfs fx-r${r}" data-act="packNext" id="pfs"><div class="pcount">${PK.i + 1} / ${PK.res.length}</div><div class="pc ${PK.flipped ? "flipped" : ""}" id="pcard"><div class="pback"><svg viewBox="0 0 32 32"><use href="#i-spade"/></svg></div><div class="pface">${cardHtml(c, { tilt: true })}</div></div><div class="phint" id="phint">${PK.flipped ? "Tap for the next card" : "Tap to reveal"}</div></div>`;
+  m.innerHTML = `<div class="packfs fx-r${r}" data-act="packNext" id="pfs"><div class="pcount">${PK.i + 1} / ${PK.res.length}</div><div class="pc ${PK.flipped ? "flipped" : ""}" id="pcard"><div class="pback"><svg viewBox="0 0 32 32"><use href="#i-spade"/></svg></div><div class="pface">${cardHtml(c, { tilt: true })}</div></div><div class="pinfo ${PK.flipped ? "on" : ""}" id="pinfo"><span><em>Passive</em>${esc(PASS[arCard(c).passive][0])}</span><span><em>Skill</em>${esc(actName(arCard(c)))}</span></div><div class="phint" id="phint">${PK.flipped ? "Tap for the next card" : "Tap to reveal"}</div></div>`;
 }
 function packTearBind() {
   const w = $("#pw"), top = $("#ptop"); if (!w) return; let x0 = null, y0 = 0, p = 0;
@@ -1067,7 +1379,7 @@ function packTear() {
 function packNext() {
   if (!PK || !PK.torn) return;
   if (!PK.flipped) {
-    PK.flipped = true; const x = PK.res[PK.i], r = rarOf(x.c); $("#pcard").classList.add("flipped"); $("#phint").textContent = "Tap for the next card"; sfx("reveal", r);
+    PK.flipped = true; const x = PK.res[PK.i], r = rarOf(x.c); $("#pcard").classList.add("flipped"); $("#pinfo").classList.add("on"); $("#phint").textContent = "Tap for the next card"; sfx("reveal", r);
     const f = $("#pfs"); f.classList.add("hit"); if (r >= 5) { f.classList.add("big"); sfx("charge"); }
   } else { PK.i++; PK.flipped = false; packStage(); }
 }
@@ -1488,7 +1800,7 @@ function kuHtml(u, s, i, kind, o = {}) {
   const c = BY[u.cid], a = G ? atkOf(u, s) : u.atk;
   return `<div class="ku ${s !== ME ? "foe" : "me"} ${o.sel ? "sel" : ""} ${o.tgt ? "tgt" : ""} ${o.mini ? "mini" : ""} el-${u.el} r${rarOf(c)}" data-ck="unit" data-s="${s}" data-i="${i}" data-kind="${kind}"><div class="kart"><img src="${artSrc(c)}" alt=""></div><i class="kel">${EL[u.el][1]}</i><b class="kcost">${u.cost}</b>${u.mark ? `<i class="kmk">${EL[u.mark.el][1]}</i>` : ""}<div class="kname">${esc(kshort(u.name))}</div><div class="kst"><b class="a">${a}</b><b class="h ${u.hp < u.max ? "hurt" : ""}">${u.hp}</b></div>${u.shield ? `<i class="ksh">🛡${u.shield}</i>` : ""}${u.frozen ? '<i class="kfr">❄️</i>' : ""}${u.tmp ? '<i class="ktmp">▲</i>' : ""}</div>`;
 }
-const kcardMini = (id, extra = "") => { const k = ckCard(BY[id]); return `<div class="ku mini el-${k.el} r${k.rar} ${extra}"><div class="kart"><img src="${artSrc(BY[id])}" alt=""></div><i class="kel">${EL[k.el][1]}</i><b class="kcost">${k.cost}</b><div class="kname">${esc(kshort(k.name, 10))}</div><div class="kst"><b class="a">${k.atk}</b><b class="h">${k.hp}</b></div></div>`; };
+const kcardMini = (id, extra = "") => { const k = ckCard(BY[id]); return `<div class="ku mini el-${k.el} r${k.rar} ${extra}"><div class="kart"><img src="${artSrc(BY[id])}" alt=""></div><i class="kel">${elIco(k.el, "")}</i><b class="kcost">${k.cost}</b><div class="kname">${esc(kshort(k.name, 10))}</div><div class="kst"><b class="a">${k.atk}</b><b class="h">${hpOf(k)}</b></div></div>`; };
 
 /* ----- the campaign: five regions of six opponents ----- */
 const CAMP = [
@@ -1519,14 +1831,22 @@ const rankLevel = pts => (pts < 1100 ? 0 : pts < 1800 ? 1 : 2);
 let BV = "home";
 function viewBattle(v) {
   ckInit(); rankInit(); if (BV === "camp") return viewCamp(v);
+  if (!P.camp) P.camp = { cl: {} };
   const d = P.cd[P.cdi], err = ckDeckOk(d.cards), rec = P.ck, rk = P.rank, unlocked = P.lv >= RANK_LV, tier = rankTier(rk.pts), nextT = TIERS_R[tier + 1];
-  v.innerHTML = `<span class="ribbon">BATTLE</span><div class="panel"><div class="row" style="flex-wrap:nowrap"><select id="ckdeck" data-ck="deckSel" style="flex:1">${P.cd.map((x, i) => `<option value="${i}" ${i === P.cdi ? "selected" : ""}>${esc(x.name)}${ckDeckOk(x.cards) ? " ✕" : ""}</option>`).join("")}</select><button class="btn sm yellow" data-ck="deckEdit">Edit</button><button class="btn sm dark" data-ck="deckNew" ${P.cd.length >= 8 ? "disabled" : ""}>New</button></div>` +
-    `<div class="kdeck"><div class="kd5">${d.cards.slice(0, 5).map(id => BY[id] ? kcardMini(id) : "").join("")}</div><div class="kd3"><small>BACKUPS</small>${d.cards.slice(5, 8).map(id => BY[id] ? kcardMini(id) : "").join("")}</div></div>${err ? `<p class="note" style="color:#ff9aa4;margin:6px 0 0">${esc(err)}</p>` : ""}</div>` +
-    `<span class="ribbon green">MODES</span><div class="modes"><button class="mode" data-ck="camp" ${err ? "disabled" : ""}><b class="fat">CAMPAIGN</b><small>${campDone()} / 30 opponents beaten · packs for each first win</small></button>` +
-    `<button class="mode ${unlocked ? "" : "lock"}" data-ck="ranked" ${err || !unlocked ? "disabled" : ""}><b class="fat">RANKED LADDER</b><small>${unlocked ? `${TIERS_R[tier][0]} · ${rk.pts} pts${nextT ? " · " + (nextT[1] - rk.pts) + " to " + nextT[0] : ""} · ${rk.w}W ${rk.l}L` : `🔒 Unlocks at level ${RANK_LV} (you are level ${P.lv})`}</small></button>` +
-    `<button class="mode" data-act="tab" data-k="versus"><b class="fat">PLAY A FRIEND</b><small>Online, phone to phone or by room code</small></button></div>` +
-    `<span class="ribbon">PRACTICE</span><div class="row c"><button class="btn" data-ck="start" data-l="0" ${err ? "disabled" : ""}>Easy</button><button class="btn yellow" data-ck="start" data-l="1" ${err ? "disabled" : ""}>Normal</button><button class="btn red" data-ck="start" data-l="2" ${err ? "disabled" : ""}>Hard</button></div><p class="note" style="text-align:center;margin:8px 0 0">Practice wins ${rec.w} · losses ${rec.l}. Practice pays dust and XP.</p>` +
-    `<div class="row c" style="margin-top:12px"><button class="btn sm dark" data-ck="rules">How to play</button><button class="btn sm dark" data-ck="triad">Classic Triad</button></div>`;
+  let nx = null; for (let ch = 0; ch < CAMP.length && !nx; ch++) for (let k = 0; k < 6; k++) if (campOpen(ch, k) && !P.camp.cl[ch + "-" + k]) { nx = [ch, k]; break; }
+  const fan = d.cards.slice(0, 3).filter(id => BY[id]).map(id => cardHtml(BY[id])).join("");
+  const mini = id => (BY[id] ? cardHtml(BY[id]) : "");
+  v.innerHTML = `<section class="homehero"><div class="logo2">TRIAD<small>SUMMONS · THE CARD ARENA</small></div><div class="hfan">${fan}<i class="shadow"></i></div>` +
+    (nx ? `<button class="btn yellow cta" data-ck="campStage" data-ch="${nx[0]}" data-k="${nx[1]}" ${err ? "disabled" : ""}><b>${campDone() ? "CONTINUE CAMPAIGN" : "BEGIN CAMPAIGN"}</b><small>${esc(CAMP[nx[0]].name)} · ${esc(CAMP[nx[0]].foes[nx[1]])}</small></button>` : `<button class="btn yellow cta" data-ck="start" data-l="1" ${err ? "disabled" : ""}><b>QUICK BATTLE</b><small>Campaign complete</small></button>`) + `</section>` +
+    (err ? `<p class="note" style="text-align:center;color:var(--bad);margin:8px 0 0">${esc(err)}</p>` : "") +
+    `<div class="tiles"><button class="tile" data-ck="camp" ${err ? "disabled" : ""}><svg class="ti"><use href="#i-swords"/></svg><b>Campaign</b><small>${campDone()} / 30 beaten · packs for first wins</small></button>` +
+    `<button class="tile ${unlocked ? "" : "lock"}" data-ck="ranked" ${err || !unlocked ? "disabled" : ""}><svg class="ti"><use href="#i-xp"/></svg><b>Ranked</b><small>${unlocked ? `${TIERS_R[tier][0]} · ${rk.pts} pts${nextT ? " · " + (nextT[1] - rk.pts) + " to " + nextT[0] : ""}` : `Unlocks at level ${RANK_LV}`}</small></button>` +
+    `<button class="tile" data-act="tab" data-k="versus"><svg class="ti"><use href="#i-vs"/></svg><b>Play a friend</b><small>Online, by room code or direct link</small></button>` +
+    `<button class="tile" data-ck="rules"><svg class="ti"><use href="#i-cards"/></svg><b>How to play</b><small>Targets, energy, elements</small></button></div>` +
+    `<span class="ribbon">YOUR DECK</span><div class="panel deckstrip"><div class="row"><select id="ckdeck" data-ck="deckSel" style="flex:1">${P.cd.map((x, i) => `<option value="${i}" ${i === P.cdi ? "selected" : ""}>${esc(x.name)}${ckDeckOk(x.cards) ? " ✕" : ""}</option>`).join("")}</select><button class="btn sm yellow" data-ck="deckEdit">Edit</button><button class="btn sm dark" data-ck="deckNew" ${P.cd.length >= 8 ? "disabled" : ""}>New</button></div>` +
+    `<p class="dlab">Front line</p><div class="dgrid">${d.cards.slice(0, 5).map(mini).join("")}</div><p class="dlab">Backups</p><div class="dgrid b">${d.cards.slice(5, 8).map(mini).join("")}</div></div>` +
+    `<span class="ribbon">PRACTICE</span><div class="chips"><button class="btn" data-ck="start" data-l="0" ${err ? "disabled" : ""}>Easy</button><button class="btn yellow" data-ck="start" data-l="1" ${err ? "disabled" : ""}>Normal</button><button class="btn red" data-ck="start" data-l="2" ${err ? "disabled" : ""}>Hard</button></div><p class="note" style="text-align:center;margin:8px 0 0">${rec.w} wins · ${rec.l} losses. Practice pays dust and XP.</p>` +
+    `<div class="row c" style="margin-top:14px"><button class="btn sm dark" data-ck="triad">Classic Triad</button></div>`;
 }
 const campDone = () => Object.keys((P.camp && P.camp.cl) || {}).length;
 function viewCamp(v) {
@@ -1541,7 +1861,7 @@ function viewCamp(v) {
 }
 function campSheet(ch, k) {
   const c = CAMP[ch], deck = campDeck(ch, k), first = !(P.camp.cl[ch + "-" + k]), boss = k === 5;
-  openSheet(`<span class="ribbon">${esc(c.foes[k]).toUpperCase()}</span><p class="note" style="text-align:center;margin:0 0 8px">${esc(c.name)} · ${c.els.map(e => EL[e][1] + " " + EL[e][0]).join(" + ")}${boss ? " · boss: +15 core, +1 energy" : ""}</p><div class="kd5">${deck.slice(0, 5).map(id => kcardMini(id)).join("")}</div><div class="kd3" style="margin-top:6px"><small>BACKUPS</small>${deck.slice(5).map(id => kcardMini(id)).join("")}</div><p class="note" style="text-align:center;margin:10px 0 0">${esc(c.hint)}</p><p class="note" style="text-align:center;margin:4px 0 0">${first ? "First win: " + (boss ? "3 packs" : k % 2 ? "1 pack" : "30 dust") + " and 30 XP." : "Beaten. A win pays 10 dust."}</p><div class="row c" style="margin-top:12px"><button class="btn yellow big" data-ck="campGo" data-ch="${ch}" data-k="${k}">FIGHT</button><button class="btn dark" data-act="closeModal">Back</button></div>`);
+  openSheet(`<span class="ribbon">${esc(c.foes[k]).toUpperCase()}</span><p class="note" style="text-align:center;margin:0 0 8px">${esc(c.name)} · ${c.els.map(e => `<span class="elchip el-${e}">${elIco(e)}${EL[e][0]}</span>`).join(" + ")}${boss ? " · boss: +15 core, +1 energy" : ""}</p><div class="kd5">${deck.slice(0, 5).map(id => kcardMini(id)).join("")}</div><div class="kd3" style="margin-top:6px"><small>BACKUPS</small>${deck.slice(5).map(id => kcardMini(id)).join("")}</div><p class="note" style="text-align:center;margin:10px 0 0">${esc(c.hint)}</p><p class="note" style="text-align:center;margin:4px 0 0">${first ? "First win: " + (boss ? "3 packs" : k % 2 ? "1 pack" : "30 dust") + " and 30 XP." : "Beaten. A win pays 10 dust."}</p><div class="row c" style="margin-top:12px"><button class="btn yellow big" data-ck="campGo" data-ch="${ch}" data-k="${k}">FIGHT</button><button class="btn dark" data-act="closeModal">Back</button></div>`);
 }
 function rulesSheet() {
   openSheet(`<h2 class="fat">HOW TO PLAY</h2><div class="rules"><p><b>The goal:</b> bring the enemy core from 40 to 0 before the 3:00 clock ends (then the higher core wins; if the cores are equal, the side with more card health left).</p><p><b>Your deck:</b> 8 cards. 5 stand on the field, 3 wait as backups.</p><p><b>Fighting:</b> your cards strike by themselves. Each picks a target by its own habit (shown on the card): Nearest, Weakest, Strongest, Opposite or Support-first. Tap one of your cards, then an enemy, to lock its target.</p><p><b>Energy:</b> one shared pool that refills over time (max 10). Basic strikes are free. Spend it on a card's <b>skill</b> (tap the card, press its skill button) or to <b>swap a backup in</b> (2 energy).</p><p><b>Elements:</b> a hit marks its target with the attacker's element for 6 seconds. Hit a marked card with a reacting element for a bonus: Water then Lightning (Conduct ×1.5), Ice then Fire (Melt ×1.5), Wind then Earth (Sandblast ×1.5), Water then Ice (Freeze), Fire then Wind (Blaze splash), Light and Dark (Eclipse).</p><p><b>Auto:</b> let the computer play your cards if you only want to watch.</p><p><b>The surge:</b> after one minute every card gains attack every 10 seconds, and in the last minute energy refills twice as fast.</p></div><div class="row c" style="margin-top:12px"><button class="btn yellow" data-act="closeModal">Got it</button></div>`);
@@ -1624,7 +1944,11 @@ function ckResult() {
   if (G.note) extra = G.note + (extra ? " · " + extra : "");
   P.dust += dust; P.tickets += packs; const ups = xp ? gainXp(xp) : []; scheduleSave(); chrome(); sfx(win ? "win" : draw ? "draw" : "lose");
   const again = mode.kind === "online" || G.online ? "" : `<button class="btn yellow" data-ck="rematch">${mode.kind === "camp" ? "Again" : "Rematch"}</button>`;
-  openSheet(`<span class="ribbon ${win ? "gold" : ""}">${win ? "VICTORY" : draw ? "DRAW" : "DEFEAT"}</span><div class="panel"><p style="margin:0 0 6px">${G.arena ? "Time " + arClock(G.time) : "Round " + Math.min(G.round, CK.MAXR)} · your core ${Math.max(0, G.s[ME].core)} · their core ${Math.max(0, G.s[1 - ME].core)}</p><div class="row c">${dust ? `<span class="tag gold">+${dust} ${ic("gem", "ico")}</span>` : ""}${packs ? `<span class="tag ok">+${packs} pack${packs > 1 ? "s" : ""}</span>` : ""}</div>${extra ? `<p class="note" style="margin:8px 0 0;color:var(--yellow)">${esc(extra)}</p>` : ""}${ups.length ? `<p class="note" style="margin:6px 0 0;color:var(--yellow)">${ups.map(esc).join("<br>")}</p>` : ""}</div><div class="row c" style="margin-top:12px">${again}<button class="btn dark" data-ck="leave">Back</button></div>`);
+  const chip = (cls, icon, n, lab) => `<div class="rchip ${cls}"><span class="ri">${icon}</span><b>${n}</b><small>${lab}</small></div>`;
+  openSheet(`<div class="res ${win ? "win" : draw ? "draw" : "lose"}"><b class="rtitle">${win ? "VICTORY" : draw ? "DRAW" : "DEFEAT"}</b><small class="rsub">${G.arena ? "Match time " + arClock(G.time) : "Round " + Math.min(G.round, CK.MAXR)}</small>` +
+    `<div class="rcores"><div class="me"><small>YOU</small><b>${Math.max(0, Math.ceil(G.s[ME].core))}</b></div><i>CORE</i><div class="foe"><small>${esc(((G.arena && AM && AM.opp) || "FOE").toString().toUpperCase().slice(0, 9))}</small><b>${Math.max(0, Math.ceil(G.s[1 - ME].core))}</b></div></div>` +
+    `<div class="rrow">${dust ? chip("g", ic("gem", ""), "+" + dust, "dust") : ""}${packs ? chip("p", ic("ticket", ""), "+" + packs, packs > 1 ? "packs" : "pack") : ""}${xp ? chip("x", ic("xp", ""), "+" + xp, "xp") : ""}</div>` +
+    `${extra ? `<p class="rnote">${esc(extra)}</p>` : ""}${ups.length ? `<p class="rnote up">${ups.map(esc).join("<br>")}</p>` : ""}</div><div class="row c" style="margin-top:14px">${again}<button class="btn dark" data-ck="leave">Back</button></div>`);
 }
 function ckLeave() { if (AM) { cancelAnimationFrame(AM.raf); clearInterval(AM.ka); AM = null; } if (G && G.online) cknBye(); G = null; $("#ck").hidden = true; closeModal(); musicMode("menu"); chrome(); show(tab); }
 function ckRematch() {
@@ -1650,9 +1974,10 @@ document.addEventListener("click", async e => {
     case "leave": return ckLeave();
     case "rules": return rulesSheet();
     case "deckEdit": return deckEditor(P.cdi);
+    case "deckOpen": P.cdi = +d.i; scheduleSave(); return deckEditor(+d.i);
     case "deckNew": ckInit(); P.cd.push({ name: "Deck " + (P.cd.length + 1), cards: ckAutoDeck() }); P.cdi = P.cd.length - 1; scheduleSave(); return deckEditor(P.cdi);
-    case "deckDel": { P.cd.splice(CKD.i, 1); P.cdi = 0; scheduleSave(); closeModal(); return show("battle"); }
-    case "deckSave": { const nm = $("#ckname"); if (nm) P.cd[CKD.i].name = nm.value.trim() || "Deck"; P.cd[CKD.i].cards = CKD.cards.slice(); scheduleSave(); closeModal(); return show("battle"); }
+    case "deckDel": { P.cd.splice(CKD.i, 1); P.cdi = 0; scheduleSave(); closeModal(); return show(tab); }
+    case "deckSave": { const nm = $("#ckname"); if (nm) P.cd[CKD.i].name = nm.value.trim() || "Deck"; P.cd[CKD.i].cards = CKD.cards.slice(); scheduleSave(); closeModal(); return show(tab); }
     case "dslot": CKD.sel = +d.k; return deckSheet2();
     case "dpick": { const k = CKD.sel; CKD.cards[k] = d.id; CKD.sel = Math.min(7, k + 1); return deckSheet2(); }
   }
@@ -1772,7 +2097,7 @@ const arSlotEl = (s, i, kind) => document.querySelector(`#ck .slot[data-s="${s}"
 function arFill(el, u, s, kind) {
   el._u = u ? u.uid : 0; el._fx = {};
   if (!u) { el.innerHTML = `<span>${kind === "lane" && s === 0 ? "+" : ""}</span>`; el._r = null; return; }
-  el.innerHTML = `<div class="kart"><img src="${artSrc(BY[u.cid])}" alt=""></div><i class="kcd"></i><i class="kel">${EL[u.el][1]}</i><b class="kcost">${u.cost}</b><i class="kmk"></i><div class="kname">${esc(kshort(u.name))}</div><div class="khp"><i></i></div><div class="kst"><b class="a"></b><b class="h"></b></div><i class="ksh"></i><i class="kfr">❄️</i><i class="kskl">⚡</i>`;
+  el.innerHTML = `<div class="kart"><img src="${artSrc(BY[u.cid])}" alt=""></div><i class="kcd"></i><i class="kel">${elIco(u.el, "")}</i><b class="kcost">${u.cost}</b><i class="kmk"></i><div class="kname">${esc(kshort(u.name))}</div><div class="khp"><i></i></div><div class="kst"><b class="a"></b><b class="h"></b></div><i class="ksh"></i><i class="kfr">❄️</i><i class="kskl">⚡</i>`;
   const q = c => el.querySelector(c); el._r = { cd: q(".kcd"), mk: q(".kmk"), hp: q(".khp i"), a: q(".kst .a"), h: q(".kst .h"), sh: q(".ksh"), fr: q(".kfr"), sk: q(".kskl") };
 }
 function arSlotUpd(el, u, s, kind, now) {
@@ -1786,7 +2111,7 @@ function arSlotUpd(el, u, s, kind, now) {
   r.a.textContent = Math.round(a); r.h.textContent = Math.max(0, Math.ceil(u.hp)); r.h.className = "h" + (u.hp < u.max ? " hurt" : "");
   r.hp.style.width = Math.max(0, 100 * u.hp / u.max) + "%"; r.hp.className = u.hp < u.max * .3 ? "low" : "";
   r.cd.style.width = kind === "lane" ? Math.max(0, Math.min(100, 100 * (1 - u.cd / (AR.IV / u.spd)))) + "%" : "0";
-  r.mk.textContent = u.mark ? EL[u.mark.el][1] : ""; r.sh.textContent = u.shield > 0 ? "🛡" + Math.ceil(u.shield) : ""; r.fr.style.display = u.frozen > 0 ? "" : "none";
+  { const mk = u.mark ? u.mark.el : ""; if (r.mkv !== mk) { r.mkv = mk; r.mk.innerHTML = mk ? elIco(mk, "") : ""; r.mk.style.setProperty("--elc", mk ? EL[mk][2] : "#fff"); } } r.sh.textContent = u.shield > 0 ? "🛡" + Math.ceil(u.shield) : ""; r.fr.style.display = u.frozen > 0 ? "" : "none";
   r.sk.style.display = s === 0 && kind === "lane" && u.skcd <= 0 && A.s[me].energy >= u.acost && !A.over ? "" : "none";
 }
 function arPanel() {
@@ -1798,7 +2123,7 @@ function arPanel() {
   else {
     const mine = sel.s === 0, ready = mine && sel.kind === "lane" && u.skcd <= 0 && S0.energy >= u.acost, tl = u.lock != null && A.s[1 - me].lane[u.lock];
     sig = [sel.s, sel.i, sel.kind, u.uid, ready, !!tl, S0.energy >= AR.SWAP_E, u.skcd > 0].join();
-    h = `<div class="kp2"><div class="kinfo"><b>${esc(u.name)}</b> <span style="color:${EL[u.el][2]}">${EL[u.el][1]} ${EL[u.el][0]}</span> <small>${esc(GROUPS[u.tribe] || u.tribe)} · cost ${u.cost} · speed ${u.spd.toFixed(2)} · ${TGT_NAME[u.tm]}</small><br><em>${PASS[u.passive][0]}:</em> ${passText(u.passive)}<br><em>${actName(u)} (${u.acost}⚡):</em> ${actText(u.active)}${u.mark ? `<br><em>Marked:</em> ${EL[u.mark.el][0]}` : ""}</div>`;
+    h = `<div class="kp2"><div class="kinfo"><b>${esc(u.name)}</b> <span class="elchip el-${u.el}">${elIco(u.el)}${EL[u.el][0]}</span> <small>${esc(GROUPS[u.tribe] || u.tribe)} · cost ${u.cost} · speed ${u.spd.toFixed(2)} · ${TGT_NAME[u.tm]}</small><br><em>${PASS[u.passive][0]}:</em> ${passText(u.passive)}<br><em>${actName(u)} (${u.acost}⚡):</em> ${actText(u.active)}${u.mark ? `<br><em>Marked:</em> <span class="elchip el-${u.mark.el}">${elIco(u.mark.el)}${EL[u.mark.el][0]}</span>` : ""}</div>`;
     if (mine && sel.kind === "lane") h += `<div class="kbtns"><button class="btn sm yellow" data-ar="skill" ${ready ? "" : "disabled"}>${u.skcd > 0 ? "Recharging" : esc(actName(u)) + " · " + u.acost + "⚡"}</button>${tl ? '<button class="btn sm dark" data-ar="unlock">Auto-target</button>' : ""}</div>`;
     else if (mine && sel.kind === "bench") h += `<div class="kbtns"><span class="note">Tap a lane to swap it in for ${AR.SWAP_E}⚡ (that slot then recharges ${AR.SWAP_CD} s).</span></div>`;
     h += "</div>";
@@ -1982,9 +2307,10 @@ document.addEventListener("click", e => { if (e.target.closest("[data-ck='findCa
 /* ===== cards: collection, detail, decks ===== */
 let F = { q: "", own: "all", lv: 0, grp: "all" };
 function viewCards(v) {
-  const have = ownedList().length;
-  v.innerHTML = `<span class="ribbon">DECKS</span><div class="list">${P.decks.map((d, i) => `<button class="panel item" data-act="editDeck" data-i="${i}" style="${i === P.deck ? "box-shadow: inset 0 0 0 3px var(--yellow), 0 4px 0 #000a" : ""}"><div class="t"><b>${esc(d.name)}</b><small>${d.cards.map(id => esc(BY[id] ? BY[id].name : "?")).join(", ") || "empty"}</small></div><span class="tag ${i === P.deck ? "gold" : ""}">${i === P.deck ? "ACTIVE" : deckOk(d) ? "READY" : d.cards.length === 5 ? "OVER COST" : "INCOMPLETE"} · ${deckCost(d)}/${deckCap()}</span></button>`).join("")}</div><div class="row c" style="margin-top:10px"><button class="btn sm yellow" data-act="newDeck" ${P.decks.length >= 10 ? "disabled" : ""}>New deck</button></div>` +
-    `<span class="ribbon green">COLLECTION ${have}/${C.length}</span><div class="filters"><input type="search" id="fq" placeholder="Search" value="${esc(F.q)}"><select id="fown" data-act="filt"><option value="all">All</option><option value="own" ${F.own === "own" ? "selected" : ""}>Owned</option><option value="miss" ${F.own === "miss" ? "selected" : ""}>Missing</option><option value="ex" ${F.own === "ex" ? "selected" : ""}>Secret Rare</option></select><select id="flv" data-act="filt"><option value="0">Any rarity</option>${[1, 2, 3, 4, 5].map(l => `<option value="${l}" ${F.lv === l ? "selected" : ""}>${RNAME[l]}</option>`).join("")}</select><select id="fgrp" data-act="filt">${Object.entries(GROUPS).map(([k, n]) => `<option value="${k}" ${F.grp === k ? "selected" : ""}>${n}</option>`).join("")}</select></div><div class="grid" id="coll"></div>`;
+  ckInit(); const have = ownedList().length;
+  v.innerHTML = `<span class="ribbon">DECKS</span><div class="list">${P.cd.map((d, i) => { const ok = !ckDeckOk(d.cards); return `<button class="panel item" data-ck="deckOpen" data-i="${i}" style="${i === P.cdi ? "border-color:var(--line)" : ""}"><div class="t"><b>${esc(d.name)}</b><small>${d.cards.map(id => esc(BY[id] ? BY[id].name : "?")).join(", ") || "empty"}</small></div><span class="tag ${i === P.cdi ? "gold" : ok ? "ok" : ""}">${i === P.cdi ? "ACTIVE" : ok ? "READY" : "INCOMPLETE"}</span></button>`; }).join("")}</div><div class="row c" style="margin-top:10px"><button class="btn sm yellow" data-ck="deckNew" ${P.cd.length >= 8 ? "disabled" : ""}>New deck</button></div>` +
+    `<details class="panel" style="margin-top:12px"><summary class="note" style="cursor:pointer">Classic Triad decks (the old 5-card mode)</summary><div class="list" style="margin-top:8px">${P.decks.map((d, i) => `<button class="panel item" data-act="editDeck" data-i="${i}"><div class="t"><b>${esc(d.name)}</b><small>${d.cards.map(id => esc(BY[id] ? BY[id].name : "?")).join(", ") || "empty"}</small></div><span class="tag ${i === P.deck ? "gold" : ""}">${i === P.deck ? "ACTIVE" : deckOk(d) ? "READY" : "INCOMPLETE"} · ${deckCost(d)}/${deckCap()}</span></button>`).join("")}</div><div class="row c" style="margin-top:8px"><button class="btn sm dark" data-act="newDeck" ${P.decks.length >= 10 ? "disabled" : ""}>New classic deck</button></div></details>` +
+    `<span class="ribbon">COLLECTION · ${have}/${C.length}</span><div class="filters"><input type="search" id="fq" placeholder="Search" value="${esc(F.q)}"><select id="fown" data-act="filt"><option value="all">All</option><option value="own" ${F.own === "own" ? "selected" : ""}>Owned</option><option value="miss" ${F.own === "miss" ? "selected" : ""}>Missing</option><option value="ex" ${F.own === "ex" ? "selected" : ""}>Secret Rare</option></select><select id="flv" data-act="filt"><option value="0">Any rarity</option>${[1, 2, 3, 4, 5].map(l => `<option value="${l}" ${F.lv === l ? "selected" : ""}>${RNAME[l]}</option>`).join("")}</select><select id="fgrp" data-act="filt">${Object.entries(GROUPS).map(([k, n]) => `<option value="${k}" ${F.grp === k ? "selected" : ""}>${n}</option>`).join("")}</select></div><div class="grid" id="coll"></div>`;
   fillColl(); const q = $("#fq"); q.oninput = () => { F.q = q.value; fillColl(); };
 }
 function fillColl() {
@@ -1994,16 +2320,19 @@ function fillColl() {
 }
 function openSheet(h) { const m = $("#modal"); m.hidden = false; m.innerHTML = `<div class="sheet">${h}</div>`; }
 function detail(id) {
-  const c = BY[id], n = P.own[id] || 0, cost = c.ex ? 0 : CRAFT[c.lv];
-  openSheet(`<div class="row" style="align-items:flex-start;flex-wrap:nowrap"><div style="width:42%;flex:none">${cardHtml(c, { miss: !n, tilt: true })}</div><div style="min-width:0"><h2 class="fat" style="text-align:left;font-size:26px;margin:0 0 4px">${esc(c.name)}</h2><p class="note"><span class="rtag r${rarOf(c)}">${RNAME[rarOf(c)].toUpperCase()}</span> ${esc(GROUPS[c.grp] || c.grp)}<br>Top ${sideTxt(c.s[0])} · Right ${sideTxt(c.s[1])} · Bottom ${sideTxt(c.s[2])} · Left ${sideTxt(c.s[3])}<br>Owned: ${n} / 3</p>${c.ex ? '<p class="note">Only the summon gives this card.</p>' : `<button class="btn yellow sm" data-act="craft" data-id="${id}" ${P.dust < cost || n >= 3 ? "disabled" : ""}>Craft · ${cost} ${ic("gem")}</button>`}</div></div><div class="row c" style="margin-top:14px"><button class="btn dark" data-act="closeModal">Close</button></div>`);
+  const c = BY[id], n = P.own[id] || 0, cost = c.ex ? 0 : CRAFT[c.lv], k = arCard(c), rr = rarOf(c);
+  openSheet(`<div class="row" style="align-items:flex-start;flex-wrap:nowrap;gap:14px"><div style="width:44%;flex:none">${cardHtml(c, { miss: !n, tilt: true })}</div><div style="min-width:0;flex:1"><h2 class="fat" style="text-align:left;font-size:18px;margin:2px 0 8px;line-height:1.15">${esc(c.name)}</h2><div class="row" style="gap:8px"><span class="rtag r${rr}">${RNAME[rr]}</span><span class="elchip el-${k.el}">${elIco(k.el)}${EL[k.el][0]}</span></div><p class="note" style="margin:8px 0 0;line-height:1.5">${esc(GROUPS[c.grp] || c.grp)}<br>Targets: ${TGT_NAME[k.tm]}<br>Strike ${+(k.atk * AR.STRIKE).toFixed(1)} every ${+(AR.IV / k.spd).toFixed(1)} s<br>Owned ${n} / 3</p></div></div>` +
+    `<div class="cstat"><div class="a"><b>${k.atk}</b><small>Attack</small></div><div class="h"><b>${hpOf(k)}</b><small>Health</small></div><div class="s"><b>${k.spd.toFixed(2)}</b><small>Speed</small></div><div class="c"><b>${k.cost}</b><small>Cost</small></div></div>` +
+    `<div class="skillbox"><em>Passive · ${esc(PASS[k.passive][0])}</em>${passText(k.passive)}</div><div class="skillbox"><em>Skill · ${esc(actName(k))} · ${k.acost} energy</em>${actText(k.active)}</div>` +
+    `<div class="row c" style="margin-top:14px">${c.ex ? '<span class="note">Only a pack gives this card.</span>' : `<button class="btn yellow sm" data-act="craft" data-id="${id}" ${P.dust < cost || n >= 3 ? "disabled" : ""}>Craft · ${cost} ${ic("gem")}</button>`}<button class="btn dark sm" data-act="closeModal">Close</button></div>`);
 }
 let DE = null;
 function editDeck(i) { DE = { i, name: P.decks[i].name, cards: P.decks[i].cards.slice() }; deckSheet(); }
 function deckSheet() {
   const cap = deckCap(), cost = DE.cards.reduce((a, id) => a + costOf(BY[id]), 0), over = cost > cap;
-  const slots = [0, 1, 2, 3, 4].map(k => DE.cards[k] ? cardHtml(BY[DE.cards[k]], { cost: costOf(BY[DE.cards[k]]), attr: `data-act="deckRemove" data-k="${k}"` }) : '<div class="empty"></div>').join("");
+  const slots = [0, 1, 2, 3, 4].map(k => DE.cards[k] ? cardHtml(BY[DE.cards[k]], { triad: true, cost: costOf(BY[DE.cards[k]]), attr: `data-act="deckRemove" data-k="${k}"` }) : '<div class="empty"></div>').join("");
   const pool = ownedList().filter(c => !DE.cards.includes(c.id) || (P.own[c.id] > DE.cards.filter(x => x === c.id).length)).sort((a, b) => b.lv - a.lv || a.name.localeCompare(b.name));
-  openSheet(`<h2 class="fat">EDIT DECK</h2><input type="text" id="deckName" value="${esc(DE.name)}" maxlength="20" style="width:100%;margin-bottom:8px"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><span class="fat" style="font-size:18px;color:${over ? "#ff8d98" : "var(--yellow)"}">COST ${cost} / ${cap}</span><span class="note">${DE.cards.length}/5 cards</span></div><div class="bar" style="margin:4px 0 6px"><i style="width:${Math.min(100, 100 * cost / cap)}%;${over ? "background:linear-gradient(#ff7886,#8f1624)" : ""}"></i></div><div class="slots">${slots}</div><p class="note">Tap a slot to remove, a card below to add. The gold number is a card's cost. The cap grows as you level up and clear chapters.</p><div class="grid" style="max-height:32dvh;overflow:auto;padding:4px 2px">${pool.map(c => cardHtml(c, { cost: costOf(c), count: P.own[c.id] - DE.cards.filter(x => x === c.id).length, attr: `data-act="deckAdd" data-id="${c.id}"` })).join("")}</div><div class="row c" style="margin-top:14px"><button class="btn yellow" data-act="deckSave" ${DE.cards.length === 5 && !over ? "" : "disabled"}>Save & use</button><button class="btn sm" data-act="deckAuto">Best 5</button><button class="btn sm red" data-act="deckDel" ${P.decks.length < 2 ? "disabled" : ""}>Delete</button><button class="btn sm dark" data-act="closeModal">Close</button></div>`);
+  openSheet(`<h2 class="fat">EDIT DECK</h2><input type="text" id="deckName" value="${esc(DE.name)}" maxlength="20" style="width:100%;margin-bottom:8px"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><span class="fat" style="font-size:18px;color:${over ? "#ff8d98" : "var(--yellow)"}">COST ${cost} / ${cap}</span><span class="note">${DE.cards.length}/5 cards</span></div><div class="bar" style="margin:4px 0 6px"><i style="width:${Math.min(100, 100 * cost / cap)}%;${over ? "background:linear-gradient(#ff7886,#8f1624)" : ""}"></i></div><div class="slots">${slots}</div><p class="note">Tap a slot to remove, a card below to add. The gold number is a card's cost. The cap grows as you level up and clear chapters.</p><div class="grid" style="max-height:32dvh;overflow:auto;padding:4px 2px">${pool.map(c => cardHtml(c, { triad: true, cost: costOf(c), count: P.own[c.id] - DE.cards.filter(x => x === c.id).length, attr: `data-act="deckAdd" data-id="${c.id}"` })).join("")}</div><div class="row c" style="margin-top:14px"><button class="btn yellow" data-act="deckSave" ${DE.cards.length === 5 && !over ? "" : "disabled"}>Save & use</button><button class="btn sm" data-act="deckAuto">Best 5</button><button class="btn sm red" data-act="deckDel" ${P.decks.length < 2 ? "disabled" : ""}>Delete</button><button class="btn sm dark" data-act="closeModal">Close</button></div>`);
   $("#deckName").oninput = e => DE.name = e.target.value;
 }
 
@@ -2171,7 +2500,7 @@ document.addEventListener("click", async e => {
     case "tab": return show(d.k);
 
     case "quick": return startAi({ tier: +d.t });
-    case "stage": { const ci = +d.c, si = +d.s, ch = CAMPAIGN[ci], st = ch.stages[si]; return openSheet(`<span class="ribbon">${esc(st[0]).toUpperCase()}</span><div class="row" style="flex-wrap:nowrap;align-items:flex-start"><div style="width:96px;flex:none">${cardHtml(BY[st[1]])}</div><p class="note" style="margin:0">${TIERS[ch.tier]} foes${si === 3 ? " · boss" : ""}. They hold ${esc(BY[st[1]].name)} and four more. Their deck costs about ${STAGE_COST[ci * 4 + si]}; yours is ${deckCost(P.decks[P.deck])} of ${deckCap()}.<br>First clear: ${ch.tickets[si]} ${ic("ticket")}. Every win lets you take a copy of one of their cards.</p></div><div class="row c" style="margin-top:14px"><button class="btn yellow big" data-act="stageGo" data-c="${ci}" data-s="${si}">FIGHT</button><button class="btn dark" data-act="closeModal">Back</button></div>`); }
+    case "stage": { const ci = +d.c, si = +d.s, ch = CAMPAIGN[ci], st = ch.stages[si]; return openSheet(`<span class="ribbon">${esc(st[0]).toUpperCase()}</span><div class="row" style="flex-wrap:nowrap;align-items:flex-start"><div style="width:96px;flex:none">${cardHtml(BY[st[1]], { triad: true })}</div><p class="note" style="margin:0">${TIERS[ch.tier]} foes${si === 3 ? " · boss" : ""}. They hold ${esc(BY[st[1]].name)} and four more. Their deck costs about ${STAGE_COST[ci * 4 + si]}; yours is ${deckCost(P.decks[P.deck])} of ${deckCap()}.<br>First clear: ${ch.tickets[si]} ${ic("ticket")}. Every win lets you take a copy of one of their cards.</p></div><div class="row c" style="margin-top:14px"><button class="btn yellow big" data-act="stageGo" data-c="${ci}" data-s="${si}">FIGHT</button><button class="btn dark" data-act="closeModal">Back</button></div>`); }
     case "stageGo": { closeModal(); const ci = +d.c, si = +d.s; return startAi({ tier: CAMPAIGN[ci].tier, stage: { c: ci, s: si, sig: CAMPAIGN[ci].stages[si][1], boss: si === 3 } }); }
     case "vsCreate": return vsCreate();
     case "vsJoin": return vsJoin();
