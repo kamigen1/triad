@@ -26,11 +26,8 @@
 }
 [hidden] { display: none !important; }
 html { background: #032b19; }
-.sa html, .sa body { height: var(--app-h, 100%); }
-.sa #app { padding-top: env(safe-area-inset-top, 0px); height: var(--app-h, 100%); }
-.sa #splash { padding-top: env(safe-area-inset-top, 0px); bottom: auto; height: var(--app-h, 100%); }
-.sa #match { bottom: auto; height: var(--app-h, 100%); }
-.sa #modal { bottom: auto; height: var(--app-h, 100%); }
+.sa #app { padding-top: env(safe-area-inset-top, 0px); height: 100%; }
+.sa #splash { padding-top: env(safe-area-inset-top, 0px); }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { height: 100%; }
 body { margin: 0; color: var(--ink); font: 800 15px/1.35 var(--body); padding-left: max(14px, env(safe-area-inset-left, 0px)); padding-right: max(14px, env(safe-area-inset-right, 0px)); overflow: hidden; user-select: none; -webkit-user-select: none; touch-action: manipulation; -webkit-touch-callout: none;
@@ -375,6 +372,8 @@ table.odds { width: 100%; border-collapse: collapse; } table.odds td { padding: 
 #inv .invt { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.2; } #inv .invt b { font: 400 18px var(--display); color: var(--yellow); overflow: hidden; text-overflow: ellipsis; } #inv .invt span { font-size: 12px; color: var(--muted); font-weight: 700; }
 #inv .invb { display: flex; gap: 8px; flex: none; }
 @keyframes invin { from { transform: translateY(-90px); opacity: 0; } to { transform: none; opacity: 1; } }
+/* sheets that rise from the bottom keep clear of the home indicator */
+#modal .sheet { padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 14px); }
 
 /* ===== THEME: "Night Court" visual language (see ART_DIRECTION.md) =====
    Premium anime-fantasy collectible card game: dark navy / charcoal surfaces, gold and metal accents, rich elemental colours, thin engraved lines instead of chunky outlines.
@@ -905,7 +904,8 @@ select:focus, input:focus { outline: 1px solid var(--gold); }
 @media (prefers-reduced-motion: reduce) { * { animation-duration: .01s !important; } }
 /* ===== standalone phone app: portrait only, no zoom, no rubber band, no text selection, 16px inputs so iOS never zooms on focus ===== */
 html, body { overscroll-behavior: none; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; touch-action: manipulation; }
-html { position: fixed; inset: 0; width: 100%; }
+html { position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; }
+body { height: 100%; }
 #view, .sheet, #match, #modal { overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
 img { -webkit-user-drag: none; user-drag: none; -webkit-touch-callout: none; }
 select, input[type=text], input[type=search], input[type=password], textarea { font-size: 16px; }
@@ -914,7 +914,7 @@ input[type=password] { background: #05150d; color: #fff; border: 3px solid #000;
 #rot b { font: 400 26px var(--display); color: var(--yellow); } #rot span { color: var(--muted); font-weight: 700; }
 #rot i { font-style: normal; font-size: 54px; display: block; animation: rotp 1.6s ease-in-out infinite; }
 @keyframes rotp { 0%, 20% { transform: rotate(-90deg); } 60%, 100% { transform: rotate(0); } }
-@media (orientation: landscape) and (max-height: 500px) { #rot { display: flex; } }
+@media (orientation: landscape) and (max-height: 600px) { #rot { display: flex; } }
 #ios { position: fixed; left: 12px; right: 12px; bottom: calc(env(safe-area-inset-bottom, 0px) + 78px); z-index: 30; background: linear-gradient(#103325, #07170f); border: 3px solid #000; box-shadow: inset 0 0 0 2px var(--edge), 0 8px 24px #000a; border-radius: 16px; padding: 12px 14px; font-weight: 700; font-size: 14px; display: flex; gap: 10px; align-items: center; }
 #ios button { flex: none; }
 </style>
@@ -1440,7 +1440,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.11.15-b";
+const VER = "2026.11.15-c";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
