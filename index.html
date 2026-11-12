@@ -1,7 +1,8 @@
 <!doctype html>
 <html lang="en">
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover,interactive-widget=resizes-content">
+<meta name="format-detection" content="telephone=no">
 <title>Triad Summons</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#032b19">
@@ -10,6 +11,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Triad Summons">
 <link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-orientations" content="portrait">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Nunito:wght@600;700;800&family=Rajdhani:wght@600;700&display=swap">
 <style>
@@ -261,45 +263,6 @@ table.odds { width: 100%; border-collapse: collapse; } table.odds td { padding: 
 .mute { flex: none; width: 36px; height: 36px; border-radius: 50%; border: 3px solid #000; background: linear-gradient(#34413a, #151d19); box-shadow: inset 0 2px 0 #ffffff44, 0 3px 0 #000; font-size: 16px; line-height: 1; padding: 0; }
 .rng { flex: 1; min-width: 0; accent-color: var(--yellow); height: 28px; }
 .bfield { position: relative; }
-/* landscape phones: the tab bar becomes a rail on the left, the hero shrinks, and a match lays out as foe hand | board | your hand */
-@media (orientation: landscape) and (max-height: 540px) {
-  body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
-  #app, .sa #app { max-width: 980px; padding-top: 0; display: grid; grid-template-columns: 84px minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
-  #hud { grid-column: 2; grid-row: 1; padding: 6px 12px 4px; }
-  main { grid-column: 2; grid-row: 2; padding: 4px 12px 10px; }
-  nav { grid-column: 1; grid-row: 1 / 3; grid-template-columns: 1fr; grid-auto-rows: 1fr; align-items: stretch; margin: 0; padding: max(6px, env(safe-area-inset-top, 0px)) 0 max(6px, env(safe-area-inset-bottom, 0px)); min-height: 0; border-top: 0; border-right: 3px solid #000; box-shadow: 3px 0 0 var(--edge); background: linear-gradient(90deg, #0c2217, #040a07); }
-  nav button { height: auto; min-height: 0; }
-  nav button.on { height: auto; margin: 0; padding-top: 7px; clip-path: none; background: linear-gradient(90deg, #1d5039, #0d2a1d); box-shadow: inset 4px 0 0 var(--yellow); }
-  nav .dia { width: 34px; height: 34px; } nav button.on .dia { width: 38px; height: 38px; } nav .dia svg { width: 20px; height: 20px; } nav button.on .dia svg { width: 24px; height: 24px; }
-  nav button.on .lb { font-size: 10px; } nav .dot { top: 6px; right: 18%; }
-  .hex { width: 44px; height: 49px; } .hex span { font-size: 22px; }
-  .hero { height: 250px; margin: 0 -12px; }
-  .hero::before { width: 240px; height: 250px; top: -10px; }
-  .fan { bottom: 52px; } .fan .card { width: 74px; left: -37px; }
-  .badge { width: 138px; padding: 16px 0 12px; top: 4px; left: 22%; } .badge i { font-size: 30px; } .badge b { font-size: 14px; }
-  .sheet { max-width: 640px; max-height: 96dvh; border-radius: 18px; }
-  #modal { align-items: center; }
-  #match { padding: max(6px, env(safe-area-inset-top, 0px)) max(14px, env(safe-area-inset-right, 0px)) max(6px, env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px)); --lh: calc(100dvh - 104px); }
-  #match .inner { max-width: none; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); grid-template-rows: 38px minmax(0, 1fr); column-gap: 14px; row-gap: 6px; align-items: center; }
-  .mtop { display: contents; }
-  .mtop > button:first-child { grid-column: 1; grid-row: 1; justify-self: start; }
-  .mtop .score { grid-column: 2; grid-row: 1; } .score .a, .score .b { font-size: 20px; min-width: 52px; padding: 1px 8px 3px; } .score small { font-size: 8px; }
-  .mtop > button:last-child { grid-column: 3; grid-row: 1; justify-self: end; }
-  .turn { grid-column: 1; grid-row: 1; font-size: 15px; min-height: 0; padding-left: 52px; text-align: left; white-space: nowrap; overflow: hidden; }
-  #board { grid-column: 2; grid-row: 2; width: calc(var(--lh) / 1.4 + 32px); padding: 8px; gap: 6px; }
-  .tray { grid-row: 2; align-self: center; padding: 6px; width: min(100%, calc(var(--lh) / 3 / 1.4 * 2 + 28px)); }
-  .tray:has(.hand.foe) { grid-column: 1; justify-self: end; } .tray:has(.hand.mine) { grid-column: 3; justify-self: start; }
-  .hand { grid-template-columns: repeat(2, 1fr); gap: 6px; }
-  .hand.mine .card.sel { transform: translateX(-10px) scale(1.04); }
-  /* summon + reveal */
-  .ribbon { margin: 6px auto 6px; font-size: 17px; padding: 3px 28px 4px; }
-  .hexgrid { grid-template-columns: repeat(8, 1fr); gap: 6px; margin: 4px 0 8px; } .hx.q span { font-size: 26px; } .hx.f small { font-size: 8px; }
-  .bighex { width: 150px; height: 170px; margin: 6px auto; } .bighex span { font-size: 80px; }
-  .reveal:has(.wrap:nth-child(2)) { grid-template-columns: repeat(10, 1fr) !important; gap: 6px; }
-  .sheet:has(.reveal .wrap:nth-child(2)) { max-width: 860px; }
-  .nodes { max-width: 380px; margin-left: auto; margin-right: auto; }
-  .sheet { width: calc(100% - 24px); }
-}
 /* ===== foil and packs ===== */
 :root { --tx: 0; --ty: 0; }
 .card { --mx: calc(50% + var(--tx) * 42%); --my: calc(50% + var(--ty) * 42%); --gl: 0; }
@@ -404,6 +367,14 @@ table.odds { width: 100%; border-collapse: collapse; } table.odds td { padding: 
 .ku.empty.tgt { animation: tgtp .8s ease-in-out infinite; border-color: #fff; }
 .aren { display: flex; align-items: center; gap: 6px; } .aren b { font-size: 14px; } .aren span { font: 700 13px var(--display); color: #ffe57a; min-width: 30px; text-align: right; }
 .aepips { flex: 1; display: flex; gap: 3px; } .aepips i { flex: 1; height: 12px; border-radius: 3px; background: #0a1a12; border: 1px solid #000; overflow: hidden; } .aepips u { display: block; height: 100%; width: 0; background: linear-gradient(#ffe57a, #e0a410); text-decoration: none; }
+
+/* ===== friends and challenges ===== */
+.odot { width: 11px; height: 11px; border-radius: 50%; background: #55655d; border: 2px solid #000; flex: none; display: inline-block; }
+.odot.on { background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+#inv { position: fixed; left: 12px; right: 12px; top: calc(env(safe-area-inset-top, 0px) + 10px); z-index: 80; max-width: 520px; margin: 0 auto; display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 16px; background: linear-gradient(#17402e, #08190f); border: 3px solid #000; box-shadow: inset 0 0 0 2px var(--yellow), 0 12px 34px #000c; animation: invin .28s cubic-bezier(.2, 1.3, .4, 1); }
+#inv .invt { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.2; } #inv .invt b { font: 400 18px var(--display); color: var(--yellow); overflow: hidden; text-overflow: ellipsis; } #inv .invt span { font-size: 12px; color: var(--muted); font-weight: 700; }
+#inv .invb { display: flex; gap: 8px; flex: none; }
+@keyframes invin { from { transform: translateY(-90px); opacity: 0; } to { transform: none; opacity: 1; } }
 
 /* ===== THEME: "Night Court" visual language (see ART_DIRECTION.md) =====
    Premium anime-fantasy collectible card game: dark navy / charcoal surfaces, gold and metal accents, rich elemental colours, thin engraved lines instead of chunky outlines.
@@ -932,6 +903,20 @@ select:focus, input:focus { outline: 1px solid var(--gold); }
 .avc.r5, .avc.r6 { border-color: #d9a437; } .avc.r4 { border-color: #8a52e0; } .avc.r3 { border-color: #3d86d8; }
 
 @media (prefers-reduced-motion: reduce) { * { animation-duration: .01s !important; } }
+/* ===== standalone phone app: portrait only, no zoom, no rubber band, no text selection, 16px inputs so iOS never zooms on focus ===== */
+html, body { overscroll-behavior: none; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; touch-action: manipulation; }
+html { position: fixed; inset: 0; width: 100%; }
+#view, .sheet, #match, #modal { overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+img { -webkit-user-drag: none; user-drag: none; -webkit-touch-callout: none; }
+select, input[type=text], input[type=search], input[type=password], textarea { font-size: 16px; }
+input[type=password] { background: #05150d; color: #fff; border: 3px solid #000; box-shadow: inset 0 0 0 2px var(--edge); border-radius: 12px; padding: 9px 10px; font: 800 16px var(--body); min-width: 0; user-select: text; -webkit-user-select: text; }
+#rot { position: fixed; inset: 0; z-index: 99; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: #032b19; text-align: center; padding: 24px; }
+#rot b { font: 400 26px var(--display); color: var(--yellow); } #rot span { color: var(--muted); font-weight: 700; }
+#rot i { font-style: normal; font-size: 54px; display: block; animation: rotp 1.6s ease-in-out infinite; }
+@keyframes rotp { 0%, 20% { transform: rotate(-90deg); } 60%, 100% { transform: rotate(0); } }
+@media (orientation: landscape) and (max-height: 500px) { #rot { display: flex; } }
+#ios { position: fixed; left: 12px; right: 12px; bottom: calc(env(safe-area-inset-bottom, 0px) + 78px); z-index: 30; background: linear-gradient(#103325, #07170f); border: 3px solid #000; box-shadow: inset 0 0 0 2px var(--edge), 0 8px 24px #000a; border-radius: 16px; padding: 12px 14px; font-weight: 700; font-size: 14px; display: flex; gap: 10px; align-items: center; }
+#ios button { flex: none; }
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -969,6 +954,7 @@ select:focus, input:focus { outline: 1px solid var(--gold); }
 <div id="ck" hidden></div>
 <div id="modal" hidden></div>
 <div id="toast"></div>
+<div id="rot"><i>📱</i><b>TURN YOUR PHONE UPRIGHT</b><span>Triad plays in portrait.</span></div>
 <div id="splash"><div class="logo fat">TRIAD<i>SUMMONS</i></div><small>Loading</small></div>
 
 <script>
@@ -976,6 +962,20 @@ select:focus, input:focus { outline: 1px solid var(--gold); }
 if (navigator.standalone || (window.matchMedia && matchMedia("(display-mode: standalone)").matches)) document.documentElement.classList.add("sa");
 function fitApp() { const sa = document.documentElement.classList.contains("sa"); let h = window.innerHeight; if (sa && window.innerHeight >= window.innerWidth) h = Math.max(h, Math.max(screen.height, screen.width)); document.documentElement.style.setProperty("--app-h", h + "px"); }
 fitApp(); window.addEventListener("resize", fitApp); window.addEventListener("orientationchange", () => setTimeout(fitApp, 300));
+/* phone-app behaviour: no pinch, no double-tap zoom, portrait lock where the browser allows it, and an install hint on iPhone */
+["gesturestart", "gesturechange", "gestureend"].forEach(t => document.addEventListener(t, e => e.preventDefault(), { passive: false }));
+document.addEventListener("touchmove", e => { if (e.touches && e.touches.length > 1) e.preventDefault(); }, { passive: false });
+let lastTap = 0; document.addEventListener("touchend", e => { const n = Date.now(); if (n - lastTap < 320 && !e.target.closest("input,textarea,select")) e.preventDefault(); lastTap = n; }, { passive: false });
+document.addEventListener("contextmenu", e => { if (!e.target.closest("input,textarea")) e.preventDefault(); });
+try { screen.orientation && screen.orientation.lock && screen.orientation.lock("portrait").catch(() => {}); } catch (_) {}
+function iosHint() {
+  try {
+    const ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1), sa = navigator.standalone || (window.matchMedia && matchMedia("(display-mode: standalone)").matches);
+    if (!ios || sa || localStorage.getItem("triad.iosHint")) return;
+    const d = document.createElement("div"); d.id = "ios"; d.innerHTML = '<span>For the full-screen app: tap <b>Share</b>, then <b>Add to Home Screen</b>.</span><button class="btn sm dark" type="button">OK</button>';
+    d.querySelector("button").onclick = () => { try { localStorage.setItem("triad.iosHint", "1"); } catch (_) {} d.remove(); }; document.body.appendChild(d);
+  } catch (_) {}
+}
 const RAW = [["goblin","Goblin",1,2,6,4,3,0,"monster"],["slime","Slime",1,2,2,5,6,0,"monster"],["dracky","Dracky",1,2,2,5,4,0,"monster"],["she_slime","She-slime",1,4,3,1,5,0,"monster"],["cactuar","Cactuar",1,4,4,6,1,0,"monster"],["shadow","Shadow",1,2,4,6,2,0,"monster"],["bomb","Bomb",1,1,5,2,6,0,"monster"],["healslime","Healslime",1,6,3,3,2,0,"monster"],["flan","Flan",1,5,1,4,3,0,"monster"],["soldier","Soldier",1,2,2,6,4,0,"monster"],["coeurl","Coeurl",2,7,3,7,1,0,"monster"],["zu","Zu",2,6,2,6,5,0,"monster"],["black_mage","Black Mage",2,6,1,6,4,0,"monster"],["metal_slime","Metal Slime",2,6,2,5,4,0,"monster"],["dusk","Dusk",2,7,6,1,3,0,"monster"],["neoshadow","Neoshadow",2,2,6,5,4,0,"monster"],["large_body","Large Body",2,7,6,2,2,0,"monster"],["golem","Golem",2,7,5,2,5,0,"monster"],["killing_machine","Killing Machine",2,4,6,3,6,0,"monster"],["malboro","Malboro",2,7,4,1,7,0,"monster"],["tonberry","Tonberry",3,6,6,7,2,0,"monster"],["iron_giant","Iron Giant",3,8,4,2,7,0,"monster"],["king_slime","King Slime",3,7,6,2,6,0,"monster"],["behemoth","Behemoth",3,2,7,6,8,0,"monster"],["darkside","Darkside",3,3,7,6,6,0,"monster"],["ultros","Ultros",3,4,8,4,6,0,"monster"],["thornmother","Thornmother",3,3,4,8,8,0,"monster"],["frost_queen","Frost Queen",3,7,2,8,4,0,"monster"],["forgemaster","Forgemaster",3,5,3,8,7,0,"monster"],["oracle","The Oracle",3,6,4,6,5,0,"monster"],["archmage","Archmage",4,9,7,5,6,0,"monster"],["blaze_lord","Blaze Lord",4,5,4,8,9,0,"monster"],["herald","The Herald",4,3,8,5,9,0,"monster"],["juggernaut","Juggernaut",4,8,4,9,6,0,"monster"],["oathbound","Oathbound",4,4,7,6,8,0,"monster"],["voidwalker","Voidwalker",4,6,6,8,5,0,"monster"],["warlord","Warlord",4,7,3,9,7,0,"monster"],["withered_king","Withered King",4,3,5,9,8,0,"monster"],["garuda","Garuda",4,9,6,2,8,0,"monster"],["ifrit","Ifrit",5,8,7,9,7,0,"monster"],["shiva","Shiva",5,7,6,7,9,0,"monster"],["ramuh","Ramuh",5,3,10,7,10,0,"monster"],["titan","Titan",5,9,6,7,9,0,"monster"],["phoenix","Phoenix",5,7,8,6,8,0,"monster"],["odin","Odin",5,8,9,7,7,0,"monster"],["bahamut","Bahamut",5,10,9,4,7,0,"monster"],["ultima","Ultima",5,9,3,9,10,0,"monster"],["bandit","Bandit",1,6,1,3,5,0,"folk"],["bandit_lieutenant","Bandit Lieutenant",2,2,4,5,7,0,"folk"],["bandit_chief","Bandit Chief",3,8,8,4,1,0,"folk"],["hollow_soldier","Hollow Soldier",2,3,6,5,3,0,"folk"],["hollow_captain","Hollow Captain",3,6,6,5,4,0,"folk"],["hollow_warden","Hollow Warden",4,5,7,6,7,0,"folk"],["gilgamesh","Gilgamesh",5,9,4,7,9,0,"monster"],["dominant_bahamut","Dominant of Bahamut",4,8,5,5,7,0,"dominant"],["dominant_garuda","Dominant of Garuda",4,8,2,8,7,0,"dominant"],["dominant_odin","Dominant of Odin",4,7,8,4,7,0,"dominant"],["dominant_phoenix","Dominant of Phoenix",4,9,2,8,7,0,"dominant"],["dominant_ramuh","Dominant of Ramuh",4,5,6,7,7,0,"dominant"],["dominant_shiva","Dominant of Shiva",4,9,7,9,1,0,"dominant"],["dominant_titan","Dominant of Titan",4,4,7,6,9,0,"dominant"],["hero_bard","Bard",2,4,5,3,7,0,"hero"],["hero_beastmaster","Beastmaster",2,2,7,3,5,0,"hero"],["hero_berserker","Berserker",3,5,6,2,8,0,"hero"],["hero_black_mage","Black Mage",2,1,5,7,4,0,"hero"],["hero_blue_mage","Blue Mage",2,5,4,7,2,0,"hero"],["hero_chemist","Chemist",2,7,3,7,1,0,"hero"],["hero_dancer","Dancer",2,6,3,2,6,0,"hero"],["hero_dragoon","Dragoon",3,4,6,3,8,0,"hero"],["hero_freelancer","Freelancer",2,5,3,6,3,0,"hero"],["hero_geomancer","Geomancer",2,6,4,4,4,0,"hero"],["hero_knight","Knight",3,5,6,8,4,0,"hero"],["hero_mime","Mime",2,6,5,5,2,0,"hero"],["hero_monk","Monk",2,7,2,3,7,0,"hero"],["hero_mystic_knight","Mystic Knight",3,2,7,7,7,0,"hero"],["hero_ninja","Ninja",3,4,8,8,1,0,"hero"],["hero_ranger","Ranger",2,6,3,5,4,0,"hero"],["hero_red_mage","Red Mage",2,5,3,5,5,0,"hero"],["hero_samurai","Samurai",3,3,4,8,8,0,"hero"],["hero_summoner","Summoner",2,5,7,1,6,0,"hero"],["hero_thief","Thief",2,5,2,6,4,0,"hero"],["hero_time_mage","Time Mage",2,7,4,5,3,0,"hero"],["hero_white_mage","White Mage",2,6,3,2,6,0,"hero"],["folk_alchemist","Alchemist",1,2,5,4,3,0,"folk"],["folk_angler","Angler",1,3,4,5,3,0,"folk"],["folk_armorer","Armorer",1,6,4,2,1,0,"folk"],["folk_barkeep","Barkeep",1,3,1,5,6,0,"folk"],["folk_blacksmith","Blacksmith",1,6,1,4,3,0,"folk"],["folk_captain","Captain",1,6,3,1,5,0,"folk"],["folk_clothier","Clothier",1,4,4,1,5,0,"folk"],["folk_cook","Cook",1,4,2,3,4,0,"folk"],["folk_decorator","Decorator",1,1,5,3,5,0,"folk"],["folk_demolitionist","Demolitionist",1,1,5,3,5,0,"folk"],["folk_elder","Elder",1,4,1,3,6,0,"folk"],["folk_gardener","Gardener",1,2,2,3,6,0,"folk"],["folk_guide","Guide",1,1,6,4,3,0,"folk"],["folk_innkeeper","Innkeeper",1,2,6,4,2,0,"folk"],["folk_merchant","Merchant",1,2,4,6,1,0,"folk"],["folk_nurse","Nurse",1,5,5,3,2,0,"folk"],["folk_outrider","Outrider",1,2,6,4,3,0,"folk"],["folk_priestess","Priestess",1,5,1,3,6,0,"folk"],["folk_scholar","Scholar",1,3,4,2,5,0,"folk"],["folk_shopkeeper","Shopkeeper",1,1,4,4,4,0,"folk"],["folk_spell_merchant","Spell Merchant",1,2,5,5,1,0,"folk"],["folk_storekeeper","Storekeeper",1,1,1,5,6,0,"folk"],["folk_summoner","Summoner",1,3,2,4,4,0,"folk"],["folk_tinkerer","Tinkerer",1,4,1,3,5,0,"folk"],["folk_traveling_merchant","Traveling Merchant",1,5,2,5,1,0,"folk"],["folk_weaponsmith","Weaponsmith",1,5,2,3,3,0,"folk"],["w_mythril_sword","Mythril Sword",1,2,4,5,2,0,"weapon"],["w_flametongue","Flametongue",2,2,5,7,3,0,"weapon"],["w_icebrand","Icebrand",2,2,6,5,4,0,"weapon"],["w_blood_sword","Blood Sword",3,6,8,8,1,0,"weapon"],["w_defender","Defender",3,7,8,6,2,0,"weapon"],["w_save_the_queen","Save the Queen",3,4,4,5,8,0,"weapon"],["w_excalibur","Excalibur",4,7,5,6,9,0,"weapon"],["w_excalipoor","Excalipoor",1,2,1,5,5,0,"weapon"],["w_ragnarok","Ragnarok",4,8,8,6,5,0,"weapon"],["w_apocalypse","Apocalypse",4,7,8,8,3,0,"weapon"],["w_ultima_weapon","Ultima Weapon",5,5,6,9,9,0,"weapon"],["w_kotetsu","Kotetsu",1,5,2,4,2,0,"weapon"],["w_kiku_ichimonji","Kiku-ichimonji",2,2,4,5,7,0,"weapon"],["w_murasame","Murasame",3,1,7,7,8,0,"weapon"],["w_muramasa","Muramasa",4,8,6,7,5,0,"weapon"],["w_masamune","Masamune",5,10,10,5,5,0,"weapon"],["w_mage_masher","Mage Masher",1,1,3,6,3,0,"weapon"],["w_gungnir","Gungnir",4,8,6,4,9,0,"weapon"],["w_longinus","Longinus",5,8,9,5,9,0,"weapon"],["w_zodiac_spear","Zodiac Spear",5,9,4,8,8,0,"weapon"],["w_yoichi_bow","Yoichi Bow",4,3,8,8,8,0,"weapon"],["w_artemis_bow","Artemis Bow",3,8,7,1,6,0,"weapon"],["w_nirvana","Nirvana",5,10,7,10,4,0,"weapon"],["w_mace_of_zeus","Mace of Zeus",4,8,6,8,3,0,"weapon"],["w_princess_guard","Princess Guard",4,8,7,7,4,0,"weapon"],["w_onion_sword","Onion Sword",2,5,7,6,1,0,"weapon"],["w_brave_blade","Brave Blade",4,5,6,6,9,0,"weapon"],["w_valiant_knife","Valiant Knife",3,2,6,8,6,0,"weapon"],["w_buster_sword","Buster Sword",3,6,6,4,5,0,"weapon"],["w_premium_heart","Premium Heart",4,3,8,9,6,0,"weapon"],["w_revolver","Revolver",2,6,5,5,2,0,"weapon"],["w_hyperion","Hyperion",4,7,8,7,4,0,"weapon"],["w_lionheart","Lionheart",5,9,10,6,5,0,"weapon"],["w_orichalcon","Orichalcon",4,7,7,3,8,0,"weapon"],["w_excalibur_ii","Excalibur II",5,8,10,2,10,0,"weapon"],["w_brotherhood","Brotherhood",3,8,4,2,7,0,"weapon"],["w_caladbolg","Caladbolg",5,8,3,8,10,0,"weapon"],["w_curtana","Curtana",4,6,6,8,5,0,"weapon"],["w_blazefire_saber","Blazefire Saber",4,5,3,9,8,0,"weapon"],["w_engine_blade","Engine Blade",3,8,5,1,7,0,"weapon"],["w_gotterdammerung","Gotterdammerung",5,7,6,8,9,0,"weapon"],["w_blade_of_dawn","Blade of Dawn",4,2,9,8,7,0,"weapon"],["w_ultima_blade","Ultima Blade",5,9,7,8,7,0,"weapon"],["w_deathbringer","Deathbringer",3,8,4,2,7,0,"weapon"],["w_holy_lance","Holy Lance",4,9,6,9,2,0,"weapon"],["w_kingdom_key","Kingdom Key",1,4,5,5,1,0,"weapon"],["w_oathkeeper","Oathkeeper",3,3,8,2,8,0,"weapon"],["w_oblivion","Oblivion",3,5,3,5,8,0,"weapon"],["w_star_seeker","Star Seeker",4,8,5,8,6,0,"weapon"],["w_way_to_the_dawn","Way to the Dawn",4,6,9,2,9,0,"weapon"],["w_ultima_keyblade","Ultima Keyblade",5,5,10,6,8,0,"weapon"],["w_zenithian_sword","Zenithian Sword",5,8,2,10,9,0,"weapon"],["w_erdricks_sword","Erdrick's Sword",4,5,7,8,5,0,"weapon"],["w_metal_king_sword","Metal King Sword",5,8,9,9,4,0,"weapon"],["w_falcon_blade","Falcon Blade",3,1,8,5,7,0,"weapon"],["w_dragon_slayer","Dragon Slayer",3,8,4,7,4,0,"weapon"],["w_staff_of_divine_wrath","Staff of Divine Wrath",3,8,3,4,8,0,"weapon"],["a_mythril","Mythril Armour",2,7,4,5,3,0,"armor"],["a_adamant","Adamant Armour",3,6,6,5,4,0,"armor"],["a_maximillian","Maximillian Armour",4,8,2,7,9,0,"armor"],["a_dragon","Dragon Armour",4,2,5,9,9,0,"armor"],["a_crystal","Crystal Armour",5,5,9,10,7,0,"armor"],["a_genji","Genji Armour",5,10,8,7,5,0,"armor"],["a_ninja","Ninja Armour",3,7,7,2,6,0,"armor"],["a_white_robe","White Mage's Armour",3,6,1,7,7,0,"armor"],["a_black_robe","Black Mage's Armour",3,7,6,7,3,0,"armor"],["r_ribbon","Ribbon",4,6,9,5,7,0,"relic"],["r_hermes_sandals","Hermes Sandals",3,3,2,8,8,0,"relic"],["r_sprint_shoes","Sprint Shoes",2,3,5,2,7,0,"relic"],["r_genji_gloves","Genji Gloves",4,2,9,9,6,0,"relic"],["r_power_wrist","Power Wrist",2,6,5,7,1,0,"relic"],["r_protect_ring","Protect Ring",2,7,1,4,6,0,"relic"],["r_magic_armlet","Magic Armlet",2,6,2,7,4,0,"relic"],["r_rune_bracelet","Rune Bracelet",3,5,7,7,2,0,"relic"],["r_star_pendant","Star Pendant",2,6,6,2,4,0,"relic"],["r_cat_ear_hood","Cat-Ear Hood",3,5,6,4,8,0,"relic"],["r_phoenix_pinion","Phoenix Pinion",4,8,7,6,4,0,"relic"],["x_esper_fenrir","Fenrir",5,8,8,7,10,1,"esper"],["x_esper_sylph","Sylph",5,7,10,8,7,1,"esper"],["x_esper_fat_chocobo","Fat Chocobo",5,6,5,10,10,1,"esper"],["x_esper_moogle","Moogle",5,8,8,8,9,1,"esper"],["x_esper_anima","Anima",5,7,9,9,7,1,"esper"],["x_esper_siren","Siren",5,7,7,9,9,1,"esper"],["x_esper_stone_golem","Stone Golem",5,9,7,8,7,1,"esper"],["x_esper_diabolos","Diabolos",5,10,5,10,7,1,"esper"],["x_esper_carbuncle","Carbuncle",5,9,8,7,8,1,"esper"],["x_esper_leviathan","Leviathan",5,8,7,8,8,1,"esper"],["x_hunt_griffin","Griffin",5,9,7,8,8,1,"esper"],["x_hunt_wyvern","Wyvern",5,9,10,8,6,1,"esper"],["x_hunt_hill_giant","Hill Giant",5,7,7,8,9,1,"esper"],["ff_ahriman","Ahriman",2,6,5,5,1,0,"ff"],["ff_cockatrice","Cockatrice",2,5,3,6,5,0,"ff"],["ff_sahagin","Sahagin",1,6,6,1,1,0,"ff"],["ff_goblin_shaman","Goblin Shaman",1,1,5,2,6,0,"ff"],["ff_cerberus","Cerberus",3,7,6,8,1,0,"ff"],["ff_ochu","Ochu",2,3,5,7,3,0,"ff"],["ff_adamantoise","Adamantoise",4,8,9,3,7,0,"ff"],["ff_omega_weapon","Omega Weapon",5,6,10,6,9,1,"ff"],["ff_shinryu","Shinryu",5,7,7,6,9,1,"ff"],["ff_kefka","Kefka",5,7,6,6,10,0,"ff"],["ff_sephiroth","Sephiroth",5,5,6,9,10,0,"ff"],["ff_exdeath","Exdeath",4,7,9,5,5,0,"ff"],["ff_ultimecia","Ultimecia",5,9,7,5,10,0,"ff"],["ff_chocobo","Chocobo",1,4,4,2,3,0,"ff"],["ff_tonberry_king","Tonberry King",4,8,1,7,9,0,"ff"],["ff_yuna","Yuna",3,7,8,6,2,0,"ff"],["ff_lightning","Lightning",4,5,9,8,5,0,"ff"],["dq_bubble_slime","Bubble Slime",1,5,4,2,4,0,"dq"],["dq_drakee","Drakee",1,1,3,4,5,0,"dq"],["dq_sabrecub","Sabrecub",1,3,6,4,2,0,"dq"],["dq_mimic","Mimic",2,5,3,4,5,0,"dq"],["dq_slime_knight","Slime Knight",2,7,2,7,1,0,"dq"],["dq_killer_armor","Killer Armor",2,6,4,6,3,0,"dq"],["dq_great_sabrecat","Great Sabrecat",3,3,8,7,5,0,"dq"],["dq_dhoulmagus","Dhoulmagus",3,1,7,8,5,0,"dq"],["dq_hell_gladiator","Hell Gladiator",3,8,4,3,6,0,"dq"],["dq_baramos","Baramos",4,8,8,2,8,0,"dq"],["dq_hargon","Hargon",4,3,9,9,4,0,"dq"],["dq_psaro","Psaro",4,5,8,3,9,0,"dq"],["dq_zoma","Zoma",5,10,4,8,7,0,"dq"],["dq_orgodemir","Orgodemir",5,6,8,5,10,0,"dq"],["dq_estark","Estark",5,9,10,10,1,1,"dq"],["dq_malroth","Malroth",5,10,7,6,8,1,"dq"],["dq_erdrick","Erdrick",5,9,7,4,9,0,"dq"],["dq_terry","Terry",3,4,7,4,7,0,"dq"],["db_saibaman","Saibaman",1,2,3,6,2,0,"db"],["db_mr_satan","Mr. Satan",1,4,3,2,5,0,"db"],["db_raditz","Raditz",2,6,1,4,6,0,"db"],["db_nappa","Nappa",2,2,7,5,4,0,"db"],["db_zarbon","Zarbon",2,4,6,1,6,0,"db"],["db_dodoria","Dodoria",2,6,4,4,3,0,"db"],["db_recoome","Recoome",2,6,6,1,4,0,"db"],["db_krillin","Krillin",2,6,6,1,5,0,"db"],["db_captain_ginyu","Captain Ginyu",3,5,7,1,8,0,"db"],["db_piccolo","Piccolo",3,5,3,6,7,0,"db"],["db_gohan","Gohan",3,6,7,6,4,0,"db"],["db_android_17","Android 17",3,7,5,5,4,0,"db"],["db_android_18","Android 18",3,5,8,2,7,0,"db"],["db_great_ape","Great Ape",3,5,1,8,7,0,"db"],["db_cooler","Cooler",4,7,7,7,4,0,"db"],["db_cell","Cell",4,7,7,9,3,0,"db"],["db_frieza","Frieza",4,9,3,4,9,0,"db"],["db_majin_buu","Majin Buu",4,9,7,1,8,0,"db"],["db_vegeta","Vegeta",5,10,3,9,9,0,"db"],["db_broly","Broly",5,8,9,3,10,0,"db"],["db_goku","Goku",5,8,9,4,8,1,"db"],["db_shenron","Shenron",5,9,1,9,10,1,"db"],["db_beerus","Beerus",5,9,5,9,6,1,"db"],["db_whis","Whis",5,10,5,10,4,1,"db"],["db_trunks","Trunks",4,9,9,2,6,0,"db"],["db_yamcha","Yamcha",1,2,1,5,6,0,"db"],["db_tien","Tien",2,4,7,3,5,0,"db"],["nr_rock_lee","Rock Lee",2,7,6,2,2,0,"nr"],["nr_sakura","Sakura",2,4,7,3,5,0,"nr"],["nr_haku","Haku",2,6,3,4,5,0,"nr"],["nr_zabuza","Zabuza",2,5,5,5,3,0,"nr"],["nr_kakashi","Kakashi",3,3,4,6,8,0,"nr"],["nr_gaara","Gaara",3,8,5,4,5,0,"nr"],["nr_neji","Neji",3,7,8,3,4,0,"nr"],["nr_jiraiya","Jiraiya",3,6,4,4,8,0,"nr"],["nr_naruto","Naruto",4,5,9,8,5,0,"nr"],["nr_sasuke","Sasuke",4,9,8,5,5,0,"nr"],["nr_itachi","Itachi",4,9,3,6,7,0,"nr"],["nr_orochimaru","Orochimaru",4,6,9,4,8,0,"nr"],["nr_pain","Pain",4,9,5,5,7,0,"nr"],["nr_madara","Madara",5,10,8,9,2,0,"nr"],["nr_hashirama","Hashirama",5,3,9,10,8,0,"nr"],["nr_kurama","Kurama",5,9,10,10,2,1,"nr"],["nr_konan","Konan",3,4,8,7,3,0,"nr"],["nr_deidara","Deidara",3,2,5,8,7,0,"nr"],["op_chopper","Chopper",1,1,2,5,5,0,"op"],["op_buggy","Buggy",1,5,3,2,5,0,"op"],["op_usopp","Usopp",2,5,7,3,2,0,"op"],["op_nami","Nami",2,2,2,6,7,0,"op"],["op_robin","Robin",2,4,3,5,7,0,"op"],["op_franky","Franky",2,6,1,3,7,0,"op"],["op_brook","Brook",2,2,7,6,4,0,"op"],["op_sanji","Sanji",3,7,5,4,7,0,"op"],["op_ace","Ace",3,5,3,7,7,0,"op"],["op_crocodile","Crocodile",3,7,7,3,5,0,"op"],["op_law","Law",3,6,7,8,2,0,"op"],["op_zoro","Zoro",4,7,7,8,5,0,"op"],["op_luffy","Luffy",4,8,2,8,8,0,"op"],["op_blackbeard","Blackbeard",4,5,7,5,9,0,"op"],["op_mihawk","Mihawk",4,6,4,9,8,0,"op"],["op_shanks","Shanks",5,4,9,10,6,0,"op"],["op_whitebeard","Whitebeard",5,8,3,9,9,0,"op"],["op_kaido","Kaido",5,8,7,6,9,0,"op"],["op_gol_d_roger","Gol D. Roger",5,10,8,6,7,1,"op"],["op_hancock","Hancock",4,5,4,8,9,0,"op"],["op_jinbe","Jinbe",3,8,2,8,5,0,"op"]];
 const C = RAW.map((r, i) => ({ i, id: r[0], name: r[1], lv: r[2], s: [r[3], r[4], r[5], r[6]], ex: !!r[7], grp: r[8] }));
 const BY = Object.fromEntries(C.map(c => [c.id, c]));
@@ -1440,7 +1440,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.11.14-c";
+const VER = "2026.11.15-a";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -1526,8 +1526,10 @@ function viewVersus(v) {
   const online = !!(db && uid) || (VSG === "clash" && srvOn()), clash = VSG === "clash"; if (clash) ckInit();
   const picker = `<div class="row c" style="margin:4px 0 8px"><button class="btn sm ${clash ? "yellow" : "dark"}" data-act="vsGame" data-g="clash">Clash</button><button class="btn sm ${clash ? "dark" : "yellow"}" data-act="vsGame" data-g="triad">Classic Triad</button></div>`;
   const deckRow = clash ? `<div class="row" style="margin:14px 0 0"><span class="note">Deck</span><select data-ck="deckSel">${P.cd.map((x, i) => `<option value="${i}" ${i === P.cdi ? "selected" : ""}>${esc(x.name)}${ckDeckOk(x.cards) ? " ✕" : ""}</option>`).join("")}</select></div><p class="note" style="text-align:center">Friendly matches pay a little dust. Your cards are never at risk.</p>` : `<div class="row" style="margin:14px 0 0"><span class="note">Deck</span>${deckSelect()}</div><p class="note" style="text-align:center">The winner takes a copy of one of the loser's cards. Nobody loses a card.</p>`;
-  v.innerHTML = picker + `<span class="ribbon">DIRECT CONNECT</span><div class="panel"><p class="note" style="margin:0 0 10px">Play a friend phone to phone, with no account and no server. You swap two short codes in any chat app. Works on shared Wi-Fi and usually on mobile data too.</p><div class="row c"><button class="btn yellow" data-act="hostStart">Host a match</button><button class="btn" data-act="joinSheet">Join a match</button></div></div>` +
-    `<span class="ribbon green">ROOM CODE</span><div class="panel"><p class="note" style="margin:0 0 10px">${online ? (VSG === "clash" && srvOn() ? "A 4-letter room code on our online server. Both players just need the app." : "A 4-letter room code. Both players need this page open on claude.ai with Contributor access.") : "Room codes only work on the claude.ai version of this page."}</p><div class="row c"><button class="btn yellow" data-act="vsCreate" ${online ? "" : "disabled"}>Create room</button><input type="text" id="vsCode" maxlength="4" placeholder="CODE" style="width:90px;text-transform:uppercase;text-align:center" ${online ? "" : "disabled"}><button class="btn" data-act="vsJoin" ${online ? "" : "disabled"}>Join</button></div></div>` +
+  const oldWays = `<span class="ribbon">DIRECT CONNECT</span><div class="panel"><p class="note" style="margin:0 0 10px">Play a friend phone to phone, with no account and no server. You swap two short codes in any chat app. Works on shared Wi-Fi and usually on mobile data too.</p><div class="row c"><button class="btn yellow" data-act="hostStart">Host a match</button><button class="btn" data-act="joinSheet">Join a match</button></div></div>` +
+    `<span class="ribbon green">ROOM CODE</span><div class="panel"><p class="note" style="margin:0 0 10px">${online ? (VSG === "clash" && srvOn() ? "A 4-letter room code on our online server. Both players just need the app." : "A 4-letter room code. Both players need this page open on claude.ai with Contributor access.") : "Room codes only work on the claude.ai version of this page."}</p><div class="row c"><button class="btn yellow" data-act="vsCreate" ${online ? "" : "disabled"}>Create room</button><input type="text" id="vsCode" maxlength="4" placeholder="CODE" style="width:90px;text-transform:uppercase;text-align:center" ${online ? "" : "disabled"}><button class="btn" data-act="vsJoin" ${online ? "" : "disabled"}>Join</button></div></div>`;
+  const friendsUi = clash && srvOn();
+  v.innerHTML = picker + (friendsUi ? `<div id="vsAcc">${accPanelHtml()}</div><details class="panel" style="margin-top:12px"><summary class="note" style="cursor:pointer">Other ways to connect (room code, direct)</summary>${oldWays}</details>` : oldWays) +
     deckRow + `<p class="note" style="text-align:center;opacity:.7">App version ${VER}. Both players need the same version.</p>`;
 }
 
@@ -2789,6 +2791,140 @@ function rankedFind() {
 let RFIND = null;
 document.addEventListener("click", e => { if (e.target.closest("[data-ck='findCancel']")) { RFIND && RFIND(); closeModal(); } });
 
+/* ===== Accounts, friends and match invites over our server (server/src/index.js, the Hub). =====
+   An account is a name and a password. Signed in, the phone keeps one live connection to the server: it shows which friends are online and delivers a challenge as a pop-up on the
+   other phone. Accept, and the server hands both phones the same private room code; from there it is the ordinary room relay (clashnet.js). Progress (cards, coins, decks) stays on the
+   device; the account is only who you are online. */
+const SERVER_HTTP = SERVER_URL.replace(/^ws/, "http");
+let ACC = null;   // { name, token } once signed in
+try { ACC = JSON.parse(localStorage.getItem("triad.acct") || "null"); if (!ACC || !ACC.token || !ACC.name) ACC = null; } catch (_) { ACC = null; }
+let HUB = null, HUBRETRY = 0, HUBTIMER = 0, HUBSTOP = false, HUBPING = 0;
+let HUBST = { on: false, me: "", friends: [], reqs: [] };
+let INVOUT = null, INVIN = [];   // the friend I have challenged; challenges waiting on me
+const accSave = () => { try { if (ACC) localStorage.setItem("triad.acct", JSON.stringify(ACC)); else localStorage.removeItem("triad.acct"); } catch (_) {} };
+
+async function accCall(path, body) {
+  try {
+    const r = await fetch(SERVER_HTTP + path, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+    return await r.json();
+  } catch (_) { return { ok: false, err: "Could not reach the server. Check your connection." }; }
+}
+function accSheet(mode) {
+  const up = mode === "up";
+  openSheet(`<h2 class="fat">${up ? "CREATE ACCOUNT" : "SIGN IN"}</h2><p class="note" style="text-align:center;margin:0 0 10px">${up ? "Pick the name friends will find you by. Your cards stay on this device." : "Welcome back."}</p>` +
+    `<div class="panel"><div class="row"><input type="text" id="acName" maxlength="14" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Name" value="${esc(ACC ? ACC.name : (P && P.named ? P.name : ""))}" style="flex:1"></div>` +
+    `<div class="row" style="margin-top:8px"><input type="password" id="acPass" maxlength="64" autocomplete="${up ? "new-password" : "current-password"}" placeholder="Password (6 or more)" style="flex:1"></div>` +
+    `<p class="note" id="acErr" style="color:var(--red);text-align:center;min-height:1.3em;margin:8px 0 0"></p>` +
+    `<div class="row c" style="margin-top:6px"><button class="btn yellow" data-ac="submit" data-m="${up ? "up" : "in"}">${up ? "Create account" : "Sign in"}</button></div></div>` +
+    `<div class="row c" style="margin-top:10px"><button class="btn sm dark" data-ac="${up ? "in" : "up"}">${up ? "I already have an account" : "Create a new account"}</button><button class="btn sm dark" data-act="closeModal">Close</button></div>`);
+}
+async function accSubmit(mode) {
+  const name = ($("#acName").value || "").trim(), pass = $("#acPass").value || "", err = $("#acErr"), btn = document.querySelector("[data-ac='submit']");
+  if (!/^[A-Za-z0-9_]{3,14}$/.test(name)) { err.textContent = "Names are 3 to 14 letters, numbers or underscores."; return; }
+  if (pass.length < 6) { err.textContent = "Passwords are 6 or more characters."; return; }
+  err.textContent = ""; btn.disabled = true; btn.textContent = "…";
+  const r = await accCall(mode === "up" ? "/auth/signup" : "/auth/login", { name, pass });
+  if (!r.ok) { err.textContent = r.err || "Something went wrong."; btn.disabled = false; btn.textContent = mode === "up" ? "Create account" : "Sign in"; return; }
+  ACC = { name: r.name, token: r.token }; accSave(); HUBSTOP = false;
+  if (P) { P.name = r.name; P.named = true; scheduleSave(); }
+  closeModal(); toast(mode === "up" ? "Account created. Welcome, " + r.name + "!" : "Signed in as " + r.name); hubConnect(); chrome(); show(tab);
+}
+function accLogout() {
+  const t = ACC && ACC.token; ACC = null; accSave(); HUBSTOP = true; hubStop(); HUBST = { on: false, me: "", friends: [], reqs: [] }; INVIN = []; INVOUT = null; invHide();
+  if (t) accCall("/auth/logout", { token: t }); toast("Signed out."); show(tab);
+}
+
+/* ----- the live connection ----- */
+function hubStop() { clearTimeout(HUBTIMER); clearInterval(HUBPING); if (HUB) { const w = HUB; HUB = null; try { w.close(); } catch (_) {} } }
+function hubLater() { clearTimeout(HUBTIMER); if (HUBSTOP || !ACC) return; HUBRETRY = Math.min(HUBRETRY + 1, 6); HUBTIMER = setTimeout(hubConnect, Math.min(30000, 1500 * HUBRETRY * HUBRETRY)); }
+function hubConnect() {
+  if (!ACC || !srvOn() || HUBSTOP) return; if (HUB && HUB.readyState <= 1) return;
+  let ws; try { ws = HUB = new WebSocket(SERVER_URL.replace(/\/$/, "") + "/hub?token=" + encodeURIComponent(ACC.token)); } catch (_) { return hubLater(); }
+  ws.onopen = () => { HUBRETRY = 0; clearInterval(HUBPING); HUBPING = setInterval(() => { try { ws.send('{"t":"ping"}'); } catch (_) {} }, 25000); };
+  ws.onmessage = e => { let m; try { m = JSON.parse(e.data); } catch (_) { return; } hubGot(m); };
+  ws.onclose = () => { if (HUB !== ws) return; HUB = null; clearInterval(HUBPING); HUBST.on = false; hubRender(); hubLater(); };
+  ws.onerror = () => {};
+}
+const hubSend = o => { try { if (HUB && HUB.readyState === 1) { HUB.send(JSON.stringify(o)); return true; } } catch (_) {} toast("Not connected to the server yet."); return false; };
+function busyNow() { return !!(typeof G !== "undefined" && G && !G.over) || !!ONL || !!(SRVC && SRVC.started); }
+function hubGot(m) {
+  switch (m.t) {
+    case "state": {
+      HUBST = { on: true, me: m.me, friends: m.friends || [], reqs: m.reqs || [] };
+      for (const n of m.invites || []) if (!INVIN.includes(n)) { INVIN.push(n); }
+      invShow(); hubRender(); return;
+    }
+    case "msg": return toast(m.m);
+    case "invite": if (busyNow()) return hubSend({ t: "invite_busy", from: m.from }); if (!INVIN.includes(m.from)) INVIN.push(m.from); invShow(); return;
+    case "invite_gone": INVIN = INVIN.filter(n => n.toLowerCase() !== String(m.from).toLowerCase()); invShow(); return;
+    case "invite_fail": {
+      if (!INVOUT) return; INVOUT = null; closeModal();
+      return toast(m.why === "offline" ? m.name + " is offline." : m.why === "busy" ? m.name + " is in a match." : m.why === "expired" ? "That challenge ran out." : m.name + " said not now.");
+    }
+    case "go": {
+      INVOUT = null; INVIN = []; invHide(); closeModal(); if (busyNow()) return;
+      toast("Match with " + m.with + "…"); return void cknSrvConnect(m.room, {});
+    }
+    case "auth": ACC = null; accSave(); HUBSTOP = true; toast("Please sign in again."); hubRender(); return;
+    case "other": HUBSTOP = true; HUBST.on = false; toast("You signed in on another device."); hubRender(); return;
+  }
+}
+
+/* ----- challenges: a pop-up wherever you are in the app ----- */
+function invHide() { const e = document.getElementById("inv"); if (e) e.remove(); }
+function invShow() {
+  invHide(); if (!INVIN.length) return;
+  const n = INVIN[0], e = document.createElement("div"); e.id = "inv";
+  e.innerHTML = `<div class="invt"><b>${esc(n)}</b><span>challenges you to a match</span></div><div class="invb"><button class="btn sm dark" data-ac="invDecline" data-n="${esc(n)}">Decline</button><button class="btn sm yellow" data-ac="invAccept" data-n="${esc(n)}">Accept</button></div>`;
+  document.body.appendChild(e); try { navigator.vibrate && navigator.vibrate(60); } catch (_) {}
+  clearTimeout(invShow.t); invShow.t = setTimeout(() => { INVIN = INVIN.filter(x => x !== n); invShow(); }, 45000);
+}
+function deckProblem() { ckInit(); return ckDeckOk(P.cd[P.cdi].cards); }
+function hubChallenge(name) {
+  const err = deckProblem(); if (err) return toast(err);
+  if (!hubSend({ t: "invite", to: name })) return; INVOUT = name;
+  openSheet(`<h2 class="fat">CHALLENGING ${esc(name.toUpperCase())}</h2><p class="note" style="text-align:center">Waiting for them to accept…</p><div class="row c" style="margin-top:12px"><button class="btn dark" data-ac="invCancel" data-n="${esc(name)}">Cancel</button></div>`);
+  setTimeout(() => { if (INVOUT === name) { INVOUT = null; closeModal(); toast(name + " did not answer."); hubSend({ t: "invite_cancel", to: name }); } }, 45000);
+}
+
+/* ----- the Versus tab's friends panel ----- */
+function accPanelHtml() {
+  if (!srvOn()) return "";
+  if (!ACC) return `<span class="ribbon green">PLAY FRIENDS</span><div class="panel"><p class="note" style="margin:0 0 10px">Make a free account to add friends and challenge them. A challenge pops up on their phone; they tap Accept and you are in.</p><div class="row c"><button class="btn yellow" data-ac="up">Create account</button><button class="btn" data-ac="in">Sign in</button></div></div>`;
+  const s = HUBST, state = HUBSTOP ? `<button class="btn sm dark" data-ac="reconnect">Reconnect</button>` : `<span class="tag ${s.on ? "ok" : ""}">${s.on ? "ONLINE" : "CONNECTING…"}</span>`;
+  const reqs = s.reqs.map(n => `<div class="row" style="margin:6px 0"><b style="flex:1">${esc(n)}</b><span class="note">wants to be friends</span><button class="btn sm yellow" data-ac="fAccept" data-n="${esc(n)}">Add</button><button class="btn sm dark" data-ac="fDecline" data-n="${esc(n)}">✕</button></div>`).join("");
+  const fr = s.friends.map(f => `<div class="row" style="margin:6px 0"><i class="odot ${f.online ? "on" : ""}"></i><b style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis">${esc(f.name)}</b>${f.online ? `<button class="btn sm yellow" data-ac="challenge" data-n="${esc(f.name)}">Challenge</button>` : `<span class="note">offline</span>`}<button class="btn sm dark" data-ac="fRemove" data-n="${esc(f.name)}" aria-label="Remove friend">⋯</button></div>`).join("");
+  return `<span class="ribbon green">FRIENDS</span><div class="panel"><div class="row"><span class="note" style="flex:1">Signed in as <b style="color:var(--yellow)">${esc(ACC.name)}</b></span>${state}</div>` +
+    (reqs ? `<div style="margin-top:6px">${reqs}</div>` : "") + `<div style="margin-top:6px">${fr || `<p class="note" style="margin:8px 0">No friends yet. Add one by their account name.</p>`}</div>` +
+    `<div class="row" style="margin-top:8px"><input type="text" id="frName" maxlength="14" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Friend's account name" style="flex:1"><button class="btn sm yellow" data-ac="fAdd">Add</button></div>` +
+    `<div class="row c" style="margin-top:8px"><button class="btn sm dark" data-ac="logout">Sign out</button></div></div>`;
+}
+function hubRender() { const e = document.getElementById("vsAcc"); if (e && tab === "versus") { const keep = document.getElementById("frName"), v = keep ? keep.value : ""; e.innerHTML = accPanelHtml(); const k = document.getElementById("frName"); if (k && v) k.value = v; } const p = document.getElementById("profAcc"); if (p) p.innerHTML = accProfileHtml(); }
+function accProfileHtml() {
+  if (!srvOn()) return "";
+  return ACC ? `<div class="row"><span class="note" style="flex:1">Online account: <b style="color:var(--yellow)">${esc(ACC.name)}</b></span><button class="btn sm dark" data-ac="logout">Sign out</button></div>` :
+    `<div class="row"><span class="note" style="flex:1">No online account yet. Make one to add friends.</span><button class="btn sm yellow" data-ac="up">Create</button><button class="btn sm dark" data-ac="in">Sign in</button></div>`;
+}
+
+document.addEventListener("click", e => {
+  const el = e.target.closest("[data-ac]"); if (!el) return; const a = el.dataset.ac, n = el.dataset.n;
+  switch (a) {
+    case "up": case "in": return accSheet(a);
+    case "submit": return accSubmit(el.dataset.m);
+    case "logout": return accLogout();
+    case "reconnect": HUBSTOP = false; HUBRETRY = 0; return hubConnect();
+    case "fAdd": { const v = ($("#frName").value || "").trim(); if (!v) return; if (v.toLowerCase() === (ACC && ACC.name.toLowerCase())) return toast("That is you."); if (hubSend({ t: "friend_add", name: v })) $("#frName").value = ""; return; }
+    case "fAccept": return void hubSend({ t: "friend_accept", name: n });
+    case "fDecline": return void hubSend({ t: "friend_decline", name: n });
+    case "fRemove": if (confirm("Remove " + n + " from your friends?")) hubSend({ t: "friend_remove", name: n }); return;
+    case "challenge": return hubChallenge(n);
+    case "invCancel": INVOUT = null; hubSend({ t: "invite_cancel", to: n }); return closeModal();
+    case "invAccept": { const err = deckProblem(); if (err) { toast(err); return; } INVIN = INVIN.filter(x => x !== n); invHide(); return void hubSend({ t: "invite_accept", from: n }); }
+    case "invDecline": INVIN = INVIN.filter(x => x !== n); invShow(); return void hubSend({ t: "invite_decline", from: n });
+  }
+});
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && ACC && !HUBSTOP && (!HUB || HUB.readyState > 1)) { HUBRETRY = 0; hubConnect(); } });
+
 /* ===== SHOP, SUMMON POOLS and ECONOMY =====
    The player chooses WHICH pool to summon from. Pools are permanent (Standard, Premium) or rotate on a schedule worked out from the calendar (no server needed):
      Rising Star  weekly, two featured cards (a Legendary and an Epic) with a 50/50-then-guaranteed rule
@@ -3064,7 +3200,7 @@ function viewDaily(v) {
   v.innerHTML = `<span class="ribbon">DAILY</span><div class="list"><div class="panel item"><div class="t"><b>Daily ticket</b><small>${ECON.login.coins} ${ic("coin")} for dropping in</small></div><button class="btn sm yellow" data-act="login" ${P.login ? "disabled" : ""}>${P.login ? "Claimed" : "Claim"}</button></div>` +
     ms.map(m => `<div class="panel item"><div class="t"><b>${m.t}</b><small>${Math.min(m.have, m.need)} / ${m.need} · reward ${m.tk ? m.tk + " " + ic("ticket") : m.coins ? m.coins + " " + ic("coin") : m.dust + " " + ic("shard")}</small><div class="bar" style="margin-top:5px"><i style="width:${Math.min(100, 100 * m.have / m.need)}%"></i></div></div><button class="btn sm ${m.have >= m.need && !P.mis.claimed[m.id] ? "yellow" : ""}" data-act="claimM" data-id="${m.id}" ${m.have >= m.need && !P.mis.claimed[m.id] ? "" : "disabled"}>${P.mis.claimed[m.id] ? "Done" : "Claim"}</button></div>`).join("") +
     `<div class="panel item"><div class="t"><b>All four</b><small>${ECON.allFour.gems} ${ic("gem")} bonus</small></div><span class="tag ${all ? "ok" : ""}">${all ? "EARNED" : "FINISH THE LIST"}</span></div></div>` +
-    `<span class="ribbon green">YOU</span><div class="panel"><div class="row"><input type="text" id="pname" maxlength="14" value="${esc(P.name || "")}" placeholder="${esc(myName || "Your name")}" style="flex:1"><button class="btn sm" data-act="saveName">Save name</button></div><p class="note" style="margin:10px 0 0">Matches played ${P.plays} · won ${P.wins} · cards ${ownedList().length}/${C.length} · summons ${P.pulls} · campaign ${Object.keys(P.cleared).length}/16</p></div>` + soundPanel();
+    `<span class="ribbon green">YOU</span><div class="panel"><div class="row"><input type="text" id="pname" maxlength="14" value="${esc(P.name || "")}" placeholder="${esc(myName || "Your name")}" style="flex:1"><button class="btn sm" data-act="saveName">Save name</button></div><div id="profAcc" style="margin-top:10px">${accProfileHtml()}</div><p class="note" style="margin:10px 0 0">Matches played ${P.plays} · won ${P.wins} · cards ${ownedList().length}/${C.length} · summons ${P.pulls} · campaign ${Object.keys(P.cleared).length}/16</p></div>` + soundPanel();
 }
 
 /* ===== sound: effects are synthesized (nothing to download); music is whatever songs you add from your own phone ===== */
@@ -3294,6 +3430,6 @@ document.addEventListener("pointerup", unlockAudio, true); document.addEventList
 window.addEventListener("pagehide", () => { dirty = true; flush(); });
 document.addEventListener("pointermove", tiltMove); document.addEventListener("pointerup", tiltEnd); document.addEventListener("pointerleave", tiltEnd, true);
 chrome(); bgmLoad();
-(async () => { const t0 = Date.now(); await loadProfile(); await sleep(Math.max(0, 1100 - (Date.now() - t0))); $("#splash").classList.add("gone"); setTimeout(() => { const s = $("#splash"); if (s) s.remove(); }, 600); if (P && !P.named && !P.name) setTimeout(() => nameSheet(true), 500); })();
+(async () => { const t0 = Date.now(); await loadProfile(); await sleep(Math.max(0, 1100 - (Date.now() - t0))); $("#splash").classList.add("gone"); setTimeout(() => { const s = $("#splash"); if (s) s.remove(); }, 600); if (P && !P.named && !P.name && !ACC) setTimeout(() => nameSheet(true), 500); if (ACC && P && ACC.name !== P.name) { P.name = ACC.name; P.named = true; } hubConnect(); setTimeout(iosHint, 2500); })();
 </script>
 <script>if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) navigator.serviceWorker.register('sw.js');</script>
