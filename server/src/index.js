@@ -14,7 +14,7 @@ export default {
     if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
     if (parts[0] === "room" && /^[A-Z0-9]{4,8}$/.test(parts[1] || "")) return env.ROOM.get(env.ROOM.idFromName(parts[1])).fetch(req);
     if (parts[0] === "queue") return env.LOBBY.get(env.LOBBY.idFromName("main")).fetch(req);
-    if (parts[0] === "auth" || parts[0] === "hub") return env.HUB.get(env.HUB.idFromName("main")).fetch(req);
+    if (parts[0] === "auth" || parts[0] === "hub" || parts[0] === "profile") return env.HUB.get(env.HUB.idFromName("main")).fetch(req);
     return new Response("triad server ok v2", { headers: { "content-type": "text/plain", ...CORS } });
   },
 };
