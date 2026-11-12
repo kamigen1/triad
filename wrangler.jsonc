@@ -2,6 +2,7 @@
   "name": "triad",
   "main": "server/src/index.js",
   "compatibility_date": "2025-01-01",
+  "keep_vars": true,
   "durable_objects": {
     "bindings": [
       { "name": "ROOM", "class_name": "Room" },
