@@ -1740,7 +1740,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.11.22-b";
+const VER = "2026.11.23-a";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -2142,7 +2142,7 @@ function ckInit() {
 }
 /* an AI deck keeps 8 or 9 creatures and 3 or 4 skill cards chosen for its level (the weaker the level, the plainer the cards) */
 function withSkills(deck, level, r) {
-  const plain = ["sk_mend", "sk_ward", "sk_empower", "sk_s_fire", "sk_s_water", "sk_s_wind", "sk_s_earth", "sk_gale", "sk_cleanse", "sk_disrupt"], strong = plain.concat(["sk_mend2", "sk_aegis", "sk_arc", "sk_freeze", "sk_pact", "sk_overgrow", "sk_massheal", "sk_massward", "sk_rally", "sk_volley", "sk_s_lightning", "sk_s_ice", "sk_s_light", "sk_s_dark"]);
+  const plain = ["sk_mend", "sk_ward", "sk_empower", "sk_gale", "sk_cleanse", "sk_disrupt", "sk_m_fire", "sk_m_water", "sk_m_wind", "sk_m_earth"], strong = plain.concat(["sk_mend2", "sk_aegis", "sk_freeze", "sk_weaken", "sk_frenzy", "sk_overgrow", "sk_vitality", "sk_sharpen", "sk_massheal", "sk_massward", "sk_rally", "sk_massfreeze", "sk_massweaken", "sk_m_lightning", "sk_m_ice", "sk_m_light", "sk_m_dark"]);
   const list = level >= 1 ? strong : plain, k = level >= 2 ? 4 : 3, out = deck.slice(0, 12 - k), n = {};
   while (out.length < 12) { const id = list[Math.floor(r() * list.length)]; if ((n[id] || 0) >= 2) continue; n[id] = (n[id] || 0) + 1; out.push(id); }
   return out;
@@ -2256,46 +2256,49 @@ function setKit(c, k) {
 }
 
 /* ===== SKILL CARDS (combat v3) =====
-   A skill card lives in the same 12-card deck as the creatures. It is drawn into the hand like any card (4 energy), played on a target for its own energy cost, and then it is GONE: another has to be drawn.
+   A skill card lives in the same 12-card deck as the creatures. Skill cards NEVER deal damage: they heal, shield, buff, debuff and apply status effects; all damage comes from creatures (their attacks, passives and own skills). It is drawn into the hand like any card (4 energy), played on a target for its own energy cost, and then it is GONE: another has to be drawn.
    A deck can hold 5 to 12 creatures and up to 7 skill cards, with up to 2 copies of the same skill card. Drawing several of the same card is allowed (four heals on one card is a real, risky plan).
    v1 set: every player has every skill card (a spell book); making them collectible is a later economy decision. All numbers are first drafts for balance.
    v = strength in the same stat points the creature skills use (health effects are multiplied by AR.HPX, attack effects by AR.ATKX), T = seconds, c = energy cost, t = target: ally, enemy or none (the whole side). */
 const SKC = {
-  sk_mend: { n: "Mend", c: 2, t: "ally", fx: "heal", v: 1.5 }, sk_mend2: { n: "Greater Mend", c: 4, t: "ally", fx: "heal", v: 3.2 },
-  sk_ward: { n: "Ward", c: 2, t: "ally", fx: "shield", v: 1.8 }, sk_aegis: { n: "Aegis", c: 4, t: "ally", fx: "shield", v: 3.6 },
-  sk_empower: { n: "Empower", c: 3, t: "ally", fx: "empower", v: 5.5, T: 8 }, sk_overgrow: { n: "Overgrow", c: 6, t: "ally", fx: "grow", v: 1.25 },
-  sk_pact: { n: "Blood Pact", c: 3, t: "ally", fx: "pact", v: 8.5, T: 8 }, sk_gale: { n: "Gale", c: 3, t: "ally", fx: "haste", T: 10 },
-  sk_cleanse: { n: "Cleanse", c: 2, t: "ally", fx: "cleanse", v: 1.3 }, sk_freeze: { n: "Freeze", c: 3, t: "enemy", fx: "freeze", T: 2.8 },
-  sk_disrupt: { n: "Disrupt", c: 1, t: "enemy", fx: "disrupt" }, sk_arc: { n: "Arc", c: 5, t: "enemy", fx: "arc", v: 1.3 },
-  sk_volley: { n: "Volley", c: 8, t: "none", fx: "volley", v: 4.0 },
-  sk_massheal: { n: "Mass Mend", c: 6, t: "none", fx: "massheal", v: 1.5 }, sk_massward: { n: "Mass Ward", c: 6, t: "none", fx: "massward", v: 1.2 }, sk_rally: { n: "Rally", c: 6, t: "none", fx: "rally", v: 3, T: 8 },
-  sk_s_fire: { n: "Fire Strike", c: 4, t: "enemy", fx: "strike", v: 1.4, el: "fire" }, sk_s_water: { n: "Water Strike", c: 4, t: "enemy", fx: "strike", v: 1.4, el: "water" },
-  sk_s_wind: { n: "Wind Strike", c: 4, t: "enemy", fx: "strike", v: 1.4, el: "wind" }, sk_s_earth: { n: "Earth Strike", c: 4, t: "enemy", fx: "strike", v: 1.4, el: "earth" },
-  sk_s_lightning: { n: "Lightning Strike", c: 4, t: "enemy", fx: "strike", v: 1.4, el: "lightning" }, sk_s_ice: { n: "Ice Strike", c: 4, t: "enemy", fx: "strike", v: 1.4, el: "ice" },
-  sk_s_light: { n: "Light Strike", c: 4, t: "enemy", fx: "strike", v: 1.4, el: "light" }, sk_s_dark: { n: "Dark Strike", c: 4, t: "enemy", fx: "strike", v: 1.4, el: "dark" },
+  /* heals and wards */
+  sk_mend: { n: "Mend", c: 2, t: "ally", fx: "heal", v: 1.5 }, sk_mend2: { n: "Greater Mend", c: 4, t: "ally", fx: "heal", v: 3.2 }, sk_massheal: { n: "Mass Mend", c: 6, t: "none", fx: "massheal", v: 1.5 },
+  sk_ward: { n: "Ward", c: 2, t: "ally", fx: "shield", v: 1.8 }, sk_aegis: { n: "Aegis", c: 4, t: "ally", fx: "shield", v: 3.6 }, sk_massward: { n: "Mass Ward", c: 6, t: "none", fx: "massward", v: 1.2 },
+  sk_cleanse: { n: "Cleanse", c: 2, t: "ally", fx: "cleanse", v: 1.3 },
+  /* buffs */
+  sk_empower: { n: "Empower", c: 3, t: "ally", fx: "empower", v: 5.5, T: 8 }, sk_frenzy: { n: "Frenzy", c: 5, t: "ally", fx: "empower", v: 8.5, T: 8 }, sk_rally: { n: "Rally", c: 6, t: "none", fx: "rally", v: 3, T: 8 },
+  sk_gale: { n: "Gale", c: 3, t: "ally", fx: "haste", T: 10 },
+  sk_overgrow: { n: "Overgrow", c: 6, t: "ally", fx: "grow", a: 1.25, h: 1.25 }, sk_vitality: { n: "Vitality", c: 4, t: "ally", fx: "grow", a: 0, h: 3 }, sk_sharpen: { n: "Sharpen", c: 4, t: "ally", fx: "grow", a: 2.5, h: 0 },
+  /* debuffs and status effects */
+  sk_freeze: { n: "Freeze", c: 3, t: "enemy", fx: "freeze", T: 2.8 }, sk_massfreeze: { n: "Deep Freeze", c: 7, t: "none", fx: "massfreeze", T: 1.8 },
+  sk_weaken: { n: "Weaken", c: 3, t: "enemy", fx: "weaken", v: 3.5, T: 8 }, sk_massweaken: { n: "Mass Weaken", c: 6, t: "none", fx: "massweaken", v: 2, T: 8 },
+  sk_disrupt: { n: "Disrupt", c: 1, t: "enemy", fx: "disrupt" }, sk_massdisrupt: { n: "Purge", c: 4, t: "none", fx: "massdisrupt" },
+  sk_m_fire: { n: "Fire Mark", c: 1, t: "enemy", fx: "mark", el: "fire" }, sk_m_water: { n: "Water Mark", c: 1, t: "enemy", fx: "mark", el: "water" }, sk_m_wind: { n: "Wind Mark", c: 1, t: "enemy", fx: "mark", el: "wind" }, sk_m_earth: { n: "Earth Mark", c: 1, t: "enemy", fx: "mark", el: "earth" },
+  sk_m_lightning: { n: "Lightning Mark", c: 1, t: "enemy", fx: "mark", el: "lightning" }, sk_m_ice: { n: "Ice Mark", c: 1, t: "enemy", fx: "mark", el: "ice" }, sk_m_light: { n: "Light Mark", c: 1, t: "enemy", fx: "mark", el: "light" }, sk_m_dark: { n: "Dark Mark", c: 1, t: "enemy", fx: "mark", el: "dark" },
 };
 const SKC_IDS = Object.keys(SKC), isSkill = id => !!SKC[id], SK_MAX = 7, SK_COPIES = 2, SK_CREATURES_MIN = 5;
-const SK_GLYPH = { heal: "💚", shield: "🛡", empower: "⚔", grow: "🌱", pact: "🩸", haste: "💨", cleanse: "✨", freeze: "❄", disrupt: "🌀", arc: "⚡", volley: "☄", massheal: "💞", massward: "🔰", rally: "📣" };
-const SK_TONE = { heal: "#6FBF98", shield: "#7FA6D6", empower: "#D9A05A", grow: "#86A86A", pact: "#B5555C", haste: "#8FD0DE", cleanse: "#E3D8A8", freeze: "#9CC7E4", disrupt: "#A892BA", arc: "#7E8FE0", volley: "#D98A5A", massheal: "#6FBF98", massward: "#7FA6D6", rally: "#D9A05A", strike: "#C9B07A" };
+const SK_GLYPH = { heal: "💚", shield: "🛡", empower: "⚔", grow: "🌱", haste: "💨", cleanse: "✨", freeze: "❄", disrupt: "🌀", massheal: "💞", massward: "🔰", rally: "📣", massfreeze: "🧊", weaken: "⬇", massweaken: "⬇", massdisrupt: "🌀", mark: "◎" };
+const SK_TONE = { heal: "#6FBF98", shield: "#7FA6D6", empower: "#D9A05A", grow: "#86A86A", haste: "#8FD0DE", cleanse: "#E3D8A8", freeze: "#9CC7E4", disrupt: "#A892BA", massheal: "#6FBF98", massward: "#7FA6D6", rally: "#D9A05A", massfreeze: "#9CC7E4", weaken: "#B5707A", massweaken: "#B5707A", massdisrupt: "#A892BA", mark: "#C9B07A" };
 /* what a skill card does, in words (read live from the numbers above and the arena's scale) */
 function skText(id) {
-  const k = SKC[id], H = AR.HPX, X = AR.ATKX, hp = v => Math.round(v * H), at = v => Math.round(v * X), n = v => +v.toFixed(1);
+  const k = SKC[id], H = AR.HPX, X = AR.ATKX, hp = v => Math.round(v * H), at = v => Math.round(v * X);
   switch (k.fx) {
     case "heal": return "Heal a card for " + hp(k.v) + ".";
     case "shield": return "A card absorbs the next " + hp(k.v) + " damage.";
     case "empower": return "A card gets +" + at(k.v) + " attack for " + k.T + " s.";
-    case "grow": return "A card gains +" + at(k.v) + " attack and +" + hp(k.v) + " health for the rest of the fight.";
-    case "pact": return "A card gets +" + at(k.v) + " attack for " + k.T + " s and loses 10% of its health.";
+    case "grow": return "A card permanently gains" + (k.a ? " +" + at(k.a) + " attack" : "") + (k.a && k.h ? " and" : "") + (k.h ? " +" + hp(k.h) + " health" : "") + " for the fight.";
     case "haste": return "A card strikes " + AR.SK.gale + "x as fast for " + k.T + " s.";
     case "cleanse": return "Remove an element mark from a card and give it " + hp(k.v) + " ward.";
     case "freeze": return "An enemy card is frozen for " + k.T + " s.";
     case "disrupt": return "Strip an enemy card's buffs, ward and mark.";
-    case "arc": return n(3 * X * k.v) + " damage to an enemy card and half to the two beside it.";
-    case "strike": return n(3 * X * k.v) + " " + EL[k.el][0] + " damage to an enemy card (reacts, then marks).";
-    case "volley": return n(k.v * X) + " damage to every enemy card.";
+    case "weaken": return "An enemy card loses " + at(k.v) + " attack for " + k.T + " s.";
+    case "mark": return "Mark an enemy card with " + EL[k.el][0] + ". The next " + EL[k.el][0] + " hit on it may react.";
     case "massheal": return "Heal every card on your field for " + hp(k.v) + ".";
     case "massward": return "Every card on your field absorbs the next " + hp(k.v) + " damage.";
     case "rally": return "Every card on your field gets +" + at(k.v) + " attack for " + k.T + " s.";
+    case "massfreeze": return "Every enemy card is frozen for " + k.T + " s.";
+    case "massweaken": return "Every enemy card loses " + at(k.v) + " attack for " + k.T + " s.";
+    case "massdisrupt": return "Strip every enemy card's buffs, ward and mark.";
   }
   return "";
 }
@@ -2474,22 +2477,23 @@ function arStrip(T) { T.atk = Math.max(1, T.atk - T.pb.a); T.max = Math.max(1, T
 function arPlayCard(A, s, k, ti) {
   const S = A.s[s], F = A.s[1 - s], X = AR.ATKX, Hh = AR.HPX, T = k.t === "ally" ? S.lane[ti] : k.t === "enemy" ? F.lane[ti] : null;
   const buff = (u, side, text) => arEv(A, { t: "buff", s: side, i: (side === s ? S : F).lane.indexOf(u), text });
-  switch (k.fx) {
+  switch (k.fx) {   // skill cards never deal damage: they heal, shield, buff, debuff or apply a status
     case "heal": T.hp = Math.min(T.max, T.hp + k.v * Hh); arEv(A, { t: "heal", s, i: ti, d: k.v * Hh }); break;
     case "shield": T.shield += k.v * Hh; buff(T, s, "+" + Math.round(k.v * Hh) + " ward"); break;
     case "empower": T.tmp = k.v; T.tmpT = k.T; buff(T, s, "+" + Math.round(k.v * X) + " ATK"); break;
-    case "pact": T.hp = Math.max(1, T.hp - T.max * .1); T.tmp = k.v; T.tmpT = k.T; buff(T, s, "+" + Math.round(k.v * X) + " ATK"); break;
-    case "grow": { const g = k.v; T.atk += g * X; T.max += g * Hh; T.hp += g * Hh; T.pb.a += g * X; T.pb.h += g * Hh; buff(T, s, "+" + Math.round(g * X) + " ATK"); break; }
+    case "grow": { const a = (k.a || 0) * X, h = (k.h || 0) * Hh; T.atk += a; T.max += h; T.hp += h; T.pb.a += a; T.pb.h += h; buff(T, s, (a ? "+" + Math.round(a) + " ATK" : "") + (a && h ? " " : "") + (h ? "+" + Math.round(h) + " HP" : "")); break; }
     case "haste": T.hasteT = k.T; buff(T, s, "haste"); break;
     case "cleanse": T.mark = null; T.shield += k.v * Hh; buff(T, s, "cleansed"); break;
     case "freeze": T.frozen = k.T; T.cd += k.T; buff(T, 1 - s, "frozen"); break;
     case "disrupt": arStrip(T); buff(T, 1 - s, "stripped"); break;
-    case "strike": arHit(A, null, s, 1 - s, ti, 3 * X * k.v, k.el || null, { noStat: true }); break;
-    case "arc": { const base = 3 * X * k.v; arHit(A, null, s, 1 - s, ti, base, null, { noStat: true }); for (const j of [ti - 1, ti + 1]) if (F.lane[j]) arHit(A, null, s, 1 - s, j, base * .5, null, { noStat: true }); break; }
-    case "volley": for (const { i } of arLive(A, 1 - s)) arHit(A, null, s, 1 - s, i, k.v * X, null, { noStat: true }); break;
+    case "weaken": T.tmp = -k.v; T.tmpT = k.T; buff(T, 1 - s, "-" + Math.round(k.v * X) + " ATK"); break;
+    case "mark": T.mark = { el: k.el, t: AR.MARK_T }; buff(T, 1 - s, EL[k.el][1] + " marked"); break;
     case "massheal": for (const { u, i } of arLive(A, s)) { u.hp = Math.min(u.max, u.hp + k.v * Hh); arEv(A, { t: "heal", s, i, d: k.v * Hh }); } break;
     case "massward": for (const { u } of arLive(A, s)) { u.shield += k.v * Hh; buff(u, s, "+" + Math.round(k.v * Hh) + " ward"); } break;
     case "rally": for (const { u } of arLive(A, s)) { u.tmp = k.v; u.tmpT = k.T; buff(u, s, "+" + Math.round(k.v * X) + " ATK"); } break;
+    case "massfreeze": for (const { u } of arLive(A, 1 - s)) { u.frozen = k.T; u.cd += k.T; buff(u, 1 - s, "frozen"); } break;
+    case "massweaken": for (const { u } of arLive(A, 1 - s)) { u.tmp = -k.v; u.tmpT = k.T; buff(u, 1 - s, "-" + Math.round(k.v * X) + " ATK"); } break;
+    case "massdisrupt": for (const { u } of arLive(A, 1 - s)) { arStrip(u); buff(u, 1 - s, "stripped"); } break;
   }
 }
 /* ----- one tick. Returns false if it is waiting for the other phone's inputs (online lockstep). ----- */
@@ -2550,15 +2554,16 @@ function arAiCards(A, s, en, send) {
     switch (k.fx) {
       case "heal": if (low && low.u.hp < low.u.max * .55) { t = low.i; ok = true; } break;
       case "shield": { const x = allies.filter(a => a.u.shield <= 0).sort((p, q) => q.u.atk - p.u.atk)[0]; if (x && foes.length) { t = x.i; ok = true; } break; }
-      case "empower": case "pact": case "haste": if (strong && foes.length && !(strong.u.tmpT > 0)) { t = strong.i; ok = true; } break;
-      case "grow": { const x = allies.slice().sort((p, q) => q.u.atk * q.u.hp - p.u.atk * p.u.hp)[0]; if (x && A.t > 20) { t = x.i; ok = true; } break; }
-      case "freeze": { const x = foes.slice().sort((p, q) => arAtk(A, 1 - s, q.u) - arAtk(A, 1 - s, p.u))[0]; if (x && !(x.u.frozen > 0)) { t = x.i; ok = true; } break; }
+      case "empower": case "haste": if (strong && foes.length && !(strong.u.tmpT > 0)) { t = strong.i; ok = true; } break;
+      case "grow": { const x = allies.slice().sort((p, q) => q.u.atk * q.u.hp - p.u.atk * p.u.hp)[0]; if (x && A.t > 15) { t = x.i; ok = true; } break; }
+      case "freeze": case "weaken": { const x = foes.filter(f => !(f.u.frozen > 0) && !(f.u.tmpT > 0 && f.u.tmp < 0)).sort((p, q) => arAtk(A, 1 - s, q.u) - arAtk(A, 1 - s, p.u))[0]; if (x) { t = x.i; ok = true; } break; }
       case "cleanse": { const x = allies.find(a => a.u.mark); if (x) { t = x.i; ok = true; } break; }
       case "disrupt": { const x = foes.find(f => f.u.pb.a > 0 || f.u.shield > 0 || f.u.tmpT > 0); if (x) { t = x.i; ok = true; } break; }
-      case "strike": case "arc": { const x = foes.slice().sort((p, q) => (p.u.hp + p.u.shield) - (q.u.hp + q.u.shield) || p.i - q.i)[0]; if (x) { t = x.i; ok = true; } break; }
-      case "volley": ok = foes.length >= 3; break;
+      case "mark": { const x = foes.filter(f => !f.u.mark).sort((p, q) => q.u.hp - p.u.hp)[0]; if (x && allies.length) { t = x.i; ok = true; } break; }
       case "massheal": ok = allies.filter(a => a.u.hp < a.u.max * .7).length >= 2; break;
       case "massward": case "rally": ok = allies.length >= 3 && foes.length >= 2; break;
+      case "massfreeze": case "massweaken": ok = foes.length >= 3; break;
+      case "massdisrupt": ok = foes.filter(f => f.u.pb.a > 0 || f.u.shield > 0 || f.u.tmpT > 0).length >= 2; break;
     }
     if (ok) { en -= k.c; played = true; send(t == null ? { k: "play", b } : { k: "play", b, t }); }
   });
