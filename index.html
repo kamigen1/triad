@@ -1263,6 +1263,26 @@ nav .dot { background: var(--ds-gold); border: 2px solid #213449; }
 .emob { position: fixed; z-index: 45; transform: translateX(-50%); padding: 8px 14px; border-radius: 16px; background: #EEE8D9; color: #1B2736; font: 700 14px var(--body); white-space: nowrap; box-shadow: 0 6px 18px #0009; animation: emopop 2.4s ease-out forwards; pointer-events: none; }
 @keyframes emopop { 0% { opacity: 0; transform: translateX(-50%) scale(.6); } 10% { opacity: 1; transform: translateX(-50%) scale(1.06); } 16% { transform: translateX(-50%) scale(1); } 85% { opacity: 1; } 100% { opacity: 0; } }
 
+
+/* ---------- batch: pack skip, frames, binder, covers, tips, promotion ---------- */
+.packskip { position: absolute; right: 14px; top: calc(env(safe-area-inset-top, 0px) + 14px); z-index: 5; }
+.pback.glint::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(115deg, transparent 35%, #ffffff66 50%, transparent 65%); background-size: 250% 100%; animation: glint 1.6s linear infinite; pointer-events: none; }
+.pback.glint.r5 { box-shadow: 0 0 26px #D2B979cc; } .pback.glint.r4 { box-shadow: 0 0 22px #A892BAcc; }
+@keyframes glint { from { background-position: 150% 0; } to { background-position: -50% 0; } }
+.hexw[data-frame="silver"] .hex { box-shadow: 0 0 0 3px #C9D1DA; } .hexw[data-frame="gold"] .hex { box-shadow: 0 0 0 3px #D2B979, 0 0 12px #D2B97988; } .hexw[data-frame="plat"] .hex { box-shadow: 0 0 0 3px #8FD5D0, 0 0 12px #8FD5D088; }
+.hexw[data-frame="diamond"] .hex { box-shadow: 0 0 0 3px #8CB8F2, 0 0 14px #8CB8F2aa; } .hexw[data-frame="master"] .hex { box-shadow: 0 0 0 3px #A892BA, 0 0 16px #A892BAcc; }
+.hexw[data-frame="vet"] .hex { box-shadow: 0 0 0 3px #B7B1A0, 0 0 0 5px #53677A; } .hexw[data-frame="coll"] .hex { box-shadow: 0 0 0 3px #7FB59A, 0 0 12px #7FB59A88; } .hexw[data-frame="legend"] .hex { box-shadow: 0 0 0 3px #F0D68A, 0 0 18px #F0D68Acc, 0 0 0 6px #A892BA66; }
+.frames { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; } .fr { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 4px; border: 0; border-radius: 14px; background: rgba(26, 36, 48, .55); color: #fff; font: 700 12px var(--body); } .fr[disabled] { opacity: .5; } .fr.on { outline: 2px solid var(--ds-gold); } .fr small { font-size: 10px; color: var(--ds-on-dark2); text-align: center; min-height: 12px; } .fr .hexw { pointer-events: none; }
+.binder { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; } .binder img, .binder span { aspect-ratio: 3 / 4; width: 100%; object-fit: cover; border-radius: 8px; background: rgba(26, 36, 48, .55); display: flex; align-items: center; justify-content: center; color: var(--ds-on-dark2); font: 700 16px var(--body); }
+.dcov { width: 44px; height: 54px; object-fit: cover; object-position: 50% 20%; border-radius: 9px; flex: none; margin-right: 10px; }
+.favtag { position: absolute; top: 4px; right: 4px; z-index: 3; font-style: normal; font-size: 13px; color: #F0D68A; text-shadow: 0 1px 4px #000; }
+.vs-tip { position: absolute; left: 20px; right: 20px; bottom: calc(env(safe-area-inset-bottom, 0px) + 26px); text-align: center; font: 600 13px/1.4 var(--body); color: var(--ds-on-dark2); }
+.promo { position: fixed; left: 0; right: 0; top: 28%; z-index: 90; text-align: center; pointer-events: none; animation: promo 2.6s ease-out forwards; } .promo small { display: block; font: 700 13px var(--body); letter-spacing: .3em; color: var(--ds-gold); } .promo b { display: block; font: 400 52px/1.1 var(--display); color: #fff; text-shadow: 0 0 30px #D2B979; }
+@keyframes promo { 0% { opacity: 0; transform: scale(.5); } 15% { opacity: 1; transform: scale(1.08); } 22% { transform: scale(1); } 80% { opacity: 1; } 100% { opacity: 0; transform: translateY(-20px); } }
+
+.lbrow { width: 100%; text-align: left; } .lbn { width: 26px; text-align: center; font: 400 18px var(--display); color: var(--ds-gold); flex: none; }
+.lbrow .hexw { transform: scale(.62); margin: -10px -8px; flex: none; }
+
 @media (prefers-reduced-motion: reduce) { * { animation-duration: .01s !important; } }
 /* ===== standalone phone app: portrait only, no zoom, no rubber band, no text selection, 16px inputs so iOS never zooms on focus ===== */
 html, body { overscroll-behavior: none; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; touch-action: manipulation; }
@@ -1594,9 +1614,9 @@ const UIC = {};   // last shown coin and gem totals, so the pills count up or do
 function chrome() {
   if (!P) { $("#hud").innerHTML = ""; return; }
   const pct = Math.floor(100 * P.xp / need(P.lv));
-  $("#hud").innerHTML = `<div class="hexw" data-act="avatar"><div class="hex">${P.avatar && BY[P.avatar] && P.own[P.avatar] > 0 ? `<img class="hexart" alt="" src="${artSrc(BY[P.avatar])}">` : "<span>♠</span>"}</div><b class="lvbadge">${P.lv}</b></div><div class="who" data-me="profile"><b class="fat">${esc(playerName())} ✎</b><div class="xp"><i style="width:${pct}%"></i><small>${P.xp} / ${need(P.lv)}${saveMode === "local" ? " · on this device" : ""}</small></div></div><div class="pills"><span class="pill c">${ic("coin", "")}<b data-n="coins">${P.coins == null ? 0 : P.coins}</b></span><span class="pill g">${ic("gem", "")}<b data-n="gems">${P.gems == null ? 0 : P.gems}</b></span></div><button class="mute" data-act="muteAll" aria-label="Sound">${AU.sfx || AU.bgm ? "🔊" : "🔇"}</button>`;
+  $("#hud").innerHTML = `<div class="hexw" data-act="avatar" data-frame="${P.frame && frameOk(P.frame) ? P.frame : ""}"><div class="hex">${P.avatar && BY[P.avatar] && P.own[P.avatar] > 0 ? `<img class="hexart" alt="" src="${artSrc(BY[P.avatar])}">` : "<span>♠</span>"}</div><b class="lvbadge">${P.lv}</b></div><div class="who" data-me="profile"><b class="fat">${esc(playerName())} ✎</b><div class="xp"><i style="width:${pct}%"></i><small>${P.xp} / ${need(P.lv)}${saveMode === "local" ? " · on this device" : ""}</small></div></div><div class="pills"><span class="pill c">${ic("coin", "")}<b data-n="coins">${P.coins == null ? 0 : P.coins}</b></span><span class="pill g">${ic("gem", "")}<b data-n="gems">${P.gems == null ? 0 : P.gems}</b></span></div><button class="mute" data-act="muteAll" aria-label="Sound">${AU.sfx || AU.bgm ? "🔊" : "🔇"}</button>`;
   for (const k of ["coins", "gems"]) { const el = document.querySelector('#hud [data-n="' + k + '"]'), v = P[k] == null ? 0 : P[k]; if (el) { const prev = UIC[k]; if (prev !== undefined && prev !== v) { el.dataset.v = prev; uiCount(el, v); uiPulse(el.parentNode, v > prev ? "gain" : "spend"); } else el.dataset.v = v; UIC[k] = v; } }
-  if (typeof achCheck === "function") achCheck();
+  if (typeof achCheck === "function") { achCheck(); seasonCheck(); }
   const claimable = !P.login || missions().some(m => m.have >= m.need && !P.mis.claimed[m.id]);
   $("#nav").innerHTML = TABS.map(([k, n, i]) => `<button data-act="tab" data-k="${k}" class="${tab === k ? "on" : ""}"><span class="dia">${ic(i, "")}</span><span class="lb">${n.toUpperCase()}</span>${(k === "daily" && claimable) || (k === "cards" && newCount() > 0) ? '<i class="dot"></i>' : ""}</button>`).join("");
 }
@@ -1821,7 +1841,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.11.25-b";
+const VER = "2026.11.26-b";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -1979,7 +1999,7 @@ function packStage() {
   if (!PK.torn) { m.innerHTML = `<div class="packfs"><div class="plbl">Swipe across the top of the pack</div>${packTearHtml(PK.kind)}<button class="btn sm dark" data-act="packTear" style="margin-top:14px">Tap to open</button></div>`; packTearBind(); return; }
   if (PK.i >= PK.res.length) return packSummary();
   const x = PK.res[PK.i], c = x.c, r = rarOf(c);
-  m.innerHTML = `<div class="packfs fx-r${r}" data-act="packNext" id="pfs"><div class="pcount">${PK.i + 1} / ${PK.res.length}</div><div class="pc ${PK.flipped ? "flipped" : ""}" id="pcard"><div class="pback"><svg viewBox="0 0 32 32"><use href="#i-spade"/></svg></div><div class="pface">${cardHtml(c, { tilt: true, v: x.v })}</div></div><div class="pinfo ${PK.flipped ? "on" : ""}" id="pinfo"><span><em>Passive</em>${esc(PASS[arCard(c).passive][0])}</span><span><em>Skill</em>${esc(actName(arCard(c)))}</span></div><div class="phint" id="phint">${PK.flipped ? "Tap for the next card" : "Tap to reveal"}</div></div>`;
+  m.innerHTML = `<div class="packfs fx-r${r}" data-act="packNext" id="pfs"><button class="btn sm dark packskip" data-act="packSkip">Skip ▸▸</button><div class="pcount">${PK.i + 1} / ${PK.res.length}</div><div class="pc ${PK.flipped ? "flipped" : ""}" id="pcard"><div class="pback ${r >= 4 ? "glint r" + r : ""}"><svg viewBox="0 0 32 32"><use href="#i-spade"/></svg></div><div class="pface">${cardHtml(c, { tilt: true, v: x.v })}</div></div><div class="pinfo ${PK.flipped ? "on" : ""}" id="pinfo"><span><em>Passive</em>${esc(PASS[arCard(c).passive][0])}</span><span><em>Skill</em>${esc(actName(arCard(c)))}</span></div><div class="phint" id="phint">${PK.flipped ? "Tap for the next card" : "Tap to reveal"}</div></div>`;
 }
 function packTearBind() {
   const w = $("#pw"), top = $("#ptop"); if (!w) return; let x0 = null, y0 = 0, p = 0;
@@ -1999,6 +2019,7 @@ function packNext() {
     const f = $("#pfs"); f.classList.add("hit"); if (r >= 5) { f.classList.add("big"); sfx("charge"); }
   } else { PK.i++; PK.flipped = false; packStage(); }
 }
+function packSkip() { if (!PK || !PK.torn) return; sfx("flip", 1); PK.i = PK.res.length; packSummary(); }
 function packSummary() {
   const m = $("#modal"); m.hidden = false; const best = Math.max(...PK.res.map(x => rarOf(x.c))), order = PK.multi ? PK.res.slice().sort((p, q) => rarOf(q.c) - rarOf(p.c)) : PK.res, news = PK.res.filter(x => x.r.isNew).length;
   m.innerHTML = `<div class="packfs sum"><span class="ribbon gold" style="font-size:22px">${best >= 5 ? "AMAZING PULL" : "YOUR PULL"}</span><p class="note" style="margin:0;text-align:center">${PK.multi ? PK.n + " summons · " + PK.res.length + " cards · " : ""}${news} new · +${PK.medals} medals${PK.evm ? " · +" + PK.evm + " event medals" : ""}</p><div class="psum">${order.map(x => `<div class="wrap">${cardHtml(x.c, { tilt: !PK.multi, v: x.v })}<div class="tg ${x.r.dup ? "d" : ""}">${x.r.dup ? "+" + x.r.dust : x.r.isNew ? "NEW" : ""}${x.v ? (x.r.dup || x.r.isNew ? " · " : "") + VARIANTS[x.v].short : ""}</div></div>`).join("")}</div><div class="row c" style="margin-top:12px"><button class="btn dark" data-act="packDone">Done</button><button class="btn yellow" data-act="summon" data-k="${PK.kind}" data-n="1">Summon again</button></div></div>`;
@@ -2430,7 +2451,7 @@ function arUnit(A, cid) {
     cd: AR.IV / spd * .6, skcd: 0, lock: null, mark: null, frozen: 0, shield: 0, tmp: 0, tmpT: 0, pb: { a: 0, h: 0 }, pt: AR.GROW_T, sponge: k.passive === "sponge", spT: 0, fac: k.fac, n: 0, used: false, hasteT: 0, by: null, bys: 0, lv: 1, xp: 0 };
 }
 function arNew(deck0, deck1, o = {}) {
-  const A = { t: 0, tick: 0, uid: 0, seed: o.seed != null ? o.seed : 20261111, over: false, winner: null, ev: [], log: [], q: [], seq: [0, 0], ui: !!o.ui, level: o.level || [1, 1], mode: o.mode || {}, horizon: null, s: [] };
+  const A = { t: 0, tick: 0, uid: 0, seed: o.seed != null ? o.seed : 20261111, over: false, winner: null, ev: [], log: [], q: [], seq: [0, 0], ui: !!o.ui, level: o.level || [1, 1], mode: o.mode || {}, horizon: null, s: [] }; A.init = { d: [deck0.slice(), deck1.slice()], lv: A.level.slice(), seed: A.seed, mode: A.mode };
   for (const deck of [deck0, deck1]) {
     if (deck.length >= AR.DECKN) {   // v3: shuffle with the match's own seeded generator (both phones get the same order). 5 creatures go to the field; the other creatures and every skill card wait in the draw pile
       const shuf = list => { const d = list.slice(); for (let i = d.length - 1; i > 0; i--) { const j = Math.floor(arRand(A) * (i + 1)); [d[i], d[j]] = [d[j], d[i]]; } return d; };
@@ -2512,7 +2533,7 @@ function arSweep(A) {
   }
 }
 /* ----- player (or AI) commands: {s, k:"lock"|"use"|"swap", ...}. They run on a stated tick so both phones apply them on the same one. ----- */
-function arInput(A, cmd, delay = AR.INPUT_DELAY) { if (cmd.at == null) cmd.at = A.tick + delay; if (cmd.n == null) cmd.n = A.seq[cmd.s]++; A.q.push(cmd); return cmd; }
+function arInput(A, cmd, delay = AR.INPUT_DELAY) { if (cmd.at == null) cmd.at = A.tick + delay; if (cmd.n == null) cmd.n = A.seq[cmd.s]++; A.q.push(cmd); if (A.rec) A.rec.push([cmd.at, cmd.n, cmd.s, cmd.k, cmd.i == null ? null : cmd.i, cmd.t == null ? null : cmd.t, cmd.b == null ? null : cmd.b, cmd.l == null ? null : cmd.l]); return cmd; }
 function arRun(A, c) {
   const S = A.s[c.s], F = A.s[1 - c.s];
   if (c.k === "lock") { const u = S.lane[c.i]; if (u && (c.t == null || F.lane[c.t])) { u.lock = c.t == null ? null : c.t; arEv(A, { t: "lock", s: c.s, i: c.i, to: u.lock }); } }
@@ -2903,7 +2924,7 @@ function deckSheet2() {
   openSheet(`<h2 class="fat">DECK</h2><div class="row" style="margin:0 0 6px;flex-wrap:nowrap"><input type="text" id="ckname" maxlength="14" value="${esc(D.name)}" style="flex:1"><button class="btn sm dark" data-ck="deckDel" ${P.cd.length <= 1 ? "disabled" : ""}>Delete</button></div>` +
     `<p class="note" style="margin:0 0 6px">12 CARDS. Each fight starts with 5 of them at random on the field; draw the rest for 4 energy.</p><div class="kd6">${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(slot).join("")}</div>` +
     `<div class="selbar"><span>Editing <b>${esc(SLOT_NAME(D.sel))}</b>${selId && (BY[selId] || isSkill(selId)) ? ": " + esc(isSkill(selId) ? SKC[selId].n : BY[selId].name) : ": empty"}</span>${selId ? '<button class="btn sm dark" data-ck="dremove">Remove</button>' : ""}</div>` +
-    `<div class="row" style="margin:6px 0 0;gap:6px"><button class="btn sm dark" data-ck="dundo" ${D.undo.length ? "" : "disabled"}>↶ Undo</button><button class="btn sm dark" data-me="fill" ${D.cards.filter(Boolean).length >= 12 ? "disabled" : ""}>Fill empty</button><button class="btn sm dark" data-me="copycode">Copy code</button><button class="btn sm dark" data-ck="dclear" ${D.cards.some(Boolean) ? "" : "disabled"}>Clear deck</button></div>` +
+    `<div class="row" style="margin:6px 0 0;gap:6px"><button class="btn sm dark" data-ck="dundo" ${D.undo.length ? "" : "disabled"}>↶ Undo</button><button class="btn sm dark" data-me="fill" ${D.cards.filter(Boolean).length >= 12 ? "disabled" : ""}>Fill empty</button><button class="btn sm dark" data-me="copycode">Copy code</button><button class="btn sm dark" data-me="cover" ${selId && BY[selId] ? "" : "disabled"}>Set as cover</button><button class="btn sm dark" data-ck="dclear" ${D.cards.some(Boolean) ? "" : "disabled"}>Clear deck</button></div>` +
     (err ? `<p class="note" style="color:#ff9aa4;margin:6px 0 0">${esc(err)}</p>` : '<p class="note" style="color:var(--ok);margin:6px 0 0">Ready to play.</p>') +
     (D.cmp ? cmpPanel(D) : `<div class="row" style="margin:10px 0 4px;gap:6px"><button class="btn sm ${D.tab === "cr" ? "yellow" : "dark"}" data-ck="dtab" data-t="cr">Creatures</button><button class="btn sm ${D.tab === "sk" ? "yellow" : "dark"}" data-ck="dtab" data-t="sk">Skill cards · ${nSkill}/${SK_MAX}</button></div>` + (D.tab === "sk" ? "" : `<div class="row" style="margin:6px 0 4px"><select data-ck="dfilt"><option value="all">All elements</option>${ELKEYS.map(e => `<option value="${e}" ${D.el === e ? "selected" : ""}>${EL[e][1]} ${EL[e][0]}</option>`).join("")}</select><select data-ck="dsort">${[["cost", "Cost"], ["atk", "Attack"], ["hp", "Health"], ["name", "Name"]].map(([v, n]) => `<option value="${v}" ${D.sort === v ? "selected" : ""}>Sort: ${n}</option>`).join("")}</select></div>`) +
       `<p class="note" style="margin:0 0 4px">Tap a card to compare it with ${esc(SLOT_NAME(D.sel).toLowerCase())}.${D.tab === "sk" ? " Skill cards are drawn like any card, played once for their energy cost, and then gone." : " Your cards only."}</p>`) +
@@ -2967,7 +2988,7 @@ async function ckFight(auto) {
 }
 /* ----- rewards by mode ----- */
 function ckResult() {
-  const w = G.winner, win = w === ME, draw = w === -1, mode = G.mode || { kind: "practice" }, L = G.level || 0; rollover(); P.mis.play++; let dust = 0, packs = 0, xp = 0, extra = "", coins = 0, gems = 0;
+  const w = G.winner, win = w === ME, draw = w === -1, mode = G.mode || { kind: "practice" }, L = G.level || 0; rollover(); P.mis.play++; let promo = "", dust = 0, packs = 0, xp = 0, extra = "", coins = 0, gems = 0;
   if (win) P.mis.win++;
   if (mode.kind === "practice") { P.ck.w += win ? 1 : 0; P.ck.l += win || draw ? 0 : 1; dust = win ? 15 + L * 10 : 5; xp = win ? 25 + 10 * L : 10; coins = win ? 5 + 10 * L : 3; }
   else if (mode.kind === "camp") {
@@ -2977,7 +2998,7 @@ function ckResult() {
     rankInit(); const rk = P.rank, opp = mode.opp, E = 1 / (1 + Math.pow(10, (opp - rk.pts) / 400)), S = win ? 1 : draw ? .5 : 0, before = rankTier(rk.pts), delta = Math.round(32 * (S - E)); rk.pts = Math.max(0, rk.pts + delta); win ? rk.w++ : draw ? 0 : rk.l++; const after = rankTier(rk.pts);
     extra = (delta >= 0 ? "+" : "") + delta + " points · " + TIERS_R[after][0] + " " + rk.pts; xp = win ? 40 : 15; dust = win ? 25 : 8; coins = win ? 25 : 5;
     if (win && rk.day !== today()) { rk.day = today(); packs += 1; }
-    if (after > rk.tierBest) { rk.tierBest = after; packs += 3; gems += ECON.tierUp.gems; extra += " · NEW TIER, +3 packs, +" + ECON.tierUp.gems + " gems"; }
+    if (after > rk.tierBest) { rk.tierBest = after; packs += 3; gems += ECON.tierUp.gems; promo = TIERS_R[after][0]; extra += " · NEW TIER, +3 packs, +" + ECON.tierUp.gems + " gems"; }
   } else if (mode.kind === "online") { dust = win ? 10 : 5; xp = win ? 20 : 10; coins = win ? 20 : 5; }
   if (G.note) extra = G.note + (extra ? " · " + extra : "");
   P.plays = (P.plays || 0) + 1; if (win) P.wins = (P.wins || 0) + 1; histAdd(win, draw); P.dust += dust; P.tickets += packs; earn(coins, gems); if (win) eventWin(); const xp0 = P.xp, lv0 = P.lv, ups = xp ? gainXp(xp) : []; scheduleSave(); chrome(); sfx(win ? "win" : draw ? "draw" : "lose");
@@ -2988,7 +3009,7 @@ function ckResult() {
     `<div class="rcores"><div class="me"><small>YOU</small><b>${Math.max(0, Math.ceil(G.s[ME].core))}</b></div><i>CORE</i><div class="foe"><small>${esc(((G.arena && AM && AM.opp) || "FOE").toString().toUpperCase().slice(0, 9))}</small><b>${Math.max(0, Math.ceil(G.s[1 - ME].core))}</b></div></div>` +
     `<div class="rrow">${coins ? chip("g", ic("coin", ""), "+" + coins, "coins") : ""}${gems ? chip("p", ic("gem", ""), "+" + gems, "gems") : ""}${dust ? chip("s", ic("shard", ""), "+" + dust, "shards") : ""}${packs ? chip("p", ic("ticket", ""), "+" + packs, packs > 1 ? "packs" : "pack") : ""}${xp ? chip("x", ic("xp", ""), "+" + xp, "xp") : ""}</div>` +
     `${extra ? `<p class="rnote">${esc(extra)}</p>` : ""}${ups.length ? `<p class="rnote up">${ups.map(esc).join("<br>")}</p>` : ""}${xpBar}</div><div class="row c" style="margin-top:14px">${again}<button class="btn dark" data-ck="leave">Back</button></div>`);
-  lockSheet(); resAnim(xp, xpPct, lv0);
+  lockSheet(); resAnim(xp, xpPct, lv0); if (promo && typeof promoFx === "function") promoFx(promo);
 }
 /* the rewards count up one after another and the experience bar fills (a level-up fills it, flashes, and carries on) */
 function resAnim(xp, xpPct, lv0) {
@@ -3029,7 +3050,7 @@ document.addEventListener("click", async e => {
     case "deckOpen": P.cdi = +d.i; scheduleSave(); return deckEditor(+d.i);
     case "deckNew": ckInit(); P.cd.push({ name: "Deck " + (P.cd.length + 1), cards: ckAutoDeck() }); P.cdi = P.cd.length - 1; scheduleSave(); return deckEditor(P.cdi);
     case "deckDel": { const D = CKD; return void uiConfirm({ title: "Delete this deck?", body: "<b>" + esc(P.cd[D.i].name) + "</b> will be removed. Your cards are not affected.", ok: "Delete", danger: true }).then(ok => { if (!ok || !CKD) return; P.cd.splice(CKD.i, 1); P.cdi = 0; scheduleSave(); CKD = null; closeModal(); show(tab); toast("Deck deleted"); }); }
-    case "deckSave": { if (!uiOnce("deckSave")) return; const nm = $("#ckname"); P.cd[CKD.i].name = ((nm ? nm.value : CKD.name) || "").trim() || "Deck"; P.cd[CKD.i].cards = CKD.cards.slice(); scheduleSave(); CKD = null; closeModal(); show(tab); uiFx("ok"); return toast("Deck saved"); }
+    case "deckSave": { if (!uiOnce("deckSave")) return; const nm = $("#ckname"); P.cd[CKD.i].name = ((nm ? nm.value : CKD.name) || "").trim() || "Deck"; P.cd[CKD.i].cards = CKD.cards.slice(); if (CKD.cover) P.cd[CKD.i].cover = CKD.cover; scheduleSave(); CKD = null; closeModal(); show(tab); uiFx("ok"); return toast("Deck saved"); }
     case "dclose": return deckClose();
     case "dslot": CKD.sel = +d.k; CKD.cmp = null; uiFx("tap"); return deckSheet2();
     case "dpick": { if (CKD.cards[CKD.sel] === d.id) { uiFx("err"); return toast("That card is already in this slot."); } CKD.cmp = d.id; uiFx("tap"); return deckSheet2(); }
@@ -3116,7 +3137,8 @@ function arStart(level, mode = { kind: "practice" }) {
 function arLaunch(A, mode, opp, me, net, level) {
   ME = me; AM = { A, me, net, speed: 1, auto: false, sel: null, mode: null, last: 0, acc: 0, sig: "", done: false, sfxAt: 0, maxCore: [A.s[0].core, A.s[1].core], opp, aiTick: -1, stall: 0 };
   G = { arena: true, over: false, phase: "arena", online: !!net, mode, level: level || 0, winner: null, round: 1, time: 0, s: [{ core: A.s[0].core }, { core: A.s[1].core }], speed: 1 };
-  $("#ck").hidden = false; closeModal(); musicMode("match"); if (typeof BG !== "undefined") BG.speed = 1; arBuild(); arIntroStart(); AM.raf = requestAnimationFrame(arLoop);
+  if (!A.replay) { A.rec = []; A.tw = [A.s[0].core, A.s[1].core, A.s[0].eMul || 0, A.s[1].eMul || 0, A.s[0].energy, A.s[1].energy]; }
+  $("#ck").hidden = false; closeModal(); musicMode("match"); if (typeof BG !== "undefined") BG.speed = 1; arBuild(); arIntroStart(); if (typeof introTip === "function") introTip(); AM.raf = requestAnimationFrame(arLoop);
   if (net) { $("#arspeed").style.display = "none"; AM.ka = setInterval(arNetPulse, 1000); }
 }
 /* ----- online: deterministic lockstep. Both phones run the same fight; only commands (with the tick they apply on) and heartbeats cross the wire. ----- */
@@ -3130,6 +3152,7 @@ function arStartOnline(role, hostDeck, guestDeck, oppName, send, slow) {
   send({ k: "hb", f: D });
 }
 function arPut(cmd) {
+  if (AM.A.replay) return;
   const A = AM.A, me = AM.me, net = AM.net; cmd.s = me; if (AM.tut) AM.tut.cmds[cmd.k] = (AM.tut.cmds[cmd.k] || 0) + 1;
   if (net) { cmd.at = A.tick + net.D; cmd.n = A.seq[me]++; arInput(A, cmd); net.send({ k: "in", c: cmd }); } else arInput(A, cmd, 1);
 }
@@ -3336,7 +3359,7 @@ function arLoop(now) {
     }
   } else if ($("#modal").hidden && !A.over && !AM.hold) {   // an open sheet (pause menu) freezes the fight
     AM.acc += dt * AM.speed;
-    while (AM.acc >= AR.DT) { AM.acc -= AR.DT; if (A.tick % 5 === 0) { arAi(A, 1); if (AM.auto) arAi(A, 0); } arStep(A); if (A.over) break; }
+    while (AM.acc >= AR.DT) { AM.acc -= AR.DT; if (A.tick % 5 === 0 && !A.replay) { arAi(A, 1); if (AM.auto) arAi(A, 0); } arStep(A); if (A.over) break; }
   }
   G.time = A.t; arUpdate(now);
   if (A.over && !AM.done) { AM.done = true; arFinale(); }
@@ -3387,7 +3410,7 @@ function arFinale() {
   setTimeout(arFinish, uiMotion() ? 2500 : 600);
 }
 function arFinish() {
-  if (!AM || !G || !G.arena) return; const A = AM.A; G.over = true; G.winner = A.winner; G.time = A.t; G.s = [{ core: A.s[0].core }, { core: A.s[1].core }]; ckResult();
+  if (!AM || !G || !G.arena) return; const A = AM.A; if (A.replay) return ckLeave(); if (A.rec && typeof repSave === "function") repSave(A); G.over = true; G.winner = A.winner; G.time = A.t; G.s = [{ core: A.s[0].core }, { core: A.s[1].core }]; ckResult();
 }
 /* ----- taps ----- */
 function arTap(s, i, kind) {
@@ -3520,7 +3543,7 @@ function rankedFind() {
   const stop = () => { done = true; try { QWS && QWS.close(); } catch (_) {} QWS = null; }, fall = () => { if (done) return; stop(); closeModal(); toast("No one nearby right now. Here is a ladder opponent."); rankedStart(); };
   openSheet(`<h2 class="fat">FINDING AN OPPONENT</h2><p class="note" style="text-align:center">Looking for a player near your rating…</p><div class="row c" style="margin-top:12px"><button class="btn dark" data-ck="findCancel">Cancel</button></div>`); lockSheet();
   let ws; try { ws = QWS = new WebSocket(SERVER_URL.replace(/\/$/, "") + "/queue"); } catch (_) { return fall(); }
-  ws.onopen = () => ws.send(JSON.stringify({ t: "find", rating: P.rank.pts }));
+  ws.onopen = () => ws.send(JSON.stringify({ t: "find", rating: P.rank.pts, token: typeof ACC !== "undefined" && ACC ? ACC.token : "" }));
   ws.onmessage = e => { let m; try { m = JSON.parse(e.data); } catch (_) { return; } if (m.t === "match" && !done) { stop(); cknSrvConnect(m.room, { ranked: true }); } };
   ws.onerror = fall; setTimeout(fall, 30000);
   RFIND = stop;
@@ -4038,7 +4061,7 @@ function histAdd(win, draw) {
 function ago(t) { const s = Math.max(0, (Date.now() - t) / 1000); return s < 90 ? "just now" : s < 3600 ? Math.round(s / 60) + " min ago" : s < 86400 ? Math.round(s / 3600) + " h ago" : Math.round(s / 86400) + " d ago"; }
 function historySheet() {
   const h = P.hist || [], w = h.filter(x => x.r === "w").length;
-  openSheet(`<h2 class="fat">Match history</h2><p class="note" style="text-align:center;margin:0 0 10px">${h.length ? `Last ${h.length} fights · ${w} won` : "Your fights will show up here."}</p><div class="list mlist">${h.map(x => `<div class="panel item"><span class="tag ${x.r === "w" ? "ok" : x.r === "d" ? "" : "bad"}">${x.r === "w" ? "WIN" : x.r === "d" ? "DRAW" : "LOSS"}</span><div class="t"><b>${esc(x.o)}</b><small>${ME_MODE[x.k] || "Match"} · ${ago(x.t)}${x.s ? " · " + Math.floor(x.s / 60) + ":" + String(x.s % 60).padStart(2, "0") : ""}</small></div></div>`).join("")}</div><div class="row c" style="margin-top:12px"><button class="btn sm dark" data-me="profile">Back</button></div>`);
+  openSheet(`<h2 class="fat">Match history</h2><p class="note" style="text-align:center;margin:0 0 10px">${h.length ? `Last ${h.length} fights · ${w} won` : "Your fights will show up here."}</p><div class="list mlist">${h.map(x => `<div class="panel item"><span class="tag ${x.r === "w" ? "ok" : x.r === "d" ? "" : "bad"}">${x.r === "w" ? "WIN" : x.r === "d" ? "DRAW" : "LOSS"}</span><div class="t"><b>${esc(x.o)}</b><small>${ME_MODE[x.k] || "Match"} · ${ago(x.t)}${x.s ? " · " + Math.floor(x.s / 60) + ":" + String(x.s % 60).padStart(2, "0") : ""}</small></div></div>`).join("")}</div>${(P.rep || []).length ? `<span class="ribbon">REPLAYS</span><div class="list">${P.rep.map((r, i) => `<div class="panel item"><span class="tag ${r.r === "w" ? "ok" : ""}">${r.r === "w" ? "WIN" : r.r === "d" ? "DRAW" : "LOSS"}</span><div class="t"><b>vs ${esc(r.opp)}</b><small>${ago(r.t)} · ${Math.floor(r.dur / 60)}:${String(r.dur % 60).padStart(2, "0")}</small></div><button class="btn sm yellow" data-me="watch" data-i="${i}">Watch</button></div>`).join("")}</div>` : ""}<div class="row c" style="margin-top:12px"><button class="btn sm dark" data-me="profile">Back</button></div>`);
 }
 
 /* ---------- achievements: titles to show off, no currency ---------- */
@@ -4074,9 +4097,9 @@ function profileSheet() {
   achCheck(); rankInit(); const rk = P.rank, tier = TIERS_R[rankTier(rk.pts)][0], wr = P.plays ? Math.round(100 * P.wins / P.plays) : 0, done = ACH.filter(a => P.ach && P.ach[a.id]).length;
   const art = P.avatar && BY[P.avatar] && P.own[P.avatar] > 0 ? `<img class="hexart" alt="" src="${artSrc(BY[P.avatar])}">` : "<span>♠</span>";
   const st = (n, l) => `<div><b>${n}</b><small>${l}</small></div>`;
-  openSheet(`<div class="prof"><div class="hexw" data-act="avatar"><div class="hex">${art}</div><b class="lvbadge">${P.lv}</b></div><h2 class="fat">${esc(playerName())}</h2>${P.title ? `<span class="rtag r4">${esc(P.title)}</span>` : ""}<p class="note" style="margin:6px 0 0">${tier} · ${rk.pts} points${ACC ? " · online as " + esc(ACC.name) : " · guest"}</p></div>` +
-    `<div class="pstats">${st(P.plays || 0, "Matches")}${st(P.wins || 0, "Wins")}${st(wr + "%", "Win rate")}${st(nOwned() + "/" + C.length, "Cards")}${st(P.pulls || 0, "Summons")}${st(done + "/" + ACH.length, "Achievements")}</div>` +
-    `<div class="row c" style="gap:8px"><button class="btn sm" data-me="ach">Achievements</button><button class="btn sm" data-me="hist">Match history</button><button class="btn sm" data-act="nameEdit">Rename</button><button class="btn sm" data-act="avatar">Portrait</button></div>` +
+  openSheet(`<div class="prof"><div class="hexw" data-act="avatar" data-frame="${P.frame && frameOk(P.frame) ? P.frame : ""}"><div class="hex">${art}</div><b class="lvbadge">${P.lv}</b></div><h2 class="fat">${esc(playerName())}</h2>${P.title ? `<span class="rtag r4">${esc(P.title)}</span>` : ""}<p class="note" style="margin:6px 0 0">${tier} · ${rk.pts} points${ACC ? " · online as " + esc(ACC.name) : " · guest"}</p></div>` +
+    `<p class="note" style="margin:10px 0 4px">Showcase</p>${binderStrip()}<div class="pstats">${st(P.plays || 0, "Matches")}${st(P.wins || 0, "Wins")}${st(wr + "%", "Win rate")}${st(nOwned() + "/" + C.length, "Cards")}${st(P.pulls || 0, "Summons")}${st(done + "/" + ACH.length, "Achievements")}</div>` +
+    `<div class="row c" style="gap:8px"><button class="btn sm" data-me="ach">Achievements</button><button class="btn sm" data-me="hist">Match history</button><button class="btn sm" data-act="nameEdit">Rename</button><button class="btn sm" data-act="avatar">Portrait</button><button class="btn sm" data-me="frames">Frame</button><button class="btn sm" data-me="lb">Leaderboard</button></div>` +
     `<div class="row c" style="margin-top:10px;gap:8px"><button class="btn sm yellow" data-me="settings">Settings</button><button class="btn sm dark" data-act="closeModal">Close</button></div>`);
 }
 
@@ -4150,7 +4173,7 @@ const claimCount = () => (P.login ? 0 : 1) + missions().filter(m => m.have >= m.
 /* ---------- people: report, block, unblock ---------- */
 const blockedList = () => (typeof HUBST !== "undefined" && HUBST.blocked) || [];
 function personSheet(name) {
-  openSheet(`<h2 class="fat">${esc(name)}</h2><div class="list"><button class="panel item" data-me="rm" data-n="${esc(name)}"><div class="t"><b>Remove friend</b><small>They stay able to add you again.</small></div></button><button class="panel item" data-me="rep" data-n="${esc(name)}"><div class="t"><b>Report</b><small>Tell us about abusive behaviour.</small></div></button><button class="panel item" data-me="blk" data-n="${esc(name)}"><div class="t"><b>Block</b><small>They cannot add or challenge you, and you stop seeing their emotes.</small></div></button></div><div class="row c" style="margin-top:12px"><button class="btn sm dark" data-act="closeModal">Close</button></div>`);
+  openSheet(`<h2 class="fat">${esc(name)}</h2><div class="list"><button class="panel item" data-me="view" data-n="${esc(name)}"><div class="t"><b>View profile</b><small>Rank, showcase and last played.</small></div></button><button class="panel item" data-me="rm" data-n="${esc(name)}"><div class="t"><b>Remove friend</b><small>They stay able to add you again.</small></div></button><button class="panel item" data-me="rep" data-n="${esc(name)}"><div class="t"><b>Report</b><small>Tell us about abusive behaviour.</small></div></button><button class="panel item" data-me="blk" data-n="${esc(name)}"><div class="t"><b>Block</b><small>They cannot add or challenge you, and you stop seeing their emotes.</small></div></button></div><div class="row c" style="margin-top:12px"><button class="btn sm dark" data-act="closeModal">Close</button></div>`);
 }
 async function blockPlayer(name, btn) {
   if (!ACC) return toast("Sign in to block players."); if (!(await uiConfirm({ title: "Block " + name + "?", body: "You will not be able to see each other's invites or requests, and any friendship ends.", ok: "Block", danger: true }))) return;
@@ -4188,6 +4211,88 @@ function emoteGot(i) {
   emoteBubble(1, EMOTES[i]); sfx("ping");
 }
 
+/* ---------- favourites, where to get a card, deck covers ---------- */
+const favBtn = id => `<button class="btn sm ${P.fav && P.fav[id] ? "yellow" : "dark"}" data-me="fav" data-id="${id}">${P.fav && P.fav[id] ? "★ Favourite" : "☆ Favourite"}</button>`;
+function whereTxt(c, n) {
+  if (c.ev) return "Where to get it: the Event Summon or the Event shop.";
+  if (c.ex) return "Where to get it: summon packs only.";
+  return "Where to get it: any summon" + (n < 3 ? ", or craft it for " + CRAFT[c.lv] + " shards." : ".");
+}
+function deckCover(d) { const id = d.cover && BY[d.cover] ? d.cover : d.cards.find(x => BY[x]); return id ? `<img class="dcov" alt="" src="${artSrc(BY[id])}">` : ""; }
+
+/* ---------- profile frames and the binder showcase ---------- */
+const FRAMES = [
+  { id: "", n: "Plain", ok: () => true }, { id: "silver", n: "Silver", ok: () => rk() >= 1, h: "Reach Silver in Ranked" }, { id: "gold", n: "Gold", ok: () => rk() >= 2, h: "Reach Gold in Ranked" },
+  { id: "plat", n: "Platinum", ok: () => rk() >= 3, h: "Reach Platinum" }, { id: "diamond", n: "Diamond", ok: () => rk() >= 4, h: "Reach Diamond" }, { id: "master", n: "Master", ok: () => rk() >= 5, h: "Reach Master" },
+  { id: "vet", n: "Veteran", ok: () => !!(P.ach && P.ach.w50), h: "Win 50 matches" }, { id: "coll", n: "Collector", ok: () => !!(P.ach && P.ach.c60), h: "Own 60 cards" }, { id: "legend", n: "Legend", ok: () => !!(P.ach && P.ach.leg), h: "Own a Legendary" },
+];
+const rk = () => (P.rank && P.rank.tierBest) || 0, frameOk = id => { const f = FRAMES.find(x => x.id === id); return !!f && f.ok(); };
+function frameSheet() {
+  openSheet(`<h2 class="fat">Portrait frame</h2><div class="frames">${FRAMES.map(f => { const ok = f.ok(); return `<button class="fr ${P.frame === f.id || (!P.frame && !f.id) ? "on" : ""}" ${ok ? `data-me="setframe" data-f="${f.id}"` : "disabled"}><span class="hexw" data-frame="${f.id}"><span class="hex"><span>♠</span></span></span><b>${f.n}</b><small>${ok ? "" : esc(f.h)}</small></button>`; }).join("")}</div><div class="row c" style="margin-top:12px"><button class="btn sm dark" data-me="profile">Back</button></div>`);
+}
+const BIND_MAX = 6;
+function binderStrip() { const b = (P.binder || []).filter(id => BY[id] && P.own[id] > 0); return `<div class="binder" data-me="binder">${Array.from({ length: BIND_MAX }, (_, i) => b[i] ? `<img alt="" src="${artSrc(BY[b[i]])}">` : "<span>+</span>").join("")}</div>`; }
+function binderSheet() {
+  const sel = new Set(P.binder || []), list = ownedList().sort((a, b) => rarOf(b) - rarOf(a) || a.name.localeCompare(b.name));
+  openSheet(`<div class="avp"><h2 class="fat">Showcase</h2><p class="note" style="text-align:center;margin:0 0 8px"><b id="bcount">${sel.size}</b> of ${BIND_MAX} chosen. Friends who open your profile see these.</p><div class="avlist" id="avlist">${list.map(c => `<button class="avc ${sel.has(c.id) ? "on" : ""} r${rarOf(c)}" data-me="bind" data-id="${c.id}"><img alt="" loading="lazy" decoding="async" src="${artSrc(c)}"><small>${esc(c.name)}</small></button>`).join("")}</div><div class="row c avfoot"><button class="btn sm yellow" data-me="profile">Done</button></div></div>`);
+  const sh = $("#modal .sheet"); if (sh) sh.classList.add("avsheet");
+}
+
+/* ---------- replays: the fight is deterministic, so a seed, both decks and the list of commands are enough to play it again ---------- */
+function repSave(A) {
+  try {
+    if (!A.rec || A.winner == null || (G && G.mode && G.mode.tut)) return; const mode = (G && G.mode) || { kind: "practice" };
+    const r = { t: Date.now(), opp: String((AM && AM.opp) || "Foe").slice(0, 14), me: AM ? AM.me : 0, r: A.winner === -1 ? "d" : A.winner === (AM ? AM.me : 0) ? "w" : "l", d: A.init.d, lv: A.init.lv, seed: A.init.seed, mode: { kind: mode.kind, ch: mode.ch, k: mode.k }, tw: A.tw, q: A.rec, dur: Math.round(A.t) };
+    P.rep = [r].concat(P.rep || []).slice(0, 5);
+  } catch (_) {}
+}
+function repWatch(i) {
+  const r = (P.rep || [])[i]; if (!r) return; closeModal();
+  const A = arNew(r.d[0], r.d[1], { ui: true, level: r.lv, mode: r.mode, seed: r.seed }); A.replay = true;
+  A.s[0].core = r.tw[0]; A.s[1].core = r.tw[1]; if (r.tw[2]) A.s[0].eMul = r.tw[2]; if (r.tw[3]) A.s[1].eMul = r.tw[3]; A.s[0].energy = r.tw[4]; A.s[1].energy = r.tw[5];
+  A.q = r.q.map(x => ({ at: x[0], n: x[1], s: x[2], k: x[3], i: x[4], t: x[5], b: x[6], l: x[7] }));
+  arLaunch(A, r.mode, r.opp, r.me, null, 0); const sg = $("#arsurge"); if (sg) sg.textContent = "REPLAY";
+}
+
+/* ---------- small touches: a tip on the versus card, a promotion banner ---------- */
+const TIPS = () => ["Tap one of your creatures, then an enemy, to lock its target.", "Drawing costs " + AR.DRAW_E + " energy. Skill cards are gone after one use.", "A marked enemy takes extra damage from the matching element.", "Swapping a creature in costs " + AR.SWAP_E + " energy, and that slot recharges for " + AR.SWAP_CD + " s.", "The last minute doubles everyone's energy.", "Your hand holds " + AR.HAND + " cards. Draw early, play smart.", "Skill cards never deal damage. They heal, shield, buff or weaken.", "Auto lets the computer play your side while you watch."];
+function introTip() { const ov = document.getElementById("arintro"); if (!ov) return; const t = TIPS(), e = document.createElement("div"); e.className = "vs-tip"; e.textContent = "Tip: " + t[Math.floor(Math.random() * t.length)]; ov.appendChild(e); }
+function promoFx(name) { const e = document.createElement("div"); e.className = "promo"; e.innerHTML = `<small>PROMOTED</small><b>${esc(name)}</b>`; document.body.appendChild(e); sfx("level"); uiHaptic("ok"); setTimeout(() => e.remove(), 2600); }
+
+/* ---------- leaderboard and public profiles (served by the Hub; fixed fields only) ---------- */
+const TIER_N = ["Bronze", "Silver", "Gold", "Platinum", "Diamond", "Master"];
+const tierOf = pts => TIER_N[Math.min(5, rankTier(pts))];
+function pHex(p) { return `<span class="hexw" data-frame="${esc(p.frame || "")}"><span class="hex">${p.avatar && BY[p.avatar] ? `<img class="hexart" alt="" src="${artSrc(BY[p.avatar])}">` : "<span>♠</span>"}</span></span>`; }
+async function lbSheet() {
+  if (!ACC) return toast("Sign in to see the leaderboard."); openSheet(`<h2 class="fat">Leaderboard</h2><p class="note" style="text-align:center">Loading…</p>`);
+  const r = await accCall("/lb", { token: ACC.token }); if (!$("#modal .sheet")) return;
+  if (!r.ok) return openSheet(`<h2 class="fat">Leaderboard</h2><p class="note" style="text-align:center">${esc(r.err || "The leaderboard is not available right now.")}</p><div class="row c" style="margin-top:12px"><button class="btn sm dark" data-me="profile">Back</button></div>`);
+  openSheet(`<h2 class="fat">Leaderboard</h2><p class="note" style="text-align:center;margin:0 0 10px">${r.you ? "You are #" + r.you.rank + " with " + r.you.pts + " points" : "Play a ranked match to appear here."}</p><div class="list mlist">${r.rows.map((p, i) => `<button class="panel item lbrow" data-me="view" data-n="${esc(p.name)}"><b class="lbn">${i + 1}</b>${pHex(p)}<div class="t"><b>${esc(p.name)}</b><small>${tierOf(p.pts)} · Lv ${p.lv}${p.title ? " · " + esc(p.title) : ""}</small></div><span class="tag gold">${p.pts}</span></button>`).join("") || '<p class="note" style="text-align:center">No ranked players yet. Be the first.</p>'}</div><div class="row c" style="margin-top:12px"><button class="btn sm dark" data-me="profile">Back</button></div>`);
+}
+async function viewPlayer(name, back) {
+  if (!ACC) return toast("Sign in to view players."); openSheet(`<h2 class="fat">${esc(name)}</h2><p class="note" style="text-align:center">Loading…</p>`);
+  const r = await accCall("/profile/view", { token: ACC.token, name }); if (!$("#modal .sheet")) return;
+  if (!r.ok) return openSheet(`<h2 class="fat">${esc(name)}</h2><p class="note" style="text-align:center">${esc(r.err || "Could not load this player.")}</p><div class="row c" style="margin-top:12px"><button class="btn sm dark" data-act="closeModal">Close</button></div>`);
+  const p = r.p, wr = p.plays ? Math.round(100 * p.wins / p.plays) : 0, st = (x, l) => `<div><b>${x}</b><small>${l}</small></div>`;
+  openSheet(`<div class="prof">${pHex(p).replace('class="hexw"', 'class="hexw" style="display:inline-block"')}<h2 class="fat">${esc(p.name)}</h2>${p.title ? `<span class="rtag r4">${esc(p.title)}</span>` : ""}<p class="note" style="margin:6px 0 0">${tierOf(p.pts)} · ${p.pts} points · ${r.online ? "online now" : p.seen ? "last played " + ago(p.seen) : "not played yet"}</p></div>` +
+    (p.binder.length ? `<p class="note" style="margin:10px 0 4px">Showcase</p><div class="binder">${p.binder.map(id => `<img alt="" src="${artSrc(BY[id])}">`).join("")}</div>` : "") +
+    `<div class="pstats">${st(p.lv, "Level")}${st(p.wins, "Wins")}${st(wr + "%", "Win rate")}${st(p.plays, "Matches")}${st(p.cards + "/" + C.length, "Cards")}${st(p.pts, "Points")}</div>` +
+    `<div class="row c" style="gap:8px">${r.me ? "" : r.friend ? (r.online ? `<button class="btn sm yellow" data-ac="challenge" data-n="${esc(p.name)}">Challenge</button>` : "") : `<button class="btn sm yellow" data-me="addf" data-n="${esc(p.name)}">Add friend</button>`}${r.me ? "" : `<button class="btn sm dark" data-me="person" data-n="${esc(p.name)}">⋯</button>`}<button class="btn sm dark" data-me="${back || "lb"}">Back</button></div>`);
+}
+
+/* ---------- seasons: each month the ranked points move halfway back to the start; the season you finished is kept in your profile ---------- */
+function seasonCheck() {
+  if (!P || !P.rank) return; const cur = new Date().toISOString().slice(0, 7); if (!P.sn) { P.sn = { id: cur }; return scheduleSave(); } if (P.sn.id === cur) return;
+  const r = P.rank; if ((r.w || 0) + (r.l || 0) > 0) { P.seasons = (P.seasons || []).concat([{ id: P.sn.id, pts: r.pts, t: rankTier(r.pts) }]).slice(-12); r.pts = Math.round((r.pts + 800) / 2); }
+  P.sn = { id: cur }; scheduleSave(); setTimeout(() => toast("A new ranked season began. Your points moved to " + r.pts + "."), 1500);
+}
+
+/* ---------- error reports: version, message and browser only, a few per session ---------- */
+let ERRN = 0;
+function errReport(msg) { try { if (ERRN++ >= 5 || typeof srvOn !== "function" || !srvOn()) return; fetch(SERVER_HTTP + "/log", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ v: VER, msg: String(msg).slice(0, 300), ua: navigator.userAgent.slice(0, 120) }) }).catch(() => {}); } catch (_) {} }
+window.addEventListener("error", e => errReport((e.message || "error") + " @" + String(e.filename || "").split("/").pop() + ":" + e.lineno));
+window.addEventListener("unhandledrejection", e => errReport("promise: " + (e.reason && e.reason.message || e.reason)));
+
 /* ---------- clicks ---------- */
 document.addEventListener("click", async e => {
   const el = e.target.closest("[data-me]"); if (!el || !P) return; const a = el.dataset.me; const t = el.dataset;
@@ -4212,6 +4317,16 @@ document.addEventListener("click", async e => {
     case "impgo": return importGo();
     case "fill": return fillDeck();
     case "claimall": return claimAll();
+    case "lb": return lbSheet();
+    case "view": return viewPlayer(t.n);
+    case "addf": if (hubSend({ t: "friend_add", name: t.n })) { el.disabled = true; el.textContent = "Sent"; } return;
+    case "watch": return repWatch(+t.i);
+    case "fav": P.fav = P.fav || {}; if (P.fav[t.id]) delete P.fav[t.id]; else P.fav[t.id] = 1; scheduleSave(); uiFx("ok"); detail(t.id); if ($("#coll")) fillColl(); return;
+    case "cover": { if (!CKD) return; const id = CKD.cards[CKD.sel]; if (id && BY[id]) { CKD.cover = id; toast("Deck cover set"); uiFx("ok"); } return; }
+    case "frames": return frameSheet();
+    case "setframe": P.frame = t.f; scheduleSave(); chrome(); uiFx("ok"); return frameSheet();
+    case "binder": return binderSheet();
+    case "bind": { P.binder = P.binder || []; const i = P.binder.indexOf(t.id); if (i >= 0) P.binder.splice(i, 1); else if (P.binder.length < BIND_MAX) P.binder.push(t.id); else return toast("The showcase holds " + BIND_MAX + " cards."); el.classList.toggle("on", i < 0); const bc = $("#bcount"); if (bc) bc.textContent = P.binder.length; scheduleSave(); uiFx("tap"); return; }
     case "person": return personSheet(t.n);
     case "rm": closeModal(); if (await uiConfirm({ title: "Remove " + t.n + "?", body: "They will leave your friends list.", ok: "Remove" })) hubSend({ t: "friend_remove", name: t.n }); return;
     case "blk": return blockPlayer(t.n, el);
@@ -4288,10 +4403,10 @@ document.addEventListener("click", e => {
 let F = { q: "", own: "own", lv: 0, grp: "all", el: "all", sort: "rar" };
 function viewCards(v) {
   ckInit(); const have = ownedList().filter(c => S1[c.id]).length;
-  v.innerHTML = `<span class="ribbon">DECKS</span><div class="list">${P.cd.map((d, i) => { const ok = !ckDeckOk(d.cards); return `<button class="panel item" data-ck="deckOpen" data-i="${i}" style="${i === P.cdi ? "border-color:var(--line)" : ""}"><div class="t"><b>${esc(d.name)}</b><small>${d.cards.map(id => esc(BY[id] ? BY[id].name : "?")).join(", ") || "empty"}</small></div><span class="tag ${i === P.cdi ? "gold" : ok ? "ok" : ""}">${i === P.cdi ? "ACTIVE" : ok ? "READY" : "INCOMPLETE"}</span></button>`; }).join("")}</div><div class="row c" style="margin-top:10px"><button class="btn sm yellow" data-ck="deckNew" ${P.cd.length >= 8 ? "disabled" : ""}>New deck</button><button class="btn sm dark" data-me="import" ${P.cd.length >= 8 ? "disabled" : ""}>Import code</button></div>` +
+  v.innerHTML = `<span class="ribbon">DECKS</span><div class="list">${P.cd.map((d, i) => { const ok = !ckDeckOk(d.cards); return `<button class="panel item" data-ck="deckOpen" data-i="${i}" style="${i === P.cdi ? "border-color:var(--line)" : ""}">${deckCover(d)}<div class="t"><b>${esc(d.name)}</b><small>${d.cards.map(id => esc(BY[id] ? BY[id].name : "?")).join(", ") || "empty"}</small></div><span class="tag ${i === P.cdi ? "gold" : ok ? "ok" : ""}">${i === P.cdi ? "ACTIVE" : ok ? "READY" : "INCOMPLETE"}</span></button>`; }).join("")}</div><div class="row c" style="margin-top:10px"><button class="btn sm yellow" data-ck="deckNew" ${P.cd.length >= 8 ? "disabled" : ""}>New deck</button><button class="btn sm dark" data-me="import" ${P.cd.length >= 8 ? "disabled" : ""}>Import code</button></div>` +
     `<details class="panel" style="margin-top:12px"><summary class="note" style="cursor:pointer">Classic Triad decks (the old 5-card mode)</summary><div class="list" style="margin-top:8px">${P.decks.map((d, i) => `<button class="panel item" data-act="editDeck" data-i="${i}"><div class="t"><b>${esc(d.name)}</b><small>${d.cards.map(id => esc(BY[id] ? BY[id].name : "?")).join(", ") || "empty"}</small></div><span class="tag ${i === P.deck ? "gold" : ""}">${i === P.deck ? "ACTIVE" : deckOk(d) ? "READY" : "INCOMPLETE"} · ${deckCost(d)}/${deckCap()}</span></button>`).join("")}</div><div class="row c" style="margin-top:8px"><button class="btn sm dark" data-act="newDeck" ${P.decks.length >= 10 ? "disabled" : ""}>New classic deck</button></div></details>` +
     `<details class="panel" style="margin-top:12px"><summary class="note" style="cursor:pointer">Skill cards (${SKC_IDS.length}) · every player has them all</summary><div class="spellbook">${SKC_IDS.map(id => `<div class="spell">${skTile(id)}<div><b>${esc(SKC[id].n)} <small>${SKC[id].c} energy</small></b><p>${esc(skText(id))}</p></div></div>`).join("")}</div></details>` +
-    `<span class="ribbon">SET 1 · ${have}/${POOL.length}</span><div class="filters"><input type="search" id="fq" placeholder="Search" value="${esc(F.q)}"><select id="fown" data-act="filt"><option value="own" ${F.own === "own" ? "selected" : ""}>My cards</option><option value="all" ${F.own === "all" ? "selected" : ""}>Show unowned too</option><option value="miss" ${F.own === "miss" ? "selected" : ""}>Only missing</option><option value="ex" ${F.own === "ex" ? "selected" : ""}>Secret Rare</option></select><select id="flv" data-act="filt"><option value="0">Any rarity</option>${[1, 2, 3, 4, 5].map(l => `<option value="${l}" ${F.lv === l ? "selected" : ""}>${RNAME[l]}</option>`).join("")}</select><select id="fel" data-act="filt"><option value="all">Any element</option>${ELKEYS.map(e => `<option value="${e}" ${F.el === e ? "selected" : ""}>${EL[e][1]} ${EL[e][0]}</option>`).join("")}</select><select id="fsort" data-act="filt">${[["rar", "Sort: rarity"], ["new", "Sort: newest"], ["cost", "Sort: cost"], ["atk", "Sort: attack"], ["hp", "Sort: health"], ["name", "Sort: name"], ["cnt", "Sort: copies"]].map(([v, n]) => `<option value="${v}" ${F.sort === v ? "selected" : ""}>${n}</option>`).join("")}</select><select id="fgrp" data-act="filt">${Object.entries(GROUPS).map(([k, n]) => `<option value="${k}" ${F.grp === k ? "selected" : ""}>${n}</option>`).join("")}</select></div><div class="grid" id="coll"></div>`;
+    `<span class="ribbon">SET 1 · ${have}/${POOL.length}</span><div class="filters"><input type="search" id="fq" placeholder="Search" value="${esc(F.q)}"><select id="fown" data-act="filt"><option value="own" ${F.own === "own" ? "selected" : ""}>My cards</option><option value="all" ${F.own === "all" ? "selected" : ""}>Show unowned too</option><option value="miss" ${F.own === "miss" ? "selected" : ""}>Only missing</option><option value="ex" ${F.own === "ex" ? "selected" : ""}>Secret Rare</option><option value="fav" ${F.own === "fav" ? "selected" : ""}>Favourites</option></select><select id="flv" data-act="filt"><option value="0">Any rarity</option>${[1, 2, 3, 4, 5].map(l => `<option value="${l}" ${F.lv === l ? "selected" : ""}>${RNAME[l]}</option>`).join("")}</select><select id="fel" data-act="filt"><option value="all">Any element</option>${ELKEYS.map(e => `<option value="${e}" ${F.el === e ? "selected" : ""}>${EL[e][1]} ${EL[e][0]}</option>`).join("")}</select><select id="fsort" data-act="filt">${[["rar", "Sort: rarity"], ["new", "Sort: newest"], ["cost", "Sort: cost"], ["atk", "Sort: attack"], ["hp", "Sort: health"], ["name", "Sort: name"], ["cnt", "Sort: copies"], ["fav", "Sort: favourites"]].map(([v, n]) => `<option value="${v}" ${F.sort === v ? "selected" : ""}>${n}</option>`).join("")}</select><select id="fgrp" data-act="filt">${Object.entries(GROUPS).map(([k, n]) => `<option value="${k}" ${F.grp === k ? "selected" : ""}>${n}</option>`).join("")}</select></div><div class="grid" id="coll"></div>`;
   fillColl(); const q = $("#fq"); q.oninput = () => { F.q = q.value; fillColl(); };
 }
 /* cards the player has not looked at yet are marked NEW; the first time this runs, everything already owned counts as seen */
@@ -4299,12 +4414,13 @@ function seenInit() { if (!P.seen) { P.seen = {}; for (const id in P.own) if (P.
 const newCount = () => { if (!P || !P.seen) return 0; return Object.keys(P.own).filter(id => P.own[id] > 0 && !P.seen[id]).length; };
 function collSort() {
   const rar = (a, b) => rarOf(b) - rarOf(a) || a.name.localeCompare(b.name), k = c => arCard(c), seen = c => (P.own[c.id] > 0 && P.seen && !P.seen[c.id] ? 1 : 0);
-  return ({ rar, name: (a, b) => a.name.localeCompare(b.name), cost: (a, b) => k(a).cost - k(b).cost || rar(a, b), atk: (a, b) => k(b).atk - k(a).atk || rar(a, b), hp: (a, b) => hpOf(k(b)) - hpOf(k(a)) || rar(a, b), cnt: (a, b) => (P.own[b.id] || 0) - (P.own[a.id] || 0) || rar(a, b), new: (a, b) => seen(b) - seen(a) || (P.recent || []).indexOf(a.id) - (P.recent || []).indexOf(b.id) || rar(a, b) })[F.sort] || rar;
+  const fv = c => (P.fav && P.fav[c.id] ? 1 : 0);
+  return ({ fav: (a, b) => fv(b) - fv(a) || rar(a, b), rar, name: (a, b) => a.name.localeCompare(b.name), cost: (a, b) => k(a).cost - k(b).cost || rar(a, b), atk: (a, b) => k(b).atk - k(a).atk || rar(a, b), hp: (a, b) => hpOf(k(b)) - hpOf(k(a)) || rar(a, b), cnt: (a, b) => (P.own[b.id] || 0) - (P.own[a.id] || 0) || rar(a, b), new: (a, b) => seen(b) - seen(a) || (P.recent || []).indexOf(a.id) - (P.recent || []).indexOf(b.id) || rar(a, b) })[F.sort] || rar;
 }
 function fillColl() {
-  const q = F.q.toLowerCase(), list = C.filter(c => (inSet(c.id) || P.own[c.id] > 0) && (!q || c.name.toLowerCase().includes(q)) && (F.lv === 0 || c.lv === F.lv) && (F.grp === "all" || c.grp === F.grp) && (F.el === "all" || arCard(c).el === F.el) && (F.own === "all" || (F.own === "own" ? (P.own[c.id] || 0) > 0 : F.own === "miss" ? !(P.own[c.id] > 0) : c.ex)))
+  const q = F.q.toLowerCase(), list = C.filter(c => (inSet(c.id) || P.own[c.id] > 0) && (!q || c.name.toLowerCase().includes(q)) && (F.lv === 0 || c.lv === F.lv) && (F.grp === "all" || c.grp === F.grp) && (F.el === "all" || arCard(c).el === F.el) && (F.own === "all" || (F.own === "own" ? (P.own[c.id] || 0) > 0 : F.own === "miss" ? !(P.own[c.id] > 0) : F.own === "fav" ? !!(P.fav && P.fav[c.id]) : c.ex)))
     .sort(collSort());
-  seenInit(); $("#coll").innerHTML = list.map(c => { const h = cardHtml(c, { count: P.own[c.id] || 0, miss: !(P.own[c.id] > 0), attr: `data-act="detail" data-id="${c.id}"` }); return (P.own[c.id] > 0 && !P.seen[c.id]) ? h.replace('<i class="crn"></i>', '<i class="crn"></i><i class="newtag">NEW</i>') : h; }).join("") || `<p class="note">${F.own === "own" ? "No cards match. Try another filter, or open packs to find more." : "No cards match."}</p>`;
+  seenInit(); $("#coll").innerHTML = list.map(c => { const h = cardHtml(c, { count: P.own[c.id] || 0, miss: !(P.own[c.id] > 0), attr: `data-act="detail" data-id="${c.id}"` }); let h2 = h; if (P.own[c.id] > 0 && !P.seen[c.id]) h2 = h2.replace('<i class="crn"></i>', '<i class="crn"></i><i class="newtag">NEW</i>'); if (P.fav && P.fav[c.id]) h2 = h2.replace('<i class="crn"></i>', '<i class="crn"></i><i class="favtag">★</i>'); return h2; }).join("") || `<p class="note">${F.own === "own" ? "No cards match. Try another filter, or open packs to find more." : "No cards match."}</p>`;
 }
 function openSheet(h) { const m = $("#modal"); m.hidden = false; delete m.dataset.lock; m.innerHTML = `<div class="sheet">${h}</div>`; }
 /* a sheet that must be answered with its own buttons (a result, a choice, a waiting screen): tapping outside it does nothing */
@@ -4312,10 +4428,10 @@ function lockSheet() { $("#modal").dataset.lock = "1"; }
 function detail(id) {
   seenInit(); if (P.own[id] > 0 && !P.seen[id]) { P.seen[id] = 1; scheduleSave(); chrome(); }
   const c = BY[id], n = P.own[id] || 0, cost = c.ex ? 0 : CRAFT[c.lv], k = arCard(c), rr = rarOf(c);
-  openSheet(`<div style="width:min(66%,248px);margin:2px auto 12px">${cardHtml(c, { miss: !n, tilt: true })}</div><div class="row" style="align-items:flex-start;flex-wrap:nowrap;gap:14px"><div style="min-width:0;flex:1"><h2 class="fat" style="text-align:left;font-size:18px;margin:2px 0 8px;line-height:1.15">${esc(c.name)}</h2><div class="row" style="gap:8px"><span class="rtag r${rr}">${RNAME[rr]}</span><span class="elchip el-${k.el}">${elIco(k.el)}${EL[k.el][0]}</span></div><p class="note" style="margin:8px 0 0;line-height:1.5">${esc(FAC[k.fac] || k.fac)}<br>Targets: ${TGT_NAME[k.tm]}<br>Strike ${+(k.atk * AR.ATKX * AR.STRIKE).toFixed(1)} every ${+(AR.IV / k.spd).toFixed(1)} s<br>Owned ${n} / 3</p></div></div>` +
+  openSheet(`<div style="width:min(66%,248px);margin:2px auto 12px">${cardHtml(c, { miss: !n, tilt: true })}</div><div class="row" style="align-items:flex-start;flex-wrap:nowrap;gap:14px"><div style="min-width:0;flex:1"><h2 class="fat" style="text-align:left;font-size:18px;margin:2px 0 8px;line-height:1.15">${esc(c.name)}</h2><div class="row" style="gap:8px"><span class="rtag r${rr}">${RNAME[rr]}</span><span class="elchip el-${k.el}">${elIco(k.el)}${EL[k.el][0]}</span></div><p class="note" style="margin:8px 0 0;line-height:1.5">${esc(FAC[k.fac] || k.fac)}<br>Targets: ${TGT_NAME[k.tm]}<br>Strike ${+(k.atk * AR.ATKX * AR.STRIKE).toFixed(1)} every ${+(AR.IV / k.spd).toFixed(1)} s<br>Owned ${n} / 3<br>${whereTxt(c, n)}</p></div></div>` +
     `${varsOwned(id).length ? `<div class="row c" style="margin:6px 0 0"><span class="note">Variant</span>${["std"].concat(VAR_ORDER.filter(x => varsOwned(id).includes(x))).map(x => `<button class="btn sm ${(selVariant(id) || "std") === x ? "yellow" : "dark"}" data-act="setvar" data-id="${id}" data-v="${x}">${x === "std" ? "Standard" : VARIANTS[x].name}</button>`).join("")}</div>` : ""}<div class="cstat"><div class="a"><b>${Math.round(k.atk * AR.ATKX)}</b><small>Attack</small></div><div class="h"><b>${hpOf(k)}</b><small>Health</small></div><div class="s"><b>${k.spd.toFixed(2)}</b><small>Speed</small></div><div class="c"><b>${k.cost}</b><small>Cost</small></div></div>` +
     `<div class="skillbox"><em>Passive · ${esc(PASS[k.passive][0])}</em>${passText(k.passive)}</div><div class="skillbox"><em>Skill · ${esc(actName(k))} · ${k.acost} energy</em>${actText(k.active)}</div>` +
-    `<div class="row c" style="margin-top:14px">${c.ev ? '<span class="note">Only its Event Summon or Event shop gives this card.</span>' : c.ex ? '<span class="note">Only a pack gives this card.</span>' : `<button class="btn yellow sm" data-act="craft" data-id="${id}" ${P.dust < cost || n >= 3 ? "disabled" : ""}>Craft · ${cost} ${ic("shard")}</button>`}${n > 1 ? `<button class="btn sm" data-act="sell" data-id="${id}">Sell 1 · ${ECON.sell[rr]} ${ic("coin")}</button><button class="btn sm" data-act="breakc" data-id="${id}">Break 1 · ${DUST[c.ex ? "ex" : c.lv]} ${ic("shard")}</button>` : ""}<button class="btn dark sm" data-act="closeModal">Close</button></div>`);
+    `<div class="row c" style="margin-top:14px">${n ? favBtn(id) : ""}${c.ev ? '<span class="note">Only its Event Summon or Event shop gives this card.</span>' : c.ex ? '<span class="note">Only a pack gives this card.</span>' : `<button class="btn yellow sm" data-act="craft" data-id="${id}" ${P.dust < cost || n >= 3 ? "disabled" : ""}>Craft · ${cost} ${ic("shard")}</button>`}${n > 1 ? `<button class="btn sm" data-act="sell" data-id="${id}">Sell 1 · ${ECON.sell[rr]} ${ic("coin")}</button><button class="btn sm" data-act="breakc" data-id="${id}">Break 1 · ${DUST[c.ex ? "ex" : c.lv]} ${ic("shard")}</button>` : ""}<button class="btn dark sm" data-act="closeModal">Close</button></div>`);
 }
 let DE = null;
 function editDeck(i) { DE = { i, name: P.decks[i].name, cards: P.decks[i].cards.slice() }; deckSheet(); }
@@ -4329,7 +4445,10 @@ function deckSheet() {
 
 /* ===== daily: login ticket and missions ===== */
 function missions() {
-  return [{ id: "win", t: "Win a match", have: P.mis.win, need: 1, coins: 50 }, { id: "play", t: "Play 3 matches", have: P.mis.play, need: 3, dust: 10 }, { id: "cap", t: "Win 3 matches", have: P.mis.win, need: 3, dust: 15 }, { id: "sum", t: "Open a pack", have: P.mis.sum, need: 1, dust: 10 }];
+  const m = P.mis, d = dayNo(), W = [{ id: "win", t: "Win a match", have: m.win, need: 1, coins: 50 }, { id: "win2", t: "Win 2 matches", have: m.win, need: 2, coins: 60 }, { id: "cap", t: "Win 3 matches", have: m.win, need: 3, dust: 15 }],
+    L = [{ id: "play", t: "Play 3 matches", have: m.play, need: 3, dust: 10 }, { id: "play2", t: "Play 2 matches", have: m.play, need: 2, coins: 40 }, { id: "play5", t: "Play 5 matches", have: m.play, need: 5, dust: 20 }],
+    S = [{ id: "sum", t: "Open a pack", have: m.sum, need: 1, dust: 10 }, { id: "sum3", t: "Open 3 packs", have: m.sum, need: 3, dust: 20 }];
+  return [W[d % 3], W[(d + 1) % 3], L[d % 3], S[d % 2]];
 }
 function viewDaily(v) {
   rollover(); const ms = missions(), all = ms.every(m => P.mis.claimed[m.id]);
@@ -4532,6 +4651,7 @@ document.addEventListener("click", async e => {
     case "breakc": return breakCopy(d.id);
     case "packTear": return packTear();
     case "packNext": return packNext();
+    case "packSkip": return packSkip();
     case "packDone": return packDone();
     case "tiltToggle": return tiltToggle();
     case "odds": return oddsModal(d.k || "std");

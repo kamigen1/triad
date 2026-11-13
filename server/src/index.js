@@ -15,7 +15,7 @@ export default {
     if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
     if (parts[0] === "room" && /^[A-Z0-9]{4,8}$/.test(parts[1] || "")) return env.ROOM.get(env.ROOM.idFromName(parts[1])).fetch(req);
     if (parts[0] === "queue") return env.LOBBY.get(env.LOBBY.idFromName("main")).fetch(req);
-    if (parts[0] === "auth" || parts[0] === "hub" || parts[0] === "profile") return env.HUB.get(env.HUB.idFromName("main")).fetch(req);
+    if (parts[0] === "auth" || parts[0] === "hub" || parts[0] === "profile" || parts[0] === "lb" || parts[0] === "log") return env.HUB.get(env.HUB.idFromName("main")).fetch(req);
     return new Response("triad server ok v2", { headers: { "content-type": "text/plain", ...CORS } });
   },
 };
@@ -62,24 +62,33 @@ export class Room {
 }
 
 export class Lobby {
-  constructor() { this.waiting = []; }
+  constructor(state, env) { this.env = env; this.waiting = []; }
+  async hub(path, body) { const r = await this.env.HUB.get(this.env.HUB.idFromName("main")).fetch("https://hub" + path, { method: "POST", body: JSON.stringify(body) }); return r.json(); }
   async fetch(req) {
     const pair = upgrade(req); if (!pair) return new Response("expected websocket", { status: 426 });
     const [client, server] = Object.values(pair); server.accept();
-    let me = null;
-    server.addEventListener("message", (e) => {
+    let me = null, gone = false;
+    server.addEventListener("message", async (e) => {
       let m; try { m = JSON.parse(e.data); } catch (_) { return; }
       if (m.t !== "find" || me) return;
-      me = { ws: server, rating: Math.max(0, Math.min(9999, +m.rating || 800)), at: Date.now() };
-      let best = -1, gap = 1e9;
-      this.waiting.forEach((w, i) => { const d = Math.abs(w.rating - me.rating); if (d < gap) { gap = d; best = i; } });
-      if (best >= 0) {
-        const other = this.waiting.splice(best, 1)[0], code = roomCode(6);
-        for (const p of [other, me]) { try { p.ws.send(JSON.stringify({ t: "match", room: code })); p.ws.close(1000, "matched"); } catch (_) {} }
+      const mine = me = { ws: server, rating: Math.max(0, Math.min(9999, +m.rating || 800)), at: Date.now(), lname: "" };
+      if (typeof m.token === "string" && m.token) { try { const r = await this.hub("/_who", { token: m.token }); if (r.ok) mine.lname = r.lname; } catch (_) {} }   // signed in: so a blocked pair is never matched
+      if (gone) return;
+      let cand = null, gap = 1e9;
+      for (const w of this.waiting.slice()) {
+        if (w.ws === server) continue;
+        if (mine.lname && w.lname) { let bl = false; try { bl = (await this.hub("/_blk", { a: mine.lname, b: w.lname })).blocked; } catch (_) {} if (bl) continue; }
+        const d = Math.abs(w.rating - mine.rating); if (d < gap) { gap = d; cand = w; }
+      }
+      const idx = cand ? this.waiting.indexOf(cand) : -1;
+      if (gone) return;
+      if (idx >= 0) {
+        const other = this.waiting.splice(idx, 1)[0], code = roomCode(6);
+        for (const p of [other, mine]) { try { p.ws.send(JSON.stringify({ t: "match", room: code })); p.ws.close(1000, "matched"); } catch (_) {} }
         me = null;
-      } else { this.waiting.push(me); server.send(JSON.stringify({ t: "wait" })); }
+      } else { this.waiting.push(mine); try { server.send(JSON.stringify({ t: "wait" })); } catch (_) {} }
     });
-    const drop = () => { this.waiting = this.waiting.filter(w => w.ws !== server); };
+    const drop = () => { gone = true; this.waiting = this.waiting.filter(w => w.ws !== server); };
     server.addEventListener("close", drop); server.addEventListener("error", drop);
     return new Response(null, { status: 101, webSocket: client });
   }
@@ -181,6 +190,7 @@ export class Hub {
       CREATE TABLE IF NOT EXISTS oauth (provider TEXT, sub TEXT, lname TEXT, PRIMARY KEY (provider, sub));
       CREATE TABLE IF NOT EXISTS invites (frm TEXT, too TEXT, at INTEGER, PRIMARY KEY (frm, too));
       CREATE TABLE IF NOT EXISTS blocks (a TEXT, b TEXT, PRIMARY KEY (a, b));
+      CREATE TABLE IF NOT EXISTS errs (at INTEGER, v TEXT, msg TEXT, ua TEXT);
       CREATE TABLE IF NOT EXISTS reports (frm TEXT, about TEXT, at INTEGER, why TEXT);`);
   }
   one(q, ...a) { const r = [...this.sql.exec(q, ...a)]; return r[0] || null; }
@@ -189,6 +199,7 @@ export class Hub {
     const now = Date.now(), t = (this.tries.get(ip) || []).filter(x => now - x < 60000); t.push(now); this.tries.set(ip, t);
     if (this.tries.size > 500) this.tries.clear(); return t.length > 8;
   }
+  rate(key, max) { this.rl = this.rl || new Map(); const now = Date.now(), t = (this.rl.get(key) || []).filter(x => now - x < 60000); t.push(now); this.rl.set(key, t); if (this.rl.size > 800) this.rl.clear(); return t.length > max; }
   async fetch(req) { try { return await this.route(req); } catch (e) { return json({ ok: false, err: "Server error. Try again." }, 500); } }
   async route(req) {
     const url = new URL(req.url), p = url.pathname;
@@ -205,6 +216,31 @@ export class Hub {
       for (const q of ["DELETE FROM sessions WHERE lname=?", "DELETE FROM profiles WHERE lname=?", "DELETE FROM pbak WHERE lname=?", "DELETE FROM credit WHERE lname=?", "DELETE FROM flags WHERE lname=?", "DELETE FROM oauth WHERE lname=?", "DELETE FROM accounts WHERE lname=?"]) this.sql.exec(q, l);
       for (const q of ["DELETE FROM friends WHERE a=? OR b=?", "DELETE FROM reqs WHERE frm=? OR too=?", "DELETE FROM invites WHERE frm=? OR too=?", "DELETE FROM blocks WHERE a=? OR b=?"]) this.sql.exec(q, l, l);
       return json({ ok: true });
+    }
+    if (p === "/_blk") return json({ blocked: !!this.one("SELECT 1 AS x FROM blocks WHERE (a=? AND b=?) OR (a=? AND b=?)", String(b.a || ""), String(b.b || ""), String(b.b || ""), String(b.a || "")) });
+    if (p === "/log") {   // client error reports: version, message, browser. No account, no save data.
+      if (this.rate("l" + (req.headers.get("cf-connecting-ip") || "x"), 10)) return json({ ok: true });
+      this.sql.exec("INSERT INTO errs VALUES (?,?,?,?)", Date.now(), String(b.v || "").slice(0, 20), String(b.msg || "").slice(0, 300), String(b.ua || "").slice(0, 120));
+      this.sql.exec("DELETE FROM errs WHERE at < (SELECT MIN(at) FROM (SELECT at FROM errs ORDER BY at DESC LIMIT 500))"); return json({ ok: true });
+    }
+    if (p === "/lb" || p === "/profile/view") {   // the ranked leaderboard and a public look at one player; both need a sign-in and only expose a fixed set of fields
+      if (this.rate("v" + (req.headers.get("cf-connecting-ip") || "x"), 40)) return json({ ok: false, err: "Slow down a little." }, 429);
+      const s = this.one("SELECT lname FROM sessions WHERE th=?", await sha(String(b.token || ""))); if (!s) return json({ ok: false, auth: true, err: "Please sign in again." }, 401);
+      const num = (x) => (Number.isFinite(x) ? x : 0), cid = (x) => (typeof x === "string" && x in CARDS ? x : "");
+      const pub = (lname, data, at) => { let o = {}; try { o = JSON.parse(data) || {}; } catch (_) {} return { name: this.nameOf(lname), lv: num(o.lv), pts: num(o.rank && o.rank.pts), tier: num(o.rank && o.rank.tierBest), wins: num(o.wins), plays: num(o.plays), cards: Object.values(o.own || {}).filter((n) => n > 0).length, avatar: cid(o.avatar), title: typeof o.title === "string" ? o.title.slice(0, 20) : "", frame: typeof o.frame === "string" ? o.frame.slice(0, 10) : "", binder: Array.isArray(o.binder) ? o.binder.map(cid).filter(Boolean).slice(0, 6) : [], seen: at || 0 }; };
+      const blk = (a, c) => !!this.one("SELECT 1 AS x FROM blocks WHERE (a=? AND b=?) OR (a=? AND b=?)", a, c, c, a);
+      if (p === "/profile/view") {
+        const other = String(b.name || "").toLowerCase(); const acc = other && this.one("SELECT lname FROM accounts WHERE lname=?", other); if (!acc || blk(s.lname, other)) return json({ ok: false, err: "No player with that name." });
+        const row = this.one("SELECT data, at FROM profiles WHERE lname=?", other); const pr = row ? pub(other, row.data, row.at) : { name: this.nameOf(other), lv: 1, pts: 0, tier: 0, wins: 0, plays: 0, cards: 0, avatar: "", title: "", frame: "", binder: [], seen: 0 };
+        return json({ ok: true, p: pr, me: other === s.lname, friend: !!this.one("SELECT 1 AS x FROM friends WHERE a=? AND b=?", s.lname, other), online: this.online(other) });
+      }
+      const now = Date.now(); if (!this.lbc || now - this.lbc.at > 30000) {
+        const rows = this.all("SELECT lname, data, at FROM profiles WHERE json_extract(data, '$.rank.pts') IS NOT NULL AND (COALESCE(json_extract(data, '$.rank.w'), 0) + COALESCE(json_extract(data, '$.rank.l'), 0)) >= 1 ORDER BY CAST(json_extract(data, '$.rank.pts') AS INTEGER) DESC LIMIT 25");
+        this.lbc = { at: now, rows: rows.map((r) => ({ l: r.lname, p: pub(r.lname, r.data, r.at) })) };
+      }
+      const mine = this.one("SELECT data FROM profiles WHERE lname=?", s.lname); let mp = 0; try { mp = num((JSON.parse(mine.data).rank || {}).pts); } catch (_) {}
+      const ahead = (this.one("SELECT COUNT(*) AS n FROM profiles WHERE CAST(json_extract(data, '$.rank.pts') AS INTEGER) > ? AND (COALESCE(json_extract(data, '$.rank.w'), 0) + COALESCE(json_extract(data, '$.rank.l'), 0)) >= 1", mp) || { n: 0 }).n;
+      return json({ ok: true, rows: this.lbc.rows.filter((r) => !blk(s.lname, r.l)).map((r) => r.p), you: mine ? { pts: mp, rank: ahead + 1 } : null });
     }
     if (p === "/_who") { const s = this.one("SELECT lname FROM sessions WHERE th=?", await sha(String(b.token || ""))); return json(s ? { ok: true, lname: s.lname, name: this.nameOf(s.lname) } : { ok: false }); }
     if (p === "/_deck") {
