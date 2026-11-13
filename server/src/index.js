@@ -195,6 +195,15 @@ export class Hub {
     if (req.method !== "POST") return json({ ok: false, err: "post only" }, 405);
     let b = {}; try { b = await req.json(); } catch (_) {}
     if (p === "/auth/logout") { if (typeof b.token === "string") this.sql.exec("DELETE FROM sessions WHERE th=?", await sha(b.token)); return json({ ok: true }); }
+    if (p === "/auth/delete") {   // erase an account and everything attached to it; password accounts must repeat the password
+      if (this.limited(req.headers.get("cf-connecting-ip") || "x")) return json({ ok: false, err: "Too many tries. Wait a minute." }, 429);
+      const s = this.one("SELECT lname FROM sessions WHERE th=?", await sha(String(b.token || ""))); if (!s) return json({ ok: false, auth: true, err: "Please sign in again." }, 401);
+      const a = this.one("SELECT * FROM accounts WHERE lname=?", s.lname), l = s.lname;
+      if (a && a.pw !== "!") { if (!b.pass) return json({ ok: false, needPass: true }); if (a.pw !== await hashPw(String(b.pass), a.salt)) return json({ ok: false, err: "Wrong password." }); }
+      for (const q of ["DELETE FROM sessions WHERE lname=?", "DELETE FROM profiles WHERE lname=?", "DELETE FROM pbak WHERE lname=?", "DELETE FROM credit WHERE lname=?", "DELETE FROM flags WHERE lname=?", "DELETE FROM oauth WHERE lname=?", "DELETE FROM accounts WHERE lname=?"]) this.sql.exec(q, l);
+      for (const q of ["DELETE FROM friends WHERE a=? OR b=?", "DELETE FROM reqs WHERE frm=? OR too=?", "DELETE FROM invites WHERE frm=? OR too=?"]) this.sql.exec(q, l, l);
+      return json({ ok: true });
+    }
     if (p === "/_who") { const s = this.one("SELECT lname FROM sessions WHERE th=?", await sha(String(b.token || ""))); return json(s ? { ok: true, lname: s.lname, name: this.nameOf(s.lname) } : { ok: false }); }
     if (p === "/_deck") {
       const row = this.one("SELECT data FROM profiles WHERE lname=?", String(b.lname || "")); if (!row) return json({ ok: false, why: "Your account has no saved game yet. Play once online with the app open, then try again." });

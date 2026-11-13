@@ -1237,6 +1237,26 @@ nav .dot { background: var(--ds-gold); border: 2px solid #213449; }
 /* each portrait tile gets its height from its own aspect ratio (the picture is laid over it), so tiles can never overlap each other */
 .avlist { grid-auto-rows: max-content; } .avlist .avc { position: relative; display: block; height: auto; width: 100%; } .avlist .avc img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; }
 
+
+/* ---------- profile, settings, history, achievements ---------- */
+.prof { text-align: center; } .prof .hexw { margin: 0 auto 6px; position: relative; display: inline-block; } .prof h2 { margin: 6px 0 4px; }
+.pstats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; } .pstats div { background: rgba(26, 36, 48, .55); border-radius: 14px; padding: 10px 4px; text-align: center; }
+.pstats b { display: block; font: 400 20px/1.1 var(--display); color: #fff; } .pstats small { display: block; margin-top: 2px; font: 600 11px var(--body); letter-spacing: .06em; text-transform: uppercase; color: var(--ds-on-dark2); }
+.mlist { max-height: 56dvh; overflow-y: auto; -webkit-overflow-scrolling: touch; } .panel.dim { opacity: .62; } .tag.bad { background: #6b2a34; color: #ffd5da; }
+.setrow { justify-content: space-between; flex-wrap: nowrap; margin: 0 0 10px; font: 600 15px var(--body); color: #fff; }
+.sheet textarea { background: rgba(14, 22, 32, .7); color: #fff; border: 1px solid var(--ds-paper-line); border-radius: 12px; padding: 10px; font: 600 13px var(--body); resize: none; }
+
+
+/* ---------- tutorial coach ---------- */
+#tutc { position: fixed; inset: 0; z-index: 60; pointer-events: none; } #tutc.block { pointer-events: auto; }
+.tuthole { position: fixed; border-radius: 16px; box-shadow: 0 0 0 100vmax rgba(8, 14, 22, .72); outline: 2px solid var(--ds-gold); animation: tutglow 1.4s ease-in-out infinite; pointer-events: none; }
+.tutdim { position: fixed; inset: 0; background: rgba(8, 14, 22, .72); pointer-events: none; }
+@keyframes tutglow { 50% { outline-color: #fff; } }
+.tutcard { position: fixed; left: 14px; right: 14px; max-width: 420px; margin: 0 auto; padding: 14px 16px; border-radius: 18px; text-align: center; pointer-events: auto; background: linear-gradient(#2D4058, #243448); border: 1px solid var(--ds-gold); box-shadow: 0 10px 30px #000a; animation: dlgbg .2s ease-out; }
+.tutcard.top { top: calc(env(safe-area-inset-top, 0px) + 64px); } .tutcard.bot { bottom: calc(env(safe-area-inset-bottom, 0px) + 150px); }
+.tutcard small { display: block; font: 700 11px var(--body); letter-spacing: .1em; text-transform: uppercase; color: var(--ds-on-dark2); }
+.tutcard b { display: block; margin: 2px 0 4px; font: 400 21px/1.15 var(--display); color: #fff; } .tutcard p { margin: 0 0 10px; font: 600 14px/1.4 var(--body); color: var(--ds-on-dark); }
+
 @media (prefers-reduced-motion: reduce) { * { animation-duration: .01s !important; } }
 /* ===== standalone phone app: portrait only, no zoom, no rubber band, no text selection, 16px inputs so iOS never zooms on focus ===== */
 html, body { overscroll-behavior: none; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; touch-action: manipulation; }
@@ -1568,12 +1588,13 @@ const UIC = {};   // last shown coin and gem totals, so the pills count up or do
 function chrome() {
   if (!P) { $("#hud").innerHTML = ""; return; }
   const pct = Math.floor(100 * P.xp / need(P.lv));
-  $("#hud").innerHTML = `<div class="hexw" data-act="avatar"><div class="hex">${P.avatar && BY[P.avatar] && P.own[P.avatar] > 0 ? `<img class="hexart" alt="" src="${artSrc(BY[P.avatar])}">` : "<span>♠</span>"}</div><b class="lvbadge">${P.lv}</b></div><div class="who" data-act="nameEdit"><b class="fat">${esc(playerName())} ✎</b><div class="xp"><i style="width:${pct}%"></i><small>${P.xp} / ${need(P.lv)}${saveMode === "local" ? " · on this device" : ""}</small></div></div><div class="pills"><span class="pill c">${ic("coin", "")}<b data-n="coins">${P.coins == null ? 0 : P.coins}</b></span><span class="pill g">${ic("gem", "")}<b data-n="gems">${P.gems == null ? 0 : P.gems}</b></span></div><button class="mute" data-act="muteAll" aria-label="Sound">${AU.sfx || AU.bgm ? "🔊" : "🔇"}</button>`;
+  $("#hud").innerHTML = `<div class="hexw" data-act="avatar"><div class="hex">${P.avatar && BY[P.avatar] && P.own[P.avatar] > 0 ? `<img class="hexart" alt="" src="${artSrc(BY[P.avatar])}">` : "<span>♠</span>"}</div><b class="lvbadge">${P.lv}</b></div><div class="who" data-me="profile"><b class="fat">${esc(playerName())} ✎</b><div class="xp"><i style="width:${pct}%"></i><small>${P.xp} / ${need(P.lv)}${saveMode === "local" ? " · on this device" : ""}</small></div></div><div class="pills"><span class="pill c">${ic("coin", "")}<b data-n="coins">${P.coins == null ? 0 : P.coins}</b></span><span class="pill g">${ic("gem", "")}<b data-n="gems">${P.gems == null ? 0 : P.gems}</b></span></div><button class="mute" data-act="muteAll" aria-label="Sound">${AU.sfx || AU.bgm ? "🔊" : "🔇"}</button>`;
   for (const k of ["coins", "gems"]) { const el = document.querySelector('#hud [data-n="' + k + '"]'), v = P[k] == null ? 0 : P[k]; if (el) { const prev = UIC[k]; if (prev !== undefined && prev !== v) { el.dataset.v = prev; uiCount(el, v); uiPulse(el.parentNode, v > prev ? "gain" : "spend"); } else el.dataset.v = v; UIC[k] = v; } }
+  if (typeof achCheck === "function") achCheck();
   const claimable = !P.login || missions().some(m => m.have >= m.need && !P.mis.claimed[m.id]);
   $("#nav").innerHTML = TABS.map(([k, n, i]) => `<button data-act="tab" data-k="${k}" class="${tab === k ? "on" : ""}"><span class="dia">${ic(i, "")}</span><span class="lb">${n.toUpperCase()}</span>${(k === "daily" && claimable) || (k === "cards" && newCount() > 0) ? '<i class="dot"></i>' : ""}</button>`).join("");
 }
-function show(k) { const same = tab === k; tab = k; musicMode(k === "summon" ? "summon" : "menu"); chrome(); const v = $("#view"); v.scrollTop = 0; if (!same) uiPulse(v, "enter", 300); if (!P) { v.innerHTML = ""; return; } ({ battle: viewBattle, play: viewPlay, summon: viewSummon, cards: viewCards, daily: viewDaily, versus: viewVersus })[k](v); }
+function show(k) { const same = tab === k; tab = k; musicMode(k === "summon" ? "summon" : "menu"); chrome(); const v = $("#view"); v.scrollTop = 0; if (!same) uiPulse(v, "enter", 300); if (!P) { v.innerHTML = ""; return; } ({ battle: viewBattle, play: viewPlay, summon: viewSummon, cards: viewCards, daily: viewDaily, versus: viewVersus })[k](v); if (k === "battle" && typeof tutMaybe === "function") setTimeout(tutMaybe, 700); }
 /* the portrait: a card the player owns stands in for "you" in the header and on the battle board */
 /* the portrait picker: one scrolling list (never a scroller inside a scroller), a live preview on top, search and an element filter, and an explicit "Use this portrait" */
 let AV = { q: "", el: "all", pick: null };
@@ -1794,7 +1815,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.11.24-b";
+const VER = "2026.11.25-a";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -2876,7 +2897,7 @@ function deckSheet2() {
   openSheet(`<h2 class="fat">DECK</h2><div class="row" style="margin:0 0 6px;flex-wrap:nowrap"><input type="text" id="ckname" maxlength="14" value="${esc(D.name)}" style="flex:1"><button class="btn sm dark" data-ck="deckDel" ${P.cd.length <= 1 ? "disabled" : ""}>Delete</button></div>` +
     `<p class="note" style="margin:0 0 6px">12 CARDS. Each fight starts with 5 of them at random on the field; draw the rest for 4 energy.</p><div class="kd6">${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(slot).join("")}</div>` +
     `<div class="selbar"><span>Editing <b>${esc(SLOT_NAME(D.sel))}</b>${selId && (BY[selId] || isSkill(selId)) ? ": " + esc(isSkill(selId) ? SKC[selId].n : BY[selId].name) : ": empty"}</span>${selId ? '<button class="btn sm dark" data-ck="dremove">Remove</button>' : ""}</div>` +
-    `<div class="row" style="margin:6px 0 0;gap:6px"><button class="btn sm dark" data-ck="dundo" ${D.undo.length ? "" : "disabled"}>↶ Undo</button><button class="btn sm dark" data-ck="dclear" ${D.cards.some(Boolean) ? "" : "disabled"}>Clear deck</button></div>` +
+    `<div class="row" style="margin:6px 0 0;gap:6px"><button class="btn sm dark" data-ck="dundo" ${D.undo.length ? "" : "disabled"}>↶ Undo</button><button class="btn sm dark" data-me="fill" ${D.cards.filter(Boolean).length >= 12 ? "disabled" : ""}>Fill empty</button><button class="btn sm dark" data-me="copycode">Copy code</button><button class="btn sm dark" data-ck="dclear" ${D.cards.some(Boolean) ? "" : "disabled"}>Clear deck</button></div>` +
     (err ? `<p class="note" style="color:#ff9aa4;margin:6px 0 0">${esc(err)}</p>` : '<p class="note" style="color:var(--ok);margin:6px 0 0">Ready to play.</p>') +
     (D.cmp ? cmpPanel(D) : `<div class="row" style="margin:10px 0 4px;gap:6px"><button class="btn sm ${D.tab === "cr" ? "yellow" : "dark"}" data-ck="dtab" data-t="cr">Creatures</button><button class="btn sm ${D.tab === "sk" ? "yellow" : "dark"}" data-ck="dtab" data-t="sk">Skill cards · ${nSkill}/${SK_MAX}</button></div>` + (D.tab === "sk" ? "" : `<div class="row" style="margin:6px 0 4px"><select data-ck="dfilt"><option value="all">All elements</option>${ELKEYS.map(e => `<option value="${e}" ${D.el === e ? "selected" : ""}>${EL[e][1]} ${EL[e][0]}</option>`).join("")}</select><select data-ck="dsort">${[["cost", "Cost"], ["atk", "Attack"], ["hp", "Health"], ["name", "Name"]].map(([v, n]) => `<option value="${v}" ${D.sort === v ? "selected" : ""}>Sort: ${n}</option>`).join("")}</select></div>`) +
       `<p class="note" style="margin:0 0 4px">Tap a card to compare it with ${esc(SLOT_NAME(D.sel).toLowerCase())}.${D.tab === "sk" ? " Skill cards are drawn like any card, played once for their energy cost, and then gone." : " Your cards only."}</p>`) +
@@ -2953,7 +2974,7 @@ function ckResult() {
     if (after > rk.tierBest) { rk.tierBest = after; packs += 3; gems += ECON.tierUp.gems; extra += " · NEW TIER, +3 packs, +" + ECON.tierUp.gems + " gems"; }
   } else if (mode.kind === "online") { dust = win ? 10 : 5; xp = win ? 20 : 10; coins = win ? 20 : 5; }
   if (G.note) extra = G.note + (extra ? " · " + extra : "");
-  P.dust += dust; P.tickets += packs; earn(coins, gems); if (win) eventWin(); const xp0 = P.xp, lv0 = P.lv, ups = xp ? gainXp(xp) : []; scheduleSave(); chrome(); sfx(win ? "win" : draw ? "draw" : "lose");
+  P.plays = (P.plays || 0) + 1; if (win) P.wins = (P.wins || 0) + 1; histAdd(win, draw); P.dust += dust; P.tickets += packs; earn(coins, gems); if (win) eventWin(); const xp0 = P.xp, lv0 = P.lv, ups = xp ? gainXp(xp) : []; scheduleSave(); chrome(); sfx(win ? "win" : draw ? "draw" : "lose");
   const again = mode.kind === "online" || G.online ? "" : `<button class="btn yellow" data-ck="rematch">${mode.kind === "camp" ? "Again" : "Rematch"}</button>`;
   const chip = (cls, icon, n, lab) => `<div class="rchip ${cls}"><span class="ri">${icon}</span><b data-n="${parseInt(String(n).replace(/\D/g, ""), 10)}">${n}</b><small>${lab}</small></div>`;
   const xpPct = (lv, x) => Math.min(100, Math.round(100 * x / need(lv))), xpBar = xp ? `<div class="rxp"><small id="rxpl">Level ${lv0}</small><div class="bar"><i id="rxpi" style="width:${xpPct(lv0, xp0)}%"></i></div></div>` : "";
@@ -2974,7 +2995,7 @@ function resAnim(xp, xpPct, lv0) {
     bar.style.width = "100%"; setTimeout(() => { if (lab) { lab.textContent = "Level " + P.lv; uiPulse(lab, "gain", 800); } sfx("level"); uiHaptic("ok"); bar.style.transition = "none"; bar.style.width = "0%"; void bar.offsetWidth; bar.style.transition = "width .8s cubic-bezier(.2,.8,.3,1)"; bar.style.width = to + "%"; }, 900);
   }, 700);
 }
-function ckLeave() { if (AM) { cancelAnimationFrame(AM.raf); clearInterval(AM.ka); AM = null; } if (G && G.online) cknBye(); G = null; $("#ck").hidden = true; closeModal(); musicMode("menu"); chrome(); show(tab); }
+function ckLeave() { if (typeof tutEnd === "function") tutEnd(); if (AM) { cancelAnimationFrame(AM.raf); clearInterval(AM.ka); AM = null; } if (G && G.online) cknBye(); G = null; $("#ck").hidden = true; closeModal(); musicMode("menu"); chrome(); show(tab); }
 function ckRematch() {
   const m = G && G.mode; closeModal(); if (!m) return;
   if (m.kind === "camp") return ckStart(campLevel(m.ch, m.k), campMode(m.ch, m.k)); if (m.kind === "ranked") return rankedStart(); ckStart(G.level, { kind: "practice" });
@@ -3103,7 +3124,7 @@ function arStartOnline(role, hostDeck, guestDeck, oppName, send, slow) {
   send({ k: "hb", f: D });
 }
 function arPut(cmd) {
-  const A = AM.A, me = AM.me, net = AM.net; cmd.s = me;
+  const A = AM.A, me = AM.me, net = AM.net; cmd.s = me; if (AM.tut) AM.tut.cmds[cmd.k] = (AM.tut.cmds[cmd.k] || 0) + 1;
   if (net) { cmd.at = A.tick + net.D; cmd.n = A.seq[me]++; arInput(A, cmd); net.send({ k: "in", c: cmd }); } else arInput(A, cmd, 1);
 }
 function arNetGot(m) {
@@ -3291,6 +3312,7 @@ function arLoop(now) {
   if (!AM.net && !A.over && ROTMQ.matches) { AM.last = now; AM.raf = requestAnimationFrame(arLoop); return; }   // a solo match waits while the phone is turned sideways (the 'turn upright' cover is showing)
   if (!AM.last) AM.last = now; const dt = Math.min(.25, (now - AM.last) / 1000); AM.last = now;
   const net = AM.net;
+  if (AM.tut && !AM.intro) tutTick();
   if (AM.intro) { arIntroStep(now); arUpdate(now); AM.last = now; AM.raf = requestAnimationFrame(arLoop); return; }   // the fight waits for the versus card, the deal and 3-2-1-GO
   if (net) {   // online: the fight never pauses; it only waits when the other phone's commands have not arrived yet
     if (!A.over) {
@@ -3305,7 +3327,7 @@ function arLoop(now) {
       }
       const w = AM.stall && now - AM.stall > 800; $("#armsg").textContent = w ? "Waiting for your opponent…" : $("#armsg").textContent === "Waiting for your opponent…" ? "" : $("#armsg").textContent;
     }
-  } else if ($("#modal").hidden && !A.over) {   // an open sheet (pause menu) freezes the fight
+  } else if ($("#modal").hidden && !A.over && !AM.hold) {   // an open sheet (pause menu) freezes the fight
     AM.acc += dt * AM.speed;
     while (AM.acc >= AR.DT) { AM.acc -= AR.DT; if (A.tick % 5 === 0) { arAi(A, 1); if (AM.auto) arAi(A, 0); } arStep(A); if (A.over) break; }
   }
@@ -3871,8 +3893,8 @@ function summon(key, n = 1) {
   scheduleSave(); chrome(); PK = { res, i: 0, flipped: false, torn: false, kind: key, multi: n > 1, n, medals, evm };
   if (n > 1) return packSummary(); packStage();
 }
-function buyBundle() {
-  if (P.coins < BUNDLE.coins) return toast("Not enough coins."); P.coins -= BUNDLE.coins; P.tickets += BUNDLE.n; scheduleSave(); chrome(); toast("+" + BUNDLE.n + " pack tokens"); show("summon");
+async function buyBundle() {
+  if (P.coins < BUNDLE.coins) return toast("Not enough coins."); if (!(await uiConfirm({ title: "Buy pack tokens?", body: `${BUNDLE.n} pack tokens for ${ic("coin", "")}${BUNDLE.coins}.`, ok: "Buy" }))) return; if (P.coins < BUNDLE.coins) return; P.coins -= BUNDLE.coins; P.tickets += BUNDLE.n; scheduleSave(); chrome(); toast("+" + BUNDLE.n + " pack tokens"); show("summon");
 }
 function sellCopy(id) { const c = BY[id], n = P.own[id] || 0; if (n < 2) return toast("Keep at least one copy."); P.own[id]--; const v = ECON.sell[rarOf(c)]; P.coins += v; scheduleSave(); chrome(); toast("+" + v + " coins"); detail(id); }
 function breakCopy(id) { const c = BY[id], n = P.own[id] || 0; if (n < 2) return toast("Keep at least one copy."); P.own[id]--; const v = DUST[c.ex ? "ex" : c.lv]; P.dust += v; scheduleSave(); chrome(); toast("+" + v + " shards"); detail(id); }
@@ -3902,11 +3924,13 @@ function eventOffers() {
 const RES = { coins: ["coin", "coins"], gems: ["gem", "gems"], medals: ["medal", "medals"], evm: ["medal", "event medals"] };
 const have = r => (r === "evm" ? P.ev.medals : P[r]), spend = (r, n) => { if (r === "evm") P.ev.medals -= n; else P[r] -= n; };
 const priceChip = o => Object.entries(o.cost).map(([r, n]) => `${ic(RES[r][0], "")}${n}`).join(" ");
-function buyOffer(id) {
+async function buyOffer(id) {
   econInit(); const all = dailyOffers().concat(weeklyOffers(), eventOffers()), o = all.find(x => x.id === id); if (!o) return;
   if ((P.shop.b[id] || 0) >= o.limit) return toast("Sold out until the shop refreshes.");
   for (const [r, n] of Object.entries(o.cost)) if (have(r) < n) return toast("Not enough " + RES[r][1] + ".");
   if (o.give.pick) return pickSheet(o);
+  if (!(await uiConfirm({ title: "Buy this?", body: `<b>${esc(o.t)}</b><br>for ${priceChip(o)}`, ok: "Buy" }))) return;
+  for (const [r, n] of Object.entries(o.cost)) if (have(r) < n) return toast("Not enough " + RES[r][1] + ".");
   for (const [r, n] of Object.entries(o.cost)) spend(r, n);
   P.shop.b[id] = (P.shop.b[id] || 0) + 1; const g = o.give; let msg = o.t;
   if (g.tickets) P.tickets += g.tickets; if (g.dust) P.dust += g.dust; if (g.gems) P.gems += g.gems; if (g.medals) P.medals += g.medals; if (g.evt) P.ev.tickets += g.evt;
@@ -3992,23 +4016,237 @@ function freeInfo() {
 }
 const fmtT = ms => { const m = Math.max(1, Math.ceil(ms / 60000)), h = Math.floor(m / 60); return h ? h + "h " + (m % 60) + "m" : m + "m"; };
 
+/* ===== meta.js: the screens around the fight. Profile, settings (with delete account), match history, achievements, deck codes, claim all.
+   Everything here reads and writes the same saved game (P). Nothing here pays currency: achievements are titles only, so the server's save guard has nothing new to police.
+   Clicks use data-me="..." so they never collide with data-act (app) or data-ck (fights). ===== */
+const ME_MODE = { practice: "Practice", camp: "Campaign", ranked: "Ranked", online: "Friend match" };
+
+/* ---------- match history: the last 20 fights ---------- */
+function histAdd(win, draw) {
+  try {
+    const mode = (G && G.mode) || { kind: "practice" }, opp = (G && G.arena && AM && AM.opp) || (mode.kind === "camp" ? "Campaign foe" : mode.kind === "online" ? "Friend" : "Computer");
+    P.hist = [{ t: Date.now(), k: mode.kind, r: win ? "w" : draw ? "d" : "l", o: String(opp).slice(0, 14), s: Math.round((G && G.time) || 0) }].concat(P.hist || []).slice(0, 20);
+  } catch (_) {}
+}
+function ago(t) { const s = Math.max(0, (Date.now() - t) / 1000); return s < 90 ? "just now" : s < 3600 ? Math.round(s / 60) + " min ago" : s < 86400 ? Math.round(s / 3600) + " h ago" : Math.round(s / 86400) + " d ago"; }
+function historySheet() {
+  const h = P.hist || [], w = h.filter(x => x.r === "w").length;
+  openSheet(`<h2 class="fat">Match history</h2><p class="note" style="text-align:center;margin:0 0 10px">${h.length ? `Last ${h.length} fights · ${w} won` : "Your fights will show up here."}</p><div class="list mlist">${h.map(x => `<div class="panel item"><span class="tag ${x.r === "w" ? "ok" : x.r === "d" ? "" : "bad"}">${x.r === "w" ? "WIN" : x.r === "d" ? "DRAW" : "LOSS"}</span><div class="t"><b>${esc(x.o)}</b><small>${ME_MODE[x.k] || "Match"} · ${ago(x.t)}${x.s ? " · " + Math.floor(x.s / 60) + ":" + String(x.s % 60).padStart(2, "0") : ""}</small></div></div>`).join("")}</div><div class="row c" style="margin-top:12px"><button class="btn sm dark" data-me="profile">Back</button></div>`);
+}
+
+/* ---------- achievements: titles to show off, no currency ---------- */
+const nOwned = () => ownedList().length, nCamp = () => Object.keys((P.camp && P.camp.cl) || {}).length + Object.keys(P.cleared || {}).length;
+const ACH = [
+  { id: "w1", n: "First blood", t: "Win a match", ti: "Rookie", v: () => P.wins || 0, need: 1 },
+  { id: "w10", n: "On a roll", t: "Win 10 matches", ti: "Contender", v: () => P.wins || 0, need: 10 },
+  { id: "w50", n: "Veteran", t: "Win 50 matches", ti: "Veteran", v: () => P.wins || 0, need: 50 },
+  { id: "w200", n: "Unbreakable", t: "Win 200 matches", ti: "Champion", v: () => P.wins || 0, need: 200 },
+  { id: "p25", n: "Regular", t: "Play 25 matches", ti: "Regular", v: () => P.plays || 0, need: 25 },
+  { id: "c25", n: "Collector", t: "Own 25 different cards", ti: "Collector", v: nOwned, need: 25 },
+  { id: "c60", n: "Curator", t: "Own 60 different cards", ti: "Curator", v: nOwned, need: 60 },
+  { id: "leg", n: "Legend found", t: "Own a Legendary card", ti: "Legend Hunter", v: () => ownedList().filter(c => rarOf(c) >= 5).length, need: 1 },
+  { id: "pul", n: "Summoner", t: "Open 50 summons", ti: "Summoner", v: () => P.pulls || 0, need: 50 },
+  { id: "lv10", n: "Rising star", t: "Reach level 10", ti: "Adept", v: () => P.lv || 1, need: 10 },
+  { id: "lv25", n: "Seasoned", t: "Reach level 25", ti: "Expert", v: () => P.lv || 1, need: 25 },
+  { id: "cmp", n: "Explorer", t: "Clear 8 campaign stages", ti: "Explorer", v: nCamp, need: 8 },
+  { id: "rk", n: "Climber", t: "Reach Gold in Ranked", ti: "Gold Rank", v: () => ((P.rank && P.rank.tierBest) || 0), need: 2 },
+  { id: "dk", n: "Deckbuilder", t: "Keep 3 ready decks", ti: "Strategist", v: () => (P.cd || []).filter(d => !ckDeckOk(d.cards)).length, need: 3 },
+];
+function achCheck() {
+  if (!P) return; const first = !P.ach; P.ach = P.ach || {}; const won = [];
+  for (const a of ACH) { let v = 0; try { v = a.v(); } catch (_) {} if (v >= a.need && !P.ach[a.id]) { P.ach[a.id] = Date.now(); if (!first) won.push(a); } }
+  if (first) scheduleSave(); else if (won.length) { scheduleSave(); won.forEach((a, i) => setTimeout(() => { toast("Achievement: " + a.n + " · title \"" + a.ti + "\""); sfx("level"); uiHaptic("ok"); }, 600 + i * 2600)); }
+}
+function achSheet() {
+  achCheck(); const done = ACH.filter(a => P.ach && P.ach[a.id]).length;
+  openSheet(`<h2 class="fat">Achievements</h2><p class="note" style="text-align:center;margin:0 0 10px">${done} of ${ACH.length} earned. Each one unlocks a title for your profile.</p><div class="list mlist">${ACH.map(a => { const got = !!(P.ach && P.ach[a.id]), v = Math.min(a.need, a.v()); return `<div class="panel item ${got ? "" : "dim"}"><div class="t"><b>${esc(a.n)}</b><small>${esc(a.t)}${got ? "" : " · " + v + " / " + a.need}</small>${got ? "" : `<div class="bar" style="margin-top:5px"><i style="width:${100 * v / a.need}%"></i></div>`}</div>${got ? `<button class="btn sm ${P.title === a.ti ? "yellow" : "dark"}" data-me="title" data-t="${esc(a.ti)}">${P.title === a.ti ? "Title ✓" : "Use title"}</button>` : '<span class="tag">LOCKED</span>'}</div>`; }).join("")}</div><div class="row c" style="margin-top:12px"><button class="btn sm dark" data-me="profile">Back</button></div>`);
+}
+
+/* ---------- profile ---------- */
+function profileSheet() {
+  achCheck(); rankInit(); const rk = P.rank, tier = TIERS_R[rankTier(rk.pts)][0], wr = P.plays ? Math.round(100 * P.wins / P.plays) : 0, done = ACH.filter(a => P.ach && P.ach[a.id]).length;
+  const art = P.avatar && BY[P.avatar] && P.own[P.avatar] > 0 ? `<img class="hexart" alt="" src="${artSrc(BY[P.avatar])}">` : "<span>♠</span>";
+  const st = (n, l) => `<div><b>${n}</b><small>${l}</small></div>`;
+  openSheet(`<div class="prof"><div class="hexw" data-act="avatar"><div class="hex">${art}</div><b class="lvbadge">${P.lv}</b></div><h2 class="fat">${esc(playerName())}</h2>${P.title ? `<span class="rtag r4">${esc(P.title)}</span>` : ""}<p class="note" style="margin:6px 0 0">${tier} · ${rk.pts} points${ACC ? " · online as " + esc(ACC.name) : " · guest"}</p></div>` +
+    `<div class="pstats">${st(P.plays || 0, "Matches")}${st(P.wins || 0, "Wins")}${st(wr + "%", "Win rate")}${st(nOwned() + "/" + C.length, "Cards")}${st(P.pulls || 0, "Summons")}${st(done + "/" + ACH.length, "Achievements")}</div>` +
+    `<div class="row c" style="gap:8px"><button class="btn sm" data-me="ach">Achievements</button><button class="btn sm" data-me="hist">Match history</button><button class="btn sm" data-act="nameEdit">Rename</button><button class="btn sm" data-act="avatar">Portrait</button></div>` +
+    `<div class="row c" style="margin-top:10px;gap:8px"><button class="btn sm yellow" data-me="settings">Settings</button><button class="btn sm dark" data-act="closeModal">Close</button></div>`);
+}
+
+/* ---------- settings ---------- */
+function settingsSheet() {
+  const pf = P.prefs = P.prefs || {}, tg = (id, on, lab) => `<div class="row setrow"><span>${lab}</span><button class="btn sm ${on ? "yellow" : "dark"}" data-me="${id}" style="min-width:76px">${on ? "ON" : "OFF"}</button></div>`;
+  openSheet(`<h2 class="fat">Settings</h2><div class="panel">${tg("sHap", pf.haptics !== false, "Vibration")}${tg("sMot", !(pf.motion === "off" || UI.mq.matches), "Animations")}${tg("sSfx", AU.sfx, "Sound effects")}<div class="row" style="flex-wrap:nowrap;margin:2px 0 10px"><input id="svol" class="rng" type="range" min="0" max="100" value="${Math.round(AU.sv * 100)}"></div>${tg("sBgm", AU.bgm, "Music")}<div class="row" style="flex-wrap:nowrap;margin:2px 0 0"><input id="mvol" class="rng" type="range" min="0" max="100" value="${Math.round(AU.mv * 100)}"></div>${UI.mq.matches ? '<p class="note" style="margin:8px 0 0">Your phone asks apps to reduce motion, so animations stay off.</p>' : ""}</div>` +
+    `<span class="ribbon">HELP</span><div class="row c" style="gap:8px"><button class="btn sm" data-ck="rules">How to play</button><button class="btn sm" data-me="tut">Replay the tutorial</button></div>` +
+    `<span class="ribbon">ACCOUNT</span><div class="panel"><p class="note" style="margin:0 0 8px">${ACC ? "Signed in as <b style=\"color:var(--yellow)\">" + esc(ACC.name) + "</b>. Your progress is saved to your account." : "Playing as a guest. Progress is only on this phone."}</p><div class="row" style="gap:8px">${ACC ? '<button class="btn sm dark" data-ac="logout">Sign out</button>' : '<button class="btn sm yellow" data-ac="up">Create account</button>'}<button class="btn sm red" data-me="del">${ACC ? "Delete account" : "Erase my progress"}</button></div></div>` +
+    `<div class="row c" style="margin-top:12px"><button class="btn sm dark" data-me="profile">Back</button></div>`);
+}
+async function deleteAccount() {
+  const ok = await uiConfirm({ title: ACC ? "Delete your account?" : "Erase your progress?", body: ACC ? "This permanently deletes <b>" + esc(ACC.name) + "</b>, your saved game, friends and every card. It cannot be undone." : "This erases every card, coin and deck on this phone. It cannot be undone.", ok: ACC ? "Delete forever" : "Erase", danger: true });
+  if (!ok) return;
+  if (!ACC) return wipeLocal("Progress erased.");
+  const r = await accCall("/auth/delete", { token: ACC.token });
+  if (r.ok) return wipeLocal("Account deleted.");
+  if (r.needPass) return openSheet(`<h2 class="fat">Confirm it is you</h2><p class="note" style="text-align:center">Type your password to delete <b>${esc(ACC.name)}</b>.</p><input type="password" id="delpw" autocomplete="current-password" placeholder="Password" style="width:100%"><p class="note" id="delerr" style="color:#ff9aa4;min-height:18px"></p><div class="row c"><button class="btn red" data-me="delgo">Delete forever</button><button class="btn dark" data-me="settings">Cancel</button></div>`);
+  toast(r.err || "Could not delete the account right now.");
+}
+async function wipeLocal(msg) {
+  ACC = null; accSave(); HUBSTOP = true; hubStop(); HUBST = { on: false, me: "", friends: [], reqs: [] }; INVIN = []; INVOUT = null; invHide(); CLOUD = { on: false, conflict: false };
+  P = newProfile(); econInit(); rollover(); await persist(); closeModal(); toast(msg); chrome(); show("battle"); gateShow("up");
+}
+
+/* ---------- deck codes: copy, import, and fill empty slots ---------- */
+const CODE_HEAD = "TRD1:";
+const deckCode = ids => CODE_HEAD + ids.filter(Boolean).join(",");
+function parseCode(s) {
+  s = String(s || "").trim(); const i = s.indexOf(CODE_HEAD); if (i < 0) return { err: "That is not a deck code. It should start with TRD1:" };
+  const ids = s.slice(i + CODE_HEAD.length).split(/[,\s]+/).filter(Boolean);
+  if (ids.length !== 12) return { err: "A deck code holds 12 cards; this one has " + ids.length + "." };
+  const bad = ids.find(id => !(BY[id] || isSkill(id))); if (bad) return { err: "This code uses a card this version does not have (" + bad + ")." };
+  return { ids };
+}
+async function copyDeckCode() {
+  const D = CKD; if (!D) return; const ids = D.cards.filter(Boolean); if (ids.length < 12) return toast("Finish the deck first: the code needs all 12 cards.");
+  const t = deckCode(ids); try { await navigator.clipboard.writeText(t); toast("Deck code copied"); uiFx("ok"); } catch (_) { openSheet(`<h2 class="fat">Deck code</h2><p class="note" style="text-align:center">Select it and copy.</p><textarea id="dcode" readonly rows="4" style="width:100%">${esc(t)}</textarea><div class="row c" style="margin-top:10px"><button class="btn dark" data-ck="dclose">Close</button></div>`); const x = $("#dcode"); if (x) { x.focus(); x.select(); } }
+}
+function importSheet() {
+  openSheet(`<h2 class="fat">Import a deck</h2><p class="note" style="text-align:center">Paste a deck code from a friend. Cards you do not own are kept in the list so you can see what to get, but the deck cannot be played until you do.</p><textarea id="dimp" rows="4" style="width:100%" placeholder="TRD1:..."></textarea><p class="note" id="dimperr" style="color:#ff9aa4;min-height:18px;margin:4px 0"></p><div class="row c"><button class="btn yellow" data-me="impgo">Import</button><button class="btn dark" data-act="closeModal">Cancel</button></div>`);
+}
+function importGo() {
+  const r = parseCode($("#dimp").value); if (r.err) { $("#dimperr").textContent = r.err; return uiFx("err"); }
+  if (P.cd.length >= 8) { $("#dimperr").textContent = "You already have 8 decks. Delete one first."; return uiFx("err"); }
+  P.cd.push({ name: "Imported", cards: r.ids }); P.cdi = P.cd.length - 1; scheduleSave(); closeModal(); uiFx("ok"); deckEditor(P.cdi);
+}
+/* fill the empty slots with the best legal cards the player owns */
+function fillDeck() {
+  const D = CKD; if (!D) return; const cur = D.cards.slice(); while (cur.length < 12) cur.push(null);
+  const cnt = id => cur.filter(x => x === id).length, nSk = () => cur.filter(x => x && isSkill(x)).length, nCr = () => cur.filter(x => x && !isSkill(x)).length;
+  const can = id => isSkill(id) ? cnt(id) < SK_COPIES && nSk() < SK_MAX : BY[id] && (P.own[id] || 0) > cnt(id) && cnt(id) < (rarOf(BY[id]) >= 5 ? 1 : 2);
+  let pool = []; try { pool = ckAutoDeck().filter(Boolean); } catch (_) {} pool = pool.concat(ownedList().sort((a, b) => rarOf(b) - rarOf(a)).map(c => c.id));
+  const before = cur.filter(Boolean).length; deckSnap(D);
+  for (let i = 0; i < 12; i++) { if (cur[i]) continue; const id = pool.find(can); if (id) cur[i] = id; }
+  const added = cur.filter(Boolean).length - before; if (!added) { D.undo.pop(); return toast(before >= 12 ? "The deck is already full." : "No more legal cards to add."); }
+  D.cards = cur; D.cmp = null; deckSheet2(); uiFx("ok"); uiUndo("Filled " + added + " empty slot" + (added > 1 ? "s" : ""), deckUndo);
+}
+
+/* ---------- daily: claim everything that is ready ---------- */
+function claimAll() {
+  rollover(); let n = 0, coins = 0, tk = 0, dust = 0;
+  if (!P.login) { P.login = true; P.tickets += ECON.login.tickets; earn(ECON.login.coins, 0); coins += ECON.login.coins; tk += ECON.login.tickets; n++; }
+  for (const m of missions()) if (m.have >= m.need && !P.mis.claimed[m.id]) { P.mis.claimed[m.id] = 1; n++; if (m.tk) { P.tickets += m.tk; tk += m.tk; } else if (m.coins) { P.coins += m.coins; coins += m.coins; } else { P.dust += m.dust; dust += m.dust; } }
+  if (!n) return toast("Nothing to claim yet.");
+  let bonus = ""; if (missions().every(x => P.mis.claimed[x.id]) && !P.mis.bonus) { P.mis.bonus = 1; P.tickets += ECON.allFour.tickets; earn(0, ECON.allFour.gems); bonus = " + " + ECON.allFour.gems + " gems"; }
+  scheduleSave(); chrome(); uiFx("ok"); sfx("coin"); toast("Claimed " + [coins && coins + " coins", tk && tk + " token" + (tk > 1 ? "s" : ""), dust && dust + " shards"].filter(Boolean).join(", ") + bonus); show("daily");
+}
+const claimCount = () => (P.login ? 0 : 1) + missions().filter(m => m.have >= m.need && !P.mis.claimed[m.id]).length;
+
+/* ---------- clicks ---------- */
+document.addEventListener("click", async e => {
+  const el = e.target.closest("[data-me]"); if (!el || !P) return; const a = el.dataset.me; const t = el.dataset;
+  switch (a) {
+    case "profile": uiFx("tap"); return profileSheet();
+    case "settings": uiFx("tap"); return settingsSheet();
+    case "ach": uiFx("tap"); return achSheet();
+    case "hist": uiFx("tap"); return historySheet();
+    case "title": P.title = P.title === t.t ? "" : t.t; scheduleSave(); uiFx("ok"); return achSheet();
+    case "sHap": P.prefs = P.prefs || {}; P.prefs.haptics = P.prefs.haptics === false; scheduleSave(); uiHaptic("ok"); return settingsSheet();
+    case "sMot": P.prefs = P.prefs || {}; P.prefs.motion = P.prefs.motion === "off" ? "on" : "off"; scheduleSave(); return settingsSheet();
+    case "sSfx": AU.sfx = !AU.sfx; auSave(); sfx("tap"); chrome(); return settingsSheet();
+    case "sBgm": AU.bgm = !AU.bgm; auSave(); if (AU.bgm) musicStart(); else musicStop(); chrome(); return settingsSheet();
+    case "del": return deleteAccount();
+    case "delgo": {
+      const pw = ($("#delpw") || {}).value || ""; if (!pw) return; el.disabled = true; const r = await accCall("/auth/delete", { token: ACC && ACC.token, pass: pw });
+      if (r.ok) return wipeLocal("Account deleted."); el.disabled = false; $("#delerr").textContent = r.err || "Could not delete the account."; return uiFx("err");
+    }
+    case "tut": closeModal(); return typeof tutStart === "function" ? tutStart(true) : toast("The tutorial is not available yet.");
+    case "copycode": return copyDeckCode();
+    case "import": return importSheet();
+    case "impgo": return importGo();
+    case "fill": return fillDeck();
+    case "claimall": return claimAll();
+  }
+});
+
+/* ===== tutorial.js: the guided first fight. A real solo match against a slowed-down trainer, with a coach card and a spotlight that walk the player through
+   the controls. Steps that only explain pause the fight; steps that ask for an action let it run and wait for the player to do it (they can skip any step).
+   It uses the player's own deck, so what they learn is what they will play. Nothing here pays currency; finishing it just sets P.tut. ===== */
+const TUT = [
+  { hold: true, at: null, h: "Welcome to the arena", b: "Your creatures fight on their own. Your job is to steer the fight. This takes about a minute." },
+  { hold: true, at: ["#arl0"], h: "Your five creatures", b: "These are your front line. Each one strikes by itself. The cards across the table are the trainer's." },
+  { hold: true, at: ["#mana0"], h: "Energy", b: "Energy fills over time, up to 10. Skills, swaps and draws all spend it, so spend it well." },
+  { hold: false, at: ["#arl0", "#arl1"], h: "Pick a target", b: "Tap one of your creatures, then tap an enemy. Your creature will focus that enemy until it falls.", done: A => A.s[AM.me].lane.some(u => u && u.lock != null) },
+  { hold: false, at: ["#arl0"], h: "Use a skill", b: "Tap one of your creatures again and press its skill button once the energy is there. Skills hit harder than normal strikes.", done: () => AM.tut.cmds.use },
+  { hold: false, at: ["#ardraw"], h: "Draw a card", b: "Your hand starts empty. Press Draw (4 energy) to pull the next card from your deck.", done: () => AM.tut.cmds.draw },
+  { hold: false, at: [".handtray", "#arl0"], h: "Play your card", b: "Tap the card in your hand. A creature: tap one of your lanes to swap it in. A skill card: tap its target, or press Play. Skill cards heal, shield or weaken, and are gone after one use.", done: () => AM.tut.cmds.swap || AM.tut.cmds.play },
+  { hold: true, at: ["#core1"], h: "Break their core", b: "Bring the trainer's core to zero before the 3 minutes run out. The last minute doubles your energy. Good luck!" },
+];
+
+function tutOffer() {
+  openSheet(`<h2 class="fat">Welcome!</h2><p class="note" style="text-align:center;margin:0 0 12px">Learn the controls in a one-minute guided fight against a gentle trainer. You can replay it later from Settings.</p><div class="row c"><button class="btn yellow" data-tut="go">Start the tutorial</button><button class="btn dark" data-tut="skip">Maybe later</button></div>`); lockSheet();
+}
+let TUT_ASKED = 0;
+function tutMaybe() {
+  if (!P || P.tut || P.plays > 0 || TUT_ASKED > 6 || (typeof G !== "undefined" && G)) return; TUT_ASKED++;
+  if (!$("#modal").hidden || document.getElementById("gate")) return void setTimeout(tutMaybe, 2500);   // wait for the sign-in and name sheets to finish
+  tutOffer();
+}
+function tutStart(replay) {
+  ckInit(); let cards = P.cd[P.cdi].cards; if (ckDeckOk(cards)) cards = ckAutoDeck();
+  if (!cards || cards.length !== 12 || ckDeckOk(cards)) return toast("Build a full 12-card deck first, then try the tutorial.");
+  const mode = { kind: "practice", tut: true }, A = arNew(cards, ckAiDeck(0), { ui: true, level: [2, 0], mode, seed: (Math.random() * 2147483647) | 0 });
+  A.s[1].eMul = .45; A.s[0].energy = 7;   // a gentle trainer, and enough energy to try a skill straight away
+  closeModal(); arLaunch(A, mode, "TRAINER", 0, null, 0); AM.tut = { step: -1, cmds: {}, replay: !!replay };
+}
+function tutEnd() { const c = document.getElementById("tutc"); if (c) c.remove(); if (typeof AM !== "undefined" && AM && AM.tut) { AM.hold = false; if (AM.tut.step >= 3 && P && !P.tut) { P.tut = 1; scheduleSave(); } } }
+function tutRect(sel) {
+  let r = null; for (const s of sel || []) { const e = document.querySelector(s); if (!e) continue; const b = e.getBoundingClientRect(); if (!b.width) continue; r = r ? { l: Math.min(r.l, b.left), t: Math.min(r.t, b.top), r: Math.max(r.r, b.right), b: Math.max(r.b, b.bottom) } : { l: b.left, t: b.top, r: b.right, b: b.bottom }; }
+  return r;
+}
+function tutShow(n) {
+  const T = AM.tut; T.step = n; const s = TUT[n]; let c = document.getElementById("tutc");
+  if (!s) { P.tut = 1; scheduleSave(); tutEnd(); AM.tut = null; return; }
+  if (!c) { c = document.createElement("div"); c.id = "tutc"; document.body.appendChild(c); }
+  AM.hold = !!s.hold; const r = tutRect(s.at), pad = 6, vh = innerHeight, low = r ? (r.t + r.b) / 2 > vh * .5 : false, last = n === TUT.length - 1;
+  c.className = s.hold ? "block" : "pass";
+  c.innerHTML = (r ? `<i class="tuthole" style="left:${r.l - pad}px;top:${r.t - pad}px;width:${r.r - r.l + pad * 2}px;height:${r.b - r.t + pad * 2}px"></i>` : '<i class="tutdim"></i>') +
+    `<div class="tutcard ${low ? "top" : "bot"}"><small>Step ${n + 1} of ${TUT.length}</small><b>${esc(s.h)}</b><p>${esc(s.b)}</p><div class="row c" style="gap:8px">${s.hold ? `<button class="btn sm yellow" data-tut="next">${last ? "Start fighting" : "Next"}</button>` : '<button class="btn sm dark" data-tut="next">Skip this step</button>'}<button class="btn sm dark" data-tut="end">Exit tutorial</button></div></div>`;
+  uiFx("tap");
+}
+/* called every frame from the arena loop once the countdown is over */
+function tutTick() {
+  const T = AM.tut; if (!T) return; if (T.step === -1) return tutShow(0);
+  const s = TUT[T.step]; if (!s || s.hold || !s.done) return; if (s.done(AM.A)) { uiFx("ok"); tutShow(T.step + 1); }
+}
+document.addEventListener("click", e => {
+  const el = e.target.closest("[data-tut]"); if (!el) return; const a = el.dataset.tut;
+  if (a === "go") { closeModal(); return tutStart(false); }
+  if (a === "skip") { P.tut = 1; scheduleSave(); return closeModal(); }
+  if (!AM || !AM.tut) return;
+  if (a === "next") return tutShow(AM.tut.step + 1);
+  if (a === "end") { P.tut = 1; scheduleSave(); tutEnd(); AM.tut = null; toast("You can replay the tutorial from Settings."); }
+});
+
 
 /* ===== cards: collection, detail, decks ===== */
-let F = { q: "", own: "own", lv: 0, grp: "all" };
+let F = { q: "", own: "own", lv: 0, grp: "all", el: "all", sort: "rar" };
 function viewCards(v) {
   ckInit(); const have = ownedList().filter(c => S1[c.id]).length;
-  v.innerHTML = `<span class="ribbon">DECKS</span><div class="list">${P.cd.map((d, i) => { const ok = !ckDeckOk(d.cards); return `<button class="panel item" data-ck="deckOpen" data-i="${i}" style="${i === P.cdi ? "border-color:var(--line)" : ""}"><div class="t"><b>${esc(d.name)}</b><small>${d.cards.map(id => esc(BY[id] ? BY[id].name : "?")).join(", ") || "empty"}</small></div><span class="tag ${i === P.cdi ? "gold" : ok ? "ok" : ""}">${i === P.cdi ? "ACTIVE" : ok ? "READY" : "INCOMPLETE"}</span></button>`; }).join("")}</div><div class="row c" style="margin-top:10px"><button class="btn sm yellow" data-ck="deckNew" ${P.cd.length >= 8 ? "disabled" : ""}>New deck</button></div>` +
+  v.innerHTML = `<span class="ribbon">DECKS</span><div class="list">${P.cd.map((d, i) => { const ok = !ckDeckOk(d.cards); return `<button class="panel item" data-ck="deckOpen" data-i="${i}" style="${i === P.cdi ? "border-color:var(--line)" : ""}"><div class="t"><b>${esc(d.name)}</b><small>${d.cards.map(id => esc(BY[id] ? BY[id].name : "?")).join(", ") || "empty"}</small></div><span class="tag ${i === P.cdi ? "gold" : ok ? "ok" : ""}">${i === P.cdi ? "ACTIVE" : ok ? "READY" : "INCOMPLETE"}</span></button>`; }).join("")}</div><div class="row c" style="margin-top:10px"><button class="btn sm yellow" data-ck="deckNew" ${P.cd.length >= 8 ? "disabled" : ""}>New deck</button><button class="btn sm dark" data-me="import" ${P.cd.length >= 8 ? "disabled" : ""}>Import code</button></div>` +
     `<details class="panel" style="margin-top:12px"><summary class="note" style="cursor:pointer">Classic Triad decks (the old 5-card mode)</summary><div class="list" style="margin-top:8px">${P.decks.map((d, i) => `<button class="panel item" data-act="editDeck" data-i="${i}"><div class="t"><b>${esc(d.name)}</b><small>${d.cards.map(id => esc(BY[id] ? BY[id].name : "?")).join(", ") || "empty"}</small></div><span class="tag ${i === P.deck ? "gold" : ""}">${i === P.deck ? "ACTIVE" : deckOk(d) ? "READY" : "INCOMPLETE"} · ${deckCost(d)}/${deckCap()}</span></button>`).join("")}</div><div class="row c" style="margin-top:8px"><button class="btn sm dark" data-act="newDeck" ${P.decks.length >= 10 ? "disabled" : ""}>New classic deck</button></div></details>` +
     `<details class="panel" style="margin-top:12px"><summary class="note" style="cursor:pointer">Skill cards (${SKC_IDS.length}) · every player has them all</summary><div class="spellbook">${SKC_IDS.map(id => `<div class="spell">${skTile(id)}<div><b>${esc(SKC[id].n)} <small>${SKC[id].c} energy</small></b><p>${esc(skText(id))}</p></div></div>`).join("")}</div></details>` +
-    `<span class="ribbon">SET 1 · ${have}/${POOL.length}</span><div class="filters"><input type="search" id="fq" placeholder="Search" value="${esc(F.q)}"><select id="fown" data-act="filt"><option value="own" ${F.own === "own" ? "selected" : ""}>My cards</option><option value="all" ${F.own === "all" ? "selected" : ""}>Show unowned too</option><option value="miss" ${F.own === "miss" ? "selected" : ""}>Only missing</option><option value="ex" ${F.own === "ex" ? "selected" : ""}>Secret Rare</option></select><select id="flv" data-act="filt"><option value="0">Any rarity</option>${[1, 2, 3, 4, 5].map(l => `<option value="${l}" ${F.lv === l ? "selected" : ""}>${RNAME[l]}</option>`).join("")}</select><select id="fgrp" data-act="filt">${Object.entries(GROUPS).map(([k, n]) => `<option value="${k}" ${F.grp === k ? "selected" : ""}>${n}</option>`).join("")}</select></div><div class="grid" id="coll"></div>`;
+    `<span class="ribbon">SET 1 · ${have}/${POOL.length}</span><div class="filters"><input type="search" id="fq" placeholder="Search" value="${esc(F.q)}"><select id="fown" data-act="filt"><option value="own" ${F.own === "own" ? "selected" : ""}>My cards</option><option value="all" ${F.own === "all" ? "selected" : ""}>Show unowned too</option><option value="miss" ${F.own === "miss" ? "selected" : ""}>Only missing</option><option value="ex" ${F.own === "ex" ? "selected" : ""}>Secret Rare</option></select><select id="flv" data-act="filt"><option value="0">Any rarity</option>${[1, 2, 3, 4, 5].map(l => `<option value="${l}" ${F.lv === l ? "selected" : ""}>${RNAME[l]}</option>`).join("")}</select><select id="fel" data-act="filt"><option value="all">Any element</option>${ELKEYS.map(e => `<option value="${e}" ${F.el === e ? "selected" : ""}>${EL[e][1]} ${EL[e][0]}</option>`).join("")}</select><select id="fsort" data-act="filt">${[["rar", "Sort: rarity"], ["new", "Sort: newest"], ["cost", "Sort: cost"], ["atk", "Sort: attack"], ["hp", "Sort: health"], ["name", "Sort: name"], ["cnt", "Sort: copies"]].map(([v, n]) => `<option value="${v}" ${F.sort === v ? "selected" : ""}>${n}</option>`).join("")}</select><select id="fgrp" data-act="filt">${Object.entries(GROUPS).map(([k, n]) => `<option value="${k}" ${F.grp === k ? "selected" : ""}>${n}</option>`).join("")}</select></div><div class="grid" id="coll"></div>`;
   fillColl(); const q = $("#fq"); q.oninput = () => { F.q = q.value; fillColl(); };
 }
 /* cards the player has not looked at yet are marked NEW; the first time this runs, everything already owned counts as seen */
 function seenInit() { if (!P.seen) { P.seen = {}; for (const id in P.own) if (P.own[id] > 0) P.seen[id] = 1; scheduleSave(); } }
 const newCount = () => { if (!P || !P.seen) return 0; return Object.keys(P.own).filter(id => P.own[id] > 0 && !P.seen[id]).length; };
+function collSort() {
+  const rar = (a, b) => rarOf(b) - rarOf(a) || a.name.localeCompare(b.name), k = c => arCard(c), seen = c => (P.own[c.id] > 0 && P.seen && !P.seen[c.id] ? 1 : 0);
+  return ({ rar, name: (a, b) => a.name.localeCompare(b.name), cost: (a, b) => k(a).cost - k(b).cost || rar(a, b), atk: (a, b) => k(b).atk - k(a).atk || rar(a, b), hp: (a, b) => hpOf(k(b)) - hpOf(k(a)) || rar(a, b), cnt: (a, b) => (P.own[b.id] || 0) - (P.own[a.id] || 0) || rar(a, b), new: (a, b) => seen(b) - seen(a) || (P.recent || []).indexOf(a.id) - (P.recent || []).indexOf(b.id) || rar(a, b) })[F.sort] || rar;
+}
 function fillColl() {
-  const q = F.q.toLowerCase(), list = C.filter(c => (inSet(c.id) || P.own[c.id] > 0) && (!q || c.name.toLowerCase().includes(q)) && (F.lv === 0 || c.lv === F.lv) && (F.grp === "all" || c.grp === F.grp) && (F.own === "all" || (F.own === "own" ? (P.own[c.id] || 0) > 0 : F.own === "miss" ? !(P.own[c.id] > 0) : c.ex)))
-    .sort((a, b) => b.lv - a.lv || a.name.localeCompare(b.name));
+  const q = F.q.toLowerCase(), list = C.filter(c => (inSet(c.id) || P.own[c.id] > 0) && (!q || c.name.toLowerCase().includes(q)) && (F.lv === 0 || c.lv === F.lv) && (F.grp === "all" || c.grp === F.grp) && (F.el === "all" || arCard(c).el === F.el) && (F.own === "all" || (F.own === "own" ? (P.own[c.id] || 0) > 0 : F.own === "miss" ? !(P.own[c.id] > 0) : c.ex)))
+    .sort(collSort());
   seenInit(); $("#coll").innerHTML = list.map(c => { const h = cardHtml(c, { count: P.own[c.id] || 0, miss: !(P.own[c.id] > 0), attr: `data-act="detail" data-id="${c.id}"` }); return (P.own[c.id] > 0 && !P.seen[c.id]) ? h.replace('<i class="crn"></i>', '<i class="crn"></i><i class="newtag">NEW</i>') : h; }).join("") || `<p class="note">${F.own === "own" ? "No cards match. Try another filter, or open packs to find more." : "No cards match."}</p>`;
 }
 function openSheet(h) { const m = $("#modal"); m.hidden = false; delete m.dataset.lock; m.innerHTML = `<div class="sheet">${h}</div>`; }
@@ -4038,10 +4276,11 @@ function missions() {
 }
 function viewDaily(v) {
   rollover(); const ms = missions(), all = ms.every(m => P.mis.claimed[m.id]);
-  v.innerHTML = `<span class="ribbon">DAILY</span><div class="list"><div class="panel item"><div class="t"><b>Daily ticket</b><small>${ECON.login.coins} ${ic("coin")} for dropping in</small></div><button class="btn sm yellow" data-act="login" ${P.login ? "disabled" : ""}>${P.login ? "Claimed" : "Claim"}</button></div>` +
+  const nClaim = claimCount();
+  v.innerHTML = `<span class="ribbon">DAILY</span>${nClaim > 1 ? `<div class="row c" style="margin:0 0 10px"><button class="btn yellow" data-me="claimall">Claim all (${nClaim})</button></div>` : ""}<div class="list"><div class="panel item"><div class="t"><b>Daily ticket</b><small>${ECON.login.coins} ${ic("coin")} for dropping in</small></div><button class="btn sm yellow" data-act="login" ${P.login ? "disabled" : ""}>${P.login ? "Claimed" : "Claim"}</button></div>` +
     ms.map(m => `<div class="panel item"><div class="t"><b>${m.t}</b><small>${Math.min(m.have, m.need)} / ${m.need} · reward ${m.tk ? m.tk + " " + ic("ticket") : m.coins ? m.coins + " " + ic("coin") : m.dust + " " + ic("shard")}</small><div class="bar" style="margin-top:5px"><i style="width:${Math.min(100, 100 * m.have / m.need)}%"></i></div></div><button class="btn sm ${m.have >= m.need && !P.mis.claimed[m.id] ? "yellow" : ""}" data-act="claimM" data-id="${m.id}" ${m.have >= m.need && !P.mis.claimed[m.id] ? "" : "disabled"}>${P.mis.claimed[m.id] ? "Done" : "Claim"}</button></div>`).join("") +
     `<div class="panel item"><div class="t"><b>All four</b><small>${ECON.allFour.gems} ${ic("gem")} bonus</small></div><span class="tag ${all ? "ok" : ""}">${all ? "EARNED" : "FINISH THE LIST"}</span></div></div>` +
-    `<span class="ribbon green">YOU</span><div class="panel"><div class="row"><input type="text" id="pname" maxlength="14" value="${esc(P.name || "")}" placeholder="${esc(myName || "Your name")}" style="flex:1"><button class="btn sm" data-act="saveName">Save name</button></div><p class="note" style="margin:0 0 8px;opacity:.65;font-size:11px">${displayInfo()}</p><div id="profAcc" style="margin-top:10px">${accProfileHtml()}</div><p class="note" style="margin:10px 0 0">Matches played ${P.plays} · won ${P.wins} · cards ${ownedList().length}/${C.length} · summons ${P.pulls} · campaign ${Object.keys(P.cleared).length}/16</p></div>` + soundPanel();
+    `<span class="ribbon green">YOU</span><div class="panel"><div class="row"><input type="text" id="pname" maxlength="14" value="${esc(P.name || "")}" placeholder="${esc(myName || "Your name")}" style="flex:1"><button class="btn sm" data-act="saveName">Save name</button></div><p class="note" style="margin:0 0 8px;opacity:.65;font-size:11px">${displayInfo()}</p><div id="profAcc" style="margin-top:10px">${accProfileHtml()}</div><div class="row" style="margin-top:10px;gap:8px"><button class="btn sm yellow" data-me="profile">Profile</button><button class="btn sm dark" data-me="settings">Settings</button></div><p class="note" style="margin:10px 0 0">Matches played ${P.plays} · won ${P.wins} · cards ${ownedList().length}/${C.length} · summons ${P.pulls} · campaign ${Object.keys(P.cleared).length}/16</p></div>` + soundPanel();
 }
 
 /* ===== sound: effects are synthesized (nothing to download); music is whatever songs you add from your own phone ===== */
@@ -4267,7 +4506,7 @@ document.addEventListener("click", async e => {
 document.addEventListener("change", async e => {
   if (e.target.id === "songs") { let n = 0; for (const f of e.target.files) { try { await IDB.add(f.name, f); n++; } catch (_) { toast("Could not save " + f.name); } } await bgmLoad(); if (n) { toast(n + " song" + (n > 1 ? "s" : "") + " added"); musicStop(); musicStart(); } return show("daily"); }
   if (e.target.id === "deckSel") { P.deck = +e.target.value; scheduleSave(); }
-  if (e.target.dataset.act === "filt") { F.own = $("#fown").value; F.lv = +$("#flv").value; F.grp = $("#fgrp").value; fillColl(); }
+  if (e.target.dataset.act === "filt") { F.own = $("#fown").value; F.lv = +$("#flv").value; F.grp = $("#fgrp").value; F.el = $("#fel").value; F.sort = $("#fsort").value; fillColl(); }
 });
 function closeModal() {
   const m = $("#modal"); m.hidden = true; m.innerHTML = ""; delete m.dataset.lock;
