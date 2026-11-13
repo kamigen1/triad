@@ -12,6 +12,17 @@
 <meta name="apple-mobile-web-app-title" content="Triad Summons">
 <link rel="apple-touch-icon" href="icon-180.png">
 <meta name="apple-mobile-web-app-orientations" content="portrait">
+<link rel="apple-touch-startup-image" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash-1320x2868.png">
+<link rel="apple-touch-startup-image" media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash-1206x2622.png">
+<link rel="apple-touch-startup-image" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash-1290x2796.png">
+<link rel="apple-touch-startup-image" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash-1179x2556.png">
+<link rel="apple-touch-startup-image" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash-1284x2778.png">
+<link rel="apple-touch-startup-image" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash-1170x2532.png">
+<link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash-1125x2436.png">
+<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash-1242x2688.png">
+<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="splash-828x1792.png">
+<link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="splash-750x1334.png">
+
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Nunito:wght@600;700;800&family=Rajdhani:wght@600;700&display=swap">
 <style>
@@ -381,6 +392,39 @@ table.odds { width: 100%; border-collapse: collapse; } table.odds td { padding: 
 #gate .logo { text-align: center; font-size: 46px; line-height: 1; color: var(--gold, #e8c46a); margin-bottom: 18px; display: flex; flex-direction: column; align-items: center; }
 #gate .logo i { font-style: normal; font-size: 15px; letter-spacing: .5em; margin-top: 6px; opacity: .85; }
 #gate h2 { text-align: center; }
+
+/* ===== UI kit: one press feel for everything tappable (100 to 180 ms) ===== */
+.btn, .tile, nav button, .panel.item, .kslot, .kp, .mute, .hexw, .who, .card[data-act] { transition: transform .14s cubic-bezier(.2, .9, .3, 1.2), filter .14s, box-shadow .14s; -webkit-tap-highlight-color: transparent; }
+.tile:active, .panel.item:active, .kslot:active, .kp:active, .mute:active, .hexw:active, .card[data-act]:active { transform: scale(.955); filter: brightness(1.12); }
+nav button:active { transform: scale(.93); }
+.card[data-act] { cursor: pointer; }
+@media (hover: hover) { .card[data-act]:hover { transform: translateY(-4px); } .kp:hover { transform: translateY(-3px); } }
+#view.enter { animation: viewin .26s cubic-bezier(.2, .8, .3, 1); }
+@keyframes viewin { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.pill b { font: inherit; display: inline-block; } .pill.gain { animation: gain .7s ease-out; } .pill.spend { animation: spend .5s ease-out; }
+@keyframes gain { 30% { transform: scale(1.12); box-shadow: 0 0 14px #ffd23f99; } } @keyframes spend { 30% { transform: scale(.94); } }
+.newtag { position: absolute; z-index: 7; top: 1.6cqw; left: 50%; transform: translateX(-50%); font: 800 5.4cqw/1 var(--body); letter-spacing: .08em; color: #1a1200; background: linear-gradient(#ffe38a, #e3a81f); padding: 1.2cqw 3cqw; border-radius: 0 0 2.4cqw 2.4cqw; box-shadow: 0 .6cqw 1.6cqw #000a; font-style: normal; animation: newpulse 1.6s ease-in-out infinite; }
+@keyframes newpulse { 50% { filter: brightness(1.25); transform: translateX(-50%) translateY(1px); } }
+/* confirm dialog and undo bar */
+#dlg { position: fixed; inset: 0; z-index: 70; display: flex; align-items: center; justify-content: center; padding: 20px; background: #02040acc; animation: dlgbg .18s ease-out; }
+#dlg.out { opacity: 0; transition: opacity .16s; }
+.dlgbox { width: 100%; max-width: 360px; padding: 18px 16px 16px; border-radius: 18px; text-align: center; background: linear-gradient(#17254a, #0a1228); border: 2px solid #e3bf6688; box-shadow: 0 18px 50px #000d; animation: dlgin .22s cubic-bezier(.2, 1.2, .4, 1); }
+.dlgbox.danger { border-color: #ec3d4c99; } .dlgbox h3 { margin: 0 0 8px; font-size: 22px; color: var(--yellow); } .dlgbox p { margin: 0 0 14px; color: #cdd8f0; font-weight: 700; font-size: 14px; line-height: 1.4; }
+@keyframes dlgin { from { transform: scale(.9) translateY(10px); opacity: 0; } to { transform: none; opacity: 1; } } @keyframes dlgbg { from { opacity: 0; } to { opacity: 1; } }
+#undo { position: fixed; left: 12px; right: 12px; bottom: calc(env(safe-area-inset-bottom, 0px) + 84px); z-index: 75; max-width: 520px; margin: 0 auto; display: flex; align-items: center; gap: 10px; padding: 10px 12px; overflow: hidden; border-radius: 14px; background: linear-gradient(#17254a, #0a1228); border: 2px solid #e3bf6688; box-shadow: 0 10px 30px #000c; font-weight: 800; font-size: 14px; animation: invin .25s cubic-bezier(.2, 1.2, .4, 1); }
+#undo span { flex: 1; min-width: 0; } #undo i { position: absolute; left: 0; bottom: 0; height: 3px; width: 100%; background: var(--yellow); transform-origin: 0 50%; animation: drain linear forwards; } @keyframes drain { to { transform: scaleX(0); } }
+/* deck editor */
+.kslot { position: relative; border-radius: 10px; } .kslot.on { box-shadow: 0 0 0 3px var(--yellow), 0 0 18px #ffd23f99; transform: translateY(-3px); } .kslot.on::after { content: "▼"; position: absolute; left: 50%; bottom: -15px; transform: translateX(-50%); font-size: 11px; color: var(--yellow); }
+.kslot.swapflash { animation: swapflash .6s cubic-bezier(.2, 1.4, .4, 1); } @keyframes swapflash { 0% { transform: scale(.7) rotate(-4deg); filter: brightness(2); } 60% { transform: scale(1.12); } 100% { transform: none; filter: none; } }
+.selbar { display: flex; align-items: center; gap: 8px; margin-top: 16px; padding: 7px 10px; border-radius: 10px; background: #ffffff10; font-size: 13px; font-weight: 800; } .selbar span { flex: 1; min-width: 0; } .selbar b { color: var(--yellow); }
+.kp.cmpon { box-shadow: 0 0 0 3px #6df09a, 0 0 14px #6df09a88; border-radius: 8px; } .kp.here { opacity: .55; } .kn.here { background: #2a3a66; color: #cfe0ff; }
+.kpick.short { max-height: 168px; overflow-y: auto; }
+.cmp { margin-top: 10px; padding: 10px; border-radius: 14px; background: #0b1530; border: 2px solid #6df09a66; animation: dlgin .22s ease-out; } .cmp h4 { margin: 0 0 8px; font: 700 14px var(--display); letter-spacing: .12em; color: var(--yellow); text-align: center; }
+.cmp-h { display: flex; align-items: center; justify-content: center; gap: 10px; } .cmp-h > div { width: 92px; } .cmp-h small { display: block; text-align: center; font-size: 9px; letter-spacing: .08em; color: var(--muted); margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .cmp-arrow { color: var(--yellow); font-style: normal; }
+.cmp-t { margin-top: 8px; } .cmp-r { display: grid; grid-template-columns: 76px 1fr 1fr 58px; gap: 6px; align-items: center; padding: 4px 6px; border-radius: 6px; font-size: 12.5px; } .cmp-r:nth-child(even) { background: #ffffff0a; }
+.cmp-r span { color: var(--muted); font-weight: 800; } .cmp-r b { font-weight: 800; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .cmp-r i { font-style: normal; font-weight: 800; text-align: right; font-size: 11.5px; color: var(--muted); }
+.cmp-r .up { color: #6df09a; } .cmp-r .dn { color: #ff7b86; } .cmp-r.hd { background: none; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; } .syn { margin: 5px 0 0; font-size: 12px; color: #cdd8f0; font-weight: 700; } .syn b { color: var(--yellow); }
+@media (prefers-reduced-motion: reduce) { #view.enter, .kslot.swapflash, .cmp, .dlgbox, #undo, .newtag, .pill.gain, .pill.spend { animation: none !important; } .btn, .tile, .kp, .kslot { transition: none !important; } }
 
 /* ===== THEME: "Night Court" visual language (see ART_DIRECTION.md) =====
    Premium anime-fantasy collectible card game: dark navy / charcoal surfaces, gold and metal accents, rich elemental colours, thin engraved lines instead of chunky outlines.
@@ -1254,14 +1298,16 @@ function bestDeckIds(cap) {
 /* ===== chrome: top bar and the five-button bar ===== */
 let tab = "battle";
 const TABS = [["summon", "Packs", "summon"], ["cards", "Cards", "cards"], ["battle", "Battle", "swords"], ["daily", "Daily", "daily"], ["versus", "Versus", "vs"]];
+const UIC = {};   // last shown coin and gem totals, so the pills count up or down
 function chrome() {
   if (!P) { $("#hud").innerHTML = ""; return; }
   const pct = Math.floor(100 * P.xp / need(P.lv));
-  $("#hud").innerHTML = `<div class="hexw" data-act="avatar"><div class="hex">${P.avatar && BY[P.avatar] && P.own[P.avatar] > 0 ? `<img class="hexart" alt="" src="${artSrc(BY[P.avatar])}">` : "<span>♠</span>"}</div><b class="lvbadge">${P.lv}</b></div><div class="who" data-act="nameEdit"><b class="fat">${esc(playerName())} ✎</b><div class="xp"><i style="width:${pct}%"></i><small>${P.xp} / ${need(P.lv)}${saveMode === "local" ? " · on this device" : ""}</small></div></div><div class="pills"><span class="pill c">${ic("coin", "")}${P.coins == null ? 0 : P.coins}</span><span class="pill g">${ic("gem", "")}${P.gems == null ? 0 : P.gems}</span></div><button class="mute" data-act="muteAll" aria-label="Sound">${AU.sfx || AU.bgm ? "🔊" : "🔇"}</button>`;
+  $("#hud").innerHTML = `<div class="hexw" data-act="avatar"><div class="hex">${P.avatar && BY[P.avatar] && P.own[P.avatar] > 0 ? `<img class="hexart" alt="" src="${artSrc(BY[P.avatar])}">` : "<span>♠</span>"}</div><b class="lvbadge">${P.lv}</b></div><div class="who" data-act="nameEdit"><b class="fat">${esc(playerName())} ✎</b><div class="xp"><i style="width:${pct}%"></i><small>${P.xp} / ${need(P.lv)}${saveMode === "local" ? " · on this device" : ""}</small></div></div><div class="pills"><span class="pill c">${ic("coin", "")}<b data-n="coins">${P.coins == null ? 0 : P.coins}</b></span><span class="pill g">${ic("gem", "")}<b data-n="gems">${P.gems == null ? 0 : P.gems}</b></span></div><button class="mute" data-act="muteAll" aria-label="Sound">${AU.sfx || AU.bgm ? "🔊" : "🔇"}</button>`;
+  for (const k of ["coins", "gems"]) { const el = document.querySelector('#hud [data-n="' + k + '"]'), v = P[k] == null ? 0 : P[k]; if (el) { const prev = UIC[k]; if (prev !== undefined && prev !== v) { el.dataset.v = prev; uiCount(el, v); uiPulse(el.parentNode, v > prev ? "gain" : "spend"); } else el.dataset.v = v; UIC[k] = v; } }
   const claimable = !P.login || missions().some(m => m.have >= m.need && !P.mis.claimed[m.id]);
-  $("#nav").innerHTML = TABS.map(([k, n, i]) => `<button data-act="tab" data-k="${k}" class="${tab === k ? "on" : ""}"><span class="dia">${ic(i, "")}</span><span class="lb">${n.toUpperCase()}</span>${k === "daily" && claimable ? '<i class="dot"></i>' : ""}</button>`).join("");
+  $("#nav").innerHTML = TABS.map(([k, n, i]) => `<button data-act="tab" data-k="${k}" class="${tab === k ? "on" : ""}"><span class="dia">${ic(i, "")}</span><span class="lb">${n.toUpperCase()}</span>${(k === "daily" && claimable) || (k === "cards" && newCount() > 0) ? '<i class="dot"></i>' : ""}</button>`).join("");
 }
-function show(k) { tab = k; musicMode(k === "summon" ? "summon" : "menu"); chrome(); const v = $("#view"); v.scrollTop = 0; if (!P) { v.innerHTML = ""; return; } ({ battle: viewBattle, play: viewPlay, summon: viewSummon, cards: viewCards, daily: viewDaily, versus: viewVersus })[k](v); }
+function show(k) { const same = tab === k; tab = k; musicMode(k === "summon" ? "summon" : "menu"); chrome(); const v = $("#view"); v.scrollTop = 0; if (!same) uiPulse(v, "enter", 300); if (!P) { v.innerHTML = ""; return; } ({ battle: viewBattle, play: viewPlay, summon: viewSummon, cards: viewCards, daily: viewDaily, versus: viewVersus })[k](v); }
 /* the portrait: a card the player owns stands in for "you" in the header and on the battle board */
 function avatarSheet() {
   const list = ownedList().slice().sort((a, b) => rarOf(b) - rarOf(a) || a.name.localeCompare(b.name));
@@ -1470,7 +1516,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.11.18-a";
+const VER = "2026.11.19-a";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -2337,15 +2383,58 @@ function rulesSheet() {
   openSheet(`<h2 class="fat">HOW TO PLAY</h2><div class="rules"><p><b>The goal:</b> bring the enemy core from 40 to 0 before the 3:00 clock ends (then the higher core wins; if the cores are equal, the side with more card health left).</p><p><b>Your deck:</b> 8 cards. 5 stand on the field, 3 wait as backups.</p><p><b>Fighting:</b> your cards strike by themselves. Each picks a target by its own habit (shown on the card): Nearest, Weakest, Strongest, Opposite or Support-first. Tap one of your cards, then an enemy, to lock its target.</p><p><b>Energy:</b> one shared pool that refills over time (max 10). Basic strikes are free. Spend it on a card's <b>skill</b> (tap the card, press its skill button) or to <b>swap a backup in</b> (2 energy).</p><p><b>Elements:</b> a hit marks its target with the attacker's element for 6 seconds. Hit a marked card with a reacting element for a bonus: Water then Lightning (Conduct ×1.5), Ice then Fire (Melt ×1.5), Wind then Earth (Sandblast ×1.5), Water then Ice (Freeze), Fire then Wind (Blaze splash), Light and Dark (Eclipse).</p><p><b>Auto:</b> let the computer play your cards if you only want to watch.</p><p><b>Match levels:</b> cards grow during a match. Striking, using the skill, taking hits and winning kills fill a card's level bar; at level 2 it is stronger and faster, and at level 3 it unlocks an enhanced skill. It all resets for the next match.</p><p><b>The surge:</b> after one minute every card gains attack every 10 seconds, and in the last minute energy refills twice as fast.</p></div><div class="row c" style="margin-top:12px"><button class="btn yellow" data-act="closeModal">Got it</button></div>`);
 }
 
-/* ----- deck editor ----- */
+/* ----- deck editor: pick a slot, pick a card, SEE the difference, confirm. Nothing changes until Confirm swap; Undo and Cancel are always there. ----- */
 let CKD = null;
-function deckEditor(i) { ckInit(); CKD = { i, cards: P.cd[i].cards.slice(), sel: 0, el: "all" }; deckSheet2(); }
-function deckSheet2() {
-  const D = CKD, err = ckDeckOk(D.cards), own = ownedList().slice().sort((a, b) => ckCard(a).cost - ckCard(b).cost || a.name.localeCompare(b.name)).filter(c => D.el === "all" || ckCard(c).el === D.el);
-  const slot = k => { const id = D.cards[k]; return `<div class="kslot ${D.sel === k ? "on" : ""}" data-ck="dslot" data-k="${k}">${id && BY[id] ? kcardMini(id) : '<div class="ku mini empty"><span>+</span></div>'}</div>`; };
-  openSheet(`<h2 class="fat">DECK</h2><div class="row" style="margin:0 0 6px;flex-wrap:nowrap"><input type="text" id="ckname" maxlength="14" value="${esc(P.cd[D.i].name)}" style="flex:1"><button class="btn sm dark" data-ck="deckDel" ${P.cd.length <= 1 ? "disabled" : ""}>Delete</button></div><p class="note" style="margin:0 0 4px">FRONT LINE (left to right are lanes 1 to 5)</p><div class="kd5">${[0, 1, 2, 3, 4].map(slot).join("")}</div><p class="note" style="margin:6px 0 4px">BACKUPS</p><div class="kd5 b3">${[5, 6, 7].map(slot).join("")}</div>${err ? `<p class="note" style="color:#ff9aa4;margin:6px 0 0">${esc(err)}</p>` : '<p class="note" style="color:var(--ok);margin:6px 0 0">Ready to play.</p>'}` +
-    `<div class="row" style="margin:8px 0 4px"><select data-ck="dfilt"><option value="all">All elements</option>${ELKEYS.map(e => `<option value="${e}" ${D.el === e ? "selected" : ""}>${EL[e][1]} ${EL[e][0]}</option>`).join("")}</select><small class="note">Tap a slot, then a card.</small></div><div class="kpick">${own.map(c => { const n = D.cards.filter(x => x === c.id).length; return `<div class="kp" data-ck="dpick" data-id="${c.id}">${kcardMini(c.id)}${n ? `<b class="kn">×${n}</b>` : ""}</div>`; }).join("")}</div><div class="row c" style="margin-top:10px"><button class="btn yellow" data-ck="deckSave">Save</button><button class="btn dark" data-act="closeModal">Close</button></div>`);
+const SLOT_NAME = k => (k < 5 ? "Front line, lane " + (k + 1) : "Backup " + (k - 4));
+function deckEditor(i) { ckInit(); const cs = P.cd[i].cards.slice(); CKD = { i, cards: cs, orig: cs.slice(), name: P.cd[i].name, sel: 0, el: "all", sort: "cost", cmp: null, undo: [], flash: -1 }; deckSheet2(); }
+const deckDirty = D => JSON.stringify(D.cards) !== JSON.stringify(D.orig) || (D.name || "") !== P.cd[D.i].name;
+function deckKit(id) { const c = BY[id]; if (!c) return null; const k = arCard(c); return { id, c, k, atk: Math.round(k.atk * AR.ATKX), hp: hpOf(k), spd: +k.spd.toFixed(2), cost: k.cost, acost: k.acost, skill: actName(k), pass: (PASS[k.passive] || [k.passive || "none"])[0], el: k.el, fac: k.fac }; }
+/* why a proposed deck is not allowed (copy limits and what the player owns), or "" */
+function deckRules(cards) {
+  const n = {}; for (const id of cards) { if (!id) continue; const c = BY[id]; if (!c) return "A card is missing."; n[id] = (n[id] || 0) + 1; const lim = rarOf(c) >= 5 ? 1 : 2; if (n[id] > lim) return c.name + ": only " + lim + (lim > 1 ? " copies" : " copy") + " allowed in a deck."; if (n[id] > (P.own[id] || 0)) return "You don't own enough copies of " + c.name + "."; }
+  return "";
 }
+function cmpRow(lab, a, b, better, fmt) {
+  fmt = fmt || (x => x); const num = typeof a === "number" && typeof b === "number", d = num ? +(b - a).toFixed(2) : null, cls = !num || d === 0 || !better ? "" : (d * better > 0 ? "up" : "dn");
+  return `<div class="cmp-r"><span>${lab}</span><b>${fmt(a)}</b><b class="${cls}">${fmt(b)}</b><i class="${cls}">${!num ? (a === b ? "same" : "") : d === 0 ? "=" : (d > 0 ? "▲ " : "▼ ") + Math.abs(d)}</i></div>`;
+}
+function cmpPanel(D) {
+  const k = D.sel, cur = D.cards[k] ? deckKit(D.cards[k]) : null, nw = deckKit(D.cmp), next = D.cards.slice(); next[k] = D.cmp;
+  const err = deckRules(next), count = (arr, f) => arr.filter(id => id && f(deckKit(id))).length;
+  const el = (a, b) => `${EL[a.el][1]} ${EL[a.el][0]}`, same = (x, y) => x === y;
+  const syn = [
+    `${EL[nw.el][1]} ${EL[nw.el][0]} cards in the deck: <b>${count(D.cards, x => x.el === nw.el)}</b> → <b>${count(next, x => x.el === nw.el)}</b>`,
+    `${esc(FAC[nw.fac] || nw.fac)} cards in the deck: <b>${count(D.cards, x => x.fac === nw.fac)}</b> → <b>${count(next, x => x.fac === nw.fac)}</b>`,
+    cur && cur.el !== nw.el ? `${EL[cur.el][1]} ${EL[cur.el][0]} cards in the deck: <b>${count(D.cards, x => x.el === cur.el)}</b> → <b>${count(next, x => x.el === cur.el)}</b>` : "",
+  ].filter(Boolean).map(t => `<p class="syn">${t}</p>`).join("");
+  const head = `<div class="cmp-h"><div><small>NOW · ${esc(SLOT_NAME(k).toUpperCase())}</small>${cur ? kcardMini(cur.id) : '<div class="ku mini empty"><span>empty</span></div>'}</div><i class="cmp-arrow">▶</i><div><small>NEW</small>${kcardMini(nw.id)}</div></div>`;
+  const rows = [cmpRow("Attack", cur ? cur.atk : 0, nw.atk, 1), cmpRow("Health", cur ? cur.hp : 0, nw.hp, 1), cmpRow("Speed", cur ? cur.spd : 0, nw.spd, 1), cmpRow("Deploy cost", cur ? cur.cost : 0, nw.cost, -1),
+    cmpRow("Skill energy", cur ? cur.acost : 0, nw.acost, -1), cmpRow("Skill", cur ? cur.skill : "none", nw.skill, 0), cmpRow("Passive", cur ? cur.pass : "none", nw.pass, 0), cmpRow("Element", cur ? el(cur) : "none", el(nw), 0), cmpRow("Faction", cur ? (FAC[cur.fac] || cur.fac) : "none", FAC[nw.fac] || nw.fac, 0)].join("");
+  return `<div class="cmp"><h4>${cur ? "SWAP" : "ADD"} · ${esc(SLOT_NAME(k))}</h4>${head}<div class="cmp-t"><div class="cmp-r hd"><span></span><b>Now</b><b>New</b><i></i></div>${rows}</div>${syn}${err ? `<p class="note" style="color:#ff9aa4;margin:6px 0 0">${esc(err)}</p>` : ""}` +
+    `<div class="row c" style="margin-top:10px"><button class="btn yellow" data-ck="dconfirm" ${err ? "disabled" : ""}>${cur ? "Confirm swap" : "Confirm"}</button><button class="btn dark" data-ck="dcancel">Cancel</button></div></div>`;
+}
+function deckSheet2() {
+  const D = CKD, sh = $("#modal .sheet"), st = sh ? sh.scrollTop : 0, nameEl = $("#ckname"); if (nameEl) D.name = nameEl.value;
+  const pk0 = $("#modal .kpick"), pst = pk0 ? pk0.scrollTop : 0;
+  const err = deckRules(D.cards) || (D.cards.filter(Boolean).length < 8 ? "Pick 8 cards: 5 front and 3 backups." : "");
+  const SORTS = { cost: (a, b) => a.cost - b.cost || a.c.name.localeCompare(b.c.name), atk: (a, b) => b.atk - a.atk, hp: (a, b) => b.hp - a.hp, name: (a, b) => a.c.name.localeCompare(b.c.name) };
+  const own = ownedList().map(c => deckKit(c.id)).filter(x => D.el === "all" || x.el === D.el).sort(SORTS[D.sort]);
+  const slot = k => { const id = D.cards[k]; return `<div class="kslot ${D.sel === k ? "on" : ""} ${D.flash === k ? "swapflash" : ""}" data-ck="dslot" data-k="${k}">${id && BY[id] ? kcardMini(id) : '<div class="ku mini empty"><span>+</span></div>'}</div>`; };
+  const selId = D.cards[D.sel];
+  openSheet(`<h2 class="fat">DECK</h2><div class="row" style="margin:0 0 6px;flex-wrap:nowrap"><input type="text" id="ckname" maxlength="14" value="${esc(D.name)}" style="flex:1"><button class="btn sm dark" data-ck="deckDel" ${P.cd.length <= 1 ? "disabled" : ""}>Delete</button></div>` +
+    `<p class="note" style="margin:0 0 4px">FRONT LINE (left to right are lanes 1 to 5)</p><div class="kd5">${[0, 1, 2, 3, 4].map(slot).join("")}</div><p class="note" style="margin:6px 0 4px">BACKUPS</p><div class="kd5 b3">${[5, 6, 7].map(slot).join("")}</div>` +
+    `<div class="selbar"><span>Editing <b>${esc(SLOT_NAME(D.sel))}</b>${selId && BY[selId] ? ": " + esc(BY[selId].name) : ": empty"}</span>${selId ? '<button class="btn sm dark" data-ck="dremove">Remove</button>' : ""}</div>` +
+    `<div class="row" style="margin:6px 0 0;gap:6px"><button class="btn sm dark" data-ck="dundo" ${D.undo.length ? "" : "disabled"}>↶ Undo</button><button class="btn sm dark" data-ck="dclear" ${D.cards.some(Boolean) ? "" : "disabled"}>Clear deck</button></div>` +
+    (err ? `<p class="note" style="color:#ff9aa4;margin:6px 0 0">${esc(err)}</p>` : '<p class="note" style="color:var(--ok);margin:6px 0 0">Ready to play.</p>') +
+    (D.cmp ? cmpPanel(D) : `<div class="row" style="margin:10px 0 4px"><select data-ck="dfilt"><option value="all">All elements</option>${ELKEYS.map(e => `<option value="${e}" ${D.el === e ? "selected" : ""}>${EL[e][1]} ${EL[e][0]}</option>`).join("")}</select><select data-ck="dsort">${[["cost", "Cost"], ["atk", "Attack"], ["hp", "Health"], ["name", "Name"]].map(([v, n]) => `<option value="${v}" ${D.sort === v ? "selected" : ""}>Sort: ${n}</option>`).join("")}</select></div>` +
+      `<p class="note" style="margin:0 0 4px">Tap a card to compare it with the ${esc(SLOT_NAME(D.sel).toLowerCase())}. Your cards only.</p>`) +
+    `<div class="kpick ${D.cmp ? "short" : ""}">${own.map(x => { const n = D.cards.filter(y => y === x.id).length; return `<div class="kp ${D.cmp === x.id ? "cmpon" : ""} ${selId === x.id ? "here" : ""}" data-ck="dpick" data-id="${x.id}">${kcardMini(x.id)}${selId === x.id ? '<b class="kn here">HERE</b>' : n ? `<b class="kn">×${n}</b>` : ""}</div>`; }).join("")}</div>` +
+    `<div class="row c" style="margin-top:10px"><button class="btn yellow" data-ck="deckSave" ${deckDirty(D) ? "" : "disabled"}>${deckDirty(D) ? "Save deck" : "Saved"}</button><button class="btn dark" data-ck="dclose">Close</button></div>`);
+  lockSheet(); const s2 = $("#modal .sheet"); if (s2) s2.scrollTop = st; const p2 = $("#modal .kpick"); if (p2) p2.scrollTop = pst; D.flash = -1;
+}
+async function deckClose() { const D = CKD; if (D && deckDirty(D) && !(await uiConfirm({ title: "Discard changes?", body: "This deck has changes that are not saved.", ok: "Discard", cancel: "Keep editing", danger: true }))) return; CKD = null; closeModal(); }
+function deckSnap(D) { D.undo.push(D.cards.slice()); if (D.undo.length > 30) D.undo.shift(); }
+function deckUndo() { const D = CKD; if (!D || !D.undo.length) return; D.cards = D.undo.pop(); D.cmp = null; deckSheet2(); }
 
 /* ----- the match ----- */
 let CKU = { sel: null, mode: null, busy: false, msg: "" };
@@ -2447,10 +2536,19 @@ document.addEventListener("click", async e => {
     case "deckEdit": return deckEditor(P.cdi);
     case "deckOpen": P.cdi = +d.i; scheduleSave(); return deckEditor(+d.i);
     case "deckNew": ckInit(); P.cd.push({ name: "Deck " + (P.cd.length + 1), cards: ckAutoDeck() }); P.cdi = P.cd.length - 1; scheduleSave(); return deckEditor(P.cdi);
-    case "deckDel": { P.cd.splice(CKD.i, 1); P.cdi = 0; scheduleSave(); closeModal(); return show(tab); }
-    case "deckSave": { const nm = $("#ckname"); if (nm) P.cd[CKD.i].name = nm.value.trim() || "Deck"; P.cd[CKD.i].cards = CKD.cards.slice(); scheduleSave(); closeModal(); return show(tab); }
-    case "dslot": CKD.sel = +d.k; return deckSheet2();
-    case "dpick": { const k = CKD.sel; CKD.cards[k] = d.id; CKD.sel = Math.min(7, k + 1); return deckSheet2(); }
+    case "deckDel": { const D = CKD; return void uiConfirm({ title: "Delete this deck?", body: "<b>" + esc(P.cd[D.i].name) + "</b> will be removed. Your cards are not affected.", ok: "Delete", danger: true }).then(ok => { if (!ok || !CKD) return; P.cd.splice(CKD.i, 1); P.cdi = 0; scheduleSave(); CKD = null; closeModal(); show(tab); toast("Deck deleted"); }); }
+    case "deckSave": { if (!uiOnce("deckSave")) return; const nm = $("#ckname"); P.cd[CKD.i].name = ((nm ? nm.value : CKD.name) || "").trim() || "Deck"; P.cd[CKD.i].cards = CKD.cards.slice(); scheduleSave(); CKD = null; closeModal(); show(tab); uiFx("ok"); return toast("Deck saved"); }
+    case "dclose": return deckClose();
+    case "dslot": CKD.sel = +d.k; CKD.cmp = null; uiFx("tap"); return deckSheet2();
+    case "dpick": { if (CKD.cards[CKD.sel] === d.id) { uiFx("err"); return toast("That card is already in this slot."); } CKD.cmp = d.id; uiFx("tap"); return deckSheet2(); }
+    case "dcancel": CKD.cmp = null; uiFx("back"); return deckSheet2();
+    case "dconfirm": {
+      const D = CKD; if (!D.cmp || !uiOnce("dconfirm", 500)) return; const k = D.sel, next = D.cards.slice(); next[k] = D.cmp; if (deckRules(next)) { uiFx("err"); return; }
+      const was = D.cards[k], nm = BY[D.cmp].name; deckSnap(D); D.cards = next; D.cmp = null; D.flash = k; deckSheet2(); uiFx("ok"); uiUndo(`${was ? BY[was].name + " → " : "Added "}${nm}`, deckUndo); return;
+    }
+    case "dremove": { const D = CKD, k = D.sel; if (!D.cards[k]) return; const was = D.cards[k]; deckSnap(D); D.cards[k] = ""; D.cmp = null; D.flash = k; deckSheet2(); uiFx("back"); return uiUndo(BY[was].name + " removed from the deck", deckUndo); }
+    case "dundo": uiFx("back"); return deckUndo();
+    case "dclear": return void uiConfirm({ title: "Clear the whole deck?", body: "All 8 slots will be emptied. You can still Undo before you save.", ok: "Clear deck", danger: true }).then(ok => { if (!ok || !CKD) return; deckSnap(CKD); CKD.cards = Array(8).fill(""); CKD.cmp = null; deckSheet2(); uiUndo("Deck cleared", deckUndo); });
   }
   if (!G) return;
   switch (a) {
@@ -2469,7 +2567,7 @@ document.addEventListener("click", async e => {
   }
 });
 document.addEventListener("change", e => {
-  const el = e.target.closest && e.target.closest("[data-ck]"); if (!el) return; if (el.dataset.ck === "deckSel") { P.cdi = +el.value; scheduleSave(); show(tab); } else if (el.dataset.ck === "dfilt") { CKD.el = el.value; deckSheet2(); }
+  const el = e.target.closest && e.target.closest("[data-ck]"); if (!el) return; if (el.dataset.ck === "deckSel") { P.cdi = +el.value; scheduleSave(); show(tab); } else if (el.dataset.ck === "dfilt") { CKD.el = el.value; deckSheet2(); } else if (el.dataset.ck === "dsort") { CKD.sort = el.value; deckSheet2(); }
 });
 
 /* ----- turn timer: 60 seconds to plan; the second time you run out you are disqualified and lose ----- */
@@ -3073,6 +3171,47 @@ document.addEventListener("click", e => {
 });
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && ACC && !HUBSTOP && (!HUB || HUB.readyState > 1)) { HUBRETRY = 0; hubConnect(); } });
 
+/* ===== UI KIT: the one set of interaction pieces every screen uses. =====
+   Press feedback lives in clash.css (a single rule for every tappable thing). This file holds the behaviour:
+     uiFx(kind)        sound + haptic for tap | ok | err | back, both honouring the player's settings
+     uiHaptic(kind)    vibration where the browser has it (Android; iPhone Safari does not expose it)
+     uiMotion()        false when the phone asks for reduced motion or the player turned motion off
+     uiOnce(key, ms)   true the first time, false for ms after: stops double taps and repeat requests
+     uiPulse(el, cls)  play a CSS animation class once
+     uiCount(el, to)   animate a number to a new value (coins, gems, xp)
+     uiConfirm({...})  one consistent confirm dialog, returns a promise of true or false
+     uiUndo(msg, fn)   a snackbar with an Undo button for harmless actions that can be taken back
+   Rule for animations: they only play AFTER the state change they show has really happened (a server call has returned, a swap has been applied). Nothing here changes game state. */
+const UI = { busy: new Set(), mq: window.matchMedia ? matchMedia("(prefers-reduced-motion: reduce)") : { matches: false }, undoT: 0 };
+const uiMotion = () => !UI.mq.matches && !(typeof P !== "undefined" && P && P.prefs && P.prefs.motion === "off");
+function uiHaptic(kind) {
+  try { if (typeof P !== "undefined" && P && P.prefs && P.prefs.haptics === false) return; if (!navigator.vibrate) return; navigator.vibrate({ tap: 8, ok: [10, 30, 16], err: [28, 36, 28], heavy: 26 }[kind || "tap"] || 8); } catch (_) {}
+}
+function uiFx(kind) { try { sfx({ tap: "tap", ok: "go", err: "err", back: "back" }[kind]); } catch (_) {} uiHaptic(kind); }
+function uiOnce(key, ms) { if (UI.busy.has(key)) return false; UI.busy.add(key); setTimeout(() => UI.busy.delete(key), ms || 700); return true; }
+function uiPulse(el, cls, ms) { if (!el || !uiMotion()) return; el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); setTimeout(() => el.classList.remove(cls), ms || 600); }
+function uiCount(el, to, ms) {
+  if (!el) return; const from = el.dataset.v === undefined ? to : +el.dataset.v; el.dataset.v = to;
+  if (from === to || !uiMotion()) { el.textContent = to; return; }
+  const t0 = performance.now(), d = ms || 650; (function f(now) { const k = Math.min(1, (now - t0) / d), e = 1 - Math.pow(1 - k, 3); el.textContent = Math.round(from + (to - from) * e); if (k < 1) requestAnimationFrame(f); else el.textContent = to; })(t0);
+}
+function uiConfirm(o) {
+  return new Promise(res => {
+    const old = document.getElementById("dlg"); if (old) old.remove();
+    const d = document.createElement("div"); d.id = "dlg";
+    d.innerHTML = `<div class="dlgbox ${o.danger ? "danger" : ""}"><h3 class="fat">${esc(o.title || "Are you sure?")}</h3><p>${o.body || ""}</p><div class="row c"><button class="btn dark" data-d="0">${esc(o.cancel || "Cancel")}</button><button class="btn ${o.danger ? "red" : "yellow"}" data-d="1">${esc(o.ok || "Confirm")}</button></div></div>`;
+    const done = v => { if (d.dataset.done) return; d.dataset.done = "1"; d.classList.add("out"); setTimeout(() => d.remove(), uiMotion() ? 170 : 0); uiFx(v ? "ok" : "back"); res(v); };
+    d.addEventListener("click", e => { const b = e.target.closest("[data-d]"); if (b) done(b.dataset.d === "1"); else if (e.target === d && !o.danger) done(false); });
+    document.body.appendChild(d);
+  });
+}
+function uiUndo(msg, fn, ms) {
+  clearTimeout(UI.undoT); let e = document.getElementById("undo"); if (e) e.remove(); const dur = ms || 6000;
+  e = document.createElement("div"); e.id = "undo"; e.innerHTML = `<span>${esc(msg)}</span><button class="btn sm dark" type="button">Undo</button><i style="animation-duration:${dur}ms"></i>`;
+  e.querySelector("button").onclick = () => { clearTimeout(UI.undoT); e.remove(); uiFx("back"); try { fn(); } catch (_) {} };
+  document.body.appendChild(e); UI.undoT = setTimeout(() => e.remove(), dur);
+}
+
 /* ===== SHOP, SUMMON POOLS and ECONOMY =====
    The player chooses WHICH pool to summon from. Pools are permanent (Standard, Premium) or rotate on a schedule worked out from the calendar (no server needed):
      Rising Star  weekly, two featured cards (a Legendary and an Epic) with a 50/50-then-guaranteed rule
@@ -3308,23 +3447,27 @@ const fmtT = ms => { const m = Math.max(1, Math.ceil(ms / 60000)), h = Math.floo
 
 
 /* ===== cards: collection, detail, decks ===== */
-let F = { q: "", own: "all", lv: 0, grp: "all" };
+let F = { q: "", own: "own", lv: 0, grp: "all" };
 function viewCards(v) {
   ckInit(); const have = ownedList().filter(c => S1[c.id]).length;
   v.innerHTML = `<span class="ribbon">DECKS</span><div class="list">${P.cd.map((d, i) => { const ok = !ckDeckOk(d.cards); return `<button class="panel item" data-ck="deckOpen" data-i="${i}" style="${i === P.cdi ? "border-color:var(--line)" : ""}"><div class="t"><b>${esc(d.name)}</b><small>${d.cards.map(id => esc(BY[id] ? BY[id].name : "?")).join(", ") || "empty"}</small></div><span class="tag ${i === P.cdi ? "gold" : ok ? "ok" : ""}">${i === P.cdi ? "ACTIVE" : ok ? "READY" : "INCOMPLETE"}</span></button>`; }).join("")}</div><div class="row c" style="margin-top:10px"><button class="btn sm yellow" data-ck="deckNew" ${P.cd.length >= 8 ? "disabled" : ""}>New deck</button></div>` +
     `<details class="panel" style="margin-top:12px"><summary class="note" style="cursor:pointer">Classic Triad decks (the old 5-card mode)</summary><div class="list" style="margin-top:8px">${P.decks.map((d, i) => `<button class="panel item" data-act="editDeck" data-i="${i}"><div class="t"><b>${esc(d.name)}</b><small>${d.cards.map(id => esc(BY[id] ? BY[id].name : "?")).join(", ") || "empty"}</small></div><span class="tag ${i === P.deck ? "gold" : ""}">${i === P.deck ? "ACTIVE" : deckOk(d) ? "READY" : "INCOMPLETE"} · ${deckCost(d)}/${deckCap()}</span></button>`).join("")}</div><div class="row c" style="margin-top:8px"><button class="btn sm dark" data-act="newDeck" ${P.decks.length >= 10 ? "disabled" : ""}>New classic deck</button></div></details>` +
-    `<span class="ribbon">SET 1 · ${have}/${POOL.length}</span><div class="filters"><input type="search" id="fq" placeholder="Search" value="${esc(F.q)}"><select id="fown" data-act="filt"><option value="all">All</option><option value="own" ${F.own === "own" ? "selected" : ""}>Owned</option><option value="miss" ${F.own === "miss" ? "selected" : ""}>Missing</option><option value="ex" ${F.own === "ex" ? "selected" : ""}>Secret Rare</option></select><select id="flv" data-act="filt"><option value="0">Any rarity</option>${[1, 2, 3, 4, 5].map(l => `<option value="${l}" ${F.lv === l ? "selected" : ""}>${RNAME[l]}</option>`).join("")}</select><select id="fgrp" data-act="filt">${Object.entries(GROUPS).map(([k, n]) => `<option value="${k}" ${F.grp === k ? "selected" : ""}>${n}</option>`).join("")}</select></div><div class="grid" id="coll"></div>`;
+    `<span class="ribbon">SET 1 · ${have}/${POOL.length}</span><div class="filters"><input type="search" id="fq" placeholder="Search" value="${esc(F.q)}"><select id="fown" data-act="filt"><option value="own" ${F.own === "own" ? "selected" : ""}>My cards</option><option value="all" ${F.own === "all" ? "selected" : ""}>Show unowned too</option><option value="miss" ${F.own === "miss" ? "selected" : ""}>Only missing</option><option value="ex" ${F.own === "ex" ? "selected" : ""}>Secret Rare</option></select><select id="flv" data-act="filt"><option value="0">Any rarity</option>${[1, 2, 3, 4, 5].map(l => `<option value="${l}" ${F.lv === l ? "selected" : ""}>${RNAME[l]}</option>`).join("")}</select><select id="fgrp" data-act="filt">${Object.entries(GROUPS).map(([k, n]) => `<option value="${k}" ${F.grp === k ? "selected" : ""}>${n}</option>`).join("")}</select></div><div class="grid" id="coll"></div>`;
   fillColl(); const q = $("#fq"); q.oninput = () => { F.q = q.value; fillColl(); };
 }
+/* cards the player has not looked at yet are marked NEW; the first time this runs, everything already owned counts as seen */
+function seenInit() { if (!P.seen) { P.seen = {}; for (const id in P.own) if (P.own[id] > 0) P.seen[id] = 1; scheduleSave(); } }
+const newCount = () => { if (!P || !P.seen) return 0; return Object.keys(P.own).filter(id => P.own[id] > 0 && !P.seen[id]).length; };
 function fillColl() {
   const q = F.q.toLowerCase(), list = C.filter(c => (inSet(c.id) || P.own[c.id] > 0) && (!q || c.name.toLowerCase().includes(q)) && (F.lv === 0 || c.lv === F.lv) && (F.grp === "all" || c.grp === F.grp) && (F.own === "all" || (F.own === "own" ? (P.own[c.id] || 0) > 0 : F.own === "miss" ? !(P.own[c.id] > 0) : c.ex)))
     .sort((a, b) => b.lv - a.lv || a.name.localeCompare(b.name));
-  $("#coll").innerHTML = list.map(c => cardHtml(c, { count: P.own[c.id] || 0, miss: !(P.own[c.id] > 0), attr: `data-act="detail" data-id="${c.id}"` })).join("") || '<p class="note">No cards match.</p>';
+  seenInit(); $("#coll").innerHTML = list.map(c => { const h = cardHtml(c, { count: P.own[c.id] || 0, miss: !(P.own[c.id] > 0), attr: `data-act="detail" data-id="${c.id}"` }); return (P.own[c.id] > 0 && !P.seen[c.id]) ? h.replace('<i class="crn"></i>', '<i class="crn"></i><i class="newtag">NEW</i>') : h; }).join("") || `<p class="note">${F.own === "own" ? "No cards match. Try another filter, or open packs to find more." : "No cards match."}</p>`;
 }
 function openSheet(h) { const m = $("#modal"); m.hidden = false; delete m.dataset.lock; m.innerHTML = `<div class="sheet">${h}</div>`; }
 /* a sheet that must be answered with its own buttons (a result, a choice, a waiting screen): tapping outside it does nothing */
 function lockSheet() { $("#modal").dataset.lock = "1"; }
 function detail(id) {
+  seenInit(); if (P.own[id] > 0 && !P.seen[id]) { P.seen[id] = 1; scheduleSave(); chrome(); }
   const c = BY[id], n = P.own[id] || 0, cost = c.ex ? 0 : CRAFT[c.lv], k = arCard(c), rr = rarOf(c);
   openSheet(`<div style="width:min(66%,248px);margin:2px auto 12px">${cardHtml(c, { miss: !n, tilt: true })}</div><div class="row" style="align-items:flex-start;flex-wrap:nowrap;gap:14px"><div style="min-width:0;flex:1"><h2 class="fat" style="text-align:left;font-size:18px;margin:2px 0 8px;line-height:1.15">${esc(c.name)}</h2><div class="row" style="gap:8px"><span class="rtag r${rr}">${RNAME[rr]}</span><span class="elchip el-${k.el}">${elIco(k.el)}${EL[k.el][0]}</span></div><p class="note" style="margin:8px 0 0;line-height:1.5">${esc(FAC[k.fac] || k.fac)}<br>Targets: ${TGT_NAME[k.tm]}<br>Strike ${+(k.atk * AR.ATKX * AR.STRIKE).toFixed(1)} every ${+(AR.IV / k.spd).toFixed(1)} s<br>Owned ${n} / 3</p></div></div>` +
     `${varsOwned(id).length ? `<div class="row c" style="margin:6px 0 0"><span class="note">Variant</span>${["std"].concat(VAR_ORDER.filter(x => varsOwned(id).includes(x))).map(x => `<button class="btn sm ${(selVariant(id) || "std") === x ? "yellow" : "dark"}" data-act="setvar" data-id="${id}" data-v="${x}">${x === "std" ? "Standard" : VARIANTS[x].name}</button>`).join("")}</div>` : ""}<div class="cstat"><div class="a"><b>${Math.round(k.atk * AR.ATKX)}</b><small>Attack</small></div><div class="h"><b>${hpOf(k)}</b><small>Health</small></div><div class="s"><b>${k.spd.toFixed(2)}</b><small>Speed</small></div><div class="c"><b>${k.cost}</b><small>Cost</small></div></div>` +
@@ -3350,7 +3493,7 @@ function viewDaily(v) {
   v.innerHTML = `<span class="ribbon">DAILY</span><div class="list"><div class="panel item"><div class="t"><b>Daily ticket</b><small>${ECON.login.coins} ${ic("coin")} for dropping in</small></div><button class="btn sm yellow" data-act="login" ${P.login ? "disabled" : ""}>${P.login ? "Claimed" : "Claim"}</button></div>` +
     ms.map(m => `<div class="panel item"><div class="t"><b>${m.t}</b><small>${Math.min(m.have, m.need)} / ${m.need} · reward ${m.tk ? m.tk + " " + ic("ticket") : m.coins ? m.coins + " " + ic("coin") : m.dust + " " + ic("shard")}</small><div class="bar" style="margin-top:5px"><i style="width:${Math.min(100, 100 * m.have / m.need)}%"></i></div></div><button class="btn sm ${m.have >= m.need && !P.mis.claimed[m.id] ? "yellow" : ""}" data-act="claimM" data-id="${m.id}" ${m.have >= m.need && !P.mis.claimed[m.id] ? "" : "disabled"}>${P.mis.claimed[m.id] ? "Done" : "Claim"}</button></div>`).join("") +
     `<div class="panel item"><div class="t"><b>All four</b><small>${ECON.allFour.gems} ${ic("gem")} bonus</small></div><span class="tag ${all ? "ok" : ""}">${all ? "EARNED" : "FINISH THE LIST"}</span></div></div>` +
-    `<span class="ribbon green">YOU</span><div class="panel"><div class="row"><input type="text" id="pname" maxlength="14" value="${esc(P.name || "")}" placeholder="${esc(myName || "Your name")}" style="flex:1"><button class="btn sm" data-act="saveName">Save name</button></div><div id="profAcc" style="margin-top:10px">${accProfileHtml()}</div><p class="note" style="margin:10px 0 0">Matches played ${P.plays} · won ${P.wins} · cards ${ownedList().length}/${C.length} · summons ${P.pulls} · campaign ${Object.keys(P.cleared).length}/16</p></div>` + soundPanel();
+    `<span class="ribbon green">YOU</span><div class="panel"><div class="row"><input type="text" id="pname" maxlength="14" value="${esc(P.name || "")}" placeholder="${esc(myName || "Your name")}" style="flex:1"><button class="btn sm" data-act="saveName">Save name</button></div><p class="note" style="margin:0 0 8px;opacity:.65;font-size:11px">${displayInfo()}</p><div id="profAcc" style="margin-top:10px">${accProfileHtml()}</div><p class="note" style="margin:10px 0 0">Matches played ${P.plays} · won ${P.wins} · cards ${ownedList().length}/${C.length} · summons ${P.pulls} · campaign ${Object.keys(P.cleared).length}/16</p></div>` + soundPanel();
 }
 
 /* ===== sound: effects are synthesized (nothing to download); music is whatever songs you add from your own phone ===== */
@@ -3490,6 +3633,10 @@ function bgmStart() {
   AU.el.volume = AU.mv; if (!AU.el.src) bgmNext(); else if (AU.el.paused) AU.el.play().catch(() => {});
 }
 function bgmStop() { if (AU.el) AU.el.pause(); }
+function displayInfo() {
+  const pr = document.createElement("div"); pr.style.cssText = "position:fixed;left:0;top:0;width:0;height:0;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom) 0;visibility:hidden"; document.body.appendChild(pr); const cs = getComputedStyle(pr), t = cs.paddingTop, b = cs.paddingBottom; pr.remove();
+  return `Display: screen ${screen.width}×${screen.height} · window ${innerWidth}×${innerHeight} · safe top ${t} bottom ${b} · ${navigator.standalone || (window.matchMedia && matchMedia("(display-mode: standalone)").matches) ? "installed app" : "browser"} · v${VER}`;
+}
 function soundPanel() {
   const list = AU.tracks.map(t => `<div class="row" style="justify-content:space-between;flex-wrap:nowrap"><span class="note" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(t.name.replace(/\.[a-z0-9]+$/i, ""))}</span><button class="btn sm dark" data-act="songDel" data-id="${t.id}">✕</button></div>`).join("");
   return `<span class="ribbon">SOUND</span><div class="panel"><div class="row" style="flex-wrap:nowrap"><button class="btn sm ${AU.sfx ? "yellow" : "dark"}" data-act="sfxT" style="min-width:128px">Effects ${AU.sfx ? "ON" : "OFF"}</button><input id="svol" class="rng" type="range" min="0" max="100" value="${Math.round(AU.sv * 100)}"></div>` +
@@ -3574,6 +3721,7 @@ document.addEventListener("change", async e => {
 });
 function closeModal() {
   const m = $("#modal"); m.hidden = true; m.innerHTML = ""; delete m.dataset.lock;
+  const ub = document.getElementById("undo"); if (ub) ub.remove();
   /* safety net: a finished match must never be left on screen with nothing to tap; if its result sheet is gone for any reason, go back to the menu */
   if (typeof G !== "undefined" && G && G.over && !$("#ck").hidden) setTimeout(() => { if (G && G.over && $("#modal").hidden && !$("#ck").hidden) ckLeave(); }, 80);
 }
