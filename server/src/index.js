@@ -5,6 +5,10 @@
 //   /hub?token=    one live connection per signed-in player: friends, who is online, and match invites that pop up on the other phone.
 // The Hub keeps accounts, friends and pending invites in the Durable Object's SQLite storage. Rooms and the queue keep nothing.
 import { CARDS, SKILLS } from "./cards.generated.js";
+import { SIM } from "./sim.generated.js";
+//   /match/start, /match/submit   SERVER AUTHORITY: a solo fight gets its seed, level and opponent deck from the server; afterwards the phone sends only the player's
+//                 commands and the server re-runs the whole fight (its own AI included) to decide who won. Online fights are recorded by the Room and re-run the same way.
+//                 The saved game may only count matches, wins, ranked results and campaign clears that were verified this way.
 const MAX_MSG = 32768;
 const CORS = { "access-control-allow-origin": "*", "access-control-allow-headers": "content-type", "access-control-allow-methods": "GET,POST,OPTIONS" };
 const json = (o, status = 200) => new Response(JSON.stringify(o), { status, headers: { "content-type": "application/json", ...CORS } });
@@ -15,9 +19,25 @@ export default {
     if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
     if (parts[0] === "room" && /^[A-Z0-9]{4,8}$/.test(parts[1] || "")) return env.ROOM.get(env.ROOM.idFromName(parts[1])).fetch(req);
     if (parts[0] === "queue") return env.LOBBY.get(env.LOBBY.idFromName("main")).fetch(req);
-    if (parts[0] === "auth" || parts[0] === "hub" || parts[0] === "profile" || parts[0] === "lb" || parts[0] === "log") return env.HUB.get(env.HUB.idFromName("main")).fetch(req);
+    if (parts[0] === "auth" || parts[0] === "hub" || parts[0] === "profile" || parts[0] === "lb" || parts[0] === "log" || parts[0] === "match") return env.HUB.get(env.HUB.idFromName("main")).fetch(req);
     return new Response("triad server ok v2", { headers: { "content-type": "text/plain", ...CORS } });
   },
+};
+
+const hashStr = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619); return (h >>> 1) & 0x7fffffff; };
+const CMDK = ["lock", "use", "swap", "draw", "play"];
+/* one recorded command [at, n, seat, kind, i, t, b, l] -> a command object, or null if anything about it is off */
+const cleanCmd = (c, seats) => {
+  if (!Array.isArray(c) || c.length < 4 || c.length > 8) return null; const I = (x) => (x == null ? null : Number.isInteger(x) && x >= 0 && x < 100000 ? x : NaN);
+  const at = I(c[0]), n = I(c[1]); if (!(at >= 0) || at > 3000 || !(n >= 0) || !seats.includes(c[2]) || !CMDK.includes(c[3])) return null;
+  const cmd = { at, n, s: c[2], k: c[3] }; for (const [j, f] of [[4, "i"], [5, "t"], [6, "b"], [7, "l"]]) { const x = I(c[j]); if (Number.isNaN(x)) return null; if (x != null) cmd[f] = x; }
+  return cmd;
+};
+const cleanQ = (q, seats) => { if (!Array.isArray(q) || q.length > 4000) return null; const out = []; for (const c of q) { const x = cleanCmd(c, seats); if (!x) return null; out.push(x); } return out; };
+/* re-run a fight. solo: the server plays seat 1 with the same AI the phone ran; online: both seats' commands were recorded by the Room */
+const simRun = (d0, d1, level, seed, kind, boss, q, ai) => {
+  const A = SIM.arNew(d0, d1, { level, seed, mode: { kind } }); if (boss && boss.core) A.s[1].core += boss.core; if (boss && boss.eMul) A.s[1].eMul = boss.eMul;
+  A.q = q; let n = 0; while (!A.over && n++ < 2600) { if (ai && A.tick % 5 === 0) SIM.arAi(A, 1); SIM.arStep(A); } return A;
 };
 
 const upgrade = (req) => {
@@ -26,18 +46,43 @@ const upgrade = (req) => {
 };
 
 export class Room {
-  constructor(state, env) { this.state = state; this.env = env; }
+  constructor(state, env) {
+    this.state = state; this.env = env; this.sql = state.storage.sql;
+    this.sql.exec("CREATE TABLE IF NOT EXISTS cmds (id INTEGER PRIMARY KEY AUTOINCREMENT, s INTEGER, at INTEGER, j TEXT); CREATE TABLE IF NOT EXISTS meta (k TEXT PRIMARY KEY, v TEXT);");
+  }
+  mget(k) { const r = [...this.sql.exec("SELECT v FROM meta WHERE k=?", k)][0]; if (!r) return null; try { return JSON.parse(r.v); } catch (_) { return null; } }
+  mset(k, val) { this.sql.exec("INSERT OR REPLACE INTO meta VALUES (?,?)", k, JSON.stringify(val)); }
   async fetch(req) {
     const pair = upgrade(req); if (!pair) return new Response("expected websocket", { status: 426 });
-    const [client, server] = Object.values(pair), live = this.state.getWebSockets();
+    const [client, server] = Object.values(pair), live = this.state.getWebSockets(), code = new URL(req.url).pathname.split("/").filter(Boolean)[1] || "";
     this.state.acceptWebSocket(server);
     if (live.length >= 2) { server.send(JSON.stringify({ t: "full" })); server.close(1008, "full"); return new Response(null, { status: 101, webSocket: client }); }
     const seat = live.length === 0 ? 0 : (live[0].deserializeAttachment()?.seat === 0 ? 1 : 0);
-    server.serializeAttachment({ seat }); server.send(JSON.stringify({ t: "hello", seat }));
+    server.serializeAttachment({ seat, code }); server.send(JSON.stringify({ t: "hello", seat }));
     if (live.length === 1) { const msg = JSON.stringify({ t: "peer" }); live[0].send(msg); server.send(msg); }
     return new Response(null, { status: 101, webSocket: client });
   }
   async hub(path, body) { const r = await this.env.HUB.get(this.env.HUB.idFromName("main")).fetch("https://hub" + path, { method: "POST", body: JSON.stringify(body) }); return r.json(); }
+  /* a command is kept only if it is well formed, numbered in order for its seat, and not dated into the past (no rewriting the fight afterwards) */
+  record(seat, c) {
+    const m = this.mget("m"); if (!m || m.done) return;
+    const cmd = cleanCmd([c.at, c.n, seat, c.k, c.i, c.t, c.b, c.l], [seat]); if (!cmd) return;
+    const cnt = [...this.sql.exec("SELECT COUNT(*) AS n FROM cmds WHERE s=?", seat)][0].n, mx = [...this.sql.exec("SELECT MAX(at) AS a FROM cmds")][0].a || 0;
+    if (cmd.n !== cnt || cmd.at < mx - 30 || cnt > 2500) return;
+    this.sql.exec("INSERT INTO cmds (s, at, j) VALUES (?,?,?)", seat, cmd.at, JSON.stringify(cmd));
+  }
+  /* decide the fight once: re-run it from the recorded commands; if someone walked out of an unfinished fight, the one who stayed wins */
+  async finish(leaver) {
+    const m = this.mget("m"); if (!m || m.done) return;
+    const q = [...this.sql.exec("SELECT j FROM cmds ORDER BY id")].map((r) => JSON.parse(r.j)); let A = null, winner = null;
+    try { A = simRun(m.d[0], m.d[1], [2, 2], hashStr(m.code), "online", null, q, false); } catch (_) {}
+    const el = Date.now() - m.t0;
+    if (A && A.over && el >= A.tick * 100 * 0.85) winner = A.winner; else if (leaver != null && el >= 20000) winner = 1 - leaver; else return;
+    m.done = true; this.mset("m", m);
+    const kind = m.code.length === 7 ? "ranked" : "online";
+    for (const s of [0, 1]) { try { await this.hub("/_credit", { lname: m.l[s], kind, win: winner === -1 ? null : winner === s }); } catch (_) {} }
+    this.sql.exec("DELETE FROM cmds");
+  }
   async webSocketMessage(ws, msg) {
     if (typeof msg !== "string" || msg.length > MAX_MSG) return;
     let m = null; try { m = JSON.parse(msg); } catch (_) {}
@@ -46,19 +91,26 @@ export class Room {
       const r = await this.hub("/_who", { token: m.token }); if (!r.ok) { try { ws.send('{"t":"denied","why":"Please sign in again."}'); ws.close(1008, "auth"); } catch (_) {} return; }
       ws.serializeAttachment({ ...att, lname: r.lname, name: r.name }); try { ws.send('{"t":"authed"}'); } catch (_) {} return;
     }
+    if (m && m.t === "result") return void (await this.finish(null));
     if (m && m.t === "deck") {   // a deck is only relayed if every card in it is in the sender's verified, server-held collection; the name is the account's, not whatever the phone claims
       const cur = ws.deserializeAttachment() || {}; if (!cur.lname) { try { ws.send('{"t":"denied","why":"Not signed in."}'); ws.close(1008, "auth"); } catch (_) {} return; }
       const r = await this.hub("/_deck", { lname: cur.lname, deck: m.deck });
       if (!r.ok) { try { ws.send(JSON.stringify({ t: "denied", why: r.why || "That deck is not allowed." })); ws.close(1008, "deck"); } catch (_) {} return; }
+      ws.serializeAttachment({ ...cur, deck: m.deck });
+      const seats = this.state.getWebSockets().map((w) => w.deserializeAttachment() || {}), s0 = seats.find((a) => a.seat === 0 && a.deck), s1 = seats.find((a) => a.seat === 1 && a.deck);
+      if (s0 && s1 && s0.lname !== s1.lname) { this.sql.exec("DELETE FROM cmds"); this.mset("m", { code: cur.code || "", t0: Date.now(), l: [s0.lname, s1.lname], d: [s0.deck, s1.deck], done: false }); }   // both decks are in: the fight starts and recording begins
       m.name = cur.name; msg = JSON.stringify(m);
     }
+    if (m && m.t === "ck" && m.m && m.m.k === "in" && m.m.c && (att.seat === 0 || att.seat === 1)) this.record(att.seat, m.m.c);
     for (const o of this.state.getWebSockets()) if (o !== ws) { try { o.send(msg); } catch (_) {} }
   }
-  webSocketClose(ws) {
+  async webSocketClose(ws) {
+    let seat = null; try { seat = (ws.deserializeAttachment() || {}).seat; } catch (_) {}
+    try { await this.finish(seat === 0 || seat === 1 ? seat : null); } catch (_) {}
     for (const o of this.state.getWebSockets()) if (o !== ws) { try { o.send(JSON.stringify({ t: "left" })); } catch (_) {} }
     try { ws.close(); } catch (_) {}
   }
-  webSocketError(ws) { this.webSocketClose(ws); }
+  webSocketError(ws) { return this.webSocketClose(ws); }
 }
 
 export class Lobby {
@@ -83,7 +135,7 @@ export class Lobby {
       const idx = cand ? this.waiting.indexOf(cand) : -1;
       if (gone) return;
       if (idx >= 0) {
-        const other = this.waiting.splice(idx, 1)[0], code = roomCode(6);
+        const other = this.waiting.splice(idx, 1)[0], code = roomCode(7);   // seven characters marks a ranked room
         for (const p of [other, mine]) { try { p.ws.send(JSON.stringify({ t: "match", room: code })); p.ws.close(1000, "matched"); } catch (_) {} }
         me = null;
       } else { this.waiting.push(mine); try { server.send(JSON.stringify({ t: "wait" })); } catch (_) {} }
@@ -191,6 +243,8 @@ export class Hub {
       CREATE TABLE IF NOT EXISTS invites (frm TEXT, too TEXT, at INTEGER, PRIMARY KEY (frm, too));
       CREATE TABLE IF NOT EXISTS blocks (a TEXT, b TEXT, PRIMARY KEY (a, b));
       CREATE TABLE IF NOT EXISTS errs (at INTEGER, v TEXT, msg TEXT, ua TEXT);
+      CREATE TABLE IF NOT EXISTS pend (mid TEXT PRIMARY KEY, lname TEXT, at INTEGER, j TEXT);
+      CREATE TABLE IF NOT EXISTS vt (lname TEXT PRIMARY KEY, j TEXT);
       CREATE TABLE IF NOT EXISTS reports (frm TEXT, about TEXT, at INTEGER, why TEXT);`);
   }
   one(q, ...a) { const r = [...this.sql.exec(q, ...a)]; return r[0] || null; }
@@ -198,6 +252,33 @@ export class Hub {
   limited(ip) {   // a few tries per minute per address, for sign-up and log-in
     const now = Date.now(), t = (this.tries.get(ip) || []).filter(x => now - x < 60000); t.push(now); this.tries.set(ip, t);
     if (this.tries.size > 500) this.tries.clear(); return t.length > 8;
+  }
+  /* is this 12-card deck legal, and does the account's server-held collection contain it? "" means yes */
+  deckWhy(lname, deck) {
+    const row = this.one("SELECT data FROM profiles WHERE lname=?", lname); if (!row) return "Your account has no saved game yet. Play once online with the app open, then try again.";
+    let o; try { o = JSON.parse(row.data); } catch (_) { return "Saved game unreadable."; }
+    if (!Array.isArray(deck) || deck.length !== 12) return "Deck size is wrong.";
+    const need = {}; let sk = 0; for (const id of deck) { if (typeof id !== "string" || !(id in CARDS || SKILLS.includes(id))) return "Deck has an unknown card."; need[id] = (need[id] || 0) + 1; if (SKILLS.includes(id)) { sk++; if (need[id] > 2) return "A skill card is in the deck more than twice."; } }
+    if (sk > 7 || 12 - sk < 5) return "A deck needs 5 to 12 creatures and at most 7 skill cards.";
+    for (const [id, n] of Object.entries(need)) if (!SKILLS.includes(id) && (n > ((o.own || {})[id] || 0) || n > (CARDS[id] >= 5 ? 1 : 2))) return "Deck uses a card that is not in your saved collection yet.";
+    return "";
+  }
+  /* verified totals: b = what the saved game already had when verification began, v = what the server has verified since, keys = campaign stages cleared */
+  vget(lname) { const r = this.one("SELECT j FROM vt WHERE lname=?", lname); if (!r) return null; try { return JSON.parse(r.j); } catch (_) { return null; } }
+  vput(lname, x) { this.sql.exec("INSERT OR REPLACE INTO vt VALUES (?,?)", lname, JSON.stringify(x)); }
+  vbase(o) { const g = (x) => (Number.isFinite(x) ? x : 0); o = o || {}; return { b: { plays: g(o.plays), wins: g(o.wins), rw: g(o.rank && o.rank.w), rl: g(o.rank && o.rank.l), cl: cnt(o.cleared) + cnt(o.camp && o.camp.cl) }, v: { plays: 0, wins: 0, rw: 0, rl: 0, cl: 0 }, keys: Object.keys((o.camp && o.camp.cl) || {}) }; }
+  vinit(lname) { let x = this.vget(lname); if (x) return x; const cur = this.one("SELECT data FROM profiles WHERE lname=?", lname); let o = null; try { o = cur ? JSON.parse(cur.data) : null; } catch (_) {} x = this.vbase(o); this.vput(lname, x); return x; }
+  credit(lname, kind, win, key) {
+    if (!lname) return; const x = this.vinit(lname); x.v.plays++; if (win === true) x.v.wins++;
+    if (kind === "ranked") { if (win === true) x.v.rw++; else if (win === false) x.v.rl++; }
+    if (kind === "camp" && win === true && key && !x.keys.includes(key)) { x.keys.push(key); x.v.cl++; }
+    this.vput(lname, x);
+  }
+  vwhy(x, o) {
+    const g = (y) => (Number.isFinite(y) ? y : 0), lim = (k) => x.b[k] + x.v[k], r = o.rank || {};
+    if (g(o.plays) > lim("plays")) return "matches the server has not verified"; if (g(o.wins) > lim("wins")) return "wins the server has not verified";
+    if (g(r.w) > lim("rw") || g(r.l) > lim("rl")) return "ranked results the server has not verified";
+    if (cnt(o.cleared) + cnt(o.camp && o.camp.cl) > lim("cl")) return "campaign clears the server has not verified"; return "";
   }
   rate(key, max) { this.rl = this.rl || new Map(); const now = Date.now(), t = (this.rl.get(key) || []).filter(x => now - x < 60000); t.push(now); this.rl.set(key, t); if (this.rl.size > 800) this.rl.clear(); return t.length > max; }
   async fetch(req) { try { return await this.route(req); } catch (e) { return json({ ok: false, err: "Server error. Try again." }, 500); } }
@@ -213,7 +294,7 @@ export class Hub {
       const s = this.one("SELECT lname FROM sessions WHERE th=?", await sha(String(b.token || ""))); if (!s) return json({ ok: false, auth: true, err: "Please sign in again." }, 401);
       const a = this.one("SELECT * FROM accounts WHERE lname=?", s.lname), l = s.lname;
       if (a && a.pw !== "!") { if (!b.pass) return json({ ok: false, needPass: true }); if (a.pw !== await hashPw(String(b.pass), a.salt)) return json({ ok: false, err: "Wrong password." }); }
-      for (const q of ["DELETE FROM sessions WHERE lname=?", "DELETE FROM profiles WHERE lname=?", "DELETE FROM pbak WHERE lname=?", "DELETE FROM credit WHERE lname=?", "DELETE FROM flags WHERE lname=?", "DELETE FROM oauth WHERE lname=?", "DELETE FROM accounts WHERE lname=?"]) this.sql.exec(q, l);
+      for (const q of ["DELETE FROM sessions WHERE lname=?", "DELETE FROM profiles WHERE lname=?", "DELETE FROM pbak WHERE lname=?", "DELETE FROM credit WHERE lname=?", "DELETE FROM flags WHERE lname=?", "DELETE FROM oauth WHERE lname=?", "DELETE FROM pend WHERE lname=?", "DELETE FROM vt WHERE lname=?", "DELETE FROM accounts WHERE lname=?"]) this.sql.exec(q, l);
       for (const q of ["DELETE FROM friends WHERE a=? OR b=?", "DELETE FROM reqs WHERE frm=? OR too=?", "DELETE FROM invites WHERE frm=? OR too=?", "DELETE FROM blocks WHERE a=? OR b=?"]) this.sql.exec(q, l, l);
       return json({ ok: true });
     }
@@ -243,14 +324,39 @@ export class Hub {
       return json({ ok: true, rows: this.lbc.rows.filter((r) => !blk(s.lname, r.l)).map((r) => r.p), you: mine ? { pts: mp, rank: ahead + 1 } : null });
     }
     if (p === "/_who") { const s = this.one("SELECT lname FROM sessions WHERE th=?", await sha(String(b.token || ""))); return json(s ? { ok: true, lname: s.lname, name: this.nameOf(s.lname) } : { ok: false }); }
-    if (p === "/_deck") {
-      const row = this.one("SELECT data FROM profiles WHERE lname=?", String(b.lname || "")); if (!row) return json({ ok: false, why: "Your account has no saved game yet. Play once online with the app open, then try again." });
-      let o; try { o = JSON.parse(row.data); } catch (_) { return json({ ok: false, why: "Saved game unreadable." }); }
-      const deck = b.deck; if (!Array.isArray(deck) || deck.length !== 12) return json({ ok: false, why: "Deck size is wrong." });
-      const need = {}; let sk = 0; for (const id of deck) { if (typeof id !== "string" || !(id in CARDS || SKILLS.includes(id))) return json({ ok: false, why: "Deck has an unknown card." }); need[id] = (need[id] || 0) + 1; if (SKILLS.includes(id)) { sk++; if (need[id] > 2) return json({ ok: false, why: "A skill card is in the deck more than twice." }); } }
-      if (sk > 7 || 12 - sk < 5) return json({ ok: false, why: "A deck needs 5 to 12 creatures and at most 7 skill cards." });
-      for (const [id, n] of Object.entries(need)) if (!SKILLS.includes(id) && n > ((o.own || {})[id] || 0)) return json({ ok: false, why: "Deck uses a card that is not in your saved collection yet." });
-      return json({ ok: true });
+    if (p === "/_deck") { const why = this.deckWhy(String(b.lname || ""), b.deck); return json(why ? { ok: false, why } : { ok: true }); }
+    if (p === "/_credit") { this.credit(String(b.lname || ""), String(b.kind || "online"), b.win === true ? true : b.win === false ? false : null, ""); return json({ ok: true }); }
+    if (p === "/match/start" || p === "/match/submit") {
+      const s = this.one("SELECT lname FROM sessions WHERE th=?", await sha(String(b.token || ""))); if (!s) return json({ ok: false, auth: true, err: "Please sign in again." }, 401);
+      const now = Date.now();
+      if (p === "/match/start") {
+        if (this.rate("ms" + s.lname, 12)) return json({ ok: false, err: "Too many fights started. Wait a minute." });
+        const m = b.mode || {}, kind = String(m.kind || ""); let level, foe, opp = 0, key = "", boss = { core: 0, eMul: 0 };
+        const cur = this.one("SELECT data FROM profiles WHERE lname=?", s.lname); let o = {}; try { o = cur ? JSON.parse(cur.data) || {} : {}; } catch (_) {}
+        if (kind === "practice") { level = [0, 1, 2].includes(m.level) ? m.level : 1; foe = SIM.ckAiDeck(level); }
+        else if (kind === "camp") {
+          const ch = m.ch, k = m.k; if (!Number.isInteger(ch) || !Number.isInteger(k) || ch < 0 || ch > 4 || k < 0 || k > 5) return json({ ok: false, err: "Unknown stage." });
+          const vt = this.vinit(s.lname), cl = Object.assign({}, (o.camp && o.camp.cl) || {}); for (const x of vt.keys) cl[x] = true;
+          if (!(ch === 0 && k === 0) && !cl[k === 0 ? (ch - 1) + "-5" : ch + "-" + (k - 1)]) return json({ ok: false, err: "That stage is still locked." });
+          level = SIM.campLevel(ch, k); foe = SIM.campDeck(ch, k); boss = SIM.campBoss(k); key = ch + "-" + k;
+        } else if (kind === "ranked") { const pts = Number.isFinite(o.rank && o.rank.pts) ? o.rank.pts : 800; level = SIM.rankLevel(pts); foe = SIM.ckAiDeck(level); opp = Math.max(400, pts + Math.round((Math.random() * 2 - 1) * 120)); }
+        else return json({ ok: false, err: "Unknown mode." });
+        const mid = hex(crypto.getRandomValues(new Uint8Array(12))), seed = crypto.getRandomValues(new Uint32Array(1))[0] >>> 1;
+        this.sql.exec("DELETE FROM pend WHERE lname=? AND (at<? OR mid NOT IN (SELECT mid FROM pend WHERE lname=? ORDER BY at DESC LIMIT 3))", s.lname, now - 7200000, s.lname);
+        this.sql.exec("INSERT INTO pend VALUES (?,?,?,?)", mid, s.lname, now, JSON.stringify({ kind, level, foe, opp, key, boss, seed }));
+        return json({ ok: true, mid, seed, level, foe, opp });
+      }
+      const row = this.one("SELECT at, j FROM pend WHERE mid=? AND lname=?", String(b.mid || ""), s.lname); if (!row) return json({ ok: false, gone: true, err: "The server does not know that fight." });
+      this.sql.exec("DELETE FROM pend WHERE mid=?", String(b.mid));
+      let pm; try { pm = JSON.parse(row.j); } catch (_) { return json({ ok: false, bad: true, err: "Bad fight record." }); }
+      const why = this.deckWhy(s.lname, b.deck); if (why) return json({ ok: false, bad: true, err: why });
+      const q = cleanQ(b.q, [0]); if (!q) return json({ ok: false, bad: true, err: "Bad command list." });
+      let A; try { A = simRun(b.deck, pm.foe, [2, pm.level], pm.seed, pm.kind, pm.boss, q, true); } catch (_) { return json({ ok: false, bad: true, err: "The fight could not be re-run." }); }
+      if (!A.over) return json({ ok: false, bad: true, err: "The fight did not finish." });
+      if (q.length > 20 + A.tick * 1.5) return json({ ok: false, bad: true, err: "Too many commands for one fight." });
+      if (now - row.at < A.tick * 100 / 2 * 0.85) return json({ ok: false, bad: true, err: "The fight was reported faster than it can be played." });
+      const win = A.winner === 0 ? true : A.winner === -1 ? null : false; this.credit(s.lname, pm.kind, win, pm.key);
+      return json({ ok: true, winner: A.winner, ticks: A.tick });
     }
     if (p === "/profile/get" || p === "/profile/put") {   // the saved game: the server keeps it, the phone keeps a cache
       const s = this.one("SELECT lname FROM sessions WHERE th=?", await sha(String(b.token || ""))); if (!s) return json({ ok: false, auth: true, err: "Please sign in again." }, 401);
@@ -265,8 +371,11 @@ export class Hub {
       const curAt = cur ? (this.one("SELECT at FROM profiles WHERE lname=?", s.lname) || {}).at || now : now, cj = this.one("SELECT j FROM credit WHERE lname=?", s.lname);
       let c0 = null; try { c0 = cj ? JSON.parse(cj.j) : null; } catch (_) {}
       const gr = guardProfile(oldO, o, Math.max(0, (now - curAt) / 1000), c0);
+      let vt = this.vget(s.lname); if (!vt && cur) vt = this.vbase(oldO);
+      if (!gr.why && vt) gr.why = this.vwhy(vt, o);
       if (gr.why) { this.sql.exec("INSERT INTO flags VALUES (?,?,?)", s.lname, now, gr.why); return json({ ok: false, rejected: true, why: gr.why, rev: have, data: cur ? cur.data : null }); }
       this.sql.exec("INSERT OR REPLACE INTO credit VALUES (?,?)", s.lname, JSON.stringify(gr.credit));
+      if (!this.vget(s.lname)) this.vput(s.lname, vt || this.vbase(o));
       const rev = have + 1; this.lastPut.set(s.lname, now); if (this.lastPut.size > 500) this.lastPut.clear();
       if (cur) { this.sql.exec("INSERT OR REPLACE INTO pbak VALUES (?,?,?,?)", s.lname, have, cur.data, now); for (const o2 of this.all("SELECT rev FROM pbak WHERE lname=? ORDER BY rev DESC", s.lname).slice(8)) this.sql.exec("DELETE FROM pbak WHERE lname=? AND rev=?", s.lname, o2.rev); }
       this.sql.exec("INSERT OR REPLACE INTO profiles VALUES (?,?,?,?)", s.lname, rev, data, now);

@@ -1746,7 +1746,7 @@ async function onCell(i) {
 /* ===== the end of a match: result, rewards, the card taken ===== */
 function endMatch() {
   if (!M || M.done) return; M.done = true; const st = M.state, me = M.me, a = scoreOf(st, me), b = scoreOf(st, 1 - me), win = a > b, draw = a === b;
-  const cap0 = deckCap(); rollover(); P.plays++; P.mis.play++; P.mis.cap += M.captured; if (win) { P.wins++; P.mis.win++; }
+  const cap0 = deckCap(); rollover(); P.tplays = (P.tplays || 0) + 1; P.mis.play++; P.mis.cap += M.captured; if (win) { P.twins = (P.twins || 0) + 1; P.mis.win++; }   // the classic mode is not verified by the server, so it keeps its own counters
   const tile = (i, n, t) => `<div class="rwi ${t}">${ic(i, "")}<b>×${n}</b></div>`, chips = []; let ups = [];
   if (M.kind === "ai") {
     if (win) {
@@ -1841,7 +1841,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.11.27-a";
+const VER = "2026.11.28-a";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -2420,6 +2420,29 @@ function skTile(id, cls) {
   return `<div class="ku mini skillcard ${cls || ""}" style="--sk:${c}" data-sid="${id}"><div class="kart">${img ? `<img src="${img}" alt="">` : `<span class="skg">${skGlyph(id)}</span>`}</div><b class="kcost">${k.c}</b><div class="kname">${esc(k.n)}</div><i class="sktype">${k.t === "ally" ? "ALLY" : k.t === "enemy" ? "ENEMY" : "ALL"}</i></div>`;
 }
 
+/* ===== rules.js: match rules shared by the app and the server (the server re-runs every fight from these). Pure functions: no screen, no saved game, no Math.random. ===== */
+const CAMP = [
+  { name: "Verdant Reach", sub: "Meadows, roads and the first bandits", els: ["earth", "wind"], hint: "Wind then Earth is Sandblast: ×1.5 damage.", foes: ["Roadside Scouts", "Cactus Raiders", "The Hollow Patrol", "Gale Riders", "Stone Wardens", "Chief Brogan"] },
+  { name: "Ashen Wastes", sub: "Cinder plains under a red sky", els: ["fire", "wind"], hint: "Fire then Wind splashes the lanes beside the target.", foes: ["Ember Hounds", "Cinder Marauders", "The Smoulder Guard", "Ash Dancers", "Furnace Knights", "Warlord Pyra"] },
+  { name: "Frostmere", sub: "A frozen pass and a silent court", els: ["ice", "water"], hint: "Water then Ice freezes a card: it skips its next attack.", foes: ["Snow Wolves", "Rimebound Pilgrims", "The Quiet Court", "Glacier Wardens", "Frostweavers", "The Frost Queen"] },
+  { name: "Tidal Ruins", sub: "Drowned stairs and a sunken throne", els: ["water", "lightning"], hint: "Water then Lightning is Conduct: ×1.5 damage.", foes: ["Reef Skulkers", "Stormcallers", "The Drowned Choir", "Tidebreakers", "Thunder Sentinels", "Leviathan's Voice"] },
+  { name: "The Hollow Crown", sub: "The last road, and the last table", els: ["light", "dark"], hint: "Light and Dark react both ways: Eclipse strips buffs.", foes: ["Pale Heralds", "Dusk Stalkers", "The Veiled Court", "Dawnblades", "Eclipse Knights", "The Hollow King"] },
+];
+function campDeck(ch, k) {
+  const r = rngOf("camp" + ch + "-" + k), cap = Math.min(6, 2 + Math.ceil(ch * .8) + (k >= 4 ? 1 : 0) + (k === 5 ? 1 : 0)), els = CAMP[ch].els;
+  const pool = POOL.filter(c => rarOf(c) <= cap && (!c.ex || cap >= 6)).sort((a, b) => a.i - b.i), pick = [], n = {};
+  const take = (list, cnt) => { const L = list.slice(); for (let t = 0; t < cnt && L.length; t++) { const c = L.splice(Math.floor(r() * L.length), 1)[0]; if ((n[c.id] || 0) >= (rarOf(c) >= 5 ? 1 : 2)) { t--; continue; } pick.push(c.id); n[c.id] = (n[c.id] || 0) + 1; } };
+  take(pool.filter(c => ckCard(c).el === els[0]), 6); take(pool.filter(c => ckCard(c).el === els[1]), 4); take(pool, 1); while (pick.length < 12) take(pool, 1);
+  const deck = withSkills(pick.slice(0, 12), Math.min(2, ch), r); for (let i = deck.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [deck[i], deck[j]] = [deck[j], deck[i]]; } return deck;
+}
+const campLevel = (ch, k) => Math.min(2, Math.floor((ch * 6 + k) / 9));
+const RANK_LV = 5, TIERS_R = [["Bronze", 0], ["Silver", 1000], ["Gold", 1300], ["Platinum", 1600], ["Diamond", 1900], ["Master", 2200]];
+const rankTier = pts => { let t = 0; TIERS_R.forEach(([n, v], i) => { if (pts >= v) t = i; }); return t; };
+const rankLevel = pts => (pts < 1100 ? 0 : pts < 1800 ? 1 : 2);
+const campMode = (ch, k) => ({ kind: "camp", ch, k, deck: campDeck(ch, k), core: k === 5 ? 15 : 0, energy: k === 5 ? 1 : 0 });
+/* what the server enforces for a solo fight: the opponent's level and the boss bonuses */
+const campBoss = k => (k === 5 ? { core: 15, eMul: 1.3 } : { core: 0, eMul: 0 });
+
 /* ===== ARENA: the real-time, semi-automatic battle. Rules: GAME_RULES_v2.md =====
    A pure simulation: no DOM, no Math.random, fixed 0.1 s ticks, so two phones given the same decks and the same inputs on the same ticks
    compute the identical fight. Everything marked [placeholder] in AR is a tuning number, not design. */
@@ -2807,29 +2830,11 @@ function kuHtml(u, s, i, kind, o = {}) {
 const kcardMini = (id, extra = "") => { if (isSkill(id)) return skTile(id, extra); const k = ckCard(BY[id]); return `<div class="ku mini el-${k.el} r${k.rar} ${extra}"><div class="kart"><img src="${artSrc(BY[id])}" alt=""></div><i class="kel">${elIco(k.el, "")}</i><b class="kcost">${k.cost}</b><div class="kname">${esc(kshort(k.name, 10))}</div><div class="kst"><b class="a">${Math.round(k.atk * AR.ATKX)}</b><b class="h">${hpOf(k)}</b></div></div>`; };
 
 /* ----- the campaign: five regions of six opponents ----- */
-const CAMP = [
-  { name: "Verdant Reach", sub: "Meadows, roads and the first bandits", els: ["earth", "wind"], hint: "Wind then Earth is Sandblast: ×1.5 damage.", foes: ["Roadside Scouts", "Cactus Raiders", "The Hollow Patrol", "Gale Riders", "Stone Wardens", "Chief Brogan"] },
-  { name: "Ashen Wastes", sub: "Cinder plains under a red sky", els: ["fire", "wind"], hint: "Fire then Wind splashes the lanes beside the target.", foes: ["Ember Hounds", "Cinder Marauders", "The Smoulder Guard", "Ash Dancers", "Furnace Knights", "Warlord Pyra"] },
-  { name: "Frostmere", sub: "A frozen pass and a silent court", els: ["ice", "water"], hint: "Water then Ice freezes a card: it skips its next attack.", foes: ["Snow Wolves", "Rimebound Pilgrims", "The Quiet Court", "Glacier Wardens", "Frostweavers", "The Frost Queen"] },
-  { name: "Tidal Ruins", sub: "Drowned stairs and a sunken throne", els: ["water", "lightning"], hint: "Water then Lightning is Conduct: ×1.5 damage.", foes: ["Reef Skulkers", "Stormcallers", "The Drowned Choir", "Tidebreakers", "Thunder Sentinels", "Leviathan's Voice"] },
-  { name: "The Hollow Crown", sub: "The last road, and the last table", els: ["light", "dark"], hint: "Light and Dark react both ways: Eclipse strips buffs.", foes: ["Pale Heralds", "Dusk Stalkers", "The Veiled Court", "Dawnblades", "Eclipse Knights", "The Hollow King"] },
-];
 const campOpen = (ch, k) => (ch === 0 && k === 0) || !!(P.camp && P.camp.cl[k === 0 ? (ch - 1) + "-5" : ch + "-" + (k - 1)]);
-function campDeck(ch, k) {
-  const r = rngOf("camp" + ch + "-" + k), cap = Math.min(6, 2 + Math.ceil(ch * .8) + (k >= 4 ? 1 : 0) + (k === 5 ? 1 : 0)), els = CAMP[ch].els;
-  const pool = POOL.filter(c => rarOf(c) <= cap && (!c.ex || cap >= 6)).sort((a, b) => a.i - b.i), pick = [], n = {};
-  const take = (list, cnt) => { const L = list.slice(); for (let t = 0; t < cnt && L.length; t++) { const c = L.splice(Math.floor(r() * L.length), 1)[0]; if ((n[c.id] || 0) >= (rarOf(c) >= 5 ? 1 : 2)) { t--; continue; } pick.push(c.id); n[c.id] = (n[c.id] || 0) + 1; } };
-  take(pool.filter(c => ckCard(c).el === els[0]), 6); take(pool.filter(c => ckCard(c).el === els[1]), 4); take(pool, 1); while (pick.length < 12) take(pool, 1);
-  const deck = withSkills(pick.slice(0, 12), Math.min(2, ch), r); for (let i = deck.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [deck[i], deck[j]] = [deck[j], deck[i]]; } return deck;
-}
-const campLevel = (ch, k) => Math.min(2, Math.floor((ch * 6 + k) / 9));
 
 /* ----- ranked: a ladder of points, unlocked at level 5 ----- */
-const RANK_LV = 5, TIERS_R = [["Bronze", 0], ["Silver", 1000], ["Gold", 1300], ["Platinum", 1600], ["Diamond", 1900], ["Master", 2200]];
-const rankTier = pts => { let t = 0; TIERS_R.forEach(([n, v], i) => { if (pts >= v) t = i; }); return t; };
 function rankInit() { if (!P.rank) P.rank = { pts: 800, w: 0, l: 0, tierBest: 0, day: "" }; }
 function rankOpp(pts) { return Math.max(400, pts + Math.round((Math.random() * 2 - 1) * 120)); }
-const rankLevel = pts => (pts < 1100 ? 0 : pts < 1800 ? 1 : 2);
 
 /* ----- the Battle tab ----- */
 let BV = "home";
@@ -2996,7 +3001,16 @@ async function ckFight(auto) {
   const acts = ckAiPlan(1); ckRender(); await sleep(250 / G.speed); await ckAiExecute(acts); if (!G.over) await ckBattle(); CKU.busy = false; CKU.msg = ""; ckRender(); if (G.over) ckResult();
 }
 /* ----- rewards by mode ----- */
+/* a fight the server did not verify (offline, the tutorial, or a direct connection between two phones): the result is shown, nothing is earned */
+function ckResultPlain() {
+  const w = G.winner, win = w === ME, draw = w === -1, tut = G.mode && G.mode.tut; sfx(win ? "win" : draw ? "draw" : "lose");
+  openSheet(`<div class="res ${win ? "win" : draw ? "draw" : "lose"}"><b class="rtitle">${win ? "VICTORY" : draw ? "DRAW" : "DEFEAT"}</b><small class="rsub">${G.arena ? "Match time " + arClock(G.time) : ""}</small>` +
+    `<div class="rcores"><div class="me"><small>YOU</small><b>${Math.max(0, Math.ceil(G.s[ME].core))}</b></div><i>CORE</i><div class="foe"><small>${esc(((G.arena && AM && AM.opp) || "FOE").toString().toUpperCase().slice(0, 9))}</small><b>${Math.max(0, Math.ceil(G.s[1 - ME].core))}</b></div></div>` +
+    `<p class="rnote">${tut ? "Tutorial complete. Real fights earn rewards." : "This fight was not verified by the server (no connection, or a direct link between two phones), so it earns no rewards."}</p></div><div class="row c" style="margin-top:14px"><button class="btn dark" data-ck="leave">Back</button></div>`);
+  lockSheet();
+}
 function ckResult() {
+  if (G && !G.verified) return ckResultPlain();
   const w = G.winner, win = w === ME, draw = w === -1, mode = G.mode || { kind: "practice" }, L = G.level || 0; rollover(); P.mis.play++; let promo = "", dust = 0, packs = 0, xp = 0, extra = "", coins = 0, gems = 0;
   if (win) P.mis.win++;
   if (mode.kind === "practice") { P.ck.w += win ? 1 : 0; P.ck.l += win || draw ? 0 : 1; dust = win ? 15 + L * 10 : 5; xp = win ? 25 + 10 * L : 10; coins = win ? 5 + 10 * L : 3; }
@@ -3036,7 +3050,6 @@ function ckRematch() {
   const m = G && G.mode; closeModal(); if (!m) return;
   if (m.kind === "camp") return ckStart(campLevel(m.ch, m.k), campMode(m.ch, m.k)); if (m.kind === "ranked") return rankedStart(); ckStart(G.level, { kind: "practice" });
 }
-const campMode = (ch, k) => ({ kind: "camp", ch, k, deck: campDeck(ch, k), core: k === 5 ? 15 : 0, energy: k === 5 ? 1 : 0 });
 function rankedStart() { rankInit(); const opp = rankOpp(P.rank.pts); ckStart(rankLevel(P.rank.pts), { kind: "ranked", opp, deck: ckAiDeck(rankLevel(P.rank.pts)) }); }
 
 /* ----- every tap in Clash ----- */
@@ -3136,11 +3149,16 @@ const actText = k => ({
   cleanse: `Clear a card's mark and give it ${Math.round(AR.SK.cleanse * AR.HPX)} shield`, pact: `Pay ${Math.round(AR.SK.pactCost * 100)}% of its health: a card gets +${+(AR.SK.pact * AR.ATKX).toFixed(1)} attack for ${AR.SK.pactT} s`, strike: `A heavy hit (${AR.SK.strike}× attack, at least ${+(3 * AR.ATKX * AR.SK.strike).toFixed(1)}) with its element (reacts, then marks)`, mark: "Mark an enemy with its element (no damage)",
 }[k] || "");
 
-function arStart(level, mode = { kind: "practice" }) {
-  ckInit(); const d = P.cd[P.cdi], err = ckDeckOk(d.cards); if (err) return toast(err);
-  const A = arNew(d.cards, mode.deck || ckAiDeck(level), { ui: true, level: [2, level], mode, seed: (Math.random() * 2147483647) | 0 });
+/* A solo fight is set up by the server: it picks the seed, the opponent's level and the opponent's deck, and afterwards re-runs the fight from the player's commands.
+   Without the server (offline) the fight still plays, but it is not verified and earns nothing. */
+async function arStart(level, mode = { kind: "practice" }) {
+  ckInit(); const d = P.cd[P.cdi], err = ckDeckOk(d.cards); if (err) return toast(err); if (!uiOnce("arStart", 1500)) return;
+  let sv = null; if (typeof matchStart === "function") { toast("Setting up the fight…"); sv = await matchStart(mode, level); if (sv && sv.refused) return toast(sv.err || "The server refused that fight."); }
+  if (sv) { level = sv.level; if (mode.kind === "ranked") mode.opp = sv.opp; } else if (typeof ACC !== "undefined") toast("No connection to the server: this fight is not verified and earns no rewards.");
+  const A = arNew(d.cards, sv ? sv.foe : (mode.deck || ckAiDeck(level)), { ui: true, level: [2, level], mode, seed: sv ? sv.seed : (Math.random() * 2147483647) | 0 });
   if (mode.core) A.s[1].core += mode.core; if (mode.energy) A.s[1].eMul = 1.3;
   arLaunch(A, mode, mode.kind === "camp" ? CAMP[mode.ch].foes[mode.k] : mode.kind === "ranked" ? "RANKED" : "ENEMY", 0, null, level);
+  if (sv) { G.verified = true; AM.mid = sv.mid; AM.deck = d.cards.slice(); }
 }
 /* AM.me is my seat in the simulation (0 = host). On screen "view side" 0 is always me and 1 the opponent, so a sim side is `view ^ me`. */
 function arLaunch(A, mode, opp, me, net, level) {
@@ -3419,7 +3437,8 @@ function arFinale() {
   setTimeout(arFinish, uiMotion() ? 2500 : 600);
 }
 function arFinish() {
-  if (!AM || !G || !G.arena) return; const A = AM.A; if (A.replay) return ckLeave(); if (A.rec && typeof repSave === "function") repSave(A); G.over = true; G.winner = A.winner; G.time = A.t; G.s = [{ core: A.s[0].core }, { core: A.s[1].core }]; ckResult();
+  if (!AM || !G || !G.arena) return; const A = AM.A; if (A.replay) return ckLeave(); if (A.rec && typeof repSave === "function") repSave(A);
+  if (AM.mid && typeof matchSubmit === "function") matchSubmit(A); if (AM.net && typeof SRVC !== "undefined" && SRVC && SRVC.ws && G.verified) { try { SRVC.ws.send(JSON.stringify({ t: "result" })); } catch (_) {} } G.over = true; G.winner = A.winner; G.time = A.t; G.s = [{ core: A.s[0].core }, { core: A.s[1].core }]; ckResult();
 }
 /* ----- taps ----- */
 function arTap(s, i, kind) {
@@ -3530,6 +3549,7 @@ function cknSrvConnect2(code, opts) {
       if (me.started) return; if (m.ver && m.ver !== VER) { toast("Your opponent has a different app version."); return ws.close(); } if (ckDeckShapeOk(m.deck)) { toast("Your opponent's deck is not valid."); return ws.close(); }
       me.started = true; OPP_AV = typeof m.av === "string" && BY[m.av] ? m.av : null; closeModal(); const mine = me.role === 0;
       ONL_SEED = hashStr(code); cknStart(me.role, mine ? deck : m.deck, mine ? m.deck : deck, m.name, x => send({ t: "ck", m: x }));
+      if (G) G.verified = true;   // this fight runs through our own room, which records it and decides the winner
       if (opts.ranked) G.mode = { kind: "ranked", opp: m.rating || 800 };
     } else if (m.t === "ck") cknGot(m.m);
     else if (m.t === "left") { if (G && G.online && !G.over) arWin("Your opponent left."); else if (!me.started) toast("Your friend left the room."); }
@@ -3668,7 +3688,9 @@ function cloudPush(now) {
   clearTimeout(CP.tm); CP.tm = setTimeout(cloudPushNow, now ? 0 : Math.max(0, 4000 - (Date.now() - CP.t)));
 }
 async function cloudPushNow(keep) {
-  if (CP.busy || !ACC || !CLOUD.on || CLOUD.conflict || !P) return; CP.busy = true; CP.t = Date.now();
+  if (CP.busy || !ACC || !CLOUD.on || CLOUD.conflict || !P) return;
+  if (typeof vqDrain === "function" && VQ.length) { CP.busy = true; await vqDrain(); CP.busy = false; if (VQ.length) { setTimeout(cloudPush, 15000); return; } }   // fight results reach the server before the save that counts them
+  CP.busy = true; CP.t = Date.now();
   const r = await cloudCall("/profile/put", { base: P.rev || 0, data: JSON.stringify(P), keep: !!keep }); CP.busy = false;
   if (r.ok) { P.rev = r.rev; if (!dirty && !saving) P.us = 0; persist(); if (P.us) cloudPush(); return true; }
   if (r.rejected) {   // the server did not accept this save: it goes back to the last verified one
@@ -4301,6 +4323,34 @@ let ERRN = 0;
 function errReport(msg) { try { if (ERRN++ >= 5 || typeof srvOn !== "function" || !srvOn()) return; fetch(SERVER_HTTP + "/log", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ v: VER, msg: String(msg).slice(0, 300), ua: navigator.userAgent.slice(0, 120) }) }).catch(() => {}); } catch (_) {} }
 window.addEventListener("error", e => errReport((e.message || "error") + " @" + String(e.filename || "").split("/").pop() + ":" + e.lineno));
 window.addEventListener("unhandledrejection", e => errReport("promise: " + (e.reason && e.reason.message || e.reason)));
+
+/* ---------- server authority: the server sets a solo fight up and re-runs it afterwards; results wait in a queue until they are delivered ---------- */
+let VQ = []; try { VQ = JSON.parse(localStorage.getItem("triad.vq") || "[]") || []; } catch (_) { VQ = []; }
+const vqSave = () => { try { localStorage.setItem("triad.vq", JSON.stringify(VQ.slice(-10))); } catch (_) {} };
+let VQBUSY = null;
+async function matchStart(mode, level) {
+  if (!ACC || !srvOn() || mode.tut) return null;
+  try {
+    if (P && P.us && typeof cloudPushNow === "function") await cloudPushNow();   // the server checks the deck and the unlocked stage against the saved game
+    const ctl = new AbortController(), tm = setTimeout(() => ctl.abort(), 6000);
+    const r = await fetch(SERVER_HTTP + "/match/start", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ token: ACC.token, mode: { kind: mode.kind, ch: mode.ch, k: mode.k, level } }), signal: ctl.signal });
+    clearTimeout(tm); const j = await r.json(); if (j.ok) return j; if (r.status >= 500 || j.auth) return null; return { refused: true, err: j.err };
+  } catch (_) { return null; }
+}
+function matchSubmit(A) { if (!ACC || !AM || !AM.mid) return; VQ.push({ mid: AM.mid, deck: AM.deck, q: (A.rec || []).filter(c => c[2] === 0), acct: ACC.name }); AM.mid = null; vqSave(); return vqDrain(); }
+function vqDrain() {
+  if (VQBUSY) return VQBUSY;
+  VQBUSY = (async () => {
+    while (VQ.length && ACC) {
+      const x = VQ[0]; if (x.acct !== ACC.name) { VQ.shift(); vqSave(); continue; }
+      const r = await accCall("/match/submit", { token: ACC.token, mid: x.mid, deck: x.deck, q: x.q });
+      if (r.ok || r.bad || r.gone || r.auth) { VQ.shift(); vqSave(); if (r.bad) toast("The server could not verify a fight: " + (r.err || "unknown reason")); } else break;   // no connection: keep it and try again later
+    }
+    VQBUSY = null;
+  })();
+  return VQBUSY;
+}
+window.addEventListener("online", () => { if (VQ.length) vqDrain().then(() => typeof cloudPush === "function" && cloudPush()); });
 
 /* ---------- clicks ---------- */
 document.addEventListener("click", async e => {
