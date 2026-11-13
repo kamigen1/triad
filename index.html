@@ -426,6 +426,16 @@ nav button:active { transform: scale(.93); }
 .cmp-r .up { color: #6df09a; } .cmp-r .dn { color: #ff7b86; } .cmp-r.hd { background: none; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; } .syn { margin: 5px 0 0; font-size: 12px; color: #cdd8f0; font-weight: 700; } .syn b { color: var(--yellow); }
 @media (prefers-reduced-motion: reduce) { #view.enter, .kslot.swapflash, .cmp, .dlgbox, #undo, .newtag, .pill.gain, .pill.spend { animation: none !important; } .btn, .tile, .kp, .kslot { transition: none !important; } }
 
+/* ===== combat v3: a 12-card deck, a hand and a draw button ===== */
+.kd6 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; } .kd6 .kslot { min-width: 0; }
+.drawb { margin-top: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; padding: 5px 10px; border: 0; border-radius: 10px; background: #ffffff1a; color: var(--ds-on-dark); font: 700 12px var(--body); transition: transform .14s, background .14s; }
+.drawb small { font: 600 10px var(--body); opacity: .8; } .drawb u { text-decoration: none; font-weight: 800; }
+.drawb.ready { background: linear-gradient(#D2B979, #B99B59); color: #2A2412; box-shadow: 0 0 14px #b99b5977; animation: drawready 1.4s ease-in-out infinite; } .drawb.off { opacity: .55; }
+@keyframes drawready { 50% { transform: scale(1.05); } }
+.foepile { margin-top: 6px; font: 600 10.5px var(--body); color: var(--ds-on-dark2); } .foepile u { text-decoration: none; font-weight: 800; color: var(--ds-on-dark); }
+@media (prefers-reduced-motion: reduce) { .drawb.ready { animation: none; } }
+.zone { grid-template-columns: 148px 98px minmax(0, 1fr); } .zone .mana { min-width: 0; max-width: 100%; } .drawb { width: 100%; max-width: 118px; } .foepile { white-space: nowrap; }
+
 /* ===== THEME: "Night Court" visual language (see ART_DIRECTION.md) =====
    Premium anime-fantasy collectible card game: dark navy / charcoal surfaces, gold and metal accents, rich elemental colours, thin engraved lines instead of chunky outlines.
    This file is loaded LAST: it re-points the old colour tokens at the new palette, then restyles every shared component once (button, panel, section header, pill, bar, sheet, card, board slot)
@@ -1084,6 +1094,24 @@ nav .dot { background: #C26168; border: 2px solid var(--ds-parch); }
 .hm-practice .btn small { font: 600 11.5px var(--body); opacity: .75; }
 @media (prefers-reduced-motion: reduce) { .hm-hero img { transform: none; } }
 
+/* ---------- v2.1: the menu is mainly BLUE; white for text and icons, muted gold for the one primary action and rewards, dusty violet for small accents ---------- */
+:root { --ds-blue-hi: #3A5776; --ds-blue: #2F4966; --ds-blue-lo: #263D57; --ds-violet-hi: #A892BA; }
+nav { background: linear-gradient(#2B425D, #213449); box-shadow: 0 -8px 26px rgba(8, 14, 22, .45), inset 0 1px 0 #ffffff14; }
+nav button { color: #B7C5D4; }
+nav button.on { background: var(--ds-violet); color: #fff; box-shadow: 0 4px 12px #8d789b55; } nav button.on .dia svg { color: #fff; }
+nav .dot { background: var(--ds-gold); border: 2px solid #213449; }
+.hm-hero::after { background: linear-gradient(#1a243099 0, #1a243000 28%, #1a243000 44%, #3A577699 80%, #3A5776 100%); }
+.hm-tray { background: linear-gradient(#3A5776, #2F4966 55%, #28425D); color: #fff; box-shadow: 0 -6px 24px rgba(8, 14, 22, .3); }
+.hm-go { background: linear-gradient(#4A6D93, #3F5F84); box-shadow: 0 6px 16px rgba(10, 20, 32, .3), inset 0 1px 0 #ffffff26; }
+.hm-go .tx small { color: #D7CBE3; } .hm-go .tx span { color: #D5E0EB; }
+.hm-err { color: #FFC7C9; }
+.hm-h b { color: #fff; } .hm-h b::after { content: ""; display: block; width: 26px; height: 2px; margin-top: 4px; border-radius: 2px; background: var(--ds-violet-hi); }
+.hm-h span, .hm-h button { color: #C4D1DE; }
+.hm-dest { box-shadow: 0 6px 16px rgba(10, 20, 32, .32); } .hm-dest::after { background: linear-gradient(#0000 36%, #1b2d44e6 100%); }
+.hm-deckbar select { background: #223A55; color: #fff; } .hm-deckbar .btn.dark { background: #ffffff22; color: #fff; } .hm-deckbar .btn.yellow { background: var(--ds-violet); color: #fff; }
+.hm-foot button { color: #C4D1DE; }
+.hm-deck .sep { background: #ffffff26; }
+
 @media (prefers-reduced-motion: reduce) { * { animation-duration: .01s !important; } }
 /* ===== standalone phone app: portrait only, no zoom, no rubber band, no text selection, 16px inputs so iOS never zooms on focus ===== */
 html, body { overscroll-behavior: none; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; touch-action: manipulation; }
@@ -1164,7 +1192,7 @@ const ARTTHUMB = {"bahamut":"data:image/webp;base64,UklGRoY7AABXRUJQVlA4IHo7AABQ
 const C = RAW.map((r, i) => ({ i, id: r[0], name: r[1], lv: r[2], s: [r[3], r[4], r[5], r[6]], ex: !!r[7], grp: r[8] }));
 const BY = Object.fromEntries(C.map(c => [c.id, c]));
 const TIERS = ["Novice", "Adept", "Master", "Champion"];
-const STARTER = ["goblin", "slime", "dracky", "cactuar", "shadow", "bomb", "flan", "soldier", "healslime", "she_slime"];
+const STARTER = ["goblin", "slime", "dracky", "cactuar", "shadow", "bomb", "flan", "soldier", "healslime", "she_slime", "bandit", "ff_chocobo"];
 const SUM_CAP = 20;   // summons per day
 const DUST = { 1: 3, 2: 5, 3: 13, 4: 30, 5: 75, ex: 125 };
 const CRAFT = { 1: 30, 2: 90, 3: 300, 4: 900, 5: 3000 };
@@ -1629,7 +1657,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.11.20-a";
+const VER = "2026.11.21-a";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -1997,29 +2025,38 @@ async function ckBattle() {
 
 /* ----- decks ----- */
 function ckDeckOk(ids) {
-  if (!ids || ids.length !== 8) return "Pick 8 cards: 5 front and 3 backups."; const n = {}; for (const id of ids) { if (!BY[id]) return "A card is missing."; n[id] = (n[id] || 0) + 1; if (n[id] > (rarOf(BY[id]) >= 5 ? 1 : 2)) return BY[id].name + ": only " + (rarOf(BY[id]) >= 5 ? 1 : 2) + " copy allowed."; if (n[id] > (P.own[id] || 0)) return "You don't own enough " + BY[id].name + "."; }
+  if (!ids || ids.length !== 12) return "A deck is 12 cards."; const n = {}; for (const id of ids) { if (!BY[id]) return "A card is missing."; n[id] = (n[id] || 0) + 1; if (n[id] > (rarOf(BY[id]) >= 5 ? 1 : 2)) return BY[id].name + ": only " + (rarOf(BY[id]) >= 5 ? 1 : 2) + " copy allowed."; if (n[id] > (P.own[id] || 0)) return "You don't own enough " + BY[id].name + "."; }
   return "";
 }
 function ckDeckShapeOk(ids) {   // the same rules, without checking what the player owns (used on an opponent's deck)
-  if (!ids || ids.length !== 8) return "bad size"; const n = {}; for (const id of ids) { if (!BY[id]) return "unknown card"; n[id] = (n[id] || 0) + 1; if (n[id] > (rarOf(BY[id]) >= 5 ? 1 : 2)) return "too many copies"; } return "";
+  if (!ids || ids.length !== 12) return "bad size"; const n = {}; for (const id of ids) { if (!BY[id]) return "unknown card"; n[id] = (n[id] || 0) + 1; if (n[id] > (rarOf(BY[id]) >= 5 ? 1 : 2)) return "too many copies"; } return "";
 }
 function ckAutoDeck() {
   const own = ownedList().slice().sort((a, b) => ckCard(a).cost - ckCard(b).cost || a.i - b.i), pick = [], used = {};
-  const els = {}; for (const c of own) { const k = ckCard(c); if (pick.length >= 8) break; if ((els[k.el] || 0) >= 2) continue; pick.push(c.id); used[c.id] = 1; els[k.el] = (els[k.el] || 0) + 1; }
-  for (const c of own) { if (pick.length >= 8) break; if (!used[c.id]) { pick.push(c.id); used[c.id] = 1; } }
-  return pick.slice(0, 8);
+  const els = {}; for (const c of own) { const k = ckCard(c); if (pick.length >= 12) break; if ((els[k.el] || 0) >= 3) continue; pick.push(c.id); used[c.id] = 1; els[k.el] = (els[k.el] || 0) + 1; }
+  for (const c of own) { if (pick.length >= 12) break; if (!used[c.id]) { pick.push(c.id); used[c.id] = 1; } }
+  return pick.slice(0, 12);
+}
+/* a deck saved under the old 8-card rule is filled up to 12 from the cards the player owns (copy limits and ownership respected) */
+function ckPadDeck(cards) {
+  const out = cards.filter(id => BY[id]).slice(0, 12), n = {}; out.forEach(id => n[id] = (n[id] || 0) + 1);
+  const own = ownedList().slice().sort((a, b) => ckCard(a).cost - ckCard(b).cost || a.i - b.i);
+  for (const pass of [1, 2]) for (const c of own) { if (out.length >= 12) break; const lim = Math.min(rarOf(c) >= 5 ? 1 : 2, P.own[c.id] || 0, pass); if ((n[c.id] || 0) < lim) { out.push(c.id); n[c.id] = (n[c.id] || 0) + 1; } }
+  return out;
 }
 function ckInit() {
   if (!P.cd) P.cd = []; if (!P.cd.length) { P.cd.push({ name: "Starter", cards: ckAutoDeck() }); P.cdi = 0; scheduleSave(); } if (P.cdi == null || !P.cd[P.cdi]) P.cdi = 0;
   if (!P.ck) P.ck = { w: 0, l: 0, day: "", won: false };
+  for (const d of P.cd) if (d.cards.length < 12) { d.cards = ckPadDeck(d.cards); scheduleSave(); }
+  if (ownedList().length < 12 && typeof STARTER !== "undefined") { for (const id of STARTER) if (!(P.own[id] > 0) && ownedList().length < 12) P.own[id] = 1; scheduleSave(); }
 }
 function ckAiDeck(level) {
   const pairs = [["water", "lightning"], ["ice", "fire"], ["wind", "earth"], ["fire", "wind"], ["light", "dark"], ["water", "ice"]], pair = pairs[Math.floor(Math.random() * pairs.length)];
   const maxR = level === 0 ? 2 : level === 1 ? 4 : 6, pool = POOL.filter(c => rarOf(c) <= maxR && !(c.ex && level < 2)), shuffle = a => a.sort(() => Math.random() - .5), pick = [], n = {};
-  const take = list => { for (const c of shuffle(list.slice())) { if (pick.length >= 8) return; if ((n[c.id] || 0) >= (rarOf(c) >= 5 ? 1 : 2)) continue; pick.push(c.id); n[c.id] = (n[c.id] || 0) + 1; } };
+  const take = list => { for (const c of shuffle(list.slice())) { if (pick.length >= 12) return; if ((n[c.id] || 0) >= (rarOf(c) >= 5 ? 1 : 2)) continue; pick.push(c.id); n[c.id] = (n[c.id] || 0) + 1; } };
   const of = (el, k) => shuffle(pool.filter(c => ckCard(c).el === el)).slice(0, k);
-  take(of(pair[0], 4)); take(of(pair[1], 3)); take(pool); while (pick.length < 8) take(pool);
-  return shuffle(pick.slice(0, 8));
+  take(of(pair[0], 6)); take(of(pair[1], 4)); take(pool); while (pick.length < 12) take(pool);
+  return shuffle(pick.slice(0, 12));
 }
 
 /* ===== SET 1: the first 100 hand-built cards =====
@@ -2126,6 +2163,7 @@ function setKit(c, k) {
    compute the identical fight. Everything marked [placeholder] in AR is a tuning number, not design. */
 const AR = {
   DT: .1, MATCH: 180, LAST: 60,      // tick length, match length, the closing stretch with doubled energy (seconds)
+  DECKN: 12, START: 5, HAND: 3, DRAW_E: 4,   // a deck is 12 cards: 5 random ones start on the field, the rest are drawn into a hand of up to 3 for 4 energy each
   E0: 5, EMAX: 10, ERATE: 2.4,       // starting energy, cap, seconds per energy (halved: energy is scarce, so each skill is a decision)
   SWAP_E: 2, SWAP_CD: 8,             // bringing a reserve in: energy, and the wait before that slot can swap again
   IV: 6, STRIKE: .5, ATKX: 8,      // seconds between basic strikes at speed 1.0, the share of ATK a strike deals, and the factor from a card's base attack to its fight attack (slower, bigger hits)
@@ -2161,7 +2199,12 @@ function arUnit(A, cid) {
 }
 function arNew(deck0, deck1, o = {}) {
   const A = { t: 0, tick: 0, uid: 0, seed: 20261111, over: false, winner: null, ev: [], log: [], q: [], seq: [0, 0], ui: !!o.ui, level: o.level || [1, 1], mode: o.mode || {}, horizon: null, s: [] };
-  for (const deck of [deck0, deck1]) A.s.push({ core: AR.CORE, energy: AR.E0, lane: deck.slice(0, 5).map(c => arUnit(A, c)), bench: deck.slice(5, 8).map(c => arUnit(A, c)), swapcd: [0, 0, 0, 0, 0] });
+  for (const deck of [deck0, deck1]) {
+    if (deck.length >= AR.DECKN) {   // v3: shuffle with the match's own seeded generator (both phones get the same order), 5 go to the field, the rest wait in the draw pile
+      const d = deck.slice(0, AR.DECKN); for (let i = d.length - 1; i > 0; i--) { const j = Math.floor(arRand(A) * (i + 1)); [d[i], d[j]] = [d[j], d[i]]; }
+      A.s.push({ core: AR.CORE, energy: AR.E0, lane: d.slice(0, AR.START).map(c => arUnit(A, c)), bench: Array(AR.HAND).fill(null), pile: d.slice(AR.START), swapcd: [0, 0, 0, 0, 0] });
+    } else A.s.push({ core: AR.CORE, energy: AR.E0, lane: deck.slice(0, 5).map(c => arUnit(A, c)), bench: deck.slice(5, 8).map(c => arUnit(A, c)), pile: [], swapcd: [0, 0, 0, 0, 0] });
+  }
   return A;
 }
 const arRand = A => { A.seed = (A.seed * 1103515245 + 12345) & 0x7fffffff; return A.seed / 0x7fffffff; };
@@ -2243,6 +2286,9 @@ function arRun(A, c) {
   else if (c.k === "swap") {
     const u = S.bench[c.b]; if (!u || S.energy < AR.SWAP_E || S.swapcd[c.l] > 0) return; S.energy -= AR.SWAP_E; S.swapcd[c.l] = AR.SWAP_CD;
     S.bench[c.b] = S.lane[c.l]; S.lane[c.l] = u; u.cd = AR.IV / u.spd; u.lock = null; arLog(A, u.name + " is brought in", c.s, "swap"); arEv(A, { t: "enter", s: c.s, i: c.l });
+  } else if (c.k === "draw") {   // pay 4 energy: the next card of the pile joins the hand
+    if (!S.pile || !S.pile.length || S.energy < AR.DRAW_E) return; const hi = S.bench.findIndex(b => !b); if (hi < 0) return;
+    S.energy -= AR.DRAW_E; const u = arUnit(A, S.pile.shift()); S.bench[hi] = u; arLog(A, u.name + " is drawn", c.s, "swap"); arEv(A, { t: "draw", s: c.s, i: hi });
   } else if (c.k === "use") {
     const u = S.lane[c.i]; if (!u || u.skcd > 0 || S.energy < u.acost) return; const a = ACT[u.active];
     const T = a.t === "ally" ? S.lane[c.t] : a.t === "enemy" ? F.lane[c.t] : null; if (a.t !== "none" && !T) return;
@@ -2309,6 +2355,11 @@ function arCheck(A) {
     if (A.winner === -1) { const hp = s => A.s[s].lane.concat(A.s[s].bench).reduce((n, u) => n + (u ? Math.max(0, u.hp) : 0), 0), x = hp(0), y = hp(1); if (Math.abs(x - y) > 1e-6) { A.winner = x > y ? 0 : 1; A.why = "health"; } }   // equal cores at the bell: the side with more card health left wins
   }
 }
+/* the computer draws when a lane is empty and its hand is too, or when energy would otherwise overflow */
+function arAiDraw(A, s, en, send) {
+  const S = A.s[s]; if (!S.pile || !S.pile.length || en < AR.DRAW_E || !S.bench.some(b => !b)) return en;
+  if ((S.lane.some(u => !u) && !S.bench.some(b => b)) || en >= AR.EMAX - .5) { send({ k: "draw" }); return en - AR.DRAW_E; } return en;
+}
 /* ----- the computer player (also "Auto" mode for a human): decides every half second ----- */
 function arAi(A, s) {
   if (A.over) return; const lvl = A.level[s]; if (A.tick % AR.AI_EVERY[lvl] !== 0) return; if (lvl >= 2) return arAiPro(A, s); const S = A.s[s], F = A.s[1 - s], send = c => (A.hook ? A.hook(Object.assign({ s }, c)) : arInput(A, Object.assign({ s }, c), 1)); let en = S.energy; const used = {};
@@ -2317,6 +2368,7 @@ function arAi(A, s) {
     const b = S.bench.map((u, k) => ({ u, k })).filter(x => x.u && !used[x.k]).sort((p, q) => q.u.atk - p.u.atk)[0];
     if (b) { used[b.k] = 1; en -= AR.SWAP_E; send({ k: "swap", b: b.k, l: i }); }
   }
+  en = arAiDraw(A, s, en, send);
   const allies = arLive(A, s), foes = arLive(A, 1 - s), needSwap = S.lane.some(u => !u) && S.bench.some(u => u);
   /* level 1 and up: everyone focuses one enemy (a healer or buffer first, else whoever is closest to dying) */
   let focus = null;
@@ -2358,6 +2410,7 @@ function arAiPro(A, s) {
     const b = S.bench.map((u, k) => ({ u, k })).filter(x => x.u && !used[x.k]).sort((p, q) => q.u.atk * q.u.hp - p.u.atk * p.u.hp)[0];
     if (b) { used[b.k] = 1; en -= AR.SWAP_E; send({ k: "swap", b: b.k, l: i }); }
   }
+  en = arAiDraw(A, s, en, send);
   const allies = arLive(A, s), foes = arLive(A, 1 - s); if (!foes.length || !allies.length) return;
   const avgFoeHit = foes.reduce((a, x) => a + hit(1 - s, x.u), 0) / foes.length, danger = u => u.hp + u.shield < avgFoeHit * 2.4 * Math.min(3, Math.max(1, foes.length / 2));
   const endgame = A.t > AR.MATCH - 14, left = Math.max(0, AR.MATCH - A.t);
@@ -2416,7 +2469,7 @@ function arSim(deck0, deck1, lv0 = 1, lv1 = 1, max = 2400) {
 }
 /* a short fingerprint of the board, compared between phones during an online match */
 function arHash(A) {
-  const r = x => Math.round(x * 100) / 100, t = JSON.stringify([A.tick, A.s.map(s => [r(s.core), r(s.energy), s.lane.map(u => (u ? [u.cid, u.passive, u.lv, r(u.atk), r(u.hp), r(u.max), r(u.cd), r(u.shield), u.mark && u.mark.el] : 0)), s.bench.map(u => (u ? u.cid : 0))])]); let h = 5381;
+  const r = x => Math.round(x * 100) / 100, t = JSON.stringify([A.tick, A.s.map(s => [r(s.core), r(s.energy), s.lane.map(u => (u ? [u.cid, u.passive, u.lv, r(u.atk), r(u.hp), r(u.max), r(u.cd), r(u.shield), u.mark && u.mark.el] : 0)), s.bench.map(u => (u ? u.cid : 0)), s.pile ? s.pile.length : 0])]); let h = 5381;
   for (let i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) >>> 0; return h;
 }
 
@@ -2444,8 +2497,8 @@ function campDeck(ch, k) {
   const r = rngOf("camp" + ch + "-" + k), cap = Math.min(6, 2 + Math.ceil(ch * .8) + (k >= 4 ? 1 : 0) + (k === 5 ? 1 : 0)), els = CAMP[ch].els;
   const pool = POOL.filter(c => rarOf(c) <= cap && (!c.ex || cap >= 6)).sort((a, b) => a.i - b.i), pick = [], n = {};
   const take = (list, cnt) => { const L = list.slice(); for (let t = 0; t < cnt && L.length; t++) { const c = L.splice(Math.floor(r() * L.length), 1)[0]; if ((n[c.id] || 0) >= (rarOf(c) >= 5 ? 1 : 2)) { t--; continue; } pick.push(c.id); n[c.id] = (n[c.id] || 0) + 1; } };
-  take(pool.filter(c => ckCard(c).el === els[0]), 4); take(pool.filter(c => ckCard(c).el === els[1]), 3); take(pool, 1); while (pick.length < 8) take(pool, 1);
-  const deck = pick.slice(0, 8); for (let i = 4; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [deck[i], deck[j]] = [deck[j], deck[i]]; } return deck;
+  take(pool.filter(c => ckCard(c).el === els[0]), 6); take(pool.filter(c => ckCard(c).el === els[1]), 4); take(pool, 1); while (pick.length < 12) take(pool, 1);
+  const deck = pick.slice(0, 12); for (let i = 4; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [deck[i], deck[j]] = [deck[j], deck[i]]; } return deck;
 }
 const campLevel = (ch, k) => Math.min(2, Math.floor((ch * 6 + k) / 9));
 
@@ -2478,7 +2531,7 @@ function viewBattle(v) {
     dest(unlocked ? "" : "lock", `data-ck="ranked" ${err || !unlocked ? "disabled" : ""}`, HM_ART.ranked, "Ranked", unlocked ? `${TIERS_R[tier][0]} · ${rk.pts} pts${nextT ? " · " + (nextT[1] - rk.pts) + " to " + nextT[0] : ""}` : `Unlocks at level ${RANK_LV}`) +
     dest("", `data-act="tab" data-k="versus"`, HM_ART.friend, "Play a friend", "Online challenge or room code") +
     dest("", `data-ck="practiceSheet" ${err ? "disabled" : ""}`, HM_ART.practice, "Practice", "Easy, Normal or Hard") + `</div>` +
-    `<div class="hm-h"><b>Your deck</b><button data-ck="deckEdit">Edit</button></div><div class="hm-deck">${d.cards.slice(0, 5).map(id => (BY[id] ? cardHtml(BY[id]) : "")).join("")}<i class="sep"></i>${d.cards.slice(5, 8).map(id => (BY[id] ? cardHtml(BY[id]) : "")).join("")}</div>` +
+    `<div class="hm-h"><b>Your deck</b><button data-ck="deckEdit">Edit</button></div><div class="hm-deck">${d.cards.map(id => (BY[id] ? cardHtml(BY[id]) : "")).join("")}</div>` +
     `<div class="hm-deckbar"><select id="ckdeck" data-ck="deckSel" aria-label="Deck">${P.cd.map((x, i) => `<option value="${i}" ${i === P.cdi ? "selected" : ""}>${esc(x.name)}${ckDeckOk(x.cards) ? " (incomplete)" : ""}</option>`).join("")}</select><button class="btn sm dark" data-ck="deckNew" ${P.cd.length >= 8 ? "disabled" : ""}>New deck</button></div>` +
     `<div class="hm-foot"><button data-ck="rules">How to play</button><button data-ck="triad">Classic Triad</button></div></div></section>`;
 }
@@ -2495,15 +2548,15 @@ function viewCamp(v) {
 }
 function campSheet(ch, k) {
   const c = CAMP[ch], deck = campDeck(ch, k), first = !(P.camp.cl[ch + "-" + k]), boss = k === 5;
-  openSheet(`<span class="ribbon">${esc(c.foes[k]).toUpperCase()}</span><p class="note" style="text-align:center;margin:0 0 8px">${esc(c.name)} · ${c.els.map(e => `<span class="elchip el-${e}">${elIco(e)}${EL[e][0]}</span>`).join(" + ")}${boss ? " · boss: +15 core, +1 energy" : ""}</p><div class="kd5">${deck.slice(0, 5).map(id => kcardMini(id)).join("")}</div><div class="kd3" style="margin-top:6px"><small>BACKUPS</small>${deck.slice(5).map(id => kcardMini(id)).join("")}</div><p class="note" style="text-align:center;margin:10px 0 0">${esc(c.hint)}</p><p class="note" style="text-align:center;margin:4px 0 0">${first ? "First win: " + (boss ? "3 packs" : k % 2 ? "1 pack" : "30 dust") + " and 30 XP." : "Beaten. A win pays 10 dust."}</p><div class="row c" style="margin-top:12px"><button class="btn yellow big" data-ck="campGo" data-ch="${ch}" data-k="${k}">FIGHT</button><button class="btn dark" data-act="closeModal">Back</button></div>`);
+  openSheet(`<span class="ribbon">${esc(c.foes[k]).toUpperCase()}</span><p class="note" style="text-align:center;margin:0 0 8px">${esc(c.name)} · ${c.els.map(e => `<span class="elchip el-${e}">${elIco(e)}${EL[e][0]}</span>`).join(" + ")}${boss ? " · boss: +15 core, +1 energy" : ""}</p><p class="note" style="margin:0 0 4px;text-align:center">THEIR DECK: 12 cards, 5 start on the field</p><div class="kd6">${deck.map(id => kcardMini(id)).join("")}</div><p class="note" style="text-align:center;margin:10px 0 0">${esc(c.hint)}</p><p class="note" style="text-align:center;margin:4px 0 0">${first ? "First win: " + (boss ? "3 packs" : k % 2 ? "1 pack" : "30 dust") + " and 30 XP." : "Beaten. A win pays 10 dust."}</p><div class="row c" style="margin-top:12px"><button class="btn yellow big" data-ck="campGo" data-ch="${ch}" data-k="${k}">FIGHT</button><button class="btn dark" data-act="closeModal">Back</button></div>`);
 }
 function rulesSheet() {
-  openSheet(`<h2 class="fat">HOW TO PLAY</h2><div class="rules"><p><b>The goal:</b> bring the enemy core from 40 to 0 before the 3:00 clock ends (then the higher core wins; if the cores are equal, the side with more card health left).</p><p><b>Your deck:</b> 8 cards. 5 stand on the field, 3 wait as backups.</p><p><b>Fighting:</b> your cards strike by themselves. Each picks a target by its own habit (shown on the card): Nearest, Weakest, Strongest, Opposite or Support-first. Tap one of your cards, then an enemy, to lock its target.</p><p><b>Energy:</b> one shared pool that refills over time (max 10). Basic strikes are free. Spend it on a card's <b>skill</b> (tap the card, press its skill button) or to <b>swap a backup in</b> (2 energy).</p><p><b>Elements:</b> a hit marks its target with the attacker's element for 6 seconds. Hit a marked card with a reacting element for a bonus: Water then Lightning (Conduct ×1.5), Ice then Fire (Melt ×1.5), Wind then Earth (Sandblast ×1.5), Water then Ice (Freeze), Fire then Wind (Blaze splash), Light and Dark (Eclipse).</p><p><b>Auto:</b> let the computer play your cards if you only want to watch.</p><p><b>Match levels:</b> cards grow during a match. Striking, using the skill, taking hits and winning kills fill a card's level bar; at level 2 it is stronger and faster, and at level 3 it unlocks an enhanced skill. It all resets for the next match.</p><p><b>The surge:</b> after one minute every card gains attack every 10 seconds, and in the last minute energy refills twice as fast.</p></div><div class="row c" style="margin-top:12px"><button class="btn yellow" data-act="closeModal">Got it</button></div>`);
+  openSheet(`<h2 class="fat">HOW TO PLAY</h2><div class="rules"><p><b>The goal:</b> bring the enemy core from 40 to 0 before the 3:00 clock ends (then the higher core wins; if the cores are equal, the side with more card health left).</p><p><b>Your deck:</b> 12 cards. 5 of them, picked at random, start on the field. The rest wait in your draw pile: spend 4 energy to draw one into your hand (up to 3), then spend 2 energy to bring a card from your hand into a lane.</p><p><b>Fighting:</b> your cards strike by themselves. Each picks a target by its own habit (shown on the card): Nearest, Weakest, Strongest, Opposite or Support-first. Tap one of your cards, then an enemy, to lock its target.</p><p><b>Energy:</b> one shared pool that refills over time (max 10). Basic strikes are free. Spend it on a card's <b>skill</b> (tap the card, press its skill button) or to <b>swap a backup in</b> (2 energy).</p><p><b>Elements:</b> a hit marks its target with the attacker's element for 6 seconds. Hit a marked card with a reacting element for a bonus: Water then Lightning (Conduct ×1.5), Ice then Fire (Melt ×1.5), Wind then Earth (Sandblast ×1.5), Water then Ice (Freeze), Fire then Wind (Blaze splash), Light and Dark (Eclipse).</p><p><b>Auto:</b> let the computer play your cards if you only want to watch.</p><p><b>Match levels:</b> cards grow during a match. Striking, using the skill, taking hits and winning kills fill a card's level bar; at level 2 it is stronger and faster, and at level 3 it unlocks an enhanced skill. It all resets for the next match.</p><p><b>The surge:</b> after one minute every card gains attack every 10 seconds, and in the last minute energy refills twice as fast.</p></div><div class="row c" style="margin-top:12px"><button class="btn yellow" data-act="closeModal">Got it</button></div>`);
 }
 
 /* ----- deck editor: pick a slot, pick a card, SEE the difference, confirm. Nothing changes until Confirm swap; Undo and Cancel are always there. ----- */
 let CKD = null;
-const SLOT_NAME = k => (k < 5 ? "Front line, lane " + (k + 1) : "Backup " + (k - 4));
+const SLOT_NAME = k => "Slot " + (k + 1);
 function deckEditor(i) { ckInit(); const cs = P.cd[i].cards.slice(); CKD = { i, cards: cs, orig: cs.slice(), name: P.cd[i].name, sel: 0, el: "all", sort: "cost", cmp: null, undo: [], flash: -1 }; deckSheet2(); }
 const deckDirty = D => JSON.stringify(D.cards) !== JSON.stringify(D.orig) || (D.name || "") !== P.cd[D.i].name;
 function deckKit(id) { const c = BY[id]; if (!c) return null; const k = arCard(c); return { id, c, k, atk: Math.round(k.atk * AR.ATKX), hp: hpOf(k), spd: +k.spd.toFixed(2), cost: k.cost, acost: k.acost, skill: actName(k), pass: (PASS[k.passive] || [k.passive || "none"])[0], el: k.el, fac: k.fac }; }
@@ -2534,13 +2587,13 @@ function cmpPanel(D) {
 function deckSheet2() {
   const D = CKD, sh = $("#modal .sheet"), st = sh ? sh.scrollTop : 0, nameEl = $("#ckname"); if (nameEl) D.name = nameEl.value;
   const pk0 = $("#modal .kpick"), pst = pk0 ? pk0.scrollTop : 0;
-  const err = deckRules(D.cards) || (D.cards.filter(Boolean).length < 8 ? "Pick 8 cards: 5 front and 3 backups." : "");
+  const err = deckRules(D.cards) || (D.cards.filter(Boolean).length < 12 ? "A deck is 12 cards." : "");
   const SORTS = { cost: (a, b) => a.cost - b.cost || a.c.name.localeCompare(b.c.name), atk: (a, b) => b.atk - a.atk, hp: (a, b) => b.hp - a.hp, name: (a, b) => a.c.name.localeCompare(b.c.name) };
   const own = ownedList().map(c => deckKit(c.id)).filter(x => D.el === "all" || x.el === D.el).sort(SORTS[D.sort]);
   const slot = k => { const id = D.cards[k]; return `<div class="kslot ${D.sel === k ? "on" : ""} ${D.flash === k ? "swapflash" : ""}" data-ck="dslot" data-k="${k}">${id && BY[id] ? kcardMini(id) : '<div class="ku mini empty"><span>+</span></div>'}</div>`; };
   const selId = D.cards[D.sel];
   openSheet(`<h2 class="fat">DECK</h2><div class="row" style="margin:0 0 6px;flex-wrap:nowrap"><input type="text" id="ckname" maxlength="14" value="${esc(D.name)}" style="flex:1"><button class="btn sm dark" data-ck="deckDel" ${P.cd.length <= 1 ? "disabled" : ""}>Delete</button></div>` +
-    `<p class="note" style="margin:0 0 4px">FRONT LINE (left to right are lanes 1 to 5)</p><div class="kd5">${[0, 1, 2, 3, 4].map(slot).join("")}</div><p class="note" style="margin:6px 0 4px">BACKUPS</p><div class="kd5 b3">${[5, 6, 7].map(slot).join("")}</div>` +
+    `<p class="note" style="margin:0 0 6px">12 CARDS. Each fight starts with 5 of them at random on the field; draw the rest for 4 energy.</p><div class="kd6">${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(slot).join("")}</div>` +
     `<div class="selbar"><span>Editing <b>${esc(SLOT_NAME(D.sel))}</b>${selId && BY[selId] ? ": " + esc(BY[selId].name) : ": empty"}</span>${selId ? '<button class="btn sm dark" data-ck="dremove">Remove</button>' : ""}</div>` +
     `<div class="row" style="margin:6px 0 0;gap:6px"><button class="btn sm dark" data-ck="dundo" ${D.undo.length ? "" : "disabled"}>↶ Undo</button><button class="btn sm dark" data-ck="dclear" ${D.cards.some(Boolean) ? "" : "disabled"}>Clear deck</button></div>` +
     (err ? `<p class="note" style="color:#ff9aa4;margin:6px 0 0">${esc(err)}</p>` : '<p class="note" style="color:var(--ok);margin:6px 0 0">Ready to play.</p>') +
@@ -2667,7 +2720,7 @@ document.addEventListener("click", async e => {
     }
     case "dremove": { const D = CKD, k = D.sel; if (!D.cards[k]) return; const was = D.cards[k]; deckSnap(D); D.cards[k] = ""; D.cmp = null; D.flash = k; deckSheet2(); uiFx("back"); return uiUndo(BY[was].name + " removed from the deck", deckUndo); }
     case "dundo": uiFx("back"); return deckUndo();
-    case "dclear": return void uiConfirm({ title: "Clear the whole deck?", body: "All 8 slots will be emptied. You can still Undo before you save.", ok: "Clear deck", danger: true }).then(ok => { if (!ok || !CKD) return; deckSnap(CKD); CKD.cards = Array(8).fill(""); CKD.cmp = null; deckSheet2(); uiUndo("Deck cleared", deckUndo); });
+    case "dclear": return void uiConfirm({ title: "Clear the whole deck?", body: "All 12 slots will be emptied. You can still Undo before you save.", ok: "Clear deck", danger: true }).then(ok => { if (!ok || !CKD) return; deckSnap(CKD); CKD.cards = Array(12).fill(""); CKD.cmp = null; deckSheet2(); uiUndo("Deck cleared", deckUndo); });
   }
   if (!G) return;
   switch (a) {
@@ -2799,7 +2852,7 @@ function arBuild() {
   const slots = (s, kind, n) => Array.from({ length: n }, (_, i) => `<div class="ku slot empty" data-ar="slot" data-s="${s}" data-i="${i}" data-kind="${kind}"></div>`).join("");
   AM.av = arAvatars(AM.A, AM.me);
   const hero = s => `<div class="portrait ${s === 0 ? "me" : "foe"}" id="core${s}"><div class="hframe"><img class="hart" src="${AM.av[s] ? artSrc(BY[AM.av[s]]) : ""}" alt=""><i class="hflash"></i><i class="hcrack"></i></div><b class="hhp"><em>40</em></b><div class="hname">${esc(s === 0 ? playerName() : AM.opp)}</div><div class="hbar"><i></i></div></div>`;
-  const mana = s => `<div class="mana ${s === 0 ? "me" : "foe"}" id="mana${s}"><div class="mcry">${"<i><u></u></i>".repeat(AR.EMAX)}</div><b id="${s === 0 ? "arenum" : "arfoeen"}">0</b></div>`;
+  const mana = s => `<div class="mana ${s === 0 ? "me" : "foe"}" id="mana${s}"><div class="mcry">${"<i><u></u></i>".repeat(AR.EMAX)}</div><b id="${s === 0 ? "arenum" : "arfoeen"}">0</b>` + (s === 0 ? `<button class="drawb" id="ardraw" data-ar="draw"><b>Draw</b><small>${AR.DRAW_E} energy · <u id="arpile0">0</u> left</small></button>` : `<span class="foepile">Draw pile <u id="arpile1">0</u></span>`) + `</div>`;
   $("#ck").className = "th-" + themeOf(AM.A.mode);
   $("#ck").innerHTML = `<div class="amb">${"<i></i>".repeat(16)}</div><div class="ckwrap arwrap"><div class="ckhud"><button class="btn sm red" data-ar="menu">✕</button><span class="surge" id="arsurge"></span><button class="btn sm dark" data-ar="log" id="arlogb">Log</button><button class="btn sm dark" data-ar="auto" id="arauto">Auto</button><button class="btn sm dark" data-ar="speed" id="arspeed">1×</button></div>` +
     `<div class="zone foe"><div class="bench" id="arb1">${slots(1, "bench", 3)}</div>${hero(1)}${mana(1)}</div>` +
@@ -2857,6 +2910,8 @@ function arUpdate(now) {
     $(s === 0 ? "#arenum" : "#arfoeen").textContent = s === 0 ? en.toFixed(1) : Math.floor(en);
     for (let i = 0; i < 5; i++) arSlotUpd(arSlotEl(s, i, "lane"), S.lane[i], s, "lane", now);
     for (let i = 0; i < 3; i++) arSlotUpd(arSlotEl(s, i, "bench"), S.bench[i], s, "bench", now);
+    const pn = S.pile ? S.pile.length : 0, pe = $("#arpile" + s); if (pe && pe.textContent !== String(pn)) pe.textContent = pn;
+    if (s === 0) { const db = $("#ardraw"); if (db) { const can = pn > 0 && en >= AR.DRAW_E && S.bench.some(b => !b) && !A.over; db.classList.toggle("ready", can); db.classList.toggle("off", !can); } }
   }
   arPanel(); arEvents(now); arLogDraw();
   if (now - (AM.fxSweep || 0) > 1000) { AM.fxSweep = now; const t = performance.now(); document.querySelectorAll("#arfx .fx").forEach(e => { if (t - (e._t || 0) > 3000) e.remove(); }); }   // safety: no effect outlives its animation
@@ -2965,6 +3020,7 @@ document.addEventListener("click", e => {
   const el = e.target.closest("[data-ar]"); if (!el || !AM) return; const a = el.dataset.ar, A = AM.A, d = el.dataset;
   switch (a) {
     case "slot": sfx("select"); return arTap(+d.s, +d.i, d.kind);
+    case "draw": { if (A.over) return; const S0 = A.s[AM.me]; if (!S0.pile || !S0.pile.length) return toast("Your draw pile is empty."); if (!S0.bench.some(b => !b)) return toast("Your hand is full. Bring a card in first."); if (S0.energy < AR.DRAW_E) return toast("Drawing costs " + AR.DRAW_E + " energy."); sfx("select"); arPut({ k: "draw" }); AM.sig = ""; return; }
     case "menu": return openSheet(AM.net ? `<h2 class="fat">MATCH MENU</h2><p class="note" style="text-align:center">The fight keeps going while this is open.</p><div class="row c" style="margin-top:10px"><button class="btn red" data-ck="leave">Resign</button><button class="btn yellow" data-act="closeModal">Back to the fight</button></div>` : `<h2 class="fat">PAUSED</h2><div class="row c" style="margin-top:10px"><button class="btn red" data-ck="leave">Give up</button><button class="btn yellow" data-act="closeModal">Resume</button></div>`);
     case "speed": AM.speed = AM.speed === 1 ? 2 : 1; el.textContent = AM.speed + "×"; return;
     case "auto": AM.auto = !AM.auto; el.textContent = AM.auto ? "Auto: ON" : "Auto"; el.className = "btn sm " + (AM.auto ? "yellow" : "dark"); return;

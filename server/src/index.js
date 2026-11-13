@@ -199,7 +199,7 @@ export class Hub {
     if (p === "/_deck") {
       const row = this.one("SELECT data FROM profiles WHERE lname=?", String(b.lname || "")); if (!row) return json({ ok: false, why: "Your account has no saved game yet. Play once online with the app open, then try again." });
       let o; try { o = JSON.parse(row.data); } catch (_) { return json({ ok: false, why: "Saved game unreadable." }); }
-      const deck = b.deck; if (!Array.isArray(deck) || deck.length < 1 || deck.length > 12) return json({ ok: false, why: "Deck size is wrong." });
+      const deck = b.deck; if (!Array.isArray(deck) || deck.length !== 12) return json({ ok: false, why: "Deck size is wrong." });
       const need = {}; for (const id of deck) { if (typeof id !== "string" || !(id in CARDS)) return json({ ok: false, why: "Deck has an unknown card." }); need[id] = (need[id] || 0) + 1; }
       for (const [id, n] of Object.entries(need)) if (n > ((o.own || {})[id] || 0)) return json({ ok: false, why: "Deck uses a card that is not in your saved collection yet." });
       return json({ ok: true });
