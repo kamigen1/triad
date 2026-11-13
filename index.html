@@ -2704,7 +2704,8 @@ function arEvents(now) {
 const ROTMQ = window.matchMedia ? matchMedia("(orientation: landscape) and (max-height: 600px)") : { matches: false };
 function arLoop(now) {
   if (!AM) return; const A = AM.A;
-  if (!AM.net && !A.over && ROTMQ.matches) { AM.last = now; AM.raf = requestAnimationFrame(arLoop); return; }   // a solo match waits while the phone is turned sideways (the 'turn upright' cover is showing) if (!AM.last) AM.last = now; const dt = Math.min(.25, (now - AM.last) / 1000); AM.last = now;
+  if (!AM.net && !A.over && ROTMQ.matches) { AM.last = now; AM.raf = requestAnimationFrame(arLoop); return; }   // a solo match waits while the phone is turned sideways (the 'turn upright' cover is showing)
+  if (!AM.last) AM.last = now; const dt = Math.min(.25, (now - AM.last) / 1000); AM.last = now;
   const net = AM.net;
   if (net) {   // online: the fight never pauses; it only waits when the other phone's commands have not arrived yet
     if (!A.over) {
