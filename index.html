@@ -1257,6 +1257,12 @@ nav .dot { background: var(--ds-gold); border: 2px solid #213449; }
 .tutcard small { display: block; font: 700 11px var(--body); letter-spacing: .1em; text-transform: uppercase; color: var(--ds-on-dark2); }
 .tutcard b { display: block; margin: 2px 0 4px; font: 400 21px/1.15 var(--display); color: #fff; } .tutcard p { margin: 0 0 10px; font: 600 14px/1.4 var(--body); color: var(--ds-on-dark); }
 
+
+/* ---------- emotes ---------- */
+#aremo { position: absolute; right: 10px; top: calc(env(safe-area-inset-top, 0px) + 58px); z-index: 30; display: flex; flex-direction: column; gap: 6px; padding: 10px; border-radius: 16px; background: linear-gradient(#2D4058, #243448); border: 1px solid var(--ds-paper-line); box-shadow: 0 10px 28px #000a; animation: dlgbg .15s ease-out; }
+.emob { position: fixed; z-index: 45; transform: translateX(-50%); padding: 8px 14px; border-radius: 16px; background: #EEE8D9; color: #1B2736; font: 700 14px var(--body); white-space: nowrap; box-shadow: 0 6px 18px #0009; animation: emopop 2.4s ease-out forwards; pointer-events: none; }
+@keyframes emopop { 0% { opacity: 0; transform: translateX(-50%) scale(.6); } 10% { opacity: 1; transform: translateX(-50%) scale(1.06); } 16% { transform: translateX(-50%) scale(1); } 85% { opacity: 1; } 100% { opacity: 0; } }
+
 @media (prefers-reduced-motion: reduce) { * { animation-duration: .01s !important; } }
 /* ===== standalone phone app: portrait only, no zoom, no rubber band, no text selection, 16px inputs so iOS never zooms on focus ===== */
 html, body { overscroll-behavior: none; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; touch-action: manipulation; }
@@ -1815,7 +1821,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.11.25-a";
+const VER = "2026.11.25-b";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -2975,7 +2981,7 @@ function ckResult() {
   } else if (mode.kind === "online") { dust = win ? 10 : 5; xp = win ? 20 : 10; coins = win ? 20 : 5; }
   if (G.note) extra = G.note + (extra ? " · " + extra : "");
   P.plays = (P.plays || 0) + 1; if (win) P.wins = (P.wins || 0) + 1; histAdd(win, draw); P.dust += dust; P.tickets += packs; earn(coins, gems); if (win) eventWin(); const xp0 = P.xp, lv0 = P.lv, ups = xp ? gainXp(xp) : []; scheduleSave(); chrome(); sfx(win ? "win" : draw ? "draw" : "lose");
-  const again = mode.kind === "online" || G.online ? "" : `<button class="btn yellow" data-ck="rematch">${mode.kind === "camp" ? "Again" : "Rematch"}</button>`;
+  const opp = mode.kind === "online" && AM && AM.opp ? String(AM.opp) : "", again = opp ? `<button class="btn sm dark" data-me="rep" data-n="${esc(opp)}">Report</button><button class="btn sm dark" data-me="blk" data-n="${esc(opp)}">Block</button>` : mode.kind === "online" || G.online ? "" : `<button class="btn yellow" data-ck="rematch">${mode.kind === "camp" ? "Again" : "Rematch"}</button>`;
   const chip = (cls, icon, n, lab) => `<div class="rchip ${cls}"><span class="ri">${icon}</span><b data-n="${parseInt(String(n).replace(/\D/g, ""), 10)}">${n}</b><small>${lab}</small></div>`;
   const xpPct = (lv, x) => Math.min(100, Math.round(100 * x / need(lv))), xpBar = xp ? `<div class="rxp"><small id="rxpl">Level ${lv0}</small><div class="bar"><i id="rxpi" style="width:${xpPct(lv0, xp0)}%"></i></div></div>` : "";
   openSheet(`<div class="res ${win ? "win" : draw ? "draw" : "lose"}"><b class="rtitle">${win ? "VICTORY" : draw ? "DRAW" : "DEFEAT"}</b><small class="rsub">${G.arena ? "Match time " + arClock(G.time) : "Round " + Math.min(G.round, CK.MAXR)}</small>` +
@@ -3130,10 +3136,11 @@ function arPut(cmd) {
 function arNetGot(m) {
   const net = AM && AM.net; if (!net || AM.A.over) return; const A = AM.A; net.rx = Date.now();
   if (m.k === "hb") { if (+m.f > A.horizon) A.horizon = +m.f; }
-  else if (m.k === "in" && m.c && ["lock", "use", "swap"].includes(m.c.k)) {
+  else if (m.k === "in" && m.c && ["lock", "use", "swap", "draw", "play"].includes(m.c.k)) {
     const c = m.c, num = x => (typeof x === "number" && isFinite(x) ? x : null);
     arInput(A, { s: 1 - AM.me, k: c.k, i: num(c.i), t: num(c.t), b: num(c.b), l: num(c.l), at: num(c.at) == null ? A.tick : c.at, n: num(c.n) == null ? 0 : c.n });
   } else if (m.k === "h") { net.theirs[m.tk] = m.h; arHashCheck(m.tk); }
+  else if (m.k === "emote") emoteGot(m.e);
 }
 function arHashCheck(tk) {
   const net = AM && AM.net; if (!net || net.mine[tk] == null || net.theirs[tk] == null) return;
@@ -3169,7 +3176,7 @@ function arBuild() {
   const hero = s => `<div class="portrait ${s === 0 ? "me" : "foe"}" id="core${s}"><div class="hframe"><img class="hart" src="${AM.av[s] ? artSrc(BY[AM.av[s]]) : ""}" alt=""><i class="hflash"></i><i class="hcrack"></i></div><b class="hhp"><em>40</em></b><div class="hname">${esc(s === 0 ? playerName() : AM.opp)}</div><div class="hbar"><i></i></div></div>`;
   const mana = s => `<div class="mana ${s === 0 ? "me" : "foe"}" id="mana${s}"><div class="mcry">${"<i><u></u></i>".repeat(AR.EMAX)}</div><b id="${s === 0 ? "arenum" : "arfoeen"}">0</b>` + (s === 0 ? `<button class="drawb" id="ardraw" data-ar="draw"><b>Draw</b><small>${AR.DRAW_E} energy · <u id="arpile0">0</u> left</small></button>` : `<span class="foepile">Draw pile <u id="arpile1">0</u></span>`) + `</div>`;
   $("#ck").className = "th-" + themeOf(AM.A.mode);
-  $("#ck").innerHTML = `<div class="amb">${"<i></i>".repeat(16)}</div><div class="ckwrap arwrap"><div class="ckhud"><button class="btn sm red" data-ar="menu">✕</button><span class="surge" id="arsurge"></span><button class="btn sm dark" data-ar="log" id="arlogb">Log</button><button class="btn sm dark" data-ar="auto" id="arauto">Auto</button><button class="btn sm dark" data-ar="speed" id="arspeed">1×</button></div>` +
+  $("#ck").innerHTML = `<div class="amb">${"<i></i>".repeat(16)}</div><div class="ckwrap arwrap"><div class="ckhud"><button class="btn sm red" data-ar="menu">✕</button><span class="surge" id="arsurge"></span><button class="btn sm dark" data-ar="log" id="arlogb">Log</button>${AM.net ? '<button class="btn sm dark" data-me="emote" id="aremob" aria-label="Emotes">💬</button>' : ""}<button class="btn sm dark" data-ar="auto" id="arauto">Auto</button><button class="btn sm dark" data-ar="speed" id="arspeed">1×</button></div>` +
     `<div class="zone foe"><div class="bench" id="arb1">${slots(1, "bench", 3)}</div>${hero(1)}${mana(1)}</div>` +
     `<div class="arena" id="arena"><div class="lanes" id="arl1">${slots(1, "lane", 5)}</div><div class="crease"><span class="cl"></span><b class="clock" id="arclock">3:00</b><span class="cr"></span><span class="vsmsg" id="armsg"></span></div><div class="lanes" id="arl0">${slots(0, "lane", 5)}</div></div>` +
     `<div class="zone me">${hero(0)}${mana(0)}</div><div class="handtray"><div class="bench" id="arb0">${slots(0, "bench", 3)}</div></div>` +
@@ -3657,7 +3664,7 @@ function busyNow() { return !!(typeof G !== "undefined" && G && !G.over) || !!ON
 function hubGot(m) {
   switch (m.t) {
     case "state": {
-      HUBST = { on: true, me: m.me, friends: m.friends || [], reqs: m.reqs || [] };
+      HUBST = { on: true, me: m.me, friends: m.friends || [], reqs: m.reqs || [], blocked: m.blocked || [] };
       for (const n of m.invites || []) if (!INVIN.includes(n)) { INVIN.push(n); }
       invShow(); hubRender(); return;
     }
@@ -3700,7 +3707,7 @@ function accPanelHtml() {
   if (!ACC) return `<span class="ribbon green">PLAY FRIENDS</span><div class="panel"><p class="note" style="margin:0 0 10px">Make a free account to add friends and challenge them. A challenge pops up on their phone; they tap Accept and you are in.</p><div class="row c"><button class="btn yellow" data-ac="up">Create account</button><button class="btn" data-ac="in">Sign in</button></div></div>`;
   const s = HUBST, state = HUBSTOP ? `<button class="btn sm dark" data-ac="reconnect">Reconnect</button>` : `<span class="tag ${s.on ? "ok" : ""}">${s.on ? "ONLINE" : "CONNECTING…"}</span>`;
   const reqs = s.reqs.map(n => `<div class="row" style="margin:6px 0"><b style="flex:1">${esc(n)}</b><span class="note">wants to be friends</span><button class="btn sm yellow" data-ac="fAccept" data-n="${esc(n)}">Add</button><button class="btn sm dark" data-ac="fDecline" data-n="${esc(n)}">✕</button></div>`).join("");
-  const fr = s.friends.map(f => `<div class="row" style="margin:6px 0"><i class="odot ${f.online ? "on" : ""}"></i><b style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis">${esc(f.name)}</b>${f.online ? `<button class="btn sm yellow" data-ac="challenge" data-n="${esc(f.name)}">Challenge</button>` : `<span class="note">offline</span>`}<button class="btn sm dark" data-ac="fRemove" data-n="${esc(f.name)}" aria-label="Remove friend">⋯</button></div>`).join("");
+  const fr = s.friends.map(f => `<div class="row" style="margin:6px 0"><i class="odot ${f.online ? "on" : ""}"></i><b style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis">${esc(f.name)}</b>${f.online ? `<button class="btn sm yellow" data-ac="challenge" data-n="${esc(f.name)}">Challenge</button>` : `<span class="note">offline</span>`}<button class="btn sm dark" data-me="person" data-n="${esc(f.name)}" aria-label="More">⋯</button></div>`).join("");
   return `<span class="ribbon green">FRIENDS</span><div class="panel"><div class="row"><span class="note" style="flex:1">Signed in as <b style="color:var(--yellow)">${esc(ACC.name)}</b></span>${state}</div>` +
     (reqs ? `<div style="margin-top:6px">${reqs}</div>` : "") + `<div style="margin-top:6px">${fr || `<p class="note" style="margin:8px 0">No friends yet. Add one by their account name.</p>`}</div>` +
     `<div class="row" style="margin-top:8px"><input type="text" id="frName" maxlength="14" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Friend's account name" style="flex:1"><button class="btn sm yellow" data-ac="fAdd">Add</button></div>` +
@@ -4078,7 +4085,7 @@ function settingsSheet() {
   const pf = P.prefs = P.prefs || {}, tg = (id, on, lab) => `<div class="row setrow"><span>${lab}</span><button class="btn sm ${on ? "yellow" : "dark"}" data-me="${id}" style="min-width:76px">${on ? "ON" : "OFF"}</button></div>`;
   openSheet(`<h2 class="fat">Settings</h2><div class="panel">${tg("sHap", pf.haptics !== false, "Vibration")}${tg("sMot", !(pf.motion === "off" || UI.mq.matches), "Animations")}${tg("sSfx", AU.sfx, "Sound effects")}<div class="row" style="flex-wrap:nowrap;margin:2px 0 10px"><input id="svol" class="rng" type="range" min="0" max="100" value="${Math.round(AU.sv * 100)}"></div>${tg("sBgm", AU.bgm, "Music")}<div class="row" style="flex-wrap:nowrap;margin:2px 0 0"><input id="mvol" class="rng" type="range" min="0" max="100" value="${Math.round(AU.mv * 100)}"></div>${UI.mq.matches ? '<p class="note" style="margin:8px 0 0">Your phone asks apps to reduce motion, so animations stay off.</p>' : ""}</div>` +
     `<span class="ribbon">HELP</span><div class="row c" style="gap:8px"><button class="btn sm" data-ck="rules">How to play</button><button class="btn sm" data-me="tut">Replay the tutorial</button></div>` +
-    `<span class="ribbon">ACCOUNT</span><div class="panel"><p class="note" style="margin:0 0 8px">${ACC ? "Signed in as <b style=\"color:var(--yellow)\">" + esc(ACC.name) + "</b>. Your progress is saved to your account." : "Playing as a guest. Progress is only on this phone."}</p><div class="row" style="gap:8px">${ACC ? '<button class="btn sm dark" data-ac="logout">Sign out</button>' : '<button class="btn sm yellow" data-ac="up">Create account</button>'}<button class="btn sm red" data-me="del">${ACC ? "Delete account" : "Erase my progress"}</button></div></div>` +
+    `<span class="ribbon">ACCOUNT</span><div class="panel"><p class="note" style="margin:0 0 8px">${ACC ? "Signed in as <b style=\"color:var(--yellow)\">" + esc(ACC.name) + "</b>. Your progress is saved to your account." : "Playing as a guest. Progress is only on this phone."}</p><div class="row" style="gap:8px">${ACC ? `<button class="btn sm dark" data-me="blocked">Blocked (${blockedList().length})</button>` : ""}${ACC ? '<button class="btn sm dark" data-ac="logout">Sign out</button>' : '<button class="btn sm yellow" data-ac="up">Create account</button>'}<button class="btn sm red" data-me="del">${ACC ? "Delete account" : "Erase my progress"}</button></div></div>` +
     `<div class="row c" style="margin-top:12px"><button class="btn sm dark" data-me="profile">Back</button></div>`);
 }
 async function deleteAccount() {
@@ -4140,6 +4147,47 @@ function claimAll() {
 }
 const claimCount = () => (P.login ? 0 : 1) + missions().filter(m => m.have >= m.need && !P.mis.claimed[m.id]).length;
 
+/* ---------- people: report, block, unblock ---------- */
+const blockedList = () => (typeof HUBST !== "undefined" && HUBST.blocked) || [];
+function personSheet(name) {
+  openSheet(`<h2 class="fat">${esc(name)}</h2><div class="list"><button class="panel item" data-me="rm" data-n="${esc(name)}"><div class="t"><b>Remove friend</b><small>They stay able to add you again.</small></div></button><button class="panel item" data-me="rep" data-n="${esc(name)}"><div class="t"><b>Report</b><small>Tell us about abusive behaviour.</small></div></button><button class="panel item" data-me="blk" data-n="${esc(name)}"><div class="t"><b>Block</b><small>They cannot add or challenge you, and you stop seeing their emotes.</small></div></button></div><div class="row c" style="margin-top:12px"><button class="btn sm dark" data-act="closeModal">Close</button></div>`);
+}
+async function blockPlayer(name, btn) {
+  if (!ACC) return toast("Sign in to block players."); if (!(await uiConfirm({ title: "Block " + name + "?", body: "You will not be able to see each other's invites or requests, and any friendship ends.", ok: "Block", danger: true }))) return;
+  if (hubSend({ t: "block", name })) { if (btn) { btn.disabled = true; btn.textContent = "Blocked"; } if (AM && AM.net) AM.muteEmo = true; }
+}
+async function reportPlayer(name, btn) {
+  if (!ACC) return toast("Sign in to report players."); if (!(await uiConfirm({ title: "Report " + name + "?", body: "We review reports of cheating, abusive names or harassment. Reporting does not block them.", ok: "Report" }))) return;
+  if (hubSend({ t: "report", name, why: "player report" })) { if (btn) { btn.disabled = true; btn.textContent = "Reported"; } }
+}
+function blockedSheet() {
+  const b = blockedList();
+  openSheet(`<h2 class="fat">Blocked players</h2><div class="list">${b.map(n => `<div class="panel item"><div class="t"><b>${esc(n)}</b></div><button class="btn sm dark" data-me="unblk" data-n="${esc(n)}">Unblock</button></div>`).join("") || '<p class="note" style="text-align:center">You have not blocked anyone.</p>'}</div><div class="row c" style="margin-top:12px"><button class="btn sm dark" data-me="settings">Back</button></div>`);
+}
+
+/* ---------- emotes: six preset lines (the wire carries only a number, so nobody can send free text), muted per match or by blocking ---------- */
+const EMOTES = ["Good luck!", "Nice one!", "Oops…", "Wow!", "Thanks!", "Good game"];
+function emotePanel() {
+  let p = document.getElementById("aremo"); if (p) return p.remove();
+  p = document.createElement("div"); p.id = "aremo"; p.innerHTML = EMOTES.map((t, i) => `<button class="btn sm" data-me="emo" data-i="${i}">${t}</button>`).join("") + `<button class="btn sm dark" data-me="emomute">${AM && AM.muteEmo ? "Unmute opponent" : "Mute opponent"}</button>`;
+  document.getElementById("ck").appendChild(p);
+}
+function emoteBubble(side, text) {
+  const portrait = document.getElementById("core" + side); if (!portrait) return; document.querySelectorAll(".emob.s" + side).forEach(e => e.remove());
+  const r = portrait.getBoundingClientRect(), e = document.createElement("div"); e.className = "emob s" + side; e.textContent = text;
+  e.style.left = Math.max(8, Math.min(innerWidth - 8, r.left + r.width / 2)) + "px"; e.style[side ? "top" : "bottom"] = side ? r.bottom + 4 + "px" : innerHeight - r.top + 4 + "px"; document.body.appendChild(e); setTimeout(() => e.remove(), 2400);
+}
+function emoteSend(i) {
+  if (!AM || !AM.net) return; const now = Date.now(); if (AM.emoAt && now - AM.emoAt < 2000) return toast("Slow down a little."); AM.emoAt = now;
+  AM.net.send({ k: "emote", e: i }); emoteBubble(0, EMOTES[i]); uiFx("tap"); const p = document.getElementById("aremo"); if (p) p.remove();
+}
+function emoteGot(i) {
+  if (!AM || !AM.net || AM.muteEmo || !Number.isInteger(i) || i < 0 || i >= EMOTES.length) return; const now = Date.now();
+  if (AM.opp && blockedList().some(n => n.toLowerCase() === String(AM.opp).toLowerCase())) return;
+  if (AM.emoRx && now - AM.emoRx < 1500) return; AM.emoRx = now; AM.emoN = (AM.emoN || 0) + 1; if (AM.emoN > 12) return;   // at most 12 per match
+  emoteBubble(1, EMOTES[i]); sfx("ping");
+}
+
 /* ---------- clicks ---------- */
 document.addEventListener("click", async e => {
   const el = e.target.closest("[data-me]"); if (!el || !P) return; const a = el.dataset.me; const t = el.dataset;
@@ -4164,6 +4212,15 @@ document.addEventListener("click", async e => {
     case "impgo": return importGo();
     case "fill": return fillDeck();
     case "claimall": return claimAll();
+    case "person": return personSheet(t.n);
+    case "rm": closeModal(); if (await uiConfirm({ title: "Remove " + t.n + "?", body: "They will leave your friends list.", ok: "Remove" })) hubSend({ t: "friend_remove", name: t.n }); return;
+    case "blk": return blockPlayer(t.n, el);
+    case "rep": return reportPlayer(t.n, el);
+    case "unblk": hubSend({ t: "unblock", name: t.n }); el.disabled = true; el.textContent = "Done"; return;
+    case "blocked": return blockedSheet();
+    case "emote": return emotePanel();
+    case "emo": return emoteSend(+t.i);
+    case "emomute": if (AM) { AM.muteEmo = !AM.muteEmo; el.textContent = AM.muteEmo ? "Unmute opponent" : "Mute opponent"; toast(AM.muteEmo ? "Opponent muted for this match." : "Opponent unmuted."); } return;
   }
 });
 

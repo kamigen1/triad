@@ -179,7 +179,9 @@ export class Hub {
       CREATE TABLE IF NOT EXISTS credit (lname TEXT PRIMARY KEY, j TEXT);
       CREATE TABLE IF NOT EXISTS flags (lname TEXT, at INTEGER, why TEXT);
       CREATE TABLE IF NOT EXISTS oauth (provider TEXT, sub TEXT, lname TEXT, PRIMARY KEY (provider, sub));
-      CREATE TABLE IF NOT EXISTS invites (frm TEXT, too TEXT, at INTEGER, PRIMARY KEY (frm, too));`);
+      CREATE TABLE IF NOT EXISTS invites (frm TEXT, too TEXT, at INTEGER, PRIMARY KEY (frm, too));
+      CREATE TABLE IF NOT EXISTS blocks (a TEXT, b TEXT, PRIMARY KEY (a, b));
+      CREATE TABLE IF NOT EXISTS reports (frm TEXT, about TEXT, at INTEGER, why TEXT);`);
   }
   one(q, ...a) { const r = [...this.sql.exec(q, ...a)]; return r[0] || null; }
   all(q, ...a) { return [...this.sql.exec(q, ...a)]; }
@@ -201,7 +203,7 @@ export class Hub {
       const a = this.one("SELECT * FROM accounts WHERE lname=?", s.lname), l = s.lname;
       if (a && a.pw !== "!") { if (!b.pass) return json({ ok: false, needPass: true }); if (a.pw !== await hashPw(String(b.pass), a.salt)) return json({ ok: false, err: "Wrong password." }); }
       for (const q of ["DELETE FROM sessions WHERE lname=?", "DELETE FROM profiles WHERE lname=?", "DELETE FROM pbak WHERE lname=?", "DELETE FROM credit WHERE lname=?", "DELETE FROM flags WHERE lname=?", "DELETE FROM oauth WHERE lname=?", "DELETE FROM accounts WHERE lname=?"]) this.sql.exec(q, l);
-      for (const q of ["DELETE FROM friends WHERE a=? OR b=?", "DELETE FROM reqs WHERE frm=? OR too=?", "DELETE FROM invites WHERE frm=? OR too=?"]) this.sql.exec(q, l, l);
+      for (const q of ["DELETE FROM friends WHERE a=? OR b=?", "DELETE FROM reqs WHERE frm=? OR too=?", "DELETE FROM invites WHERE frm=? OR too=?", "DELETE FROM blocks WHERE a=? OR b=?"]) this.sql.exec(q, l, l);
       return json({ ok: true });
     }
     if (p === "/_who") { const s = this.one("SELECT lname FROM sessions WHERE th=?", await sha(String(b.token || ""))); return json(s ? { ok: true, lname: s.lname, name: this.nameOf(s.lname) } : { ok: false }); }
@@ -291,7 +293,8 @@ export class Hub {
     const friends = this.all("SELECT b FROM friends WHERE a=?", lname).map(f => ({ name: this.nameOf(f.b), online: this.online(f.b) })).sort((x, y) => (y.online - x.online) || x.name.localeCompare(y.name));
     const reqs = this.all("SELECT frm FROM reqs WHERE too=?", lname).map(r => this.nameOf(r.frm));
     const now = Date.now(), inv = this.all("SELECT frm FROM invites WHERE too=? AND at>?", lname, now - INVITE_TTL).map(r => this.nameOf(r.frm));
-    try { ws.send(JSON.stringify({ t: "state", me: this.nameOf(lname), friends, reqs, invites: inv })); } catch (_) {}
+    const blocked = this.all("SELECT b FROM blocks WHERE a=?", lname).map(r => this.nameOf(r.b)).sort();
+    try { ws.send(JSON.stringify({ t: "state", me: this.nameOf(lname), friends, reqs, invites: inv, blocked })); } catch (_) {}
   }
   pushState(lname) { for (const w of this.socketsOf(lname)) this.sendState(w, lname); }
   presence(lname) { for (const f of this.all("SELECT b FROM friends WHERE a=?", lname)) this.pushState(f.b); }
@@ -303,8 +306,25 @@ export class Hub {
     const exists = other && other !== lname && this.one("SELECT 1 AS x FROM accounts WHERE lname=?", other), friends = (a, b) => !!this.one("SELECT 1 AS x FROM friends WHERE a=? AND b=?", a, b);
     switch (m.t) {
       case "ping": try { ws.send('{"t":"pong"}'); } catch (_) {} return;
+      case "block": {   // a blocked player cannot add or challenge you, and any friendship, request or invite between you ends
+        if (!exists) return;
+        this.sql.exec("INSERT OR IGNORE INTO blocks VALUES (?,?)", lname, other);
+        this.sql.exec("DELETE FROM friends WHERE (a=? AND b=?) OR (a=? AND b=?)", lname, other, other, lname);
+        this.sql.exec("DELETE FROM reqs WHERE (frm=? AND too=?) OR (frm=? AND too=?)", lname, other, other, lname);
+        this.sql.exec("DELETE FROM invites WHERE (frm=? AND too=?) OR (frm=? AND too=?)", lname, other, other, lname);
+        this.sendTo(other, { t: "invite_gone", from: me.name }); this.pushState(lname); this.pushState(other); return tell(this.nameOf(other) + " is blocked.");
+      }
+      case "unblock": this.sql.exec("DELETE FROM blocks WHERE a=? AND b=?", lname, other); this.pushState(lname); return;
+      case "report": {   // stored for review; one report per player per hour, ten a day
+        if (!exists) return; const now = Date.now();
+        if (this.one("SELECT 1 AS x FROM reports WHERE frm=? AND about=? AND at>?", lname, other, now - 3600000)) return tell("You already reported this player. Thank you.");
+        if ((this.one("SELECT COUNT(*) AS n FROM reports WHERE frm=? AND at>?", lname, now - 86400000) || {}).n >= 10) return tell("Too many reports today.");
+        this.sql.exec("INSERT INTO reports VALUES (?,?,?,?)", lname, other, now, String(m.why || "").slice(0, 120)); return tell("Report sent. Thank you.");
+      }
       case "friend_add":
         if (!exists) return tell("No player with that name.");
+        if (this.one("SELECT 1 AS x FROM blocks WHERE a=? AND b=?", lname, other)) return tell("You blocked this player. Unblock them first.");
+        if (this.one("SELECT 1 AS x FROM blocks WHERE a=? AND b=?", other, lname)) return tell("No player with that name.");
         if (friends(lname, other)) return tell("Already friends.");
         if (this.one("SELECT 1 AS x FROM reqs WHERE frm=? AND too=?", other, lname)) { this.makeFriends(lname, other); return tell("You are now friends with " + this.nameOf(other) + "."); }
         this.sql.exec("INSERT OR IGNORE INTO reqs VALUES (?,?)", lname, other); this.pushState(other); return tell("Friend request sent to " + this.nameOf(other) + ".");
