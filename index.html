@@ -1195,6 +1195,48 @@ nav .dot { background: var(--ds-gold); border: 2px solid #213449; }
 .mcry i { background: #1A2430; } .mcry i.full { filter: drop-shadow(0 0 5px #8fb9ff); }
 .amb i { background: color-mix(in srgb, var(--glow) 60%, #fff); }
 
+
+/* ---------- match framing: versus card, deal, countdown, banners, finale ---------- */
+#arintro { position: absolute; inset: 0; z-index: 40; display: flex; flex-direction: column; background: radial-gradient(ellipse at 50% 50%, #1b2736f2, #0e1620fa); animation: introin .25s ease-out; }
+#arintro.away { opacity: 0; transition: opacity .5s; pointer-events: none; background: transparent; } #arintro.away .vs-side, #arintro.away .vs-mid { opacity: 0; transition: opacity .35s; }
+#arintro.plain { background: #0e162099; justify-content: center; align-items: center; }
+.vs-side { position: relative; flex: 1; overflow: hidden; display: flex; align-items: flex-end; } .vs-side img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; }
+.vs-side::after { content: ""; position: absolute; inset: 0; background: linear-gradient(#0e162000 45%, #0e1620dd 100%); }
+.vs-foe { animation: vsfoe .55s cubic-bezier(.2, .9, .3, 1) both; clip-path: polygon(0 0, 100% 0, 100% 88%, 0 100%); } .vs-me { animation: vsme .55s cubic-bezier(.2, .9, .3, 1) both .1s; clip-path: polygon(0 12%, 100% 0, 100% 100%, 0 100%); margin-top: -6%; }
+.vs-name { position: relative; z-index: 2; padding: 0 20px 22px; width: 100%; } .vs-foe .vs-name { text-align: right; padding-bottom: 38px; } .vs-me .vs-name { padding-top: 30px; align-self: flex-end; }
+.vs-name b { display: block; font: 400 30px/1.1 var(--display); color: #fff; text-shadow: 0 2px 14px #000a; } .vs-name small { font: 600 12px var(--body); letter-spacing: .08em; text-transform: uppercase; color: #D7CBE3; }
+.vs-mid { position: absolute; left: 0; right: 0; top: 50%; z-index: 5; text-align: center; transform: translateY(-50%); pointer-events: none; } .vs-mid i { display: inline-block; font: 400 64px/1 var(--display); font-style: normal; color: #fff; padding: 4px 22px; background: var(--ds-violet); border-radius: 18px; transform: skewX(-8deg); box-shadow: 0 10px 30px #0009; animation: vsslam .5s cubic-bezier(.2, 1.6, .4, 1) both .45s; }
+@keyframes vsfoe { from { transform: translateY(-100%); } to { transform: none; } } @keyframes vsme { from { transform: translateY(100%); } to { transform: none; } } @keyframes vsslam { from { transform: skewX(-8deg) scale(2.4); opacity: 0; } to { transform: skewX(-8deg) scale(1); opacity: 1; } } @keyframes introin { from { opacity: 0; } to { opacity: 1; } }
+#arcount { position: absolute; left: 0; right: 0; top: 42%; z-index: 6; text-align: center; font: 400 150px/1 var(--display); color: #fff; text-shadow: 0 6px 30px #000b, 0 0 40px #a892baaa; pointer-events: none; opacity: 0; } #arcount.go { color: #EBD8A2; font-size: 110px; }
+#arcount.pop { animation: countpop .62s cubic-bezier(.2, 1.4, .4, 1) both; } @keyframes countpop { 0% { transform: scale(2.2); opacity: 0; } 25% { transform: scale(1); opacity: 1; } 75% { opacity: 1; } 100% { transform: scale(.86); opacity: 0; } }
+#ck.predeal .lanes .ku:not(.empty), #ck.predeal .handtray .ku:not(.empty) { opacity: 0; }
+#ck.dealing .lanes .ku:not(.empty) { animation: dealin .44s cubic-bezier(.2, 1.2, .4, 1) both; animation-delay: calc(var(--di, 0) * 95ms); }
+#arl1 { --dy: -80px; } #arl0 { --dy: 80px; } @keyframes dealin { from { transform: translateY(var(--dy, 60px)) scale(.55) rotate(-7deg); opacity: 0; } to { transform: none; opacity: 1; } }
+.arbanner { position: absolute; left: 0; right: 0; top: 38%; z-index: 38; text-align: center; pointer-events: none; animation: bannerin 1.5s ease both; padding: 14px 0; background: linear-gradient(90deg, transparent, #1b2736ee 18%, #1b2736ee 82%, transparent); }
+.arbanner b { display: block; font: 400 38px/1.1 var(--display); color: #fff; letter-spacing: .02em; text-shadow: 0 2px 12px #000a; } .arbanner small { display: block; margin-top: 4px; font: 600 13px var(--body); color: var(--ds-on-dark2); }
+.arbanner.gold b { color: #EBD8A2; } .arbanner.warn { background: linear-gradient(90deg, transparent, #5a2530ee 18%, #5a2530ee 82%, transparent); } .arbanner.win b { font-size: 54px; color: #EBD8A2; } .arbanner.lose b { font-size: 54px; color: #C7D2DE; } .arbanner.draw b { font-size: 54px; }
+@keyframes bannerin { 0% { transform: translateX(-60%); opacity: 0; } 14% { transform: none; opacity: 1; } 82% { transform: none; opacity: 1; } 100% { transform: translateX(40%); opacity: 0; } }
+#ck.finale .lanes .ku { filter: saturate(.7) brightness(.85); transition: filter .6s; } #ck.finale .arena { animation: none; }
+.clock.tick { animation: clocktick .4s ease-out; } @keyframes clocktick { 40% { transform: scale(1.18); color: #ffb3b8; } }
+.arghost { transition: none; }
+.rxp { margin: 12px 10px 0; text-align: left; } .rxp small { display: inline-block; font: 600 12px var(--body); color: var(--ds-on-dark2); margin-bottom: 4px; } .rxp .bar { height: 8px; }
+@media (prefers-reduced-motion: reduce) { #arintro, .vs-foe, .vs-me, .vs-mid i, #arcount.pop, #ck.dealing .lanes .ku, .arbanner { animation: none !important; } .arbanner { opacity: 1; } }
+
+
+/* ---------- portrait picker: one scroll area, big tiles, preview ---------- */
+.sheet.avsheet { display: flex; flex-direction: column; overflow: hidden; max-height: 88dvh; } .avp { display: flex; flex-direction: column; min-height: 0; flex: 1; }
+.avprev { display: flex; gap: 12px; align-items: center; min-height: 86px; padding: 8px; border-radius: 16px; background: rgba(26, 36, 48, .5); } .avprev img { width: 66px; height: 78px; object-fit: cover; object-position: 50% 20%; border-radius: 12px; flex: none; }
+.avprev b { display: block; font: 400 20px/1.15 var(--display); color: #fff; } .avprev small { display: block; margin-top: 2px; font: 600 12.5px var(--body); color: var(--ds-on-dark2); } .avnone { padding: 4px 6px; }
+.avlist { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 4px 2px 10px; align-content: start; max-height: none; }
+.avlist .avc { aspect-ratio: 3 / 4; border: 0; border-radius: 14px; box-shadow: var(--ds-shadow-s); } .avlist .avc small { font: 700 11px var(--body); letter-spacing: 0; text-transform: none; padding: 16px 4px 5px; white-space: normal; line-height: 1.15; }
+.avlist .avc.on { box-shadow: 0 0 0 3px var(--ds-violet-hi), 0 0 16px #a892ba99; } .avlist .avc.r5, .avlist .avc.r6 { box-shadow: 0 0 0 2px var(--ds-gold), var(--ds-shadow-s); } .avlist .avc.on.r5, .avlist .avc.on.r6 { box-shadow: 0 0 0 3px var(--ds-violet-hi), 0 0 16px #a892ba99; }
+.avfoot { flex-wrap: wrap; gap: 8px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--ds-paper-line); }
+/* summon pool row: a fade at the edge and a hint show that it scrolls */
+.banners { -webkit-mask-image: linear-gradient(90deg, #000 88%, transparent); mask-image: linear-gradient(90deg, #000 88%, transparent); scroll-padding-left: 2px; } .banner { min-width: 104px; }
+.bannerhint { text-align: center; font: 600 11.5px var(--body); color: var(--ds-on-dark2); margin: -4px 0 6px; }
+/* each portrait tile gets its height from its own aspect ratio (the picture is laid over it), so tiles can never overlap each other */
+.avlist { grid-auto-rows: max-content; } .avlist .avc { position: relative; display: block; height: auto; width: 100%; } .avlist .avc img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; }
+
 @media (prefers-reduced-motion: reduce) { * { animation-duration: .01s !important; } }
 /* ===== standalone phone app: portrait only, no zoom, no rubber band, no text selection, 16px inputs so iOS never zooms on focus ===== */
 html, body { overscroll-behavior: none; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; touch-action: manipulation; }
@@ -1533,9 +1575,21 @@ function chrome() {
 }
 function show(k) { const same = tab === k; tab = k; musicMode(k === "summon" ? "summon" : "menu"); chrome(); const v = $("#view"); v.scrollTop = 0; if (!same) uiPulse(v, "enter", 300); if (!P) { v.innerHTML = ""; return; } ({ battle: viewBattle, play: viewPlay, summon: viewSummon, cards: viewCards, daily: viewDaily, versus: viewVersus })[k](v); }
 /* the portrait: a card the player owns stands in for "you" in the header and on the battle board */
+/* the portrait picker: one scrolling list (never a scroller inside a scroller), a live preview on top, search and an element filter, and an explicit "Use this portrait" */
+let AV = { q: "", el: "all", pick: null };
+function avList() {
+  return ownedList().filter(c => (!AV.q || c.name.toLowerCase().includes(AV.q)) && (AV.el === "all" || arCard(c).el === AV.el)).sort((a, b) => rarOf(b) - rarOf(a) || a.name.localeCompare(b.name));
+}
+function avPreview() {
+  const c = BY[AV.pick] && P.own[AV.pick] > 0 ? BY[AV.pick] : null, k = c ? arCard(c) : null;
+  return c ? `<img alt="" src="${artSrc(c, true)}"><div><b>${esc(c.name)}</b><small>${EL[k.el][0]} · ${esc(FAC[k.fac] || k.fac)} · ${RNAME[rarOf(c)]}</small></div>` : `<div class="avnone"><b>Follows your best card</b><small>Your strongest card in the active deck becomes your portrait.</small></div>`;
+}
+function avGrid() { const l = avList(); return l.map(c => `<button class="avc ${AV.pick === c.id ? "on" : ""} r${rarOf(c)}" data-act="avpick" data-id="${c.id}"><img alt="" loading="lazy" decoding="async" src="${artSrc(c)}"><small>${esc(c.name)}</small></button>`).join("") || '<p class="note" style="grid-column:1/-1;text-align:center">No cards match.</p>'; }
 function avatarSheet() {
-  const list = ownedList().slice().sort((a, b) => rarOf(b) - rarOf(a) || a.name.localeCompare(b.name));
-  openSheet(`<h2 class="fat">YOUR PORTRAIT</h2><p class="note" style="text-align:center">Pick a card you own. Its art becomes you on the battle board and in the header.</p><div class="avgrid">${list.map(c => `<button class="avc ${P.avatar === c.id ? "on" : ""} r${rarOf(c)}" data-act="setav" data-id="${c.id}"><img alt="" src="${artSrc(c)}"><small>${esc(c.name)}</small></button>`).join("")}</div><div class="row c" style="margin-top:12px"><button class="btn sm dark" data-act="setav" data-id="">Use my best card</button><button class="btn dark" data-act="closeModal">Close</button></div>`);
+  AV = { q: "", el: "all", pick: P.avatar && P.own[P.avatar] > 0 ? P.avatar : null };
+  openSheet(`<div class="avp"><h2 class="fat">Your portrait</h2><div class="avprev" id="avprev">${avPreview()}</div><div class="row" style="margin:8px 0 6px;gap:6px"><input type="search" id="avq" placeholder="Search your cards" style="flex:1;min-width:0"><select id="avel"><option value="all">All elements</option>${ELKEYS.map(e => `<option value="${e}">${EL[e][1]} ${EL[e][0]}</option>`).join("")}</select></div>` +
+    `<div class="avlist" id="avlist">${avGrid()}</div><div class="row c avfoot"><button class="btn yellow" data-act="avuse">Use this portrait</button><button class="btn sm dark" data-act="setav" data-id="">Follow my best card</button><button class="btn sm dark" data-act="closeModal">Close</button></div></div>`);
+  const sh = $("#modal .sheet"); if (sh) sh.classList.add("avsheet");
 }
 function deckSelect() { return `<select id="deckSel" data-act="deckSel">${P.decks.map((d, i) => `<option value="${i}" ${i === P.deck ? "selected" : ""}>${esc(d.name)} · ${deckCost(d)}/${deckCap()}${deckOk(d) ? "" : " ✕"}</option>`).join("")}</select>`; }
 
@@ -1740,7 +1794,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.11.23-a";
+const VER = "2026.11.24-b";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -2444,7 +2498,7 @@ function arRun(A, c) {
   } else if (c.k === "play") {   // a skill card from the hand: pay its cost, apply it, and it is gone
     const h = S.bench[c.b]; if (!h || !h.skill) return; const k = SKC[h.sid]; if (S.energy < k.c) return;
     const T = k.t === "ally" ? S.lane[c.t] : k.t === "enemy" ? F.lane[c.t] : null; if (k.t !== "none" && !T) return;
-    S.energy -= k.c; S.bench[c.b] = null; arLog(A, k.n + " is played", c.s, "skill"); arEv(A, { t: "skill", s: c.s, i: -1, card: true, name: k.n, ti: c.t, ta: k.t, el: k.el || null });
+    S.energy -= k.c; S.bench[c.b] = null; arLog(A, k.n + " is played", c.s, "skill"); arEv(A, { t: "skill", s: c.s, i: -1, b: c.b, card: true, name: k.n, ti: c.t, ta: k.t, el: k.el || null });
     arPlayCard(A, c.s, k, c.t); arSweep(A);
   } else if (c.k === "use") {
     const u = S.lane[c.i]; if (!u || u.skcd > 0 || S.energy < u.acost) return; const a = ACT[u.active];
@@ -2899,14 +2953,26 @@ function ckResult() {
     if (after > rk.tierBest) { rk.tierBest = after; packs += 3; gems += ECON.tierUp.gems; extra += " · NEW TIER, +3 packs, +" + ECON.tierUp.gems + " gems"; }
   } else if (mode.kind === "online") { dust = win ? 10 : 5; xp = win ? 20 : 10; coins = win ? 20 : 5; }
   if (G.note) extra = G.note + (extra ? " · " + extra : "");
-  P.dust += dust; P.tickets += packs; earn(coins, gems); if (win) eventWin(); const ups = xp ? gainXp(xp) : []; scheduleSave(); chrome(); sfx(win ? "win" : draw ? "draw" : "lose");
+  P.dust += dust; P.tickets += packs; earn(coins, gems); if (win) eventWin(); const xp0 = P.xp, lv0 = P.lv, ups = xp ? gainXp(xp) : []; scheduleSave(); chrome(); sfx(win ? "win" : draw ? "draw" : "lose");
   const again = mode.kind === "online" || G.online ? "" : `<button class="btn yellow" data-ck="rematch">${mode.kind === "camp" ? "Again" : "Rematch"}</button>`;
-  const chip = (cls, icon, n, lab) => `<div class="rchip ${cls}"><span class="ri">${icon}</span><b>${n}</b><small>${lab}</small></div>`;
+  const chip = (cls, icon, n, lab) => `<div class="rchip ${cls}"><span class="ri">${icon}</span><b data-n="${parseInt(String(n).replace(/\D/g, ""), 10)}">${n}</b><small>${lab}</small></div>`;
+  const xpPct = (lv, x) => Math.min(100, Math.round(100 * x / need(lv))), xpBar = xp ? `<div class="rxp"><small id="rxpl">Level ${lv0}</small><div class="bar"><i id="rxpi" style="width:${xpPct(lv0, xp0)}%"></i></div></div>` : "";
   openSheet(`<div class="res ${win ? "win" : draw ? "draw" : "lose"}"><b class="rtitle">${win ? "VICTORY" : draw ? "DRAW" : "DEFEAT"}</b><small class="rsub">${G.arena ? "Match time " + arClock(G.time) : "Round " + Math.min(G.round, CK.MAXR)}</small>` +
     `<div class="rcores"><div class="me"><small>YOU</small><b>${Math.max(0, Math.ceil(G.s[ME].core))}</b></div><i>CORE</i><div class="foe"><small>${esc(((G.arena && AM && AM.opp) || "FOE").toString().toUpperCase().slice(0, 9))}</small><b>${Math.max(0, Math.ceil(G.s[1 - ME].core))}</b></div></div>` +
     `<div class="rrow">${coins ? chip("g", ic("coin", ""), "+" + coins, "coins") : ""}${gems ? chip("p", ic("gem", ""), "+" + gems, "gems") : ""}${dust ? chip("s", ic("shard", ""), "+" + dust, "shards") : ""}${packs ? chip("p", ic("ticket", ""), "+" + packs, packs > 1 ? "packs" : "pack") : ""}${xp ? chip("x", ic("xp", ""), "+" + xp, "xp") : ""}</div>` +
-    `${extra ? `<p class="rnote">${esc(extra)}</p>` : ""}${ups.length ? `<p class="rnote up">${ups.map(esc).join("<br>")}</p>` : ""}</div><div class="row c" style="margin-top:14px">${again}<button class="btn dark" data-ck="leave">Back</button></div>`);
-  lockSheet();
+    `${extra ? `<p class="rnote">${esc(extra)}</p>` : ""}${ups.length ? `<p class="rnote up">${ups.map(esc).join("<br>")}</p>` : ""}${xpBar}</div><div class="row c" style="margin-top:14px">${again}<button class="btn dark" data-ck="leave">Back</button></div>`);
+  lockSheet(); resAnim(xp, xpPct, lv0);
+}
+/* the rewards count up one after another and the experience bar fills (a level-up fills it, flashes, and carries on) */
+function resAnim(xp, xpPct, lv0) {
+  document.querySelectorAll("#modal .rchip b[data-n]").forEach((b, i) => { const n = +b.dataset.n; if (!uiMotion()) return; b.dataset.v = 0; b.textContent = "+0"; setTimeout(() => { uiCount(b, n, 700, "+"); sfx("coin"); }, 350 + i * 220); });
+  const bar = $("#rxpi"); if (!bar || !xp) return; const lab = $("#rxpl"), to = xpPct(P.lv, P.xp);
+  if (!uiMotion()) { if (lab) lab.textContent = "Level " + P.lv; bar.style.width = to + "%"; return; }
+  bar.style.transition = "width .8s cubic-bezier(.2,.8,.3,1)";
+  setTimeout(() => {
+    if (P.lv === lv0) { bar.style.width = to + "%"; return; }
+    bar.style.width = "100%"; setTimeout(() => { if (lab) { lab.textContent = "Level " + P.lv; uiPulse(lab, "gain", 800); } sfx("level"); uiHaptic("ok"); bar.style.transition = "none"; bar.style.width = "0%"; void bar.offsetWidth; bar.style.transition = "width .8s cubic-bezier(.2,.8,.3,1)"; bar.style.width = to + "%"; }, 900);
+  }, 700);
 }
 function ckLeave() { if (AM) { cancelAnimationFrame(AM.raf); clearInterval(AM.ka); AM = null; } if (G && G.online) cknBye(); G = null; $("#ck").hidden = true; closeModal(); musicMode("menu"); chrome(); show(tab); }
 function ckRematch() {
@@ -3023,7 +3089,7 @@ function arStart(level, mode = { kind: "practice" }) {
 function arLaunch(A, mode, opp, me, net, level) {
   ME = me; AM = { A, me, net, speed: 1, auto: false, sel: null, mode: null, last: 0, acc: 0, sig: "", done: false, sfxAt: 0, maxCore: [A.s[0].core, A.s[1].core], opp, aiTick: -1, stall: 0 };
   G = { arena: true, over: false, phase: "arena", online: !!net, mode, level: level || 0, winner: null, round: 1, time: 0, s: [{ core: A.s[0].core }, { core: A.s[1].core }], speed: 1 };
-  $("#ck").hidden = false; closeModal(); musicMode("match"); arBuild(); AM.raf = requestAnimationFrame(arLoop);
+  $("#ck").hidden = false; closeModal(); musicMode("match"); if (typeof BG !== "undefined") BG.speed = 1; arBuild(); arIntroStart(); AM.raf = requestAnimationFrame(arLoop);
   if (net) { $("#arspeed").style.display = "none"; AM.ka = setInterval(arNetPulse, 1000); }
 }
 /* ----- online: deterministic lockstep. Both phones run the same fight; only commands (with the tick they apply on) and heartbeats cross the wire. ----- */
@@ -3142,6 +3208,11 @@ function arPanel() {
 function arUpdate(now) {
   const A = AM.A, left = Math.max(0, AR.MATCH - A.t), last = A.t > AR.MATCH - AR.LAST;
   $("#arclock").textContent = arClock(left); $("#arclock").classList.toggle("late", last);
+  if (!AM.intro && !A.over) {
+    if (last && !AM.w2x) { AM.w2x = 1; arBanner("DOUBLE ENERGY", "Energy refills twice as fast", "gold", 1500); sfx("charge"); uiHaptic("heavy"); }
+    if (left <= 30.5 && !AM.w30) { AM.w30 = 1; arBanner("30 SECONDS LEFT", "", "warn", 1400); sfx("ping", 3); uiHaptic("heavy"); if (typeof BG !== "undefined") BG.speed = 1.2; }
+    const sl = Math.ceil(left); if (left <= 10 && sl !== AM.lastSec) { AM.lastSec = sl; sfx("tap"); uiHaptic("tap"); uiPulse($("#arclock"), "tick", 400); }
+  }
   $("#arsurge").textContent = last ? "2× ENERGY" : A.t >= AR.SURGE_AT ? "SURGE +" + (Math.floor((A.t - AR.SURGE_AT) / AR.SURGE_T) + 1) : "";
   for (let s = 0; s < 2; s++) {
     const S = A.s[s ^ AM.me], c = $("#core" + s), pc = Math.max(0, 100 * S.core / AM.maxCore[s ^ AM.me]); c.querySelector(".hbar i").style.width = pc + "%"; c.querySelector("em").textContent = Math.max(0, Math.ceil(S.core)); c.classList.toggle("low", pc < 30);
@@ -3186,6 +3257,8 @@ function arEvents(now) {
   for (const e0 of ev) {
     const e = Object.assign({}, e0); if (e.s != null) e.s ^= me;   // events speak in sim seats; the screen speaks in view sides
     const el = e.s != null && e.i != null ? laneEl(e.s, e.i) : null, col = elColor(e.el || (el && el._r && unit(e.s, e.i) && unit(e.s, e.i).el));
+    if (e.t === "draw") { const slot = arSlotEl(e.s, e.i, "bench"), src = e.s === 0 ? $("#ardraw") : document.querySelector(".foepile"); if (slot && src && uiMotion()) { const a = src.getBoundingClientRect(), b = slot.getBoundingClientRect(); slot.animate([{ transform: `translate(${a.left + a.width / 2 - b.left - b.width / 2}px,${a.top + a.height / 2 - b.top - b.height / 2}px) scale(.3) rotate(-12deg)`, opacity: .1 }, { transform: "none", opacity: 1 }], { duration: 440, easing: "cubic-bezier(.2,.9,.3,1.12)" }); } snd("flip"); continue; }
+    if (e.t === "skill" && e.card && uiMotion()) { const hs = arSlotEl(e.s, e.b, "bench"), tg = e.ta === "ally" ? laneEl(e.s, e.ti) : e.ta === "enemy" ? laneEl(1 - e.s, e.ti) : $("#arena"); arGhostFly(hs, tg); }
     if (e.t === "strike") {
       const a = el, ts = 1 - e.s, tEl = e.ti >= 0 ? laneEl(ts, e.ti) : $("#core" + ts); if (!a || !tEl) continue;
       const pa = fxPos(a), pt = fxPos(tEl), dx = (pt.x - pa.x) * .62, dy = (pt.y - pa.y) * .62;
@@ -3218,6 +3291,7 @@ function arLoop(now) {
   if (!AM.net && !A.over && ROTMQ.matches) { AM.last = now; AM.raf = requestAnimationFrame(arLoop); return; }   // a solo match waits while the phone is turned sideways (the 'turn upright' cover is showing)
   if (!AM.last) AM.last = now; const dt = Math.min(.25, (now - AM.last) / 1000); AM.last = now;
   const net = AM.net;
+  if (AM.intro) { arIntroStep(now); arUpdate(now); AM.last = now; AM.raf = requestAnimationFrame(arLoop); return; }   // the fight waits for the versus card, the deal and 3-2-1-GO
   if (net) {   // online: the fight never pauses; it only waits when the other phone's commands have not arrived yet
     if (!A.over) {
       AM.acc = Math.min(AM.acc + dt, .5);
@@ -3236,8 +3310,52 @@ function arLoop(now) {
     while (AM.acc >= AR.DT) { AM.acc -= AR.DT; if (A.tick % 5 === 0) { arAi(A, 1); if (AM.auto) arAi(A, 0); } arStep(A); if (A.over) break; }
   }
   G.time = A.t; arUpdate(now);
-  if (A.over && !AM.done) { AM.done = true; setTimeout(arFinish, 1000); }
+  if (A.over && !AM.done) { AM.done = true; arFinale(); }
   AM.raf = requestAnimationFrame(arLoop);
+}
+/* ===== match framing: versus card, opening deal, 3-2-1-GO, banners and the finishing blow ===== */
+function arBanner(text, sub, cls, ms) {
+  const ck = $("#ck"); if (!ck) return; const old = ck.querySelector(".arbanner"); if (old) old.remove(); const d = document.createElement("div"); d.className = "arbanner " + (cls || ""); d.innerHTML = `<b>${esc(text)}</b>${sub ? `<small>${esc(sub)}</small>` : ""}`;
+  ck.appendChild(d); setTimeout(() => d.remove(), (ms || 1500) + 200); if (uiMotion()) d.style.animationDuration = (ms || 1500) + "ms"; else d.style.animation = "none";
+}
+function arIntroStart() {
+  const ck = $("#ck"), m = uiMotion(), A = AM.A, mode = A.mode || {}, kind = mode.kind === "camp" ? (CAMP[mode.ch] ? CAMP[mode.ch].name : "Campaign") : mode.kind === "ranked" ? "Ranked" : mode.kind === "online" ? "Friend match" : "Practice";
+  const T = m ? { split: 1300, c3: 2400, c2: 3050, c1: 3700, go: 4350, end: 4950 } : { split: 0, c3: 100, c2: 600, c1: 1100, go: 1600, end: 2100 };
+  AM.intro = { t0: 0, T, fired: {}, dealt: !m }; ck.classList.add("predeal");
+  if (m) {
+    const ov = document.createElement("div"); ov.id = "arintro"; const art = id => (id && BY[id] ? `<img alt="" src="${artSrc(BY[id], true)}">` : "");
+    ov.innerHTML = `<div class="vs-side vs-foe">${art(AM.av[1])}<div class="vs-name"><b>${esc((AM.opp || "Enemy").toString())}</b><small>${esc(kind)}</small></div></div><div class="vs-mid"><i>VS</i></div><div class="vs-side vs-me">${art(AM.av[0])}<div class="vs-name"><b>${esc(playerName())}</b><small>Tap to skip</small></div></div><div id="arcount"></div>`;
+    ck.appendChild(ov);
+  } else { const c = document.createElement("div"); c.id = "arintro"; c.className = "plain"; c.innerHTML = '<div id="arcount"></div>'; ck.appendChild(c); }
+}
+function arIntroSkip() { const I = AM && AM.intro; if (!I) return; const now = performance.now(); I.t0 = now - (I.T.c1 - 30); for (const k of ["split", "c3", "c2"]) I.fired[k] = 1; arIntroDeal(true); }
+function arIntroDeal(quick) {
+  const ck = $("#ck"), I = AM.intro; if (I.dealt) return; I.dealt = true; ck.classList.remove("predeal"); const ov = $("#arintro"); if (ov) ov.classList.add("away");
+  if (quick || !uiMotion()) return; ck.classList.add("dealing");
+  [1, 0].forEach(s => document.querySelectorAll(`#arl${s} .slot`).forEach((el, i) => el.style.setProperty("--di", i * 2 + (s === 0 ? 1 : 0))));
+  for (let k = 0; k < 5; k++) setTimeout(() => sfx("flip"), 120 * k); setTimeout(() => ck.classList.remove("dealing"), 1500);
+}
+function arIntroStep(now) {
+  const I = AM.intro, T = I.T; if (!I.t0) I.t0 = now; const t = now - I.t0, cnt = $("#arcount"), beat = (key, txt, go) => {
+    if (I.fired[key] || t < T[key]) return; I.fired[key] = 1; if (cnt) { cnt.textContent = txt; cnt.className = go ? "go" : ""; void cnt.offsetWidth; cnt.classList.add("pop"); } sfx(go ? "go" : "tap"); uiHaptic(go ? "heavy" : "tap");
+  };
+  if (!I.fired.split && t >= T.split) { I.fired.split = 1; arIntroDeal(false); }
+  beat("c3", "3"); beat("c2", "2"); beat("c1", "1"); beat("go", "GO!", true);
+  if (t >= T.end) { const ov = $("#arintro"); if (ov) ov.remove(); $("#ck").classList.remove("predeal", "dealing"); AM.intro = null; AM.last = now; AM.sig = ""; }
+}
+document.addEventListener("click", e => { if (e.target.closest && e.target.closest("#arintro") && AM && AM.intro) arIntroSkip(); });
+/* a card flying out of the hand to where it is played */
+function arGhostFly(slot, targetEl) {
+  const g = slot && slot._gone; if (!g || performance.now() - g.t > 600) return; const L = $("#arfx"); if (!L) return; const a = fxPos(slot), t = targetEl ? fxPos(targetEl) : { x: L.clientWidth / 2, y: L.clientHeight / 2 };
+  const d = document.createElement("div"); d.className = g.cls + " arghost"; d.innerHTML = g.html; d.style.cssText = `position:absolute;left:${a.l}px;top:${a.t}px;width:${a.w}px;height:${a.h}px;margin:0;z-index:30;pointer-events:none`; L.appendChild(d);
+  const dx = t.x - (a.l + a.w / 2), dy = t.y - (a.t + a.h / 2); d.animate([{ transform: "none", opacity: 1 }, { transform: `translate(${dx * .5}px,${dy * .5 - 24}px) scale(1.12)`, opacity: 1, offset: .45 }, { transform: `translate(${dx}px,${dy}px) scale(.35)`, opacity: 0 }], { duration: 520, easing: "cubic-bezier(.3,.7,.3,1)" }).onfinish = () => d.remove(); setTimeout(() => d.remove(), 900);
+}
+function arFinale() {
+  const A = AM.A, me = AM.me, w = A.winner, ck = $("#ck"), lose = w === -1 ? null : (w === me ? 1 : 0), el = lose != null ? $("#core" + lose) : null; ck.classList.add("finale");
+  if (el && uiMotion()) { const p = fxPos(el); fxFlash(p, "#ffffff", 240, 560); fxRing(p, "#ffffff", 170, 760); fxSparks(p, "#ffd9a0", 24, 96, 760); fxShake($("#arena"), 9, 460); }
+  sfx("charge"); uiHaptic("heavy");
+  setTimeout(() => { if (AM) arBanner(w === -1 ? "DRAW" : w === me ? "VICTORY" : "DEFEAT", "", w === -1 ? "draw" : w === me ? "win" : "lose", 1500); }, uiMotion() ? 700 : 0);
+  setTimeout(arFinish, uiMotion() ? 2500 : 600);
 }
 function arFinish() {
   if (!AM || !G || !G.arena) return; const A = AM.A; G.over = true; G.winner = A.winner; G.time = A.t; G.s = [{ core: A.s[0].core }, { core: A.s[1].core }]; ckResult();
@@ -3615,10 +3733,10 @@ function uiHaptic(kind) {
 function uiFx(kind) { try { sfx({ tap: "tap", ok: "go", err: "err", back: "back" }[kind]); } catch (_) {} uiHaptic(kind); }
 function uiOnce(key, ms) { if (UI.busy.has(key)) return false; UI.busy.add(key); setTimeout(() => UI.busy.delete(key), ms || 700); return true; }
 function uiPulse(el, cls, ms) { if (!el || !uiMotion()) return; el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); setTimeout(() => el.classList.remove(cls), ms || 600); }
-function uiCount(el, to, ms) {
-  if (!el) return; const from = el.dataset.v === undefined ? to : +el.dataset.v; el.dataset.v = to;
-  if (from === to || !uiMotion()) { el.textContent = to; return; }
-  const t0 = performance.now(), d = ms || 650; (function f(now) { const k = Math.min(1, (now - t0) / d), e = 1 - Math.pow(1 - k, 3); el.textContent = Math.round(from + (to - from) * e); if (k < 1) requestAnimationFrame(f); else el.textContent = to; })(t0);
+function uiCount(el, to, ms, pre) {
+  if (!el) return; const p = pre || "", from = el.dataset.v === undefined ? to : +el.dataset.v; el.dataset.v = to;
+  if (from === to || !uiMotion()) { el.textContent = p + to; return; }
+  const t0 = performance.now(), d = ms || 650; (function f(now) { const k = Math.min(1, (now - t0) / d), e = 1 - Math.pow(1 - k, 3); el.textContent = p + Math.round(from + (to - from) * e); if (k < 1) requestAnimationFrame(f); else el.textContent = p + to; })(t0);
 }
 function uiConfirm(o) {
   return new Promise(res => {
@@ -3636,6 +3754,10 @@ function uiUndo(msg, fn, ms) {
   e.querySelector("button").onclick = () => { clearTimeout(UI.undoT); e.remove(); uiFx("back"); try { fn(); } catch (_) {} };
   document.body.appendChild(e); UI.undoT = setTimeout(() => e.remove(), dur);
 }
+
+/* portrait picker: typing and the element filter refresh only the list, so the keyboard stays open and the scroll position is kept */
+document.addEventListener("input", e => { if (e.target && e.target.id === "avq") { AV.q = e.target.value.trim().toLowerCase(); const l = document.getElementById("avlist"); if (l) { l.innerHTML = avGrid(); l.scrollTop = 0; } } });
+document.addEventListener("change", e => { if (e.target && e.target.id === "avel") { AV.el = e.target.value; const l = document.getElementById("avlist"); if (l) { l.innerHTML = avGrid(); l.scrollTop = 0; } } });
 
 /* ===== SHOP, SUMMON POOLS and ECONOMY =====
    The player chooses WHICH pool to summon from. Pools are permanent (Standard, Premium) or rotate on a schedule worked out from the calendar (no server needed):
@@ -3834,7 +3956,7 @@ function viewSummon(v) {
   let h = `<div class="econ five"><span class="ec c">${ic("coin", "")}<b>${P.coins}</b><small>Coins</small></span><span class="ec g">${ic("gem", "")}<b>${P.gems}</b><small>Gems</small></span><span class="ec s">${ic("shard", "")}<b>${P.dust}</b><small>Shards</small></span><span class="ec t">${ic("ticket", "")}<b>${P.tickets}</b><small>Tokens</small></span><span class="ec m">${ic("medal", "")}<b>${P.medals}</b><small>Medals</small></span></div>` +
     `<div class="seg">${[["summon", "Summon"], ["exch", "Exchange"], ["shops", "Shops"]].map(([k, n]) => `<button class="${SV === k ? "on" : ""}" data-act="svtab" data-k="${k}">${n}</button>`).join("")}</div>`;
   if (SV === "summon") {
-    h += `<p class="note" style="text-align:center;margin:10px 0 6px">Choose a summon pool</p><div class="banners">${pools.map(bannerHtml).join("")}</div>${poolPanel(p)}` +
+    h += `<p class="note" style="text-align:center;margin:10px 0 6px">Choose a summon pool</p><div class="banners">${pools.map(bannerHtml).join("")}</div>${pools.length > 3 ? `<p class="bannerhint">Swipe to see all ${pools.length} pools ▸</p>` : ""}${poolPanel(p)}` +
       `<p class="note" style="text-align:center;margin:10px 0 0">Free Standard packs: <b>${fi.n}/${PACK.freeMax}</b>${fi.n < PACK.freeMax ? " · the next in " + fmtT(fi.next) : ""}. Every summon pays medals by rarity.</p>` +
       `<div class="panel" style="margin-top:12px"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><div><b class="fat" style="font-size:12px">${BUNDLE.n} PACK TOKENS</b><br><small class="note">Saves ${BUNDLE.n * ECON.std - BUNDLE.coins} coins. Tokens pay for Standard summons.</small></div><button class="btn sm yellow" data-act="buyBundle" ${P.coins >= BUNDLE.coins ? "" : "disabled"}><span class="cp">${ic("coin", "")}${BUNDLE.coins}</span> Buy</button></div></div>` +
       `<span class="ribbon">COLLECTION</span>${setProgress()}` + (rec.length ? `<span class="ribbon green">RECENT PULLS</span><div class="recent">${rec.map(id => BY[id] ? cardHtml(BY[id], { attr: `data-act="detail" data-id="${id}"` }) : "").join("")}</div>` : "");
@@ -4022,7 +4144,7 @@ function bgStep(c, bus, S, lead, i, t0) {
   }
 }
 function bgTick() {
-  const c = AU.ctx; if (!c || !BG.on) return; const S = BG.song, sd = 60 / S.bpm / 4;
+  const c = AU.ctx; if (!c || !BG.on) return; const S = BG.song, sd = 60 / S.bpm / 4 / (BG.speed || 1);
   while (BG.next < c.currentTime + .3) { try { bgStep(c, BG.gain, S, BG.lead, BG.step, BG.next); } catch (_) {} BG.next += sd; BG.step++; }
 }
 function bgStop() {
@@ -4031,7 +4153,7 @@ function bgStop() {
 }
 function bgSet(mode) {
   const c = auCtx(); if (!c || !AU.bgm) return; if (BG.on && BG.mode === mode) return; bgStop();
-  BG.mode = mode; BG.song = SONGS[mode] || SONGS.menu; BG.lead = bgLead(BG.song, "tri-" + mode); BG.step = 0; BG.next = c.currentTime + .15; BG.on = true;
+  BG.mode = mode; BG.speed = 1; BG.song = SONGS[mode] || SONGS.menu; BG.lead = bgLead(BG.song, "tri-" + mode); BG.step = 0; BG.next = c.currentTime + .15; BG.on = true;
   BG.gain = c.createGain(); BG.gain.gain.setValueAtTime(0, c.currentTime); BG.gain.gain.linearRampToValueAtTime(1.5 * AU.mv * (BG.song.gain || 1), c.currentTime + .8); BG.gain.connect(AU.out);
   BG.timer = setInterval(bgTick, 60); bgTick();
 }
@@ -4105,6 +4227,8 @@ document.addEventListener("click", async e => {
     case "evLogin": return evLogin();
     case "setvar": return setVar(d.id, d.v);
     case "avatar": return avatarSheet();
+    case "avpick": { AV.pick = d.id; document.querySelectorAll("#avlist .avc").forEach(b => b.classList.toggle("on", b.dataset.id === AV.pick)); $("#avprev").innerHTML = avPreview(); return uiFx("tap"); }
+    case "avuse": { P.avatar = AV.pick || null; scheduleSave(); chrome(); closeModal(); uiFx("ok"); return toast(AV.pick ? BY[AV.pick].name + " is now your portrait" : "Your portrait follows your best card"); }
     case "setav": P.avatar = d.id || null; scheduleSave(); chrome(); closeModal(); return toast(d.id ? BY[d.id].name + " is now your portrait" : "Your portrait follows your best card");
     case "openPack": return summon(SEL, 1);
     case "buyBundle": return buyBundle();
