@@ -24,7 +24,7 @@
 <link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="splash-750x1334.png">
 
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Nunito:wght@600;700;800&family=Rajdhani:wght@600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=DM+Sans:wght@400;500;600;700;800&family=Nunito:wght@600;700;800&family=Rajdhani:wght@600;700&display=swap">
 <style>
 /* Layout: a one-screen phone game. Hex player badge and currency pills on top, the current tab in the middle, a five-button bar with a raised diamond PLAY at the bottom; matches, sheets and the splash lay over it.
    Look: a casino at night. Felt green, gold-yellow, signal red and near-black, chunky outlined type, bevelled buttons with a hard bottom edge, ribbon banners. One committed dark theme. */
@@ -970,6 +970,119 @@ main#view { transform: translateZ(0); overscroll-behavior-y: contain; -webkit-ov
 .avc small { position: absolute; left: 0; right: 0; bottom: 0; padding: 8px 2px 2px; font: 700 8px var(--display); letter-spacing: .04em; color: #fff; background: linear-gradient(#0000, #000d); text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .avc.on { border-color: var(--gold-hi); box-shadow: 0 0 0 2px var(--gold), 0 0 14px var(--gold); }
 .avc.r5, .avc.r6 { border-color: #d9a437; } .avc.r4 { border-color: #8a52e0; } .avc.r3 { border-color: #3d86d8; }
+/* ===== DESIGN SYSTEM v2 ("Illustrated Fantasy"): loaded after every other stylesheet. See DESIGN_SYSTEM.md. =====
+   The card art is the identity. The interface is a quiet frame around it: slate blue structure, warm ivory and parchment surfaces, muted gold only where it means something
+   (rewards, rarity, the one primary action). Tokens first, then the shared components (type, button, panel, label, sheet, shell), then the main menu, which is the first screen on this system. */
+
+/* ---------- tokens ---------- */
+:root {
+  --ds-slate: #26364A; --ds-steel: #53677A; --ds-ivory: #D8D1BF; --ds-parch: #EEE8D9; --ds-gold: #B99B59; --ds-char: #343B43; --ds-sage: #788B85; --ds-violet: #8D789B;
+  --ds-ink: #2B333B; --ds-ink2: #5B6670; --ds-paper-line: rgba(38, 54, 74, .13); --ds-on-dark: #EFEBDF; --ds-on-dark2: #AEBAC4;
+  --ds-shadow: 0 10px 26px rgba(14, 22, 32, .32); --ds-shadow-s: 0 3px 10px rgba(14, 22, 32, .25);
+  /* elements: three tones each (accent, deep, soft). They colour arena light, skill effects and small accents; screens keep the common palette. */
+  --ds-fire-1: #E0703A; --ds-fire-2: #B5423A; --ds-fire-3: #A8957F;
+  --ds-water-1: #3F86B8; --ds-water-2: #3FA6A6; --ds-water-3: #BFCBD3;
+  --ds-wind-1: #86A89A; --ds-wind-2: #9CD1D6; --ds-wind-3: #EEF1EC;
+  --ds-earth-1: #7E9560; --ds-earth-2: #C2A878; --ds-earth-3: #A57A47;
+  --ds-lightning-1: #4F78D6; --ds-lightning-2: #7E68C4; --ds-lightning-3: #E3D08C;
+  --ds-ice-1: #8FB9D8; --ds-ice-2: #C9D3DB; --ds-ice-3: #F2F5F7;
+  --ds-light-1: #EFE5C6; --ds-light-2: #DCC27E; --ds-light-3: #FAF6EA;
+  --ds-dark-1: #8D789B; --ds-dark-2: #3A3F47; --ds-dark-3: #9B5F86;
+  /* the older token names now point at the new palette, so every screen that has not been redone yet still inherits it */
+  --bg0: #1A2430; --bg1: #1F2B39; --bg2: #26364A; --bg3: #30435A; --glass: rgba(38, 54, 74, .72);
+  --gold: #B99B59; --gold-hi: #DCC995; --gold-lo: #8A7140; --line: rgba(216, 209, 191, .26); --line-soft: rgba(216, 209, 191, .12);
+  --ink: #EFEBDF; --muted: #AEBAC4; --ok: #8FC9A4; --bad: #E58A8E;
+  --felt: #26364A; --felt-d: #1F2B39; --felt-dd: #1A2430; --black: #1A2430; --panel: #26364A; --panel-hi: #30435A; --edge: #53677A;
+  --yellow: #B99B59; --yellow-d: #8A7140; --red: #B5555C; --red-d: #6E2A31;
+  --display: "Marcellus", "Cormorant Garamond", Georgia, serif; --body: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --el-fire: #E0703A; --el-water: #3F86B8; --el-wind: #86A89A; --el-earth: #7E9560; --el-lightning: #4F78D6; --el-ice: #8FB9D8; --el-light: #DCC27E; --el-dark: #8D789B;
+}
+
+/* ---------- ground ---------- */
+html { background: #1A2430; }
+body { background: radial-gradient(120% 60% at 50% -6%, #3A4F68 0%, #2A3B50 42%, #1C2733 100%); }
+body::before { display: none; } body::after { background: radial-gradient(ellipse at 50% 38%, transparent 62%, #0b121a66 100%); }
+
+/* ---------- type: one refined display face for screen titles, one clear sans for everything else ---------- */
+h1, h2, h3, .fat { font-family: var(--display); font-weight: 400; letter-spacing: .01em; text-transform: none; text-shadow: none; -webkit-text-stroke: 0; color: var(--ds-on-dark); }
+h2.fat { font-size: 26px; text-align: center; margin: 4px 0 10px; }
+.note, .sheet p { font-family: var(--body); }
+.ribbon { justify-content: flex-start; margin: 20px 0 10px; font: 700 11.5px var(--body); letter-spacing: .1em; text-transform: uppercase; color: var(--ds-on-dark2); filter: none; text-shadow: none; }
+.ribbon::before { display: none; } .ribbon::after { flex: 1; height: 1px; background: linear-gradient(90deg, var(--ds-paper-line), transparent) !important; transform: none; opacity: .9; margin-left: 6px; }
+.ribbon.green, .ribbon.gold { color: var(--ds-on-dark2); text-shadow: none; }
+
+/* ---------- buttons: a primary (muted gold, used once per screen), a secondary, a quiet one ---------- */
+.btn { font: 700 14px var(--body); letter-spacing: .01em; text-transform: none; color: var(--ds-on-dark); background: linear-gradient(#3B506A, #30435A); border: 0; border-radius: 12px; padding: 10px 16px; box-shadow: inset 0 1px 0 #ffffff1c, var(--ds-shadow-s); }
+.btn.yellow { color: #2A2412; background: linear-gradient(#D2B979, #B99B59); text-shadow: none; box-shadow: inset 0 1px 0 #ffffff55, var(--ds-shadow-s); }
+.btn.red { background: linear-gradient(#C26168, #A04A52); border: 0; }
+.btn.dark { background: #ffffff14; color: var(--ds-on-dark); box-shadow: none; }
+.btn.sm { font-size: 12.5px; padding: 7px 12px; border-radius: 10px; letter-spacing: .01em; }
+.btn.big { letter-spacing: .01em; }
+.btn:disabled { filter: grayscale(.5) brightness(.8); opacity: .55; }
+
+/* ---------- surfaces: soft translucent panels, no outline ---------- */
+.panel { background: rgba(38, 54, 74, .62); border: 0; border-radius: 16px; box-shadow: inset 0 1px 0 #ffffff12, var(--ds-shadow-s); }
+.panel::before { display: none; }
+.sheet { background: linear-gradient(#2D4058, #243448); border: 0; box-shadow: 0 -18px 50px #0b121acc, inset 0 1px 0 #ffffff1a; }
+#modal { background: rgba(14, 22, 32, .7); }
+select, input[type=text], input[type=search], input[type=password], textarea { background: #1D2A39; border: 1px solid var(--ds-paper-line); box-shadow: none; border-radius: 12px; color: var(--ds-on-dark); font-family: var(--body); }
+.dlgbox, #undo { background: linear-gradient(#2D4058, #243448); border: 1px solid var(--line); }
+.dlgbox h3 { color: var(--ds-on-dark); font-size: 21px; } .dlgbox.danger { border-color: #C2616899; }
+
+/* ---------- shell: a compact top bar and a simple bottom bar ---------- */
+#hud { padding: 8px 0 6px; gap: 10px; }
+.hex { background: linear-gradient(160deg, #EFEBDF, #AEBAC4); } .hex::before { background: #1F2B39; }
+.who b { font: 400 17px var(--display); letter-spacing: .01em; color: var(--ds-on-dark); text-transform: none; }
+.xp { background: #1D2A39; box-shadow: none; height: 6px; } .xp i { background: linear-gradient(90deg, var(--ds-sage), var(--ds-gold)); }
+.pill { background: rgba(26, 36, 48, .55); border: 0; font: 700 14px var(--body); }
+.pill svg { color: var(--ds-gold); } .pill.g svg { color: #8FD0DE; }
+.mute { background: rgba(26, 36, 48, .55); border: 0; }
+.lvbadge { background: var(--ds-slate); color: var(--ds-on-dark); border: 2px solid #AEBAC4; box-shadow: none; }
+nav { background: var(--ds-parch); border-top: 0; border-radius: 20px 20px 0 0; box-shadow: 0 -8px 26px rgba(10, 16, 24, .38); min-height: 60px; padding: 6px 8px; gap: 2px; align-items: stretch; }
+nav button { height: 54px; border-radius: 14px; color: var(--ds-ink2); font: 600 10.5px var(--body); letter-spacing: .01em; text-transform: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 0; clip-path: none; margin: 0; }
+nav .dia { width: 26px; height: 26px; } nav .dia svg { width: 22px; height: 22px; opacity: 1; color: inherit; filter: none; }
+nav .lb { font: 600 10.5px var(--body); letter-spacing: .01em; margin: 0; }
+nav button.on { height: 54px; background: var(--ds-slate); color: var(--ds-on-dark); box-shadow: none; padding-top: 0; margin: 0; }
+nav button.on .dia { width: 26px; height: 26px; } nav button.on .dia svg { width: 22px; height: 22px; color: var(--ds-on-dark); filter: none; }
+nav .dot { background: #C26168; border: 2px solid var(--ds-parch); }
+#splash { background: radial-gradient(ellipse at 50% 35%, #3A4F68, #1F2B39 70%); }
+#splash .logo { color: var(--ds-on-dark); text-shadow: none; font-weight: 400; letter-spacing: .04em; }
+#gate { background: radial-gradient(ellipse at 50% -10%, #3A4F68 0%, #26364A 50%, #1A2430 100%); } #gate .logo { color: var(--ds-on-dark); }
+
+/* ---------- main menu ---------- */
+.hm { margin: 0 -14px; position: relative; }
+.hm-hero { position: relative; height: 268px; overflow: hidden; background: #26364A; }
+.hm-hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 18%; transform: scale(1.04); }
+.hm-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(#1a243099 0, #1a243000 28%, #1a243000 46%, #243448cc 82%, #243448 100%); }
+.hm-id { position: absolute; z-index: 2; left: 16px; right: 16px; bottom: 40px; }
+.hm-id small { display: inline-flex; align-items: center; gap: 6px; font: 700 11px var(--body); letter-spacing: .08em; text-transform: uppercase; color: var(--ds-on-dark2); }
+.hm-id small i { width: 8px; height: 8px; border-radius: 50%; background: var(--c, var(--ds-gold)); display: inline-block; }
+.hm-id h1 { margin: 2px 0 0; font: 400 24px/1.1 var(--display); color: var(--ds-on-dark); text-shadow: 0 2px 14px #0b121a99; }
+.hm-change { position: absolute; z-index: 2; right: 14px; top: 10px; font: 600 12px var(--body); color: var(--ds-on-dark); background: rgba(26, 36, 48, .5); border: 0; border-radius: 999px; padding: 6px 12px; }
+.hm-tray { position: relative; z-index: 3; margin-top: -26px; padding: 16px 14px 22px; border-radius: 26px 26px 0 0; color: var(--ds-ink);
+  background: var(--ds-parch) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .3  0 0 0 0 .26  0 0 0 0 .2  0 0 0 .07 0'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>"); box-shadow: 0 -6px 24px rgba(10, 16, 24, .28); }
+.hm-go { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; padding: 10px 12px 10px 10px; border: 0; border-radius: 18px; color: var(--ds-on-dark); background: linear-gradient(#32475F, #26364A); box-shadow: var(--ds-shadow-s); }
+.hm-go .th { flex: none; width: 52px; height: 52px; border-radius: 14px; overflow: hidden; background: #1F2B39; } .hm-go .th img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 22%; display: block; }
+.hm-go .tx { flex: 1; min-width: 0; } .hm-go .tx small { display: block; font: 700 10.5px var(--body); letter-spacing: .09em; text-transform: uppercase; color: var(--ds-on-dark2); }
+.hm-go .tx b { display: block; font: 400 18px/1.15 var(--display); color: var(--ds-on-dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .hm-go .tx span { display: block; font: 600 12px var(--body); color: var(--ds-on-dark2); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hm-go .go { flex: none; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--ds-gold); color: #2A2412; font-size: 16px; }
+.hm-go:disabled { opacity: .55; }
+.hm-err { margin: 8px 2px 0; font: 600 12.5px var(--body); color: #9B3B43; }
+.hm-h { display: flex; align-items: baseline; justify-content: space-between; margin: 18px 2px 8px; } .hm-h b { font: 400 18px var(--display); color: var(--ds-ink); } .hm-h span, .hm-h button { font: 600 12.5px var(--body); color: var(--ds-ink2); background: none; border: 0; padding: 0; }
+.hm-dests { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.hm-dest { position: relative; aspect-ratio: 1.12; overflow: hidden; border: 0; border-radius: 18px; padding: 0; text-align: left; background: #26364A; box-shadow: var(--ds-shadow-s); }
+.hm-dest img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; }
+.hm-dest::after { content: ""; position: absolute; inset: 0; background: linear-gradient(#0000 38%, #1a2430cc 100%); }
+.hm-dest .tx { position: absolute; z-index: 2; left: 11px; right: 11px; bottom: 9px; } .hm-dest b { display: block; font: 400 17px/1.15 var(--display); color: #F3EFE4; } .hm-dest small { display: block; font: 600 11.5px/1.25 var(--body); color: #D5DCE2; margin-top: 1px; }
+.hm-dest.lock img { filter: grayscale(.85) brightness(.7); } .hm-dest.lock .tx small { color: #E2C98B; } .hm-dest:disabled { opacity: .6; }
+.hm-deck { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 8px; scrollbar-width: none; -webkit-overflow-scrolling: touch; } .hm-deck::-webkit-scrollbar { display: none; }
+.hm-deck .card { flex: none; width: 78px; } .hm-deck .sep { flex: none; width: 1px; background: var(--ds-paper-line); margin: 4px 2px; }
+.hm-deckbar { display: flex; align-items: center; gap: 8px; margin-top: 8px; } .hm-deckbar select { flex: 1; min-width: 0; background: #E4DDCB; color: var(--ds-ink); border: 0; font: 600 13.5px var(--body); padding: 8px 10px; }
+.hm-deckbar .btn.dark { background: #D9D1BC; color: var(--ds-ink); } .hm-deckbar .btn.yellow { background: var(--ds-slate); color: var(--ds-on-dark); }
+.hm-foot { display: flex; justify-content: center; gap: 18px; margin-top: 16px; } .hm-foot button { font: 600 12.5px var(--body); color: var(--ds-ink2); background: none; border: 0; text-decoration: underline; text-underline-offset: 3px; }
+.hm-practice { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; } .hm-practice .btn { text-align: left; display: flex; justify-content: space-between; align-items: center; }
+.hm-practice .btn small { font: 600 11.5px var(--body); opacity: .75; }
+@media (prefers-reduced-motion: reduce) { .hm-hero img { transform: none; } }
 
 @media (prefers-reduced-motion: reduce) { * { animation-duration: .01s !important; } }
 /* ===== standalone phone app: portrait only, no zoom, no rubber band, no text selection, 16px inputs so iOS never zooms on focus ===== */
@@ -1516,7 +1629,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.11.19-a";
+const VER = "2026.11.20-a";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -2345,24 +2458,29 @@ const rankLevel = pts => (pts < 1100 ? 0 : pts < 1800 ? 1 : 2);
 
 /* ----- the Battle tab ----- */
 let BV = "home";
+/* ----- main menu (design system v2): the player's chosen card as the hero, the next campaign step, four destinations drawn from real card art, and the real deck ----- */
+const HM_REGION_ART = ["hero_dragoon", "warlord", "db_frieza", "r_phoenix_pinion", "x_esper_diabolos"], HM_ART = { ranked: "bahamut", friend: "slime", practice: "ramuh" };
+const hmImg = (id, big) => (BY[id] ? `<img alt="" decoding="async" src="${artSrc(BY[id], big)}">` : "");
 function viewBattle(v) {
   ckInit(); rankInit(); if (BV === "camp") return viewCamp(v);
   if (!P.camp) P.camp = { cl: {} };
   const d = P.cd[P.cdi], err = ckDeckOk(d.cards), rec = P.ck, rk = P.rank, unlocked = P.lv >= RANK_LV, tier = rankTier(rk.pts), nextT = TIERS_R[tier + 1];
   let nx = null; for (let ch = 0; ch < CAMP.length && !nx; ch++) for (let k = 0; k < 6; k++) if (campOpen(ch, k) && !P.camp.cl[ch + "-" + k]) { nx = [ch, k]; break; }
-  const fan = d.cards.slice(0, 3).filter(id => BY[id]).map(id => cardHtml(BY[id])).join("");
-  const mini = id => (BY[id] ? cardHtml(BY[id]) : "");
-  v.innerHTML = `<section class="homehero"><div class="logo2">TRIAD<small>SUMMONS · THE CARD ARENA</small></div><div class="hfan">${fan}<i class="shadow"></i></div>` +
-    (nx ? `<button class="btn yellow cta" data-ck="campStage" data-ch="${nx[0]}" data-k="${nx[1]}" ${err ? "disabled" : ""}><b>${campDone() ? "CONTINUE CAMPAIGN" : "BEGIN CAMPAIGN"}</b><small>${esc(CAMP[nx[0]].name)} · ${esc(CAMP[nx[0]].foes[nx[1]])}</small></button>` : `<button class="btn yellow cta" data-ck="start" data-l="1" ${err ? "disabled" : ""}><b>QUICK BATTLE</b><small>Campaign complete</small></button>`) + `</section>` +
-    (err ? `<p class="note" style="text-align:center;color:var(--bad);margin:8px 0 0">${esc(err)}</p>` : "") +
-    `<div class="tiles"><button class="tile" data-ck="camp" ${err ? "disabled" : ""}><svg class="ti"><use href="#i-swords"/></svg><b>Campaign</b><small>${campDone()} / 30 beaten · packs for first wins</small></button>` +
-    `<button class="tile ${unlocked ? "" : "lock"}" data-ck="ranked" ${err || !unlocked ? "disabled" : ""}><svg class="ti"><use href="#i-xp"/></svg><b>Ranked</b><small>${unlocked ? `${TIERS_R[tier][0]} · ${rk.pts} pts${nextT ? " · " + (nextT[1] - rk.pts) + " to " + nextT[0] : ""}` : `Unlocks at level ${RANK_LV}`}</small></button>` +
-    `<button class="tile" data-act="tab" data-k="versus"><svg class="ti"><use href="#i-vs"/></svg><b>Play a friend</b><small>Online, by room code or direct link</small></button>` +
-    `<button class="tile" data-ck="rules"><svg class="ti"><use href="#i-cards"/></svg><b>How to play</b><small>Targets, energy, elements</small></button></div>` +
-    `<span class="ribbon">YOUR DECK</span><div class="panel deckstrip"><div class="row"><select id="ckdeck" data-ck="deckSel" style="flex:1">${P.cd.map((x, i) => `<option value="${i}" ${i === P.cdi ? "selected" : ""}>${esc(x.name)}${ckDeckOk(x.cards) ? " ✕" : ""}</option>`).join("")}</select><button class="btn sm yellow" data-ck="deckEdit">Edit</button><button class="btn sm dark" data-ck="deckNew" ${P.cd.length >= 8 ? "disabled" : ""}>New</button></div>` +
-    `<p class="dlab">Front line</p><div class="dgrid">${d.cards.slice(0, 5).map(mini).join("")}</div><p class="dlab">Backups</p><div class="dgrid b">${d.cards.slice(5, 8).map(mini).join("")}</div></div>` +
-    `<span class="ribbon">PRACTICE</span><div class="chips"><button class="btn" data-ck="start" data-l="0" ${err ? "disabled" : ""}>Easy</button><button class="btn yellow" data-ck="start" data-l="1" ${err ? "disabled" : ""}>Normal</button><button class="btn red" data-ck="start" data-l="2" ${err ? "disabled" : ""}>Hard</button></div><p class="note" style="text-align:center;margin:8px 0 0">${rec.w} wins · ${rec.l} losses. Practice pays dust and XP.</p>` +
-    `<div class="row c" style="margin-top:14px"><button class="btn sm dark" data-ck="triad">Classic Triad</button></div>`;
+  const heroId = P.avatar && BY[P.avatar] && P.own[P.avatar] > 0 ? P.avatar : bestCard(d.cards.filter(id => BY[id])) || d.cards.find(id => BY[id]), hk = heroId ? arCard(BY[heroId]) : null;
+  const regionArt = nx ? HM_REGION_ART[nx[0]] : heroId;
+  const go = nx ? `<button class="hm-go" data-ck="campStage" data-ch="${nx[0]}" data-k="${nx[1]}" ${err ? "disabled" : ""}><span class="th">${hmImg(regionArt)}</span><span class="tx"><small>${campDone() ? "Continue campaign" : "Begin campaign"}</small><b>${esc(CAMP[nx[0]].name)}</b><span>${esc(CAMP[nx[0]].foes[nx[1]])}</span></span><i class="go">▶</i></button>`
+    : `<button class="hm-go" data-ck="start" data-l="1" ${err ? "disabled" : ""}><span class="th">${hmImg(heroId)}</span><span class="tx"><small>Campaign complete</small><b>Quick battle</b><span>Normal difficulty</span></span><i class="go">▶</i></button>`;
+  const dest = (cls, attrs, id, title, sub) => `<button class="hm-dest ${cls}" ${attrs}>${hmImg(id, true)}<span class="tx"><b>${title}</b><small>${sub}</small></span></button>`;
+  v.innerHTML = `<section class="hm"><div class="hm-hero">${hmImg(heroId, true)}${hk ? `<div class="hm-id"><small><i style="--c:var(--ds-${hk.el}-1)"></i>${EL[hk.el][0]} · ${esc(FAC[hk.fac] || hk.fac)}</small><h1>${esc(BY[heroId].name)}</h1></div>` : ""}<button class="hm-change" data-act="avatar">Change portrait</button></div>` +
+    `<div class="hm-tray">${go}${err ? `<p class="hm-err">${esc(err)}</p>` : ""}` +
+    `<div class="hm-h"><b>Play</b><span>${rec.w} wins · ${rec.l} losses</span></div><div class="hm-dests">` +
+    dest("", `data-ck="camp" ${err ? "disabled" : ""}`, nx ? HM_REGION_ART[nx[0]] : HM_REGION_ART[0], "Campaign", `${campDone()} of 30 beaten`) +
+    dest(unlocked ? "" : "lock", `data-ck="ranked" ${err || !unlocked ? "disabled" : ""}`, HM_ART.ranked, "Ranked", unlocked ? `${TIERS_R[tier][0]} · ${rk.pts} pts${nextT ? " · " + (nextT[1] - rk.pts) + " to " + nextT[0] : ""}` : `Unlocks at level ${RANK_LV}`) +
+    dest("", `data-act="tab" data-k="versus"`, HM_ART.friend, "Play a friend", "Online challenge or room code") +
+    dest("", `data-ck="practiceSheet" ${err ? "disabled" : ""}`, HM_ART.practice, "Practice", "Easy, Normal or Hard") + `</div>` +
+    `<div class="hm-h"><b>Your deck</b><button data-ck="deckEdit">Edit</button></div><div class="hm-deck">${d.cards.slice(0, 5).map(id => (BY[id] ? cardHtml(BY[id]) : "")).join("")}<i class="sep"></i>${d.cards.slice(5, 8).map(id => (BY[id] ? cardHtml(BY[id]) : "")).join("")}</div>` +
+    `<div class="hm-deckbar"><select id="ckdeck" data-ck="deckSel" aria-label="Deck">${P.cd.map((x, i) => `<option value="${i}" ${i === P.cdi ? "selected" : ""}>${esc(x.name)}${ckDeckOk(x.cards) ? " (incomplete)" : ""}</option>`).join("")}</select><button class="btn sm dark" data-ck="deckNew" ${P.cd.length >= 8 ? "disabled" : ""}>New deck</button></div>` +
+    `<div class="hm-foot"><button data-ck="rules">How to play</button><button data-ck="triad">Classic Triad</button></div></div></section>`;
 }
 const campDone = () => Object.keys((P.camp && P.camp.cl) || {}).length;
 function viewCamp(v) {
@@ -2533,6 +2651,7 @@ document.addEventListener("click", async e => {
     case "rematch": return ckRematch();
     case "leave": return ckLeave();
     case "rules": return rulesSheet();
+    case "practiceSheet": return openSheet(`<h2 class="fat">Practice</h2><p class="note" style="text-align:center;margin:0 0 10px">Practice pays shards, coins and XP.</p><div class="hm-practice"><button class="btn" data-ck="start" data-l="0">Easy<small>Forgiving opponent</small></button><button class="btn yellow" data-ck="start" data-l="1">Normal<small>A fair fight</small></button><button class="btn red" data-ck="start" data-l="2">Hard<small>Plays to win</small></button></div><div class="row c" style="margin-top:12px"><button class="btn dark" data-act="closeModal">Close</button></div>`);
     case "deckEdit": return deckEditor(P.cdi);
     case "deckOpen": P.cdi = +d.i; scheduleSave(); return deckEditor(+d.i);
     case "deckNew": ckInit(); P.cd.push({ name: "Deck " + (P.cd.length + 1), cards: ckAutoDeck() }); P.cdi = P.cd.length - 1; scheduleSave(); return deckEditor(P.cdi);
