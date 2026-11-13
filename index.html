@@ -436,6 +436,21 @@ nav button:active { transform: scale(.93); }
 @media (prefers-reduced-motion: reduce) { .drawb.ready { animation: none; } }
 .zone { grid-template-columns: 148px 98px minmax(0, 1fr); } .zone .mana { min-width: 0; max-width: 100%; } .drawb { width: 100%; max-width: 118px; } .foepile { white-space: nowrap; }
 
+/* ===== skill cards ===== */
+.ku.skillcard { --elc: var(--sk, #8DA2B8); background: linear-gradient(160deg, color-mix(in srgb, var(--sk, #8DA2B8) 55%, #1d2a3a), #1a2431); }
+.ku.skillcard .kart { background: radial-gradient(circle at 50% 38%, color-mix(in srgb, var(--sk, #8DA2B8) 70%, #fff 8%), transparent 70%); display: grid; place-items: center; inset: 0 0 34% 0; }
+.skg { font-size: 26px; filter: drop-shadow(0 2px 3px #0008); } .ku.mini .skg { font-size: 20px; }
+.sktype { position: absolute; left: 50%; top: 3px; transform: translateX(-50%); font: 800 7px var(--body); letter-spacing: .08em; font-style: normal; color: #fff; background: #0006; padding: 1px 5px; border-radius: 6px; }
+.ku.hand.back, .ku.slot.back { background: linear-gradient(160deg, #3F5F84, #243A55); } .cardback { display: grid; place-items: center; height: 100%; font-size: 22px; color: #ffffff55; }
+.handtray { margin-top: 4px; } .handtray .bench { gap: 10px; justify-content: center; } #ck .handtray .ku { width: 74px; flex: none; }
+.hm-deck .ku.mini { flex: none; width: 78px; }
+.zone.me { grid-template-columns: 98px minmax(0, 1fr); } .zone.me .mana { justify-self: stretch; align-items: flex-end; }
+
+.ku.skillcard .kname { position: absolute; left: 0; right: 0; bottom: 6%; text-align: center; color: #fff; font: 800 9.5px var(--body); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 3px; text-shadow: 0 1px 2px #000; } .handtray .ku.skillcard .kname { font-size: 11px; }
+.ku.skillcard .kcost { position: absolute; left: 3px; top: 3px; }
+.spellbook { display: grid; gap: 8px; margin-top: 10px; } .spell { display: flex; gap: 10px; align-items: center; } .spell .ku { width: 56px; flex: none; } .spell b { font: 700 14px var(--body); } .spell small { font-weight: 600; color: var(--muted); } .spell p { margin: 2px 0 0; font: 600 12.5px/1.35 var(--body); color: var(--ds-on-dark2); }
+#ck .ku.mini.skillcard .kname, .ku.mini.skillcard .kname, .ku.skillcard .kname { display: block !important; }
+
 /* ===== THEME: "Night Court" visual language (see ART_DIRECTION.md) =====
    Premium anime-fantasy collectible card game: dark navy / charcoal surfaces, gold and metal accents, rich elemental colours, thin engraved lines instead of chunky outlines.
    This file is loaded LAST: it re-points the old colour tokens at the new palette, then restyles every shared component once (button, panel, section header, pill, bar, sheet, card, board slot)
@@ -1112,6 +1127,74 @@ nav .dot { background: var(--ds-gold); border: 2px solid #213449; }
 .hm-foot button { color: #C4D1DE; }
 .hm-deck .sep { background: #ffffff26; }
 
+/* ---------- v2.2: every remaining page on the same system (segmented tabs, banners, currency tiles, bars, tags, lists, results) ---------- */
+.seg { background: rgba(26, 36, 48, .5); border: 0; border-radius: 14px; padding: 3px; gap: 3px; overflow: visible; }
+.seg button { font: 600 13px var(--body); letter-spacing: .01em; text-transform: none; color: var(--ds-on-dark2); border-radius: 11px; padding: 9px 0; }
+.seg button.on { color: #fff; background: var(--ds-violet); box-shadow: 0 3px 10px #8d789b55; }
+.banner { background: rgba(38, 54, 74, .6); border: 0; border-radius: 16px; box-shadow: var(--ds-shadow-s); }
+.banner.on { box-shadow: 0 0 0 2px var(--ds-violet-hi), var(--ds-shadow-s); border: 0; }
+.banner b.fat { font: 600 11.5px/1.2 var(--body); } .banner small { font: 600 10.5px var(--body); color: var(--ds-on-dark2); }
+.poolpanel { border: 0; } .poolpanel .ends { font: 600 11px var(--body); letter-spacing: 0; color: var(--ds-violet-hi); }
+.econ .ec, .ec { background: rgba(38, 54, 74, .6); border: 0; border-radius: 14px; box-shadow: var(--ds-shadow-s); }
+.ec b { font: 700 17px var(--body); } .ec small { font: 600 9.5px var(--body); letter-spacing: .02em; text-transform: none; color: var(--ds-on-dark2); }
+.bar, .xp { background: rgba(26, 36, 48, .6); box-shadow: none; } .bar i { background: linear-gradient(90deg, var(--ds-sage), var(--ds-gold)); }
+.pity small, .si .pity small { font: 600 11.5px var(--body); letter-spacing: .01em; text-transform: none; color: var(--ds-on-dark2); }
+.rtag { font: 700 10.5px var(--body); letter-spacing: .06em; }
+.tag { background: rgba(26, 36, 48, .55); border: 0; font: 600 11.5px var(--body); color: var(--ds-on-dark2); } .tag.ok { color: var(--ok); } .tag.gold { color: var(--ds-gold); }
+.item .t b, .list .t b { font: 400 18px var(--display); letter-spacing: 0; } .item .t small { font: 600 12.5px var(--body); color: var(--ds-on-dark2); }
+.panel.item { border: 0; }
+.chips .btn { max-width: none; }
+.filters select, .filters input { font: 600 14px var(--body); }
+.note { color: var(--ds-on-dark2); }
+.kdeck .kslot.on, .kslot.on { box-shadow: 0 0 0 3px var(--ds-violet-hi), 0 0 18px #a892ba88; } .kslot.on::after { color: var(--ds-violet-hi); }
+.selbar b { color: var(--ds-violet-hi); } .cmp h4 { color: var(--ds-on-dark); font: 400 17px var(--display); letter-spacing: 0; } .cmp { border-color: #8d789b88; background: rgba(26, 36, 48, .5); }
+.syn b { color: var(--ds-gold); }
+.drawb.ready { background: linear-gradient(#D2B979, #B99B59); }
+/* results */
+.res .rtitle { font: 400 38px/1.1 var(--display); letter-spacing: .02em; text-indent: 0; background: none; -webkit-text-fill-color: #fff; color: #fff; filter: none; text-shadow: 0 2px 16px #0b121a99; }
+.res.win .rtitle { -webkit-text-fill-color: #E7D3A0; color: #E7D3A0; } .res.lose .rtitle { -webkit-text-fill-color: #C7D2DE; color: #C7D2DE; }
+.res .rsub { font: 600 12.5px var(--body); color: var(--ds-on-dark2); letter-spacing: .02em; text-transform: none; }
+.rcores div { background: rgba(26, 36, 48, .55); border: 0; border-radius: 14px; } .rcores small { font: 700 10px var(--body); letter-spacing: .1em; } .rcores i { font: 700 10px var(--body); letter-spacing: .12em; color: var(--ds-on-dark2); }
+.rchip { background: rgba(38, 54, 74, .8); border: 0; border-radius: 14px; box-shadow: var(--ds-shadow-s); } .rchip b { font: 700 19px var(--body); color: var(--ds-on-dark); } .rchip small { font: 600 10.5px var(--body); letter-spacing: 0; text-transform: none; }
+.rnote { color: var(--ds-on-dark2); font: 600 13px var(--body); }
+/* campaign map */
+.nodes .node, .node { border: 0; border-radius: 16px; background: rgba(38, 54, 74, .65); box-shadow: var(--ds-shadow-s); color: var(--ds-on-dark); }
+/* campaign map: each region is a card with its painted art, and the stages are round tokens */
+.region { border: 0; border-radius: 20px; background: linear-gradient(#34506C, #2A4259); box-shadow: var(--ds-shadow); overflow: hidden; margin-top: 14px; }
+.region .rh { position: relative; height: 96px; padding: 0; overflow: hidden; } .region .rh img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 24%; }
+.region .rh::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, #26364Aee 0%, #26364A99 45%, #26364A22 100%); }
+.region .rht { position: absolute; z-index: 2; left: 14px; bottom: 10px; right: 14px; } .region .rh b { font: 400 22px/1.1 var(--display); text-transform: none; color: #fff; } .region .rh small { display: block; font: 600 12.5px var(--body); color: #D5DEE8; margin-top: 2px; }
+.region.lock { opacity: .7; } .region.lock .rh img { filter: grayscale(.8) brightness(.8); }
+.nodes.six { max-width: none; gap: 10px; }
+.node { clip-path: none; border-radius: 50%; background: #3F5F84; box-shadow: var(--ds-shadow-s); } .node::before { display: none; }
+.node span { color: #fff; font: 700 20px var(--body); } .node.done { background: #5E8B78; } .node.done small { color: #fff; }
+.node.next { background: var(--ds-violet); animation: none; box-shadow: 0 0 0 3px #A892BA66, var(--ds-shadow-s); } .node.boss { box-shadow: 0 0 0 2px var(--ds-gold), var(--ds-shadow-s); }
+.node.lock { background: #2C3E54; } .node.lock span { color: #7E90A3; }
+.kdeck .node { }
+
+/* ---------- arena look v2: a tabletop under soft elemental light. More room between the two sides, marked card positions, a quiet frame. ---------- */
+#ck { --t1: #1B2736; --t2: #35506E; --glow: #A892BA; --sa: #35506E; --sb: #24394F; --rune: #D8D1BF; background: radial-gradient(120% 62% at 50% 16%, var(--t2) 0%, var(--t1) 74%); }
+#ck.th-verdant { --t1: #1A2A25; --t2: #41604C; --glow: #9DBB86; --sa: #3F5E4A; --sb: #22372C; }
+#ck.th-ashen { --t1: #2A2024; --t2: #6B3C36; --glow: #E8895A; --sa: #5E3A34; --sb: #2E2024; }
+#ck.th-frost { --t1: #1A2C3B; --t2: #49708D; --glow: #BFE0F2; --sa: #46708C; --sb: #213C52; }
+#ck.th-tidal { --t1: #17303A; --t2: #2F6B78; --glow: #79D3D3; --sa: #2E6B78; --sb: #17353F; }
+#ck.th-crown { --t1: #231D31; --t2: #54476C; --glow: #BFA9D4; --sa: #54476C; --sb: #2A2238; }
+#ck::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 50% 50%, color-mix(in srgb, var(--glow) 16%, transparent) 0%, transparent 55%); }
+.ckwrap.arwrap { gap: 12px; }
+.arena { border: 0; border-radius: 30px; padding: 20px 10px; background: radial-gradient(ellipse at 50% 50%, color-mix(in srgb, var(--sa) 88%, #fff 6%) 0%, var(--sa) 40%, var(--sb) 100%); box-shadow: inset 0 0 0 1px #ffffff1a, inset 0 10px 40px #0b121a99, 0 14px 36px #0b121a88; }
+.arena::before { background: radial-gradient(circle at 50% 50%, transparent 0 22%, color-mix(in srgb, var(--rune) 24%, transparent) 22.4% 23%, transparent 23.4%); opacity: 1; mix-blend-mode: normal; }
+.arena .lanes { gap: 8px; }
+#ck .ku.empty.slot { background: rgba(255, 255, 255, .05); border: 2px dashed rgba(216, 209, 191, .3); box-shadow: inset 0 0 14px color-mix(in srgb, var(--glow) 18%, transparent); color: rgba(216, 209, 191, .5); }
+#ck .ku.empty.slot.tgt { border-color: var(--glow); box-shadow: 0 0 16px var(--glow), inset 0 0 14px color-mix(in srgb, var(--glow) 40%, transparent); }
+.crease { margin: 14px 0 12px; } .crease .clock { background: rgba(26, 36, 48, .8); border: 1px solid #ffffff2a; color: var(--ds-on-dark); box-shadow: none; }
+.hframe { background: linear-gradient(160deg, #EFEBDF, #AEBAC4); } .hbar { background: rgba(26, 36, 48, .6); } .hbar i { background: linear-gradient(#9fd0ff, #5E9AE0); }
+.hhp { background: radial-gradient(circle at 34% 26%, #E58A8E, #B5555C 60%, #6E2A31); box-shadow: 0 0 0 2px #1A2430, 0 0 0 3px #ffffff55; }
+.hname { font: 700 12px var(--body); letter-spacing: .04em; text-transform: none; color: var(--ds-on-dark); text-shadow: 0 1px 3px #000a; }
+.ckpanel { background: rgba(26, 36, 48, .62); border: 0; border-radius: 16px; font-family: var(--body); } .ckhud .btn { box-shadow: none; }
+.handtray { padding: 8px 6px 2px; margin-top: 2px; border-radius: 18px; background: linear-gradient(rgba(26, 36, 48, .0), rgba(26, 36, 48, .45)); }
+.mcry i { background: #1A2430; } .mcry i.full { filter: drop-shadow(0 0 5px #8fb9ff); }
+.amb i { background: color-mix(in srgb, var(--glow) 60%, #fff); }
+
 @media (prefers-reduced-motion: reduce) { * { animation-duration: .01s !important; } }
 /* ===== standalone phone app: portrait only, no zoom, no rubber band, no text selection, 16px inputs so iOS never zooms on focus ===== */
 html, body { overscroll-behavior: none; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; touch-action: manipulation; }
@@ -1657,7 +1740,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.11.21-a";
+const VER = "2026.11.22-b";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -2025,11 +2108,18 @@ async function ckBattle() {
 
 /* ----- decks ----- */
 function ckDeckOk(ids) {
-  if (!ids || ids.length !== 12) return "A deck is 12 cards."; const n = {}; for (const id of ids) { if (!BY[id]) return "A card is missing."; n[id] = (n[id] || 0) + 1; if (n[id] > (rarOf(BY[id]) >= 5 ? 1 : 2)) return BY[id].name + ": only " + (rarOf(BY[id]) >= 5 ? 1 : 2) + " copy allowed."; if (n[id] > (P.own[id] || 0)) return "You don't own enough " + BY[id].name + "."; }
+  if (!ids || ids.length !== 12) return "A deck is 12 cards."; const n = {}; let sk = 0;
+  for (const id of ids) {
+    if (isSkill(id)) { sk++; n[id] = (n[id] || 0) + 1; if (n[id] > SK_COPIES) return SKC[id].n + ": only " + SK_COPIES + " copies allowed."; continue; }
+    if (!BY[id]) return "A card is missing."; n[id] = (n[id] || 0) + 1; if (n[id] > (rarOf(BY[id]) >= 5 ? 1 : 2)) return BY[id].name + ": only " + (rarOf(BY[id]) >= 5 ? 1 : 2) + " copy allowed."; if (n[id] > (P.own[id] || 0)) return "You don't own enough " + BY[id].name + ".";
+  }
+  if (sk > SK_MAX) return "At most " + SK_MAX + " skill cards in a deck."; if (12 - sk < SK_CREATURES_MIN) return "A deck needs at least " + SK_CREATURES_MIN + " creature cards.";
   return "";
 }
 function ckDeckShapeOk(ids) {   // the same rules, without checking what the player owns (used on an opponent's deck)
-  if (!ids || ids.length !== 12) return "bad size"; const n = {}; for (const id of ids) { if (!BY[id]) return "unknown card"; n[id] = (n[id] || 0) + 1; if (n[id] > (rarOf(BY[id]) >= 5 ? 1 : 2)) return "too many copies"; } return "";
+  if (!ids || ids.length !== 12) return "bad size"; const n = {}; let sk = 0;
+  for (const id of ids) { n[id] = (n[id] || 0) + 1; if (isSkill(id)) { sk++; if (n[id] > SK_COPIES) return "too many copies"; continue; } if (!BY[id]) return "unknown card"; if (n[id] > (rarOf(BY[id]) >= 5 ? 1 : 2)) return "too many copies"; }
+  if (sk > SK_MAX || 12 - sk < SK_CREATURES_MIN) return "bad mix"; return "";
 }
 function ckAutoDeck() {
   const own = ownedList().slice().sort((a, b) => ckCard(a).cost - ckCard(b).cost || a.i - b.i), pick = [], used = {};
@@ -2039,7 +2129,7 @@ function ckAutoDeck() {
 }
 /* a deck saved under the old 8-card rule is filled up to 12 from the cards the player owns (copy limits and ownership respected) */
 function ckPadDeck(cards) {
-  const out = cards.filter(id => BY[id]).slice(0, 12), n = {}; out.forEach(id => n[id] = (n[id] || 0) + 1);
+  const out = cards.filter(id => BY[id] || isSkill(id)).slice(0, 12), n = {}; out.forEach(id => n[id] = (n[id] || 0) + 1);
   const own = ownedList().slice().sort((a, b) => ckCard(a).cost - ckCard(b).cost || a.i - b.i);
   for (const pass of [1, 2]) for (const c of own) { if (out.length >= 12) break; const lim = Math.min(rarOf(c) >= 5 ? 1 : 2, P.own[c.id] || 0, pass); if ((n[c.id] || 0) < lim) { out.push(c.id); n[c.id] = (n[c.id] || 0) + 1; } }
   return out;
@@ -2050,13 +2140,20 @@ function ckInit() {
   for (const d of P.cd) if (d.cards.length < 12) { d.cards = ckPadDeck(d.cards); scheduleSave(); }
   if (ownedList().length < 12 && typeof STARTER !== "undefined") { for (const id of STARTER) if (!(P.own[id] > 0) && ownedList().length < 12) P.own[id] = 1; scheduleSave(); }
 }
+/* an AI deck keeps 8 or 9 creatures and 3 or 4 skill cards chosen for its level (the weaker the level, the plainer the cards) */
+function withSkills(deck, level, r) {
+  const plain = ["sk_mend", "sk_ward", "sk_empower", "sk_s_fire", "sk_s_water", "sk_s_wind", "sk_s_earth", "sk_gale", "sk_cleanse", "sk_disrupt"], strong = plain.concat(["sk_mend2", "sk_aegis", "sk_arc", "sk_freeze", "sk_pact", "sk_overgrow", "sk_massheal", "sk_massward", "sk_rally", "sk_volley", "sk_s_lightning", "sk_s_ice", "sk_s_light", "sk_s_dark"]);
+  const list = level >= 1 ? strong : plain, k = level >= 2 ? 4 : 3, out = deck.slice(0, 12 - k), n = {};
+  while (out.length < 12) { const id = list[Math.floor(r() * list.length)]; if ((n[id] || 0) >= 2) continue; n[id] = (n[id] || 0) + 1; out.push(id); }
+  return out;
+}
 function ckAiDeck(level) {
   const pairs = [["water", "lightning"], ["ice", "fire"], ["wind", "earth"], ["fire", "wind"], ["light", "dark"], ["water", "ice"]], pair = pairs[Math.floor(Math.random() * pairs.length)];
   const maxR = level === 0 ? 2 : level === 1 ? 4 : 6, pool = POOL.filter(c => rarOf(c) <= maxR && !(c.ex && level < 2)), shuffle = a => a.sort(() => Math.random() - .5), pick = [], n = {};
   const take = list => { for (const c of shuffle(list.slice())) { if (pick.length >= 12) return; if ((n[c.id] || 0) >= (rarOf(c) >= 5 ? 1 : 2)) continue; pick.push(c.id); n[c.id] = (n[c.id] || 0) + 1; } };
   const of = (el, k) => shuffle(pool.filter(c => ckCard(c).el === el)).slice(0, k);
   take(of(pair[0], 6)); take(of(pair[1], 4)); take(pool); while (pick.length < 12) take(pool);
-  return shuffle(pick.slice(0, 12));
+  return withSkills(shuffle(pick.slice(0, 12)), level, () => Math.random());
 }
 
 /* ===== SET 1: the first 100 hand-built cards =====
@@ -2158,12 +2255,63 @@ function setKit(c, k) {
   return k;
 }
 
+/* ===== SKILL CARDS (combat v3) =====
+   A skill card lives in the same 12-card deck as the creatures. It is drawn into the hand like any card (4 energy), played on a target for its own energy cost, and then it is GONE: another has to be drawn.
+   A deck can hold 5 to 12 creatures and up to 7 skill cards, with up to 2 copies of the same skill card. Drawing several of the same card is allowed (four heals on one card is a real, risky plan).
+   v1 set: every player has every skill card (a spell book); making them collectible is a later economy decision. All numbers are first drafts for balance.
+   v = strength in the same stat points the creature skills use (health effects are multiplied by AR.HPX, attack effects by AR.ATKX), T = seconds, c = energy cost, t = target: ally, enemy or none (the whole side). */
+const SKC = {
+  sk_mend: { n: "Mend", c: 2, t: "ally", fx: "heal", v: 1.5 }, sk_mend2: { n: "Greater Mend", c: 4, t: "ally", fx: "heal", v: 3.2 },
+  sk_ward: { n: "Ward", c: 2, t: "ally", fx: "shield", v: 1.8 }, sk_aegis: { n: "Aegis", c: 4, t: "ally", fx: "shield", v: 3.6 },
+  sk_empower: { n: "Empower", c: 3, t: "ally", fx: "empower", v: 5.5, T: 8 }, sk_overgrow: { n: "Overgrow", c: 6, t: "ally", fx: "grow", v: 1.25 },
+  sk_pact: { n: "Blood Pact", c: 3, t: "ally", fx: "pact", v: 8.5, T: 8 }, sk_gale: { n: "Gale", c: 3, t: "ally", fx: "haste", T: 10 },
+  sk_cleanse: { n: "Cleanse", c: 2, t: "ally", fx: "cleanse", v: 1.3 }, sk_freeze: { n: "Freeze", c: 3, t: "enemy", fx: "freeze", T: 2.8 },
+  sk_disrupt: { n: "Disrupt", c: 1, t: "enemy", fx: "disrupt" }, sk_arc: { n: "Arc", c: 5, t: "enemy", fx: "arc", v: 1.3 },
+  sk_volley: { n: "Volley", c: 8, t: "none", fx: "volley", v: 4.0 },
+  sk_massheal: { n: "Mass Mend", c: 6, t: "none", fx: "massheal", v: 1.5 }, sk_massward: { n: "Mass Ward", c: 6, t: "none", fx: "massward", v: 1.2 }, sk_rally: { n: "Rally", c: 6, t: "none", fx: "rally", v: 3, T: 8 },
+  sk_s_fire: { n: "Fire Strike", c: 4, t: "enemy", fx: "strike", v: 1.4, el: "fire" }, sk_s_water: { n: "Water Strike", c: 4, t: "enemy", fx: "strike", v: 1.4, el: "water" },
+  sk_s_wind: { n: "Wind Strike", c: 4, t: "enemy", fx: "strike", v: 1.4, el: "wind" }, sk_s_earth: { n: "Earth Strike", c: 4, t: "enemy", fx: "strike", v: 1.4, el: "earth" },
+  sk_s_lightning: { n: "Lightning Strike", c: 4, t: "enemy", fx: "strike", v: 1.4, el: "lightning" }, sk_s_ice: { n: "Ice Strike", c: 4, t: "enemy", fx: "strike", v: 1.4, el: "ice" },
+  sk_s_light: { n: "Light Strike", c: 4, t: "enemy", fx: "strike", v: 1.4, el: "light" }, sk_s_dark: { n: "Dark Strike", c: 4, t: "enemy", fx: "strike", v: 1.4, el: "dark" },
+};
+const SKC_IDS = Object.keys(SKC), isSkill = id => !!SKC[id], SK_MAX = 7, SK_COPIES = 2, SK_CREATURES_MIN = 5;
+const SK_GLYPH = { heal: "💚", shield: "🛡", empower: "⚔", grow: "🌱", pact: "🩸", haste: "💨", cleanse: "✨", freeze: "❄", disrupt: "🌀", arc: "⚡", volley: "☄", massheal: "💞", massward: "🔰", rally: "📣" };
+const SK_TONE = { heal: "#6FBF98", shield: "#7FA6D6", empower: "#D9A05A", grow: "#86A86A", pact: "#B5555C", haste: "#8FD0DE", cleanse: "#E3D8A8", freeze: "#9CC7E4", disrupt: "#A892BA", arc: "#7E8FE0", volley: "#D98A5A", massheal: "#6FBF98", massward: "#7FA6D6", rally: "#D9A05A", strike: "#C9B07A" };
+/* what a skill card does, in words (read live from the numbers above and the arena's scale) */
+function skText(id) {
+  const k = SKC[id], H = AR.HPX, X = AR.ATKX, hp = v => Math.round(v * H), at = v => Math.round(v * X), n = v => +v.toFixed(1);
+  switch (k.fx) {
+    case "heal": return "Heal a card for " + hp(k.v) + ".";
+    case "shield": return "A card absorbs the next " + hp(k.v) + " damage.";
+    case "empower": return "A card gets +" + at(k.v) + " attack for " + k.T + " s.";
+    case "grow": return "A card gains +" + at(k.v) + " attack and +" + hp(k.v) + " health for the rest of the fight.";
+    case "pact": return "A card gets +" + at(k.v) + " attack for " + k.T + " s and loses 10% of its health.";
+    case "haste": return "A card strikes " + AR.SK.gale + "x as fast for " + k.T + " s.";
+    case "cleanse": return "Remove an element mark from a card and give it " + hp(k.v) + " ward.";
+    case "freeze": return "An enemy card is frozen for " + k.T + " s.";
+    case "disrupt": return "Strip an enemy card's buffs, ward and mark.";
+    case "arc": return n(3 * X * k.v) + " damage to an enemy card and half to the two beside it.";
+    case "strike": return n(3 * X * k.v) + " " + EL[k.el][0] + " damage to an enemy card (reacts, then marks).";
+    case "volley": return n(k.v * X) + " damage to every enemy card.";
+    case "massheal": return "Heal every card on your field for " + hp(k.v) + ".";
+    case "massward": return "Every card on your field absorbs the next " + hp(k.v) + " damage.";
+    case "rally": return "Every card on your field gets +" + at(k.v) + " attack for " + k.T + " s.";
+  }
+  return "";
+}
+const skTone = id => SKC[id].el ? (EL[SKC[id].el][2] || "#C9B07A") : SK_TONE[SKC[id].fx] || "#8DA2B8", skGlyph = id => SKC[id].el ? EL[SKC[id].el][1] : SK_GLYPH[SKC[id].fx] || "✦";
+/* a small card-shaped tile used in the deck editor, the menu deck row and the hand (art comes from art/<id>.png when it exists, else a tinted placeholder) */
+function skTile(id, cls) {
+  const k = SKC[id], c = skTone(id), img = (typeof ARTTHUMB !== "undefined" && ARTTHUMB[id]) || (typeof ARTMAP !== "undefined" && ARTMAP[id]);
+  return `<div class="ku mini skillcard ${cls || ""}" style="--sk:${c}" data-sid="${id}"><div class="kart">${img ? `<img src="${img}" alt="">` : `<span class="skg">${skGlyph(id)}</span>`}</div><b class="kcost">${k.c}</b><div class="kname">${esc(k.n)}</div><i class="sktype">${k.t === "ally" ? "ALLY" : k.t === "enemy" ? "ENEMY" : "ALL"}</i></div>`;
+}
+
 /* ===== ARENA: the real-time, semi-automatic battle. Rules: GAME_RULES_v2.md =====
    A pure simulation: no DOM, no Math.random, fixed 0.1 s ticks, so two phones given the same decks and the same inputs on the same ticks
    compute the identical fight. Everything marked [placeholder] in AR is a tuning number, not design. */
 const AR = {
   DT: .1, MATCH: 180, LAST: 60,      // tick length, match length, the closing stretch with doubled energy (seconds)
-  DECKN: 12, START: 5, HAND: 3, DRAW_E: 4,   // a deck is 12 cards: 5 random ones start on the field, the rest are drawn into a hand of up to 3 for 4 energy each
+  DECKN: 12, START: 5, HAND: 3, DRAW_E: 4, AI_RES: [6, 6, 0],   // a deck is 12 cards: 5 random ones start on the field, the rest are drawn into a hand of up to 3 for 4 energy each
   E0: 5, EMAX: 10, ERATE: 2.4,       // starting energy, cap, seconds per energy (halved: energy is scarce, so each skill is a decision)
   SWAP_E: 2, SWAP_CD: 8,             // bringing a reserve in: energy, and the wait before that slot can swap again
   IV: 6, STRIKE: .5, ATKX: 8,      // seconds between basic strikes at speed 1.0, the share of ATK a strike deals, and the factor from a card's base attack to its fight attack (slower, bigger hits)
@@ -2198,16 +2346,17 @@ function arUnit(A, cid) {
     cd: AR.IV / spd * .6, skcd: 0, lock: null, mark: null, frozen: 0, shield: 0, tmp: 0, tmpT: 0, pb: { a: 0, h: 0 }, pt: AR.GROW_T, sponge: k.passive === "sponge", spT: 0, fac: k.fac, n: 0, used: false, hasteT: 0, by: null, bys: 0, lv: 1, xp: 0 };
 }
 function arNew(deck0, deck1, o = {}) {
-  const A = { t: 0, tick: 0, uid: 0, seed: 20261111, over: false, winner: null, ev: [], log: [], q: [], seq: [0, 0], ui: !!o.ui, level: o.level || [1, 1], mode: o.mode || {}, horizon: null, s: [] };
+  const A = { t: 0, tick: 0, uid: 0, seed: o.seed != null ? o.seed : 20261111, over: false, winner: null, ev: [], log: [], q: [], seq: [0, 0], ui: !!o.ui, level: o.level || [1, 1], mode: o.mode || {}, horizon: null, s: [] };
   for (const deck of [deck0, deck1]) {
-    if (deck.length >= AR.DECKN) {   // v3: shuffle with the match's own seeded generator (both phones get the same order), 5 go to the field, the rest wait in the draw pile
-      const d = deck.slice(0, AR.DECKN); for (let i = d.length - 1; i > 0; i--) { const j = Math.floor(arRand(A) * (i + 1)); [d[i], d[j]] = [d[j], d[i]]; }
-      A.s.push({ core: AR.CORE, energy: AR.E0, lane: d.slice(0, AR.START).map(c => arUnit(A, c)), bench: Array(AR.HAND).fill(null), pile: d.slice(AR.START), swapcd: [0, 0, 0, 0, 0] });
+    if (deck.length >= AR.DECKN) {   // v3: shuffle with the match's own seeded generator (both phones get the same order). 5 creatures go to the field; the other creatures and every skill card wait in the draw pile
+      const shuf = list => { const d = list.slice(); for (let i = d.length - 1; i > 0; i--) { const j = Math.floor(arRand(A) * (i + 1)); [d[i], d[j]] = [d[j], d[i]]; } return d; };
+      const all = deck.slice(0, AR.DECKN), cr = shuf(all.filter(id => !isSkill(id))), sk = all.filter(id => isSkill(id));
+      A.s.push({ core: AR.CORE, energy: AR.E0, lane: cr.slice(0, AR.START).map(c => arUnit(A, c)), bench: Array(AR.HAND).fill(null), pile: shuf(cr.slice(AR.START).concat(sk)), swapcd: [0, 0, 0, 0, 0] });
     } else A.s.push({ core: AR.CORE, energy: AR.E0, lane: deck.slice(0, 5).map(c => arUnit(A, c)), bench: deck.slice(5, 8).map(c => arUnit(A, c)), pile: [], swapcd: [0, 0, 0, 0, 0] });
   }
   return A;
 }
-const arRand = A => { A.seed = (A.seed * 1103515245 + 12345) & 0x7fffffff; return A.seed / 0x7fffffff; };
+const arRand = A => { A.seed = (Math.imul(A.seed, 1103515245) + 12345) & 0x7fffffff; return A.seed / 0x7fffffff; };   // 32-bit integer arithmetic so every phone gets the same numbers
 /* the combat log: every skill, reaction and passive trigger is written down with the side it happened to (GAME_RULES_v2: no invisible procs). kind: skill, react, passive, die, swap, level, core */
 const arLog = (A, t, s, k) => { A.log.push({ tk: A.tick, s, k: k || "", t }); if (A.log.length > 120) A.log.shift(); };
 const arEv = (A, e) => { if (A.ui) { A.ev.push(e); if (A.ev.length > 300) A.ev.shift(); } };
@@ -2284,11 +2433,16 @@ function arRun(A, c) {
   const S = A.s[c.s], F = A.s[1 - c.s];
   if (c.k === "lock") { const u = S.lane[c.i]; if (u && (c.t == null || F.lane[c.t])) { u.lock = c.t == null ? null : c.t; arEv(A, { t: "lock", s: c.s, i: c.i, to: u.lock }); } }
   else if (c.k === "swap") {
-    const u = S.bench[c.b]; if (!u || S.energy < AR.SWAP_E || S.swapcd[c.l] > 0) return; S.energy -= AR.SWAP_E; S.swapcd[c.l] = AR.SWAP_CD;
+    const u = S.bench[c.b]; if (!u || u.skill || S.energy < AR.SWAP_E || S.swapcd[c.l] > 0) return; S.energy -= AR.SWAP_E; S.swapcd[c.l] = AR.SWAP_CD;
     S.bench[c.b] = S.lane[c.l]; S.lane[c.l] = u; u.cd = AR.IV / u.spd; u.lock = null; arLog(A, u.name + " is brought in", c.s, "swap"); arEv(A, { t: "enter", s: c.s, i: c.l });
   } else if (c.k === "draw") {   // pay 4 energy: the next card of the pile joins the hand
     if (!S.pile || !S.pile.length || S.energy < AR.DRAW_E) return; const hi = S.bench.findIndex(b => !b); if (hi < 0) return;
-    S.energy -= AR.DRAW_E; const u = arUnit(A, S.pile.shift()); S.bench[hi] = u; arLog(A, u.name + " is drawn", c.s, "swap"); arEv(A, { t: "draw", s: c.s, i: hi });
+    S.energy -= AR.DRAW_E; const id = S.pile.shift(), u = isSkill(id) ? arSkillCard(A, id) : arUnit(A, id); S.bench[hi] = u; arLog(A, (u.skill ? "A skill card" : u.name) + " is drawn", c.s, "swap"); arEv(A, { t: "draw", s: c.s, i: hi });
+  } else if (c.k === "play") {   // a skill card from the hand: pay its cost, apply it, and it is gone
+    const h = S.bench[c.b]; if (!h || !h.skill) return; const k = SKC[h.sid]; if (S.energy < k.c) return;
+    const T = k.t === "ally" ? S.lane[c.t] : k.t === "enemy" ? F.lane[c.t] : null; if (k.t !== "none" && !T) return;
+    S.energy -= k.c; S.bench[c.b] = null; arLog(A, k.n + " is played", c.s, "skill"); arEv(A, { t: "skill", s: c.s, i: -1, card: true, name: k.n, ti: c.t, ta: k.t, el: k.el || null });
+    arPlayCard(A, c.s, k, c.t); arSweep(A);
   } else if (c.k === "use") {
     const u = S.lane[c.i]; if (!u || u.skcd > 0 || S.energy < u.acost) return; const a = ACT[u.active];
     const T = a.t === "ally" ? S.lane[c.t] : a.t === "enemy" ? F.lane[c.t] : null; if (a.t !== "none" && !T) return;
@@ -2312,6 +2466,30 @@ function arRun(A, c) {
     }
     arGain(A, u, AR.LV.skill);
     arSweep(A);
+  }
+}
+/* a skill card in the hand: it has no body on the field, so it carries zero health for the bookkeeping that adds up a side's cards */
+function arSkillCard(A, sid) { const k = SKC[sid]; return { uid: ++A.uid, skill: true, sid, name: k.n, cost: k.c, hp: 0, max: 0 }; }
+function arStrip(T) { T.atk = Math.max(1, T.atk - T.pb.a); T.max = Math.max(1, T.max - T.pb.h); T.hp = Math.min(T.hp, T.max); T.pb = { a: 0, h: 0 }; T.tmpT = 0; T.shield = 0; T.mark = null; }
+function arPlayCard(A, s, k, ti) {
+  const S = A.s[s], F = A.s[1 - s], X = AR.ATKX, Hh = AR.HPX, T = k.t === "ally" ? S.lane[ti] : k.t === "enemy" ? F.lane[ti] : null;
+  const buff = (u, side, text) => arEv(A, { t: "buff", s: side, i: (side === s ? S : F).lane.indexOf(u), text });
+  switch (k.fx) {
+    case "heal": T.hp = Math.min(T.max, T.hp + k.v * Hh); arEv(A, { t: "heal", s, i: ti, d: k.v * Hh }); break;
+    case "shield": T.shield += k.v * Hh; buff(T, s, "+" + Math.round(k.v * Hh) + " ward"); break;
+    case "empower": T.tmp = k.v; T.tmpT = k.T; buff(T, s, "+" + Math.round(k.v * X) + " ATK"); break;
+    case "pact": T.hp = Math.max(1, T.hp - T.max * .1); T.tmp = k.v; T.tmpT = k.T; buff(T, s, "+" + Math.round(k.v * X) + " ATK"); break;
+    case "grow": { const g = k.v; T.atk += g * X; T.max += g * Hh; T.hp += g * Hh; T.pb.a += g * X; T.pb.h += g * Hh; buff(T, s, "+" + Math.round(g * X) + " ATK"); break; }
+    case "haste": T.hasteT = k.T; buff(T, s, "haste"); break;
+    case "cleanse": T.mark = null; T.shield += k.v * Hh; buff(T, s, "cleansed"); break;
+    case "freeze": T.frozen = k.T; T.cd += k.T; buff(T, 1 - s, "frozen"); break;
+    case "disrupt": arStrip(T); buff(T, 1 - s, "stripped"); break;
+    case "strike": arHit(A, null, s, 1 - s, ti, 3 * X * k.v, k.el || null, { noStat: true }); break;
+    case "arc": { const base = 3 * X * k.v; arHit(A, null, s, 1 - s, ti, base, null, { noStat: true }); for (const j of [ti - 1, ti + 1]) if (F.lane[j]) arHit(A, null, s, 1 - s, j, base * .5, null, { noStat: true }); break; }
+    case "volley": for (const { i } of arLive(A, 1 - s)) arHit(A, null, s, 1 - s, i, k.v * X, null, { noStat: true }); break;
+    case "massheal": for (const { u, i } of arLive(A, s)) { u.hp = Math.min(u.max, u.hp + k.v * Hh); arEv(A, { t: "heal", s, i, d: k.v * Hh }); } break;
+    case "massward": for (const { u } of arLive(A, s)) { u.shield += k.v * Hh; buff(u, s, "+" + Math.round(k.v * Hh) + " ward"); } break;
+    case "rally": for (const { u } of arLive(A, s)) { u.tmp = k.v; u.tmpT = k.T; buff(u, s, "+" + Math.round(k.v * X) + " ATK"); } break;
   }
 }
 /* ----- one tick. Returns false if it is waiting for the other phone's inputs (online lockstep). ----- */
@@ -2358,18 +2536,45 @@ function arCheck(A) {
 /* the computer draws when a lane is empty and its hand is too, or when energy would otherwise overflow */
 function arAiDraw(A, s, en, send) {
   const S = A.s[s]; if (!S.pile || !S.pile.length || en < AR.DRAW_E || !S.bench.some(b => !b)) return en;
-  if ((S.lane.some(u => !u) && !S.bench.some(b => b)) || en >= AR.EMAX - .5) { send({ k: "draw" }); return en - AR.DRAW_E; } return en;
+  if ((S.lane.some(u => !u) && !S.bench.some(b => b && !b.skill)) || en >= AR.EMAX - 2) { send({ k: "draw" }); return en - AR.DRAW_E; } return en;
+}
+/* a side with an empty lane, no creature in hand and cards left to draw needs a replacement body */
+const arNeedBody = S => S.lane.some(u => !u) && !S.bench.some(b => b && !b.skill) && !!(S.pile && S.pile.length);
+/* the computer plays at most one skill card per decision, only when it makes sense */
+function arAiCards(A, s, en, send) {
+  const S = A.s[s]; let played = false;
+  S.bench.forEach((h, b) => {
+    if (played || !h || !h.skill) return; const k = SKC[h.sid]; if (en < k.c) return;
+    const allies = arLive(A, s), foes = arLive(A, 1 - s); let t = null, ok = false;
+    const low = allies.slice().sort((p, q) => p.u.hp / p.u.max - q.u.hp / q.u.max)[0], strong = allies.slice().sort((p, q) => arAtk(A, s, q.u) - arAtk(A, s, p.u))[0];
+    switch (k.fx) {
+      case "heal": if (low && low.u.hp < low.u.max * .55) { t = low.i; ok = true; } break;
+      case "shield": { const x = allies.filter(a => a.u.shield <= 0).sort((p, q) => q.u.atk - p.u.atk)[0]; if (x && foes.length) { t = x.i; ok = true; } break; }
+      case "empower": case "pact": case "haste": if (strong && foes.length && !(strong.u.tmpT > 0)) { t = strong.i; ok = true; } break;
+      case "grow": { const x = allies.slice().sort((p, q) => q.u.atk * q.u.hp - p.u.atk * p.u.hp)[0]; if (x && A.t > 20) { t = x.i; ok = true; } break; }
+      case "freeze": { const x = foes.slice().sort((p, q) => arAtk(A, 1 - s, q.u) - arAtk(A, 1 - s, p.u))[0]; if (x && !(x.u.frozen > 0)) { t = x.i; ok = true; } break; }
+      case "cleanse": { const x = allies.find(a => a.u.mark); if (x) { t = x.i; ok = true; } break; }
+      case "disrupt": { const x = foes.find(f => f.u.pb.a > 0 || f.u.shield > 0 || f.u.tmpT > 0); if (x) { t = x.i; ok = true; } break; }
+      case "strike": case "arc": { const x = foes.slice().sort((p, q) => (p.u.hp + p.u.shield) - (q.u.hp + q.u.shield) || p.i - q.i)[0]; if (x) { t = x.i; ok = true; } break; }
+      case "volley": ok = foes.length >= 3; break;
+      case "massheal": ok = allies.filter(a => a.u.hp < a.u.max * .7).length >= 2; break;
+      case "massward": case "rally": ok = allies.length >= 3 && foes.length >= 2; break;
+    }
+    if (ok) { en -= k.c; played = true; send(t == null ? { k: "play", b } : { k: "play", b, t }); }
+  });
+  return en;
 }
 /* ----- the computer player (also "Auto" mode for a human): decides every half second ----- */
 function arAi(A, s) {
   if (A.over) return; const lvl = A.level[s]; if (A.tick % AR.AI_EVERY[lvl] !== 0) return; if (lvl >= 2) return arAiPro(A, s); const S = A.s[s], F = A.s[1 - s], send = c => (A.hook ? A.hook(Object.assign({ s }, c)) : arInput(A, Object.assign({ s }, c), 1)); let en = S.energy; const used = {};
   const reacts = (m, e) => !!REACT[m + ">" + e];
   for (let i = 0; i < 5; i++) if (!S.lane[i] && S.swapcd[i] <= 0 && en >= AR.SWAP_E) {
-    const b = S.bench.map((u, k) => ({ u, k })).filter(x => x.u && !used[x.k]).sort((p, q) => q.u.atk - p.u.atk)[0];
+    const b = S.bench.map((u, k) => ({ u, k })).filter(x => x.u && !x.u.skill && !used[x.k]).sort((p, q) => q.u.atk - p.u.atk)[0];
     if (b) { used[b.k] = 1; en -= AR.SWAP_E; send({ k: "swap", b: b.k, l: i }); }
   }
-  en = arAiDraw(A, s, en, send);
-  const allies = arLive(A, s), foes = arLive(A, 1 - s), needSwap = S.lane.some(u => !u) && S.bench.some(u => u);
+  en = arAiDraw(A, s, en, send); en = arAiCards(A, s, en, send);
+  if (arNeedBody(S)) en = Math.max(0, en - AR.AI_RES[A.level[s]]);   // keep energy for a replacement body instead of spending it all on skills
+  const allies = arLive(A, s), foes = arLive(A, 1 - s), needSwap = S.lane.some(u => !u) && S.bench.some(u => u && !u.skill);
   /* level 1 and up: everyone focuses one enemy (a healer or buffer first, else whoever is closest to dying) */
   let focus = null;
   if (foes.length && (lvl >= 1 || arRand(A) < AR.EASY_FOCUS)) focus = foes.slice().sort((p, q) => (p.u.hp + p.u.shield - (SUPPORT_ACT[p.u.active] ? AR.FOCUS_SUPPORT : 0)) - (q.u.hp + q.u.shield - (SUPPORT_ACT[q.u.active] ? AR.FOCUS_SUPPORT : 0)) || p.i - q.i)[0].i;
@@ -2407,10 +2612,11 @@ function arAiPro(A, s) {
   let en = S.energy; const used = {}, reacts = (m, e) => !!REACT[m + ">" + e];
   const hit = (side, u) => arAtk(A, side, u) * AR.STRIKE, per = u => AR.IV / u.spd;
   for (let i = 0; i < 5; i++) if (!S.lane[i] && S.swapcd[i] <= 0 && en >= AR.SWAP_E) {
-    const b = S.bench.map((u, k) => ({ u, k })).filter(x => x.u && !used[x.k]).sort((p, q) => q.u.atk * q.u.hp - p.u.atk * p.u.hp)[0];
+    const b = S.bench.map((u, k) => ({ u, k })).filter(x => x.u && !x.u.skill && !used[x.k]).sort((p, q) => q.u.atk * q.u.hp - p.u.atk * p.u.hp)[0];
     if (b) { used[b.k] = 1; en -= AR.SWAP_E; send({ k: "swap", b: b.k, l: i }); }
   }
-  en = arAiDraw(A, s, en, send);
+  en = arAiDraw(A, s, en, send); en = arAiCards(A, s, en, send);
+  if (arNeedBody(S)) en = Math.max(0, en - AR.AI_RES[A.level[s]]);   // keep energy for a replacement body instead of spending it all on skills
   const allies = arLive(A, s), foes = arLive(A, 1 - s); if (!foes.length || !allies.length) return;
   const avgFoeHit = foes.reduce((a, x) => a + hit(1 - s, x.u), 0) / foes.length, danger = u => u.hp + u.shield < avgFoeHit * 2.4 * Math.min(3, Math.max(1, foes.length / 2));
   const endgame = A.t > AR.MATCH - 14, left = Math.max(0, AR.MATCH - A.t);
@@ -2449,7 +2655,7 @@ function arAiPro(A, s) {
   // ---- retreat a card that is about to fall ----
   if (en >= AR.SWAP_E + 1) {
     const li = allies.filter(x => x.u.hp < x.u.max * .2 && x.u.shield <= 0 && S.swapcd[x.i] <= 0).sort((p, q) => p.u.hp / p.u.max - q.u.hp / q.u.max)[0];
-    const bi = S.bench.map((u, k) => ({ u, k })).filter(x => x.u && !used[x.k] && x.u.hp > x.u.max * .55).sort((p, q) => q.u.atk * q.u.hp - p.u.atk * p.u.hp)[0];
+    const bi = S.bench.map((u, k) => ({ u, k })).filter(x => x.u && !x.u.skill && !used[x.k] && x.u.hp > x.u.max * .55).sort((p, q) => q.u.atk * q.u.hp - p.u.atk * p.u.hp)[0];
     if (li && bi) { en -= AR.SWAP_E; send({ k: "swap", b: bi.k, l: li.i }); }
   }
   // ---- focus fire with some memory, and cash in reactions ----
@@ -2462,14 +2668,14 @@ function arAiPro(A, s) {
   }
 }
 /* headless fight for balance runs: both sides played by the computer */
-function arSim(deck0, deck1, lv0 = 1, lv1 = 1, max = 2400) {
-  const A = arNew(deck0, deck1, { level: [lv0, lv1] }); let n = 0;
+function arSim(deck0, deck1, lv0 = 1, lv1 = 1, max = 2400, seed) {
+  const A = arNew(deck0, deck1, { level: [lv0, lv1], seed: seed != null ? seed : (Math.random() * 2147483647) | 0 }); let n = 0;
   while (!A.over && n++ < max) { if (A.tick % 5 === 0) { arAi(A, 0); arAi(A, 1); } arStep(A); }
   return A;
 }
 /* a short fingerprint of the board, compared between phones during an online match */
 function arHash(A) {
-  const r = x => Math.round(x * 100) / 100, t = JSON.stringify([A.tick, A.s.map(s => [r(s.core), r(s.energy), s.lane.map(u => (u ? [u.cid, u.passive, u.lv, r(u.atk), r(u.hp), r(u.max), r(u.cd), r(u.shield), u.mark && u.mark.el] : 0)), s.bench.map(u => (u ? u.cid : 0)), s.pile ? s.pile.length : 0])]); let h = 5381;
+  const r = x => Math.round(x * 100) / 100, t = JSON.stringify([A.tick, A.s.map(s => [r(s.core), r(s.energy), s.lane.map(u => (u ? [u.cid, u.passive, u.lv, r(u.atk), r(u.hp), r(u.max), r(u.cd), r(u.shield), u.mark && u.mark.el] : 0)), s.bench.map(u => (u ? u.cid || u.sid : 0)), s.pile ? s.pile.length : 0])]); let h = 5381;
   for (let i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) >>> 0; return h;
 }
 
@@ -2482,7 +2688,7 @@ function kuHtml(u, s, i, kind, o = {}) {
   const c = BY[u.cid], a = G ? atkOf(u, s) : u.atk;
   return `<div class="ku ${s !== ME ? "foe" : "me"} ${o.sel ? "sel" : ""} ${o.tgt ? "tgt" : ""} ${o.mini ? "mini" : ""} el-${u.el} r${rarOf(c)}" data-ck="unit" data-s="${s}" data-i="${i}" data-kind="${kind}"><div class="kart"><img src="${artSrc(c)}" alt=""></div><i class="kel">${EL[u.el][1]}</i><b class="kcost">${u.cost}</b>${u.mark ? `<i class="kmk">${EL[u.mark.el][1]}</i>` : ""}<div class="kname">${esc(kshort(u.name))}</div><div class="kst"><b class="a">${a}</b><b class="h ${u.hp < u.max ? "hurt" : ""}">${u.hp}</b></div>${u.shield ? `<i class="ksh">🛡${u.shield}</i>` : ""}${u.frozen ? '<i class="kfr">❄️</i>' : ""}${u.tmp ? '<i class="ktmp">▲</i>' : ""}</div>`;
 }
-const kcardMini = (id, extra = "") => { const k = ckCard(BY[id]); return `<div class="ku mini el-${k.el} r${k.rar} ${extra}"><div class="kart"><img src="${artSrc(BY[id])}" alt=""></div><i class="kel">${elIco(k.el, "")}</i><b class="kcost">${k.cost}</b><div class="kname">${esc(kshort(k.name, 10))}</div><div class="kst"><b class="a">${Math.round(k.atk * AR.ATKX)}</b><b class="h">${hpOf(k)}</b></div></div>`; };
+const kcardMini = (id, extra = "") => { if (isSkill(id)) return skTile(id, extra); const k = ckCard(BY[id]); return `<div class="ku mini el-${k.el} r${k.rar} ${extra}"><div class="kart"><img src="${artSrc(BY[id])}" alt=""></div><i class="kel">${elIco(k.el, "")}</i><b class="kcost">${k.cost}</b><div class="kname">${esc(kshort(k.name, 10))}</div><div class="kst"><b class="a">${Math.round(k.atk * AR.ATKX)}</b><b class="h">${hpOf(k)}</b></div></div>`; };
 
 /* ----- the campaign: five regions of six opponents ----- */
 const CAMP = [
@@ -2498,7 +2704,7 @@ function campDeck(ch, k) {
   const pool = POOL.filter(c => rarOf(c) <= cap && (!c.ex || cap >= 6)).sort((a, b) => a.i - b.i), pick = [], n = {};
   const take = (list, cnt) => { const L = list.slice(); for (let t = 0; t < cnt && L.length; t++) { const c = L.splice(Math.floor(r() * L.length), 1)[0]; if ((n[c.id] || 0) >= (rarOf(c) >= 5 ? 1 : 2)) { t--; continue; } pick.push(c.id); n[c.id] = (n[c.id] || 0) + 1; } };
   take(pool.filter(c => ckCard(c).el === els[0]), 6); take(pool.filter(c => ckCard(c).el === els[1]), 4); take(pool, 1); while (pick.length < 12) take(pool, 1);
-  const deck = pick.slice(0, 12); for (let i = 4; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [deck[i], deck[j]] = [deck[j], deck[i]]; } return deck;
+  const deck = withSkills(pick.slice(0, 12), Math.min(2, ch), r); for (let i = deck.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [deck[i], deck[j]] = [deck[j], deck[i]]; } return deck;
 }
 const campLevel = (ch, k) => Math.min(2, Math.floor((ch * 6 + k) / 9));
 
@@ -2531,7 +2737,7 @@ function viewBattle(v) {
     dest(unlocked ? "" : "lock", `data-ck="ranked" ${err || !unlocked ? "disabled" : ""}`, HM_ART.ranked, "Ranked", unlocked ? `${TIERS_R[tier][0]} · ${rk.pts} pts${nextT ? " · " + (nextT[1] - rk.pts) + " to " + nextT[0] : ""}` : `Unlocks at level ${RANK_LV}`) +
     dest("", `data-act="tab" data-k="versus"`, HM_ART.friend, "Play a friend", "Online challenge or room code") +
     dest("", `data-ck="practiceSheet" ${err ? "disabled" : ""}`, HM_ART.practice, "Practice", "Easy, Normal or Hard") + `</div>` +
-    `<div class="hm-h"><b>Your deck</b><button data-ck="deckEdit">Edit</button></div><div class="hm-deck">${d.cards.map(id => (BY[id] ? cardHtml(BY[id]) : "")).join("")}</div>` +
+    `<div class="hm-h"><b>Your deck</b><button data-ck="deckEdit">Edit</button></div><div class="hm-deck">${d.cards.map(id => (isSkill(id) ? skTile(id) : BY[id] ? cardHtml(BY[id]) : "")).join("")}</div>` +
     `<div class="hm-deckbar"><select id="ckdeck" data-ck="deckSel" aria-label="Deck">${P.cd.map((x, i) => `<option value="${i}" ${i === P.cdi ? "selected" : ""}>${esc(x.name)}${ckDeckOk(x.cards) ? " (incomplete)" : ""}</option>`).join("")}</select><button class="btn sm dark" data-ck="deckNew" ${P.cd.length >= 8 ? "disabled" : ""}>New deck</button></div>` +
     `<div class="hm-foot"><button data-ck="rules">How to play</button><button data-ck="triad">Classic Triad</button></div></div></section>`;
 }
@@ -2540,7 +2746,7 @@ function viewCamp(v) {
   if (!P.camp) P.camp = { cl: {} };
   let h = `<div class="row" style="margin:6px 0 0"><button class="btn sm dark" data-ck="campBack">← Back</button><span class="note">${campDone()} / 30 beaten</span></div>`;
   CAMP.forEach((c, ch) => {
-    const open = campOpen(ch, 0); h += `<div class="region ${open ? "" : "lock"}" style="--rc:${["#2fbf74", "#e8693a", "#5fb8ff", "#3fd0c9", "#b574ff"][ch]}"><div class="rh"><b class="fat">${esc(c.name)}</b><small>${open ? esc(c.sub) : "🔒 Beat the previous region's boss"}</small></div><div class="nodes six" style="margin:4px 10px 10px">`;
+    const open = campOpen(ch, 0); h += `<div class="region ${open ? "" : "lock"}" style="--rc:${["#2fbf74", "#e8693a", "#5fb8ff", "#3fd0c9", "#b574ff"][ch]}"><div class="rh">${hmImg(HM_REGION_ART[ch], true)}<div class="rht"><b class="fat">${esc(c.name)}</b><small>${open ? esc(c.sub) : "🔒 Beat the previous region's boss"}</small></div></div><div class="nodes six" style="margin:4px 10px 10px">`;
     for (let k = 0; k < 6; k++) { const o = campOpen(ch, k), done = !!P.camp.cl[ch + "-" + k]; h += `<button class="node ${done ? "done" : ""} ${!o ? "lock" : ""} ${o && !done ? "next" : ""} ${k === 5 ? "boss" : ""}" ${o ? `data-ck="campStage" data-ch="${ch}" data-k="${k}"` : "disabled"}><span>${o ? (k === 5 ? "☠" : k + 1) : "🔒"}</span>${done ? "<small>✓</small>" : ""}</button>`; }
     h += "</div></div>";
   });
@@ -2548,29 +2754,44 @@ function viewCamp(v) {
 }
 function campSheet(ch, k) {
   const c = CAMP[ch], deck = campDeck(ch, k), first = !(P.camp.cl[ch + "-" + k]), boss = k === 5;
-  openSheet(`<span class="ribbon">${esc(c.foes[k]).toUpperCase()}</span><p class="note" style="text-align:center;margin:0 0 8px">${esc(c.name)} · ${c.els.map(e => `<span class="elchip el-${e}">${elIco(e)}${EL[e][0]}</span>`).join(" + ")}${boss ? " · boss: +15 core, +1 energy" : ""}</p><p class="note" style="margin:0 0 4px;text-align:center">THEIR DECK: 12 cards, 5 start on the field</p><div class="kd6">${deck.map(id => kcardMini(id)).join("")}</div><p class="note" style="text-align:center;margin:10px 0 0">${esc(c.hint)}</p><p class="note" style="text-align:center;margin:4px 0 0">${first ? "First win: " + (boss ? "3 packs" : k % 2 ? "1 pack" : "30 dust") + " and 30 XP." : "Beaten. A win pays 10 dust."}</p><div class="row c" style="margin-top:12px"><button class="btn yellow big" data-ck="campGo" data-ch="${ch}" data-k="${k}">FIGHT</button><button class="btn dark" data-act="closeModal">Back</button></div>`);
+  openSheet(`<span class="ribbon">${esc(c.foes[k]).toUpperCase()}</span><p class="note" style="text-align:center;margin:0 0 8px">${esc(c.name)} · ${c.els.map(e => `<span class="elchip el-${e}">${elIco(e)}${EL[e][0]}</span>`).join(" + ")}${boss ? " · boss: +15 core, +1 energy" : ""}</p><p class="note" style="margin:0 0 4px;text-align:center">THEIR DECK: 12 cards incl. skill cards, 5 creatures start on the field</p><div class="kd6">${deck.map(id => kcardMini(id)).join("")}</div><p class="note" style="text-align:center;margin:10px 0 0">${esc(c.hint)}</p><p class="note" style="text-align:center;margin:4px 0 0">${first ? "First win: " + (boss ? "3 packs" : k % 2 ? "1 pack" : "30 dust") + " and 30 XP." : "Beaten. A win pays 10 dust."}</p><div class="row c" style="margin-top:12px"><button class="btn yellow big" data-ck="campGo" data-ch="${ch}" data-k="${k}">FIGHT</button><button class="btn dark" data-act="closeModal">Back</button></div>`);
 }
 function rulesSheet() {
-  openSheet(`<h2 class="fat">HOW TO PLAY</h2><div class="rules"><p><b>The goal:</b> bring the enemy core from 40 to 0 before the 3:00 clock ends (then the higher core wins; if the cores are equal, the side with more card health left).</p><p><b>Your deck:</b> 12 cards. 5 of them, picked at random, start on the field. The rest wait in your draw pile: spend 4 energy to draw one into your hand (up to 3), then spend 2 energy to bring a card from your hand into a lane.</p><p><b>Fighting:</b> your cards strike by themselves. Each picks a target by its own habit (shown on the card): Nearest, Weakest, Strongest, Opposite or Support-first. Tap one of your cards, then an enemy, to lock its target.</p><p><b>Energy:</b> one shared pool that refills over time (max 10). Basic strikes are free. Spend it on a card's <b>skill</b> (tap the card, press its skill button) or to <b>swap a backup in</b> (2 energy).</p><p><b>Elements:</b> a hit marks its target with the attacker's element for 6 seconds. Hit a marked card with a reacting element for a bonus: Water then Lightning (Conduct ×1.5), Ice then Fire (Melt ×1.5), Wind then Earth (Sandblast ×1.5), Water then Ice (Freeze), Fire then Wind (Blaze splash), Light and Dark (Eclipse).</p><p><b>Auto:</b> let the computer play your cards if you only want to watch.</p><p><b>Match levels:</b> cards grow during a match. Striking, using the skill, taking hits and winning kills fill a card's level bar; at level 2 it is stronger and faster, and at level 3 it unlocks an enhanced skill. It all resets for the next match.</p><p><b>The surge:</b> after one minute every card gains attack every 10 seconds, and in the last minute energy refills twice as fast.</p></div><div class="row c" style="margin-top:12px"><button class="btn yellow" data-act="closeModal">Got it</button></div>`);
+  openSheet(`<h2 class="fat">HOW TO PLAY</h2><div class="rules"><p><b>The goal:</b> bring the enemy core from 40 to 0 before the 3:00 clock ends (then the higher core wins; if the cores are equal, the side with more card health left).</p><p><b>Your deck:</b> 12 cards: creatures and up to 7 skill cards. 5 creatures, picked at random, start on the field. The rest wait in your draw pile: spend 4 energy to draw one into your hand (up to 3). Bring a creature in for 2 energy, or play a skill card on a target for its energy cost: it is used up, and you must draw another.</p><p><b>Fighting:</b> your cards strike by themselves. Each picks a target by its own habit (shown on the card): Nearest, Weakest, Strongest, Opposite or Support-first. Tap one of your cards, then an enemy, to lock its target.</p><p><b>Energy:</b> one shared pool that refills over time (max 10). Basic strikes are free. Spend it on a card's <b>skill</b> (tap the card, press its skill button) or to <b>swap a backup in</b> (2 energy).</p><p><b>Elements:</b> a hit marks its target with the attacker's element for 6 seconds. Hit a marked card with a reacting element for a bonus: Water then Lightning (Conduct ×1.5), Ice then Fire (Melt ×1.5), Wind then Earth (Sandblast ×1.5), Water then Ice (Freeze), Fire then Wind (Blaze splash), Light and Dark (Eclipse).</p><p><b>Auto:</b> let the computer play your cards if you only want to watch.</p><p><b>Match levels:</b> cards grow during a match. Striking, using the skill, taking hits and winning kills fill a card's level bar; at level 2 it is stronger and faster, and at level 3 it unlocks an enhanced skill. It all resets for the next match.</p><p><b>The surge:</b> after one minute every card gains attack every 10 seconds, and in the last minute energy refills twice as fast.</p></div><div class="row c" style="margin-top:12px"><button class="btn yellow" data-act="closeModal">Got it</button></div>`);
 }
 
 /* ----- deck editor: pick a slot, pick a card, SEE the difference, confirm. Nothing changes until Confirm swap; Undo and Cancel are always there. ----- */
 let CKD = null;
 const SLOT_NAME = k => "Slot " + (k + 1);
-function deckEditor(i) { ckInit(); const cs = P.cd[i].cards.slice(); CKD = { i, cards: cs, orig: cs.slice(), name: P.cd[i].name, sel: 0, el: "all", sort: "cost", cmp: null, undo: [], flash: -1 }; deckSheet2(); }
+function deckEditor(i) { ckInit(); const cs = P.cd[i].cards.slice(); CKD = { i, cards: cs, orig: cs.slice(), name: P.cd[i].name, sel: 0, el: "all", sort: "cost", cmp: null, undo: [], flash: -1, tab: "cr" }; deckSheet2(); }
 const deckDirty = D => JSON.stringify(D.cards) !== JSON.stringify(D.orig) || (D.name || "") !== P.cd[D.i].name;
-function deckKit(id) { const c = BY[id]; if (!c) return null; const k = arCard(c); return { id, c, k, atk: Math.round(k.atk * AR.ATKX), hp: hpOf(k), spd: +k.spd.toFixed(2), cost: k.cost, acost: k.acost, skill: actName(k), pass: (PASS[k.passive] || [k.passive || "none"])[0], el: k.el, fac: k.fac }; }
+function deckKit(id) { if (isSkill(id)) return { id, skill: true, k: SKC[id], name: SKC[id].n, cost: SKC[id].c, text: skText(id) }; const c = BY[id]; if (!c) return null; const k = arCard(c); return { id, c, k, atk: Math.round(k.atk * AR.ATKX), hp: hpOf(k), spd: +k.spd.toFixed(2), cost: k.cost, acost: k.acost, act: actName(k), pass: (PASS[k.passive] || [k.passive || "none"])[0], el: k.el, fac: k.fac }; }
 /* why a proposed deck is not allowed (copy limits and what the player owns), or "" */
 function deckRules(cards) {
-  const n = {}; for (const id of cards) { if (!id) continue; const c = BY[id]; if (!c) return "A card is missing."; n[id] = (n[id] || 0) + 1; const lim = rarOf(c) >= 5 ? 1 : 2; if (n[id] > lim) return c.name + ": only " + lim + (lim > 1 ? " copies" : " copy") + " allowed in a deck."; if (n[id] > (P.own[id] || 0)) return "You don't own enough copies of " + c.name + "."; }
+  const n = {}; let sk = 0, cr = 0;
+  for (const id of cards) {
+    if (!id) continue; n[id] = (n[id] || 0) + 1;
+    if (isSkill(id)) { sk++; if (n[id] > SK_COPIES) return SKC[id].n + ": only " + SK_COPIES + " copies allowed in a deck."; continue; }
+    const c = BY[id]; if (!c) return "A card is missing."; cr++; const lim = rarOf(c) >= 5 ? 1 : 2; if (n[id] > lim) return c.name + ": only " + lim + (lim > 1 ? " copies" : " copy") + " allowed in a deck."; if (n[id] > (P.own[id] || 0)) return "You don't own enough copies of " + c.name + ".";
+  }
+  if (sk > SK_MAX) return "At most " + SK_MAX + " skill cards in a deck."; if (cards.filter(Boolean).length === 12 && cr < SK_CREATURES_MIN) return "A deck needs at least " + SK_CREATURES_MIN + " creature cards.";
   return "";
 }
 function cmpRow(lab, a, b, better, fmt) {
   fmt = fmt || (x => x); const num = typeof a === "number" && typeof b === "number", d = num ? +(b - a).toFixed(2) : null, cls = !num || d === 0 || !better ? "" : (d * better > 0 ? "up" : "dn");
   return `<div class="cmp-r"><span>${lab}</span><b>${fmt(a)}</b><b class="${cls}">${fmt(b)}</b><i class="${cls}">${!num ? (a === b ? "same" : "") : d === 0 ? "=" : (d > 0 ? "▲ " : "▼ ") + Math.abs(d)}</i></div>`;
 }
+function cmpPanelSkill(D, cur, nw, next, err) {
+  const k = D.sel, kinds = a => (a ? (a.skill ? "Skill card" : "Creature") : "Empty"), nSk = arr => arr.filter(id => id && isSkill(id)).length, nCr = arr => arr.filter(id => id && !isSkill(id)).length;
+  const side = x => (x ? (x.skill ? `<small>${esc(x.name)} · ${x.cost} energy</small><p class="syn" style="margin:2px 0 0">${esc(x.text)}</p>` : `<small>${esc(x.c.name)}</small><p class="syn" style="margin:2px 0 0">Attack ${x.atk} · Health ${x.hp} · Skill ${esc(x.act)}</p>`) : "<small>nothing</small>");
+  return `<div class="cmp"><h4>${cur ? "SWAP" : "ADD"} · ${esc(SLOT_NAME(k))}</h4><div class="cmp-h"><div><small>NOW · ${kinds(cur).toUpperCase()}</small>${cur ? kcardMini(cur.id) : '<div class="ku mini empty"><span>empty</span></div>'}</div><i class="cmp-arrow">▶</i><div><small>NEW · ${kinds(nw).toUpperCase()}</small>${kcardMini(nw.id)}</div></div>` +
+    `<div class="cmp-t"><div class="cmp-r"><span>Now</span><b style="grid-column:2/5;text-align:left;white-space:normal">${side(cur)}</b></div><div class="cmp-r"><span>New</span><b style="grid-column:2/5;text-align:left;white-space:normal">${side(nw)}</b></div></div>` +
+    `<p class="syn">Skill cards in the deck: <b>${nSk(D.cards)}</b> → <b>${nSk(next)}</b> (most ${SK_MAX}) · Creatures: <b>${nCr(D.cards)}</b> → <b>${nCr(next)}</b> (at least ${SK_CREATURES_MIN})</p>${err ? `<p class="note" style="color:#ff9aa4;margin:6px 0 0">${esc(err)}</p>` : ""}` +
+    `<div class="row c" style="margin-top:10px"><button class="btn yellow" data-ck="dconfirm" ${err ? "disabled" : ""}>${cur ? "Confirm swap" : "Confirm"}</button><button class="btn dark" data-ck="dcancel">Cancel</button></div></div>`;
+}
 function cmpPanel(D) {
   const k = D.sel, cur = D.cards[k] ? deckKit(D.cards[k]) : null, nw = deckKit(D.cmp), next = D.cards.slice(); next[k] = D.cmp;
+  if ((cur && cur.skill) || nw.skill) return cmpPanelSkill(D, cur, nw, next, deckRules(next));
   const err = deckRules(next), count = (arr, f) => arr.filter(id => id && f(deckKit(id))).length;
   const el = (a, b) => `${EL[a.el][1]} ${EL[a.el][0]}`, same = (x, y) => x === y;
   const syn = [
@@ -2580,7 +2801,7 @@ function cmpPanel(D) {
   ].filter(Boolean).map(t => `<p class="syn">${t}</p>`).join("");
   const head = `<div class="cmp-h"><div><small>NOW · ${esc(SLOT_NAME(k).toUpperCase())}</small>${cur ? kcardMini(cur.id) : '<div class="ku mini empty"><span>empty</span></div>'}</div><i class="cmp-arrow">▶</i><div><small>NEW</small>${kcardMini(nw.id)}</div></div>`;
   const rows = [cmpRow("Attack", cur ? cur.atk : 0, nw.atk, 1), cmpRow("Health", cur ? cur.hp : 0, nw.hp, 1), cmpRow("Speed", cur ? cur.spd : 0, nw.spd, 1), cmpRow("Deploy cost", cur ? cur.cost : 0, nw.cost, -1),
-    cmpRow("Skill energy", cur ? cur.acost : 0, nw.acost, -1), cmpRow("Skill", cur ? cur.skill : "none", nw.skill, 0), cmpRow("Passive", cur ? cur.pass : "none", nw.pass, 0), cmpRow("Element", cur ? el(cur) : "none", el(nw), 0), cmpRow("Faction", cur ? (FAC[cur.fac] || cur.fac) : "none", FAC[nw.fac] || nw.fac, 0)].join("");
+    cmpRow("Skill energy", cur ? cur.acost : 0, nw.acost, -1), cmpRow("Skill", cur ? cur.act : "none", nw.act, 0), cmpRow("Passive", cur ? cur.pass : "none", nw.pass, 0), cmpRow("Element", cur ? el(cur) : "none", el(nw), 0), cmpRow("Faction", cur ? (FAC[cur.fac] || cur.fac) : "none", FAC[nw.fac] || nw.fac, 0)].join("");
   return `<div class="cmp"><h4>${cur ? "SWAP" : "ADD"} · ${esc(SLOT_NAME(k))}</h4>${head}<div class="cmp-t"><div class="cmp-r hd"><span></span><b>Now</b><b>New</b><i></i></div>${rows}</div>${syn}${err ? `<p class="note" style="color:#ff9aa4;margin:6px 0 0">${esc(err)}</p>` : ""}` +
     `<div class="row c" style="margin-top:10px"><button class="btn yellow" data-ck="dconfirm" ${err ? "disabled" : ""}>${cur ? "Confirm swap" : "Confirm"}</button><button class="btn dark" data-ck="dcancel">Cancel</button></div></div>`;
 }
@@ -2589,16 +2810,17 @@ function deckSheet2() {
   const pk0 = $("#modal .kpick"), pst = pk0 ? pk0.scrollTop : 0;
   const err = deckRules(D.cards) || (D.cards.filter(Boolean).length < 12 ? "A deck is 12 cards." : "");
   const SORTS = { cost: (a, b) => a.cost - b.cost || a.c.name.localeCompare(b.c.name), atk: (a, b) => b.atk - a.atk, hp: (a, b) => b.hp - a.hp, name: (a, b) => a.c.name.localeCompare(b.c.name) };
-  const own = ownedList().map(c => deckKit(c.id)).filter(x => D.el === "all" || x.el === D.el).sort(SORTS[D.sort]);
-  const slot = k => { const id = D.cards[k]; return `<div class="kslot ${D.sel === k ? "on" : ""} ${D.flash === k ? "swapflash" : ""}" data-ck="dslot" data-k="${k}">${id && BY[id] ? kcardMini(id) : '<div class="ku mini empty"><span>+</span></div>'}</div>`; };
+  const own = D.tab === "sk" ? SKC_IDS.map(deckKit).sort((a, b) => a.cost - b.cost || a.name.localeCompare(b.name)) : ownedList().map(c => deckKit(c.id)).filter(x => D.el === "all" || x.el === D.el).sort(SORTS[D.sort]);
+  const nSkill = D.cards.filter(x => x && isSkill(x)).length;
+  const slot = k => { const id = D.cards[k]; return `<div class="kslot ${D.sel === k ? "on" : ""} ${D.flash === k ? "swapflash" : ""}" data-ck="dslot" data-k="${k}">${id && (BY[id] || isSkill(id)) ? kcardMini(id) : '<div class="ku mini empty"><span>+</span></div>'}</div>`; };
   const selId = D.cards[D.sel];
   openSheet(`<h2 class="fat">DECK</h2><div class="row" style="margin:0 0 6px;flex-wrap:nowrap"><input type="text" id="ckname" maxlength="14" value="${esc(D.name)}" style="flex:1"><button class="btn sm dark" data-ck="deckDel" ${P.cd.length <= 1 ? "disabled" : ""}>Delete</button></div>` +
     `<p class="note" style="margin:0 0 6px">12 CARDS. Each fight starts with 5 of them at random on the field; draw the rest for 4 energy.</p><div class="kd6">${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(slot).join("")}</div>` +
-    `<div class="selbar"><span>Editing <b>${esc(SLOT_NAME(D.sel))}</b>${selId && BY[selId] ? ": " + esc(BY[selId].name) : ": empty"}</span>${selId ? '<button class="btn sm dark" data-ck="dremove">Remove</button>' : ""}</div>` +
+    `<div class="selbar"><span>Editing <b>${esc(SLOT_NAME(D.sel))}</b>${selId && (BY[selId] || isSkill(selId)) ? ": " + esc(isSkill(selId) ? SKC[selId].n : BY[selId].name) : ": empty"}</span>${selId ? '<button class="btn sm dark" data-ck="dremove">Remove</button>' : ""}</div>` +
     `<div class="row" style="margin:6px 0 0;gap:6px"><button class="btn sm dark" data-ck="dundo" ${D.undo.length ? "" : "disabled"}>↶ Undo</button><button class="btn sm dark" data-ck="dclear" ${D.cards.some(Boolean) ? "" : "disabled"}>Clear deck</button></div>` +
     (err ? `<p class="note" style="color:#ff9aa4;margin:6px 0 0">${esc(err)}</p>` : '<p class="note" style="color:var(--ok);margin:6px 0 0">Ready to play.</p>') +
-    (D.cmp ? cmpPanel(D) : `<div class="row" style="margin:10px 0 4px"><select data-ck="dfilt"><option value="all">All elements</option>${ELKEYS.map(e => `<option value="${e}" ${D.el === e ? "selected" : ""}>${EL[e][1]} ${EL[e][0]}</option>`).join("")}</select><select data-ck="dsort">${[["cost", "Cost"], ["atk", "Attack"], ["hp", "Health"], ["name", "Name"]].map(([v, n]) => `<option value="${v}" ${D.sort === v ? "selected" : ""}>Sort: ${n}</option>`).join("")}</select></div>` +
-      `<p class="note" style="margin:0 0 4px">Tap a card to compare it with the ${esc(SLOT_NAME(D.sel).toLowerCase())}. Your cards only.</p>`) +
+    (D.cmp ? cmpPanel(D) : `<div class="row" style="margin:10px 0 4px;gap:6px"><button class="btn sm ${D.tab === "cr" ? "yellow" : "dark"}" data-ck="dtab" data-t="cr">Creatures</button><button class="btn sm ${D.tab === "sk" ? "yellow" : "dark"}" data-ck="dtab" data-t="sk">Skill cards · ${nSkill}/${SK_MAX}</button></div>` + (D.tab === "sk" ? "" : `<div class="row" style="margin:6px 0 4px"><select data-ck="dfilt"><option value="all">All elements</option>${ELKEYS.map(e => `<option value="${e}" ${D.el === e ? "selected" : ""}>${EL[e][1]} ${EL[e][0]}</option>`).join("")}</select><select data-ck="dsort">${[["cost", "Cost"], ["atk", "Attack"], ["hp", "Health"], ["name", "Name"]].map(([v, n]) => `<option value="${v}" ${D.sort === v ? "selected" : ""}>Sort: ${n}</option>`).join("")}</select></div>`) +
+      `<p class="note" style="margin:0 0 4px">Tap a card to compare it with ${esc(SLOT_NAME(D.sel).toLowerCase())}.${D.tab === "sk" ? " Skill cards are drawn like any card, played once for their energy cost, and then gone." : " Your cards only."}</p>`) +
     `<div class="kpick ${D.cmp ? "short" : ""}">${own.map(x => { const n = D.cards.filter(y => y === x.id).length; return `<div class="kp ${D.cmp === x.id ? "cmpon" : ""} ${selId === x.id ? "here" : ""}" data-ck="dpick" data-id="${x.id}">${kcardMini(x.id)}${selId === x.id ? '<b class="kn here">HERE</b>' : n ? `<b class="kn">×${n}</b>` : ""}</div>`; }).join("")}</div>` +
     `<div class="row c" style="margin-top:10px"><button class="btn yellow" data-ck="deckSave" ${deckDirty(D) ? "" : "disabled"}>${deckDirty(D) ? "Save deck" : "Saved"}</button><button class="btn dark" data-ck="dclose">Close</button></div>`);
   lockSheet(); const s2 = $("#modal .sheet"); if (s2) s2.scrollTop = st; const p2 = $("#modal .kpick"); if (p2) p2.scrollTop = pst; D.flash = -1;
@@ -2714,11 +2936,12 @@ document.addEventListener("click", async e => {
     case "dslot": CKD.sel = +d.k; CKD.cmp = null; uiFx("tap"); return deckSheet2();
     case "dpick": { if (CKD.cards[CKD.sel] === d.id) { uiFx("err"); return toast("That card is already in this slot."); } CKD.cmp = d.id; uiFx("tap"); return deckSheet2(); }
     case "dcancel": CKD.cmp = null; uiFx("back"); return deckSheet2();
+    case "dtab": CKD.tab = d.t; CKD.cmp = null; uiFx("tap"); return deckSheet2();
     case "dconfirm": {
       const D = CKD; if (!D.cmp || !uiOnce("dconfirm", 500)) return; const k = D.sel, next = D.cards.slice(); next[k] = D.cmp; if (deckRules(next)) { uiFx("err"); return; }
-      const was = D.cards[k], nm = BY[D.cmp].name; deckSnap(D); D.cards = next; D.cmp = null; D.flash = k; deckSheet2(); uiFx("ok"); uiUndo(`${was ? BY[was].name + " → " : "Added "}${nm}`, deckUndo); return;
+      const nameOf = id => (isSkill(id) ? SKC[id].n : BY[id].name), was = D.cards[k], nm = nameOf(D.cmp); deckSnap(D); D.cards = next; D.cmp = null; D.flash = k; deckSheet2(); uiFx("ok"); uiUndo(`${was ? nameOf(was) + " → " : "Added "}${nm}`, deckUndo); return;
     }
-    case "dremove": { const D = CKD, k = D.sel; if (!D.cards[k]) return; const was = D.cards[k]; deckSnap(D); D.cards[k] = ""; D.cmp = null; D.flash = k; deckSheet2(); uiFx("back"); return uiUndo(BY[was].name + " removed from the deck", deckUndo); }
+    case "dremove": { const D = CKD, k = D.sel; if (!D.cards[k]) return; const was = D.cards[k]; deckSnap(D); D.cards[k] = ""; D.cmp = null; D.flash = k; deckSheet2(); uiFx("back"); return uiUndo((isSkill(was) ? SKC[was].n : BY[was].name) + " removed from the deck", deckUndo); }
     case "dundo": uiFx("back"); return deckUndo();
     case "dclear": return void uiConfirm({ title: "Clear the whole deck?", body: "All 12 slots will be emptied. You can still Undo before you save.", ok: "Clear deck", danger: true }).then(ok => { if (!ok || !CKD) return; deckSnap(CKD); CKD.cards = Array(12).fill(""); CKD.cmp = null; deckSheet2(); uiUndo("Deck cleared", deckUndo); });
   }
@@ -2787,7 +3010,7 @@ const actText = k => ({
 
 function arStart(level, mode = { kind: "practice" }) {
   ckInit(); const d = P.cd[P.cdi], err = ckDeckOk(d.cards); if (err) return toast(err);
-  const A = arNew(d.cards, mode.deck || ckAiDeck(level), { ui: true, level: [2, level], mode });
+  const A = arNew(d.cards, mode.deck || ckAiDeck(level), { ui: true, level: [2, level], mode, seed: (Math.random() * 2147483647) | 0 });
   if (mode.core) A.s[1].core += mode.core; if (mode.energy) A.s[1].eMul = 1.3;
   arLaunch(A, mode, mode.kind === "camp" ? CAMP[mode.ch].foes[mode.k] : mode.kind === "ranked" ? "RANKED" : "ENEMY", 0, null, level);
 }
@@ -2802,7 +3025,7 @@ function arLaunch(A, mode, opp, me, net, level) {
 const NET_DELAY = 4, NET_DELAY_SLOW = 12, DISCONNECT_MS = 20000;
 function arStartOnline(role, hostDeck, guestDeck, oppName, send, slow) {
   if (ckDeckShapeOk(hostDeck) || ckDeckShapeOk(guestDeck)) return toast("That deck is not valid.");
-  const A = arNew(hostDeck, guestDeck, { ui: true, level: [2, 2], mode: { kind: "online" } }), D = slow ? NET_DELAY_SLOW : NET_DELAY;
+  const A = arNew(hostDeck, guestDeck, { ui: true, level: [2, 2], mode: { kind: "online" }, seed: ONL_SEED != null ? ONL_SEED : hashStr(JSON.stringify([hostDeck, guestDeck])) }), D = slow ? NET_DELAY_SLOW : NET_DELAY;
   A.horizon = D; A.hook = c => arPut(c);
   const net = { send, D, hb: slow ? 5 : 1, rx: Date.now(), mine: {}, theirs: {} };
   ONL = { send, role, opp: oppName }; arLaunch(A, { kind: "online" }, oppName || "Friend", role, net, 0);
@@ -2857,7 +3080,7 @@ function arBuild() {
   $("#ck").innerHTML = `<div class="amb">${"<i></i>".repeat(16)}</div><div class="ckwrap arwrap"><div class="ckhud"><button class="btn sm red" data-ar="menu">✕</button><span class="surge" id="arsurge"></span><button class="btn sm dark" data-ar="log" id="arlogb">Log</button><button class="btn sm dark" data-ar="auto" id="arauto">Auto</button><button class="btn sm dark" data-ar="speed" id="arspeed">1×</button></div>` +
     `<div class="zone foe"><div class="bench" id="arb1">${slots(1, "bench", 3)}</div>${hero(1)}${mana(1)}</div>` +
     `<div class="arena" id="arena"><div class="lanes" id="arl1">${slots(1, "lane", 5)}</div><div class="crease"><span class="cl"></span><b class="clock" id="arclock">3:00</b><span class="cr"></span><span class="vsmsg" id="armsg"></span></div><div class="lanes" id="arl0">${slots(0, "lane", 5)}</div></div>` +
-    `<div class="zone me"><div class="bench" id="arb0">${slots(0, "bench", 3)}</div>${hero(0)}${mana(0)}</div>` +
+    `<div class="zone me">${hero(0)}${mana(0)}</div><div class="handtray"><div class="bench" id="arb0">${slots(0, "bench", 3)}</div></div>` +
     `<div class="ckpanel" id="arpanel"></div><div class="arlog" id="arlog" hidden></div><div class="arfx" id="arfx"></div></div>`;
   document.querySelectorAll("#ck .amb i").forEach(i => { i.style.left = Math.random() * 100 + "%"; i.style.animationDelay = (-Math.random() * 14).toFixed(1) + "s"; i.style.animationDuration = (9 + Math.random() * 9).toFixed(1) + "s"; i.style.setProperty("--s", (3 + Math.random() * 5).toFixed(1) + "px"); });
 }
@@ -2866,14 +3089,21 @@ function arFill(el, u, s, kind) {
   if (el._u && !u) el._gone = { html: el.innerHTML, cls: el.className, t: performance.now() };
   el._u = u ? u.uid : 0; el._fx = {};
   if (!u) { el.innerHTML = `<span>${kind === "lane" && s === 0 ? "+" : ""}</span>`; el._r = null; return; }
+  if (kind === "bench" && s === 1) { el.innerHTML = `<span class="cardback">♠</span>`; el._r = null; return; }   // the opponent's hand is hidden
+  if (u.skill) { el.innerHTML = `<div class="kart"><span class="skg">${skGlyph(u.sid)}</span></div><b class="kcost">${SKC[u.sid].c}</b><div class="kname">${esc(SKC[u.sid].n)}</div><i class="sktype">${SKC[u.sid].t === "ally" ? "ALLY" : SKC[u.sid].t === "enemy" ? "ENEMY" : "ALL"}</i>`; el._r = null; return; }
   el.innerHTML = `<div class="kart"><img src="${artSrc(BY[u.cid])}" alt=""></div><i class="kcd"></i><b class="kcost">${u.cost}</b><i class="kel">${elIco(u.el, "")}</i><i class="kmk"></i><div class="kname">${esc(kshort(u.name))}</div><b class="katk"><span></span></b><b class="khpn"><span></span></b><div class="khp"><i></i></div><i class="ksh"></i><i class="kfr"></i><i class="kskl">⚡</i><i class="klv"></i>`;
   const q = c => el.querySelector(c); el._r = { cd: q(".kcd"), mk: q(".kmk"), hp: q(".khp i"), a: q(".katk span"), h: q(".khpn span"), hb: q(".khpn"), sh: q(".ksh"), fr: q(".kfr"), sk: q(".kskl"), lv: q(".klv") };
 }
 function arSlotUpd(el, u, s, kind, now) {
   const A = AM.A, me = AM.me, ss = s ^ me, uid = u ? u.uid : 0; if (el._u !== uid) arFill(el, u, s, kind);
   const sel = AM.sel && AM.sel.s === s && AM.sel.i === +el.dataset.i && AM.sel.kind === kind, m = AM.mode, selU = AM.sel && AM.sel.kind === "lane" && A.s[AM.sel.s ^ me].lane[AM.sel.i];
-  let tgt = false; if (m && u && kind === "lane") tgt = (ACT[m.act].t === "ally" && s === 0) || (ACT[m.act].t === "enemy" && s === 1);
+  let tgt = false; const selSk = AM.sel && AM.sel.kind === "bench" && AM.sel.s === 0 ? A.s[me].bench[AM.sel.i] : null;
+  if (selSk && selSk.skill && kind === "lane" && u) { const tt = SKC[selSk.sid].t; tgt = (tt === "ally" && s === 0) || (tt === "enemy" && s === 1); } else if (m && u && kind === "lane") tgt = (ACT[m.act].t === "ally" && s === 0) || (ACT[m.act].t === "enemy" && s === 1);
   else if (selU && AM.sel.s === 0 && s === 1 && kind === "lane" && u) tgt = arTarget(A, me, AM.sel.i) === +el.dataset.i;
+  if (u && (u.skill || (kind === "bench" && s === 1))) {   // a skill card, or a hidden card in the opponent's hand
+    const sel0 = AM.sel && AM.sel.s === s && AM.sel.i === +el.dataset.i && AM.sel.kind === kind, can = u.skill && s === 0 && A.s[me].energy >= SKC[u.sid].c;
+    el.className = `ku slot ${s ? "foe" : "me"} mini hand ${u.skill && s === 0 ? "skillcard" : "back"}${sel0 ? " sel" : ""}${u.skill && s === 0 && !can ? " dim" : ""}`; if (u.skill && s === 0) el.style.setProperty("--sk", skTone(u.sid)); return;
+  }
   if (!u) { el.className = "ku empty slot " + kind + (kind === "lane" && s === 0 && AM.sel && AM.sel.kind === "bench" ? " tgt" : ""); return; }
   const fx = el._fx, r = el._r, a = arAtk(A, ss, u);
   el.className = `ku slot ${s ? "foe" : "me"} el-${u.el} r${rarOf(BY[u.cid])}${kind === "bench" ? " mini" : ""}${sel ? " sel" : ""}${tgt ? " tgt" : ""}${fx.hurt > now ? " hurt" : ""}${fx.enter > now ? " enter" : ""}${u.frozen > 0 ? " frozen" : ""}${u.shield > 0 ? " shielded" : ""}${u.lv > 1 ? " lv" + u.lv : ""}${kind === "bench" && A.s[ss].energy < AR.SWAP_E && s === 0 ? " dim" : ""}`;
@@ -2886,9 +3116,13 @@ function arSlotUpd(el, u, s, kind, now) {
 }
 function arPanel() {
   const A = AM.A, me = AM.me, m = AM.mode, sel = AM.sel; let h = "", sig;
-  const u = sel && (sel.kind === "bench" ? A.s[sel.s ^ me].bench[sel.i] : A.s[sel.s ^ me].lane[sel.i]);
+  const u = sel && sel.s === 0 && (sel.kind === "bench" ? A.s[sel.s ^ me].bench[sel.i] : A.s[sel.s ^ me].lane[sel.i]) || (sel && sel.s === 1 && sel.kind === "lane" ? A.s[sel.s ^ me].lane[sel.i] : null);
   const S0 = A.s[me];
   if (m) { sig = "m" + m.act + m.i; h = `<div class="kp1"><b>${esc(actName(A.s[me].lane[m.i]))}</b><span>${ACT[m.act].t === "ally" ? "Choose one of your cards" : "Choose an enemy card"}.</span><button class="btn sm dark" data-ar="cancel">Cancel</button></div>`; }
+  else if (u && u.skill) {
+    const k = SKC[u.sid], can = S0.energy >= k.c; sig = "sk" + u.uid + can;
+    h = `<div class="kp2"><div class="kinfo"><b>${esc(k.n)}</b> <small>skill card · ${k.c} energy · ${k.t === "ally" ? "one of your cards" : k.t === "enemy" ? "one enemy card" : "affects a whole side"}</small><br>${esc(skText(u.sid))}<br><em>Used once, then it is gone.</em></div><div class="kbtns">${k.t === "none" ? `<button class="btn sm yellow" data-ar="playcard" ${can ? "" : "disabled"}>Play · ${k.c}⚡</button>` : `<span class="note">${can ? "Tap a highlighted card to play it." : "Not enough energy."}</span>`}</div></div>`;
+  }
   else if (!u) { sig = "none"; h = `<div class="kp1"><span>Your cards fight on their own. Tap one of yours, then an enemy, to lock its target. A glowing <b>⚡</b> means its skill is ready.</span></div>`; }
   else {
     const mine = sel.s === 0, ready = mine && sel.kind === "lane" && u.skcd <= 0 && S0.energy >= u.acost, tl = u.lock != null && A.s[1 - me].lane[u.lock];
@@ -2963,7 +3197,7 @@ function arEvents(now) {
     else if (e.t === "enter") { if (el) { if (el._fx) el._fx.enter = now + 500; const p = fxPos(el); fxRing(p, col || "#e3bf66", 90, 560); fxFlash(p, "#fff3bf", 80, 340); fxMotes(p, "#fff3bf", 5, 30); } }
     else if (e.t === "skill") {
       $("#armsg").textContent = (e.s ? "Foe: " : "") + e.name; sfx("ping", 3);
-      if (el) { const pc = fxPos(el); fxRing(pc, col, 100, 600); fxFlash(pc, col, 90, 380);
+      const srcEl = el || (e.card ? $("#core" + e.s) : null); if (srcEl) { const pc = fxPos(srcEl); fxRing(pc, col, 100, 600); fxFlash(pc, col, 90, 380);
         const tEl = e.ta === "ally" ? laneEl(e.s, e.ti) : e.ta === "enemy" ? laneEl(1 - e.s, e.ti) : null;
         if (tEl) { const pt = fxPos(tEl); fxBeam(pc, pt, col); setTimeout(() => { if (AM) { fxRing(fxPos(tEl), col, 90, 520); fxSparks(fxPos(tEl), col, 8, 34, 420); } }, 260); }
         else if (e.ta === "none") { for (let k = 0; k < 5; k++) { const t2 = laneEl(1 - e.s, k); if (t2 && t2._u) { const pt = fxPos(t2); setTimeout(() => { if (AM) { fxFlash(pt, col, 70, 300); fxSparks(pt, col, 5, 26, 340); } }, 120 + k * 60); } } } }
@@ -3010,6 +3244,13 @@ function arTap(s, i, kind) {
     if (kind === "lane" && u && ((ACT[m.act].t === "ally" && s === 0) || (ACT[m.act].t === "enemy" && s === 1))) { arPut({ k: "use", i: m.i, t: i }); AM.mode = null; AM.sig = ""; }
     return;
   }
+  if (s === 1 && kind === "bench") return;   // the opponent's hand is hidden
+  const selH = sel && sel.s === 0 && sel.kind === "bench" ? S0.bench[sel.i] : null;
+  if (selH && selH.skill && kind === "lane") {   // play a skill card on a target
+    const k = SKC[selH.sid], ok = k.t === "ally" ? s === 0 && u : k.t === "enemy" ? s === 1 && u : false;
+    if (k.t === "none") return toast("Press Play to use it."); if (!ok) return toast(k.t === "ally" ? "Pick one of your cards." : "Pick an enemy card."); if (S0.energy < k.c) return toast("Not enough energy.");
+    arPut({ k: "play", b: sel.i, t: i }); AM.sel = null; AM.sig = ""; return;
+  }
   if (sel && sel.kind === "bench" && s === 0 && kind === "lane") {
     if (S0.energy < AR.SWAP_E) toast("Not enough energy."); else if (S0.swapcd[i] > 0) toast("That slot is recharging."); else { arPut({ k: "swap", b: sel.i, l: i }); AM.sel = null; AM.sig = ""; } return;
   }
@@ -3020,6 +3261,7 @@ document.addEventListener("click", e => {
   const el = e.target.closest("[data-ar]"); if (!el || !AM) return; const a = el.dataset.ar, A = AM.A, d = el.dataset;
   switch (a) {
     case "slot": sfx("select"); return arTap(+d.s, +d.i, d.kind);
+    case "playcard": { const S0 = A.s[AM.me], sel = AM.sel, h = sel && sel.kind === "bench" ? S0.bench[sel.i] : null; if (!h || !h.skill) return; if (S0.energy < SKC[h.sid].c) return toast("Not enough energy."); arPut({ k: "play", b: sel.i }); AM.sel = null; AM.sig = ""; return; }
     case "draw": { if (A.over) return; const S0 = A.s[AM.me]; if (!S0.pile || !S0.pile.length) return toast("Your draw pile is empty."); if (!S0.bench.some(b => !b)) return toast("Your hand is full. Bring a card in first."); if (S0.energy < AR.DRAW_E) return toast("Drawing costs " + AR.DRAW_E + " energy."); sfx("select"); arPut({ k: "draw" }); AM.sig = ""; return; }
     case "menu": return openSheet(AM.net ? `<h2 class="fat">MATCH MENU</h2><p class="note" style="text-align:center">The fight keeps going while this is open.</p><div class="row c" style="margin-top:10px"><button class="btn red" data-ck="leave">Resign</button><button class="btn yellow" data-act="closeModal">Back to the fight</button></div>` : `<h2 class="fat">PAUSED</h2><div class="row c" style="margin-top:10px"><button class="btn red" data-ck="leave">Give up</button><button class="btn yellow" data-act="closeModal">Resume</button></div>`);
     case "speed": AM.speed = AM.speed === 1 ? 2 : 1; el.textContent = AM.speed + "×"; return;
@@ -3038,6 +3280,9 @@ document.addEventListener("click", e => {
 /* Both phones hold the same match (seat 0 is the host, seat 1 the guest). Each player plans in secret and sends the list of what they did; when both lists are in,
    both phones rewind to the start of the round, replay the host's plan and then the guest's, and run the same battle. The rules contain no dice, so the two
    boards stay identical. After every round the phones compare a short fingerprint of the board; if it ever differs the match is stopped. */
+/* the match's random seed must be the same on both phones: it comes from the room code (or, failing that, from the two decks) */
+const hashStr = s => { let h = 2166136261; for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619); return (h >>> 1) & 0x7fffffff; };
+let ONL_SEED = null;
 let ONL = null;   // { send, role, opp } while an online match is on; the match itself is the real-time arena (arenaui.js: arStartOnline)
 function cknStart(role, hostDeck, guestDeck, oppName, send) { arStartOnline(role, hostDeck, guestDeck, oppName, send, send === cknRoomSend); }
 function cknGot(m) {
@@ -3068,11 +3313,11 @@ async function cknRoomJoin() {
   if (r.game !== "clash") return toast("That room is for the other game."); if (r.host.id === uid) return toast("That is your own room."); if (r.guest || r.status !== "wait") return toast("That room is full.");
   try { await roomRef(code).update({ guest: { id: uid, name: playerName(), deck }, status: "play" }); } catch (e) { return toast("Could not join (" + (e.code || "error") + ")."); }
   CKR = { code, role: 1, mine: [], seen: 0, started: true, deck }; CKR.unsub = roomRef(code).onSnapshot(s => cknRoomSnap(s.exists ? s.data() : null), () => toast("Lost the room connection."));
-  cknStart(1, r.host.deck, deck, r.host.name, cknRoomSend);
+  ONL_SEED = hashStr(code); cknStart(1, r.host.deck, deck, r.host.name, cknRoomSend);
 }
 function cknRoomSnap(r) {
   if (!CKR) return; if (!r) { toast("The room was closed."); return; }
-  if (CKR.role === 0 && r.guest && !CKR.started) { CKR.started = true; closeModal(); cknStart(0, CKR.deck, r.guest.deck, r.guest.name, cknRoomSend); }
+  if (CKR.role === 0 && r.guest && !CKR.started) { CKR.started = true; closeModal(); ONL_SEED = hashStr(CKR.code); cknStart(0, CKR.deck, r.guest.deck, r.guest.name, cknRoomSend); }
   const arr = (CKR.role === 0 ? r.gmsg : r.hmsg) || []; for (let i = CKR.seen; i < arr.length; i++) cknGot(arr[i]); CKR.seen = arr.length;
 }
 async function cknRoomSend(m) { if (!CKR) return; CKR.mine.push(m); try { await roomRef(CKR.code).update(CKR.role === 0 ? { hmsg: CKR.mine } : { gmsg: CKR.mine }); } catch (e) { toast("Move not sent."); } }
@@ -3100,7 +3345,7 @@ function cknSrvConnect2(code, opts) {
     else if (m.t === "deck") {
       if (me.started) return; if (m.ver && m.ver !== VER) { toast("Your opponent has a different app version."); return ws.close(); } if (ckDeckShapeOk(m.deck)) { toast("Your opponent's deck is not valid."); return ws.close(); }
       me.started = true; OPP_AV = typeof m.av === "string" && BY[m.av] ? m.av : null; closeModal(); const mine = me.role === 0;
-      cknStart(me.role, mine ? deck : m.deck, mine ? m.deck : deck, m.name, x => send({ t: "ck", m: x }));
+      ONL_SEED = hashStr(code); cknStart(me.role, mine ? deck : m.deck, mine ? m.deck : deck, m.name, x => send({ t: "ck", m: x }));
       if (opts.ranked) G.mode = { kind: "ranked", opp: m.rating || 800 };
     } else if (m.t === "ck") cknGot(m.m);
     else if (m.t === "left") { if (G && G.online && !G.over) arWin("Your opponent left."); else if (!me.started) toast("Your friend left the room."); }
@@ -3627,6 +3872,7 @@ function viewCards(v) {
   ckInit(); const have = ownedList().filter(c => S1[c.id]).length;
   v.innerHTML = `<span class="ribbon">DECKS</span><div class="list">${P.cd.map((d, i) => { const ok = !ckDeckOk(d.cards); return `<button class="panel item" data-ck="deckOpen" data-i="${i}" style="${i === P.cdi ? "border-color:var(--line)" : ""}"><div class="t"><b>${esc(d.name)}</b><small>${d.cards.map(id => esc(BY[id] ? BY[id].name : "?")).join(", ") || "empty"}</small></div><span class="tag ${i === P.cdi ? "gold" : ok ? "ok" : ""}">${i === P.cdi ? "ACTIVE" : ok ? "READY" : "INCOMPLETE"}</span></button>`; }).join("")}</div><div class="row c" style="margin-top:10px"><button class="btn sm yellow" data-ck="deckNew" ${P.cd.length >= 8 ? "disabled" : ""}>New deck</button></div>` +
     `<details class="panel" style="margin-top:12px"><summary class="note" style="cursor:pointer">Classic Triad decks (the old 5-card mode)</summary><div class="list" style="margin-top:8px">${P.decks.map((d, i) => `<button class="panel item" data-act="editDeck" data-i="${i}"><div class="t"><b>${esc(d.name)}</b><small>${d.cards.map(id => esc(BY[id] ? BY[id].name : "?")).join(", ") || "empty"}</small></div><span class="tag ${i === P.deck ? "gold" : ""}">${i === P.deck ? "ACTIVE" : deckOk(d) ? "READY" : "INCOMPLETE"} · ${deckCost(d)}/${deckCap()}</span></button>`).join("")}</div><div class="row c" style="margin-top:8px"><button class="btn sm dark" data-act="newDeck" ${P.decks.length >= 10 ? "disabled" : ""}>New classic deck</button></div></details>` +
+    `<details class="panel" style="margin-top:12px"><summary class="note" style="cursor:pointer">Skill cards (${SKC_IDS.length}) · every player has them all</summary><div class="spellbook">${SKC_IDS.map(id => `<div class="spell">${skTile(id)}<div><b>${esc(SKC[id].n)} <small>${SKC[id].c} energy</small></b><p>${esc(skText(id))}</p></div></div>`).join("")}</div></details>` +
     `<span class="ribbon">SET 1 · ${have}/${POOL.length}</span><div class="filters"><input type="search" id="fq" placeholder="Search" value="${esc(F.q)}"><select id="fown" data-act="filt"><option value="own" ${F.own === "own" ? "selected" : ""}>My cards</option><option value="all" ${F.own === "all" ? "selected" : ""}>Show unowned too</option><option value="miss" ${F.own === "miss" ? "selected" : ""}>Only missing</option><option value="ex" ${F.own === "ex" ? "selected" : ""}>Secret Rare</option></select><select id="flv" data-act="filt"><option value="0">Any rarity</option>${[1, 2, 3, 4, 5].map(l => `<option value="${l}" ${F.lv === l ? "selected" : ""}>${RNAME[l]}</option>`).join("")}</select><select id="fgrp" data-act="filt">${Object.entries(GROUPS).map(([k, n]) => `<option value="${k}" ${F.grp === k ? "selected" : ""}>${n}</option>`).join("")}</select></div><div class="grid" id="coll"></div>`;
   fillColl(); const q = $("#fq"); q.oninput = () => { F.q = q.value; fillColl(); };
 }

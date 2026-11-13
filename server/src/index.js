@@ -4,7 +4,7 @@
 //   /auth/signup, /auth/login, /auth/logout   accounts (a name and a password; the password is stored only as a salted PBKDF2 hash)
 //   /hub?token=    one live connection per signed-in player: friends, who is online, and match invites that pop up on the other phone.
 // The Hub keeps accounts, friends and pending invites in the Durable Object's SQLite storage. Rooms and the queue keep nothing.
-import { CARDS } from "./cards.generated.js";
+import { CARDS, SKILLS } from "./cards.generated.js";
 const MAX_MSG = 32768;
 const CORS = { "access-control-allow-origin": "*", "access-control-allow-headers": "content-type", "access-control-allow-methods": "GET,POST,OPTIONS" };
 const json = (o, status = 200) => new Response(JSON.stringify(o), { status, headers: { "content-type": "application/json", ...CORS } });
@@ -200,8 +200,9 @@ export class Hub {
       const row = this.one("SELECT data FROM profiles WHERE lname=?", String(b.lname || "")); if (!row) return json({ ok: false, why: "Your account has no saved game yet. Play once online with the app open, then try again." });
       let o; try { o = JSON.parse(row.data); } catch (_) { return json({ ok: false, why: "Saved game unreadable." }); }
       const deck = b.deck; if (!Array.isArray(deck) || deck.length !== 12) return json({ ok: false, why: "Deck size is wrong." });
-      const need = {}; for (const id of deck) { if (typeof id !== "string" || !(id in CARDS)) return json({ ok: false, why: "Deck has an unknown card." }); need[id] = (need[id] || 0) + 1; }
-      for (const [id, n] of Object.entries(need)) if (n > ((o.own || {})[id] || 0)) return json({ ok: false, why: "Deck uses a card that is not in your saved collection yet." });
+      const need = {}; let sk = 0; for (const id of deck) { if (typeof id !== "string" || !(id in CARDS || SKILLS.includes(id))) return json({ ok: false, why: "Deck has an unknown card." }); need[id] = (need[id] || 0) + 1; if (SKILLS.includes(id)) { sk++; if (need[id] > 2) return json({ ok: false, why: "A skill card is in the deck more than twice." }); } }
+      if (sk > 7 || 12 - sk < 5) return json({ ok: false, why: "A deck needs 5 to 12 creatures and at most 7 skill cards." });
+      for (const [id, n] of Object.entries(need)) if (!SKILLS.includes(id) && n > ((o.own || {})[id] || 0)) return json({ ok: false, why: "Deck uses a card that is not in your saved collection yet." });
       return json({ ok: true });
     }
     if (p === "/profile/get" || p === "/profile/put") {   // the saved game: the server keeps it, the phone keeps a cache
