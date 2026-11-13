@@ -309,7 +309,7 @@ table.odds { width: 100%; border-collapse: collapse; } table.odds td { padding: 
 
 /* ===== Clash ===== */
 #ck { position: fixed; inset: 0; z-index: 20; background: radial-gradient(ellipse at 50% 40%, #12583a 0%, var(--felt-d) 55%, var(--felt-dd) 100%); }
-.sa #ck { bottom: auto; height: var(--app-h, 100%); } #ck[hidden] { display: none; }
+#ck[hidden] { display: none; }
 .ckwrap { height: 100%; display: flex; flex-direction: column; gap: 4px; padding: calc(env(safe-area-inset-top, 0px) + 6px) max(8px, env(safe-area-inset-left, 0px)) calc(env(safe-area-inset-bottom, 0px) + 8px) max(8px, env(safe-area-inset-right, 0px)); max-width: 560px; margin: 0 auto; }
 .ckhud { display: flex; align-items: center; justify-content: space-between; gap: 8px; } .ckhud b { font-size: 18px; } .surge { font: 700 12px var(--display); color: #ffb36b; }
 .side { display: flex; flex-direction: column; gap: 4px; } .lanes { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; } .bench { display: flex; gap: 5px; justify-content: center; } .bench .ku { width: 15%; }
@@ -1470,7 +1470,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.11.17-b";
+const VER = "2026.11.18-a";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -1624,7 +1624,7 @@ function tiltBind() {
 /* ----- opening a pack: tear it, then flip the cards one at a time ----- */
 let PK = null;
 function packStage() {
-  const m = $("#modal"); m.hidden = false;
+  const m = $("#modal"); m.hidden = false; m.dataset.lock = "1";   // a tap outside the pack must not close it mid-reveal
   if (!PK.torn) { m.innerHTML = `<div class="packfs"><div class="plbl">Swipe across the top of the pack</div>${packTearHtml(PK.kind)}<button class="btn sm dark" data-act="packTear" style="margin-top:14px">Tap to open</button></div>`; packTearBind(); return; }
   if (PK.i >= PK.res.length) return packSummary();
   const x = PK.res[PK.i], c = x.c, r = rarOf(c);
@@ -1967,19 +1967,20 @@ function setKit(c, k) {
    compute the identical fight. Everything marked [placeholder] in AR is a tuning number, not design. */
 const AR = {
   DT: .1, MATCH: 180, LAST: 60,      // tick length, match length, the closing stretch with doubled energy (seconds)
-  E0: 5, EMAX: 10, ERATE: 1.2,       // starting energy, cap, seconds per energy
+  E0: 5, EMAX: 10, ERATE: 2.4,       // starting energy, cap, seconds per energy (halved: energy is scarce, so each skill is a decision)
   SWAP_E: 2, SWAP_CD: 8,             // bringing a reserve in: energy, and the wait before that slot can swap again
   IV: 6, STRIKE: .5, ATKX: 8,      // seconds between basic strikes at speed 1.0, the share of ATK a strike deals, and the factor from a card's base attack to its fight attack (slower, bigger hits)
   FOCUS_SUPPORT: 16, AI_EVERY: [10, 10, 5], AI_SLIP: [.4, .2, 0], EASY_FOCUS: .2, AI_TH: 3,   // AI: HP value of a healer/buffer when picking a focus target; ticks between its decisions and the share of ready skills it fumbles, by level
   MARK_T: 8, CORE: 40, HPX: 8, SKILL_CD: 4, GROW_T: 8, SURGE_AT: 60, SURGE_T: 10, INPUT_DELAY: 3, RETARGET: 1,
 };
-const ACOST = { mend: 2, empower: 2, ward: 2, overgrow: 5, volley: 3, disrupt: 1, strike: 3, mark: 1, gale: 2, arc: 3, freeze: 2, cleanse: 2, pact: 1 };
+/* skill energy costs run from 1 (a small utility) to 8 (the extreme area hit), averaging about 3 across the roster; the stronger the effect, the more it costs */
+const ACOST = { disrupt: 1, mark: 1, mend: 2, cleanse: 2, ward: 2, empower: 3, gale: 3, freeze: 3, pact: 3, strike: 4, arc: 5, overgrow: 6, volley: 8 };
 /* skill strengths in 'stat points' (HP-type ones are multiplied by HPX): the numbers the balance sweep tunes */
 /* passive strengths (same idea) */
 /* rarity: extra health on top of the card's own stats, by rarity (1 = common ... 6) */
 AR.RHP = { 1: 1.4, 2: 1.22, 3: 1.02, 4: .93, 5: .79, 6: .79 };
 AR.PS = { mender: 0.3, fortify: 0.6, rally: 0.12, grow: 0.17, lastwords: 0.22, battery: 0.1, berserk: 5.5, amp: 3.2, overkill: 1, thorns: 0.35, spongeT: 10, pack: 1.3, guard: 0.85, pierce: 0.3, swift: 1.15, vamp: 0.6, soul: 0.15, laststand: 3, lsGuard: 0.7, blood: 0.6, bloodCost: 0.05, chainAmp: 2.2, decree: 1.1, phoenix: 0.15, formation: 0.5, treasure: 7, regen: 0.011, crit: 2.2, voideater: 1.15 };
-AR.SK = { mend: 0.8, empower: 3.3, empowerT: 8, overgrow: 0.75, ward: 0.9, volley: 0.5, strike: 0.32, gale: 1.7, galeT: 6, arc: 0.22, freezeT: 1.3, cleanse: 0.7, pact: 8.5, pactT: 8, pactCost: 0.1 };
+AR.SK = { mend: 1.5, empower: 5.5, empowerT: 8, overgrow: 1.25, ward: 1.8, volley: 4.0, strike: 1.4, gale: 1.7, galeT: 10, arc: 1.3, freezeT: 2.8, cleanse: 1.3, pact: 8.5, pactT: 8, pactCost: 0.1 };
 /* MATCH LEVELS: every card grows during a match and is back to normal in the next one. xp: what it takes to reach level 2 and 3; atk/hp: total bonus at each level;
    at level 3 the card also unlocks its enhanced skill (costs 1 less, recharges faster, hits harder). Earned by striking, using the skill, taking hits and killing. */
 AR.LV = { xp: [10, 26], atk: [0, .2, .4], hp: [0, .2, .4], spd: [1, 1.1, 1.05], cd: .75, enhance: 1.5, strike: 1, skill: 2, kill: 3, hurt: .25 };
@@ -2418,6 +2419,7 @@ function ckResult() {
     `<div class="rcores"><div class="me"><small>YOU</small><b>${Math.max(0, Math.ceil(G.s[ME].core))}</b></div><i>CORE</i><div class="foe"><small>${esc(((G.arena && AM && AM.opp) || "FOE").toString().toUpperCase().slice(0, 9))}</small><b>${Math.max(0, Math.ceil(G.s[1 - ME].core))}</b></div></div>` +
     `<div class="rrow">${coins ? chip("g", ic("coin", ""), "+" + coins, "coins") : ""}${gems ? chip("p", ic("gem", ""), "+" + gems, "gems") : ""}${dust ? chip("s", ic("shard", ""), "+" + dust, "shards") : ""}${packs ? chip("p", ic("ticket", ""), "+" + packs, packs > 1 ? "packs" : "pack") : ""}${xp ? chip("x", ic("xp", ""), "+" + xp, "xp") : ""}</div>` +
     `${extra ? `<p class="rnote">${esc(extra)}</p>` : ""}${ups.length ? `<p class="rnote up">${ups.map(esc).join("<br>")}</p>` : ""}</div><div class="row c" style="margin-top:14px">${again}<button class="btn dark" data-ck="leave">Back</button></div>`);
+  lockSheet();
 }
 function ckLeave() { if (AM) { cancelAnimationFrame(AM.raf); clearInterval(AM.ka); AM = null; } if (G && G.online) cknBye(); G = null; $("#ck").hidden = true; closeModal(); musicMode("menu"); chrome(); show(tab); }
 function ckRematch() {
@@ -2553,6 +2555,7 @@ function arHashCheck(tk) {
   if (net.mine[tk] !== net.theirs[tk]) {
     AM.A.over = true; AM.done = true; G.over = true; G.winner = -1;
     openSheet(`<span class="ribbon">OUT OF SYNC</span><p class="note" style="text-align:center">The two phones disagreed about the board, so this match was stopped. Both players need the same app version (${VER}).</p><div class="row c" style="margin-top:12px"><button class="btn dark" data-ck="leave">Back</button></div>`);
+    lockSheet();
   }
   delete net.mine[tk]; delete net.theirs[tk];
 }
@@ -2698,8 +2701,10 @@ function arEvents(now) {
     else if (e.t === "buff") { if (el) { kpop(el, e.text, "heal"); const p = fxPos(el), ward = /ward|shield|clean/i.test(e.text); fxRing(p, ward ? "#9fe6ff" : "#ffd05a", ward ? 100 : 80, 560); if (ward) fxFlash(p, "#9fe6ff", 100, 420); else fxMotes(p, "#ffd05a", 6, 40); } snd("ping", 3); }
   }
 }
+const ROTMQ = window.matchMedia ? matchMedia("(orientation: landscape) and (max-height: 600px)") : { matches: false };
 function arLoop(now) {
-  if (!AM) return; const A = AM.A; if (!AM.last) AM.last = now; const dt = Math.min(.25, (now - AM.last) / 1000); AM.last = now;
+  if (!AM) return; const A = AM.A;
+  if (!AM.net && !A.over && ROTMQ.matches) { AM.last = now; AM.raf = requestAnimationFrame(arLoop); return; }   // a solo match waits while the phone is turned sideways (the 'turn upright' cover is showing) if (!AM.last) AM.last = now; const dt = Math.min(.25, (now - AM.last) / 1000); AM.last = now;
   const net = AM.net;
   if (net) {   // online: the fight never pauses; it only waits when the other phone's commands have not arrived yet
     if (!A.over) {
@@ -2780,7 +2785,7 @@ async function cknRoomCreate() {
   let code = ""; for (let i = 0; i < 4; i++) code += CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)];
   try { await roomRef(code).set({ game: "clash", status: "wait", created: Date.now(), host: { id: uid, name: playerName(), deck }, guest: null, hmsg: [], gmsg: [] }); } catch (e) { return toast("Could not make a room (" + (e.code || "error") + "). Friends need Contributor access."); }
   CKR = { code, role: 0, mine: [], seen: 0, started: false, deck }; CKR.unsub = roomRef(code).onSnapshot(s => cknRoomSnap(s.exists ? s.data() : null), () => toast("Lost the room connection."));
-  openSheet(`<h2 class="fat">ROOM ${code}</h2><p class="note" style="text-align:center">Waiting for your friend. They enter this code on the Versus tab and press Join.</p><div class="row c" style="margin-top:12px"><button class="btn dark" data-ck="roomCancel">Cancel</button></div>`);
+  openSheet(`<h2 class="fat">ROOM ${code}</h2><p class="note" style="text-align:center">Waiting for your friend. They enter this code on the Versus tab and press Join.</p><div class="row c" style="margin-top:12px"><button class="btn dark" data-ck="roomCancel">Cancel</button></div>`); lockSheet();
 }
 async function cknRoomJoin() {
   if (!db || !uid) return toast("Rooms work on the claude.ai version. Use Direct connect here."); ckInit(); const deck = P.cd[P.cdi].cards.slice(), err = ckDeckOk(deck); if (err) return toast(err);
@@ -2835,14 +2840,14 @@ function cknSrvConnect2(code, opts) {
 function cknSrvCreate() {
   let code = ""; for (let i = 0; i < 4; i++) code += CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)];
   if (!cknSrvConnect(code, {})) return;
-  openSheet(`<h2 class="fat">ROOM ${code}</h2><p class="note" style="text-align:center">Waiting for your friend. They enter this code on the Versus tab and press Join.</p><div class="row c" style="margin-top:12px"><button class="btn dark" data-ck="roomCancel">Cancel</button></div>`);
+  openSheet(`<h2 class="fat">ROOM ${code}</h2><p class="note" style="text-align:center">Waiting for your friend. They enter this code on the Versus tab and press Join.</p><div class="row c" style="margin-top:12px"><button class="btn dark" data-ck="roomCancel">Cancel</button></div>`); lockSheet();
 }
 function cknSrvJoin() { const code = ($("#vsCode").value || "").trim().toUpperCase(); if (code.length !== 4) return toast("Enter the 4-letter room code."); cknSrvConnect(code, {}); }
 /* ranked: look for a real player for up to 30 seconds, then fall back to the ladder opponent */
 function rankedFind() {
   if (!srvOn()) return rankedStart(); rankInit(); let done = false;
   const stop = () => { done = true; try { QWS && QWS.close(); } catch (_) {} QWS = null; }, fall = () => { if (done) return; stop(); closeModal(); toast("No one nearby right now. Here is a ladder opponent."); rankedStart(); };
-  openSheet(`<h2 class="fat">FINDING AN OPPONENT</h2><p class="note" style="text-align:center">Looking for a player near your rating…</p><div class="row c" style="margin-top:12px"><button class="btn dark" data-ck="findCancel">Cancel</button></div>`);
+  openSheet(`<h2 class="fat">FINDING AN OPPONENT</h2><p class="note" style="text-align:center">Looking for a player near your rating…</p><div class="row c" style="margin-top:12px"><button class="btn dark" data-ck="findCancel">Cancel</button></div>`); lockSheet();
   let ws; try { ws = QWS = new WebSocket(SERVER_URL.replace(/\/$/, "") + "/queue"); } catch (_) { return fall(); }
   ws.onopen = () => ws.send(JSON.stringify({ t: "find", rating: P.rank.pts }));
   ws.onmessage = e => { let m; try { m = JSON.parse(e.data); } catch (_) { return; } if (m.t === "match" && !done) { stop(); cknSrvConnect(m.room, { ranked: true }); } };
@@ -2952,7 +2957,7 @@ async function cloudSync() {
 function cloudChoice(r) {
   CLOUD.on = false; CLOUD.conflict = true;
   openSheet(`<h2 class="fat">TWO SAVED GAMES</h2><p class="note" style="text-align:center;margin:0 0 10px">${esc(ACC.name)} already has a saved game online, and this phone has different progress. Which one should this account keep?</p>` +
-    `<div class="row c" style="flex-direction:column;gap:8px"><button class="btn yellow" data-ac="useCloud">Use the online save (recommended)</button><button class="btn dark" data-ac="useLocal">Replace it with this phone's progress</button></div>`);
+    `<div class="row c" style="flex-direction:column;gap:8px"><button class="btn yellow" data-ac="useCloud">Use the online save (recommended)</button><button class="btn dark" data-ac="useLocal">Replace it with this phone's progress</button></div>`); lockSheet();
   CLOUD.pendingRev = r.rev; CLOUD.pendingData = r.data;
 }
 function cloudPush(now) {
@@ -3021,7 +3026,7 @@ function deckProblem() { ckInit(); return ckDeckOk(P.cd[P.cdi].cards); }
 function hubChallenge(name) {
   const err = deckProblem(); if (err) return toast(err);
   if (!hubSend({ t: "invite", to: name })) return; INVOUT = name;
-  openSheet(`<h2 class="fat">CHALLENGING ${esc(name.toUpperCase())}</h2><p class="note" style="text-align:center">Waiting for them to accept…</p><div class="row c" style="margin-top:12px"><button class="btn dark" data-ac="invCancel" data-n="${esc(name)}">Cancel</button></div>`);
+  openSheet(`<h2 class="fat">CHALLENGING ${esc(name.toUpperCase())}</h2><p class="note" style="text-align:center">Waiting for them to accept…</p><div class="row c" style="margin-top:12px"><button class="btn dark" data-ac="invCancel" data-n="${esc(name)}">Cancel</button></div>`); lockSheet();
   setTimeout(() => { if (INVOUT === name) { INVOUT = null; closeModal(); toast(name + " did not answer."); hubSend({ t: "invite_cancel", to: name }); } }, 45000);
 }
 
@@ -3315,7 +3320,9 @@ function fillColl() {
     .sort((a, b) => b.lv - a.lv || a.name.localeCompare(b.name));
   $("#coll").innerHTML = list.map(c => cardHtml(c, { count: P.own[c.id] || 0, miss: !(P.own[c.id] > 0), attr: `data-act="detail" data-id="${c.id}"` })).join("") || '<p class="note">No cards match.</p>';
 }
-function openSheet(h) { const m = $("#modal"); m.hidden = false; m.innerHTML = `<div class="sheet">${h}</div>`; }
+function openSheet(h) { const m = $("#modal"); m.hidden = false; delete m.dataset.lock; m.innerHTML = `<div class="sheet">${h}</div>`; }
+/* a sheet that must be answered with its own buttons (a result, a choice, a waiting screen): tapping outside it does nothing */
+function lockSheet() { $("#modal").dataset.lock = "1"; }
 function detail(id) {
   const c = BY[id], n = P.own[id] || 0, cost = c.ex ? 0 : CRAFT[c.lv], k = arCard(c), rr = rarOf(c);
   openSheet(`<div style="width:min(66%,248px);margin:2px auto 12px">${cardHtml(c, { miss: !n, tilt: true })}</div><div class="row" style="align-items:flex-start;flex-wrap:nowrap;gap:14px"><div style="min-width:0;flex:1"><h2 class="fat" style="text-align:left;font-size:18px;margin:2px 0 8px;line-height:1.15">${esc(c.name)}</h2><div class="row" style="gap:8px"><span class="rtag r${rr}">${RNAME[rr]}</span><span class="elchip el-${k.el}">${elIco(k.el)}${EL[k.el][0]}</span></div><p class="note" style="margin:8px 0 0;line-height:1.5">${esc(FAC[k.fac] || k.fac)}<br>Targets: ${TGT_NAME[k.tm]}<br>Strike ${+(k.atk * AR.ATKX * AR.STRIKE).toFixed(1)} every ${+(AR.IV / k.spd).toFixed(1)} s<br>Owned ${n} / 3</p></div></div>` +
@@ -3564,8 +3571,12 @@ document.addEventListener("change", async e => {
   if (e.target.id === "deckSel") { P.deck = +e.target.value; scheduleSave(); }
   if (e.target.dataset.act === "filt") { F.own = $("#fown").value; F.lv = +$("#flv").value; F.grp = $("#fgrp").value; fillColl(); }
 });
-function closeModal() { const m = $("#modal"); m.hidden = true; m.innerHTML = ""; }
-$("#modal").addEventListener("click", e => { if (e.target.id === "modal") closeModal(); });
+function closeModal() {
+  const m = $("#modal"); m.hidden = true; m.innerHTML = ""; delete m.dataset.lock;
+  /* safety net: a finished match must never be left on screen with nothing to tap; if its result sheet is gone for any reason, go back to the menu */
+  if (typeof G !== "undefined" && G && G.over && !$("#ck").hidden) setTimeout(() => { if (G && G.over && $("#modal").hidden && !$("#ck").hidden) ckLeave(); }, 80);
+}
+$("#modal").addEventListener("click", e => { if (e.target.id === "modal" && !e.target.dataset.lock) closeModal(); });
 document.addEventListener("input", e => { if (e.target.id === "svol") { AU.sv = e.target.value / 100; auSave(); } if (e.target.id === "mvol") { AU.mv = e.target.value / 100; auSave(); if (AU.el) AU.el.volume = AU.mv; } });
 const unlockAudio = () => { auCtx(); musicStart(); };
 document.addEventListener("pointerup", unlockAudio, true); document.addEventListener("touchend", unlockAudio, true);
