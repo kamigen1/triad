@@ -1292,6 +1292,16 @@ nav .dot { background: var(--ds-gold); border: 2px solid #213449; }
 #arpanel .elchip { flex: none; } .kstats { display: flex; gap: 8px; margin-left: auto; flex: none; } .kstats .st { display: flex; flex-direction: column; align-items: center; line-height: 1.05; } .kstats .st i { font: 700 8.5px var(--body); letter-spacing: .06em; font-style: normal; color: var(--ds-on-dark2); text-transform: uppercase; } .kstats .st b { font: 700 13px var(--body); color: #fff; }
 #arpanel .kbtns { display: flex; gap: 6px; margin: 0; align-items: center; flex-wrap: nowrap; } #arpanel .kbtns .btn { white-space: nowrap; } #arpanel .kbtns .note { font: 600 11px var(--body); flex: 1; }
 
+/* the card face carries the name and the numbers only; abilities are read in the detail window below the card or the arena's Details button */
+.card.ar .rules { display: none !important; }
+/* large cards (detail, pack reveal): with the rules gone, the type line and name sit at the foot of the picture instead of across its middle */
+@container (min-width: 161px) {
+  .card.ar .nameband { top: auto; bottom: calc(var(--bw) + 1cqw); height: 13cqw; }
+  .card.ar .typeline { top: auto; bottom: calc(var(--bw) + 15cqw); }
+  .card.ar .foot { display: none; }
+  .card.ar .win::after { background: linear-gradient(#000a 0, #0000 18%, #0000 62%, #000c 84%, #000f 100%) !important; }
+}
+
 @media (prefers-reduced-motion: reduce) { * { animation-duration: .01s !important; } }
 /* ===== standalone phone app: portrait only, no zoom, no rubber band, no text selection, 16px inputs so iOS never zooms on focus ===== */
 html, body { overscroll-behavior: none; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; touch-action: manipulation; }
@@ -1850,7 +1860,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.11.29-a";
+const VER = "2026.11.29-b";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
