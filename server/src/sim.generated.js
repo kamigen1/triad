@@ -277,6 +277,8 @@ const S1 = {
 const ORIG = {
   ff_sephiroth: ["Veyr, the Nightglass", "dark", "V"], herald: ["Auralis, Dawnvein", "light", "C"], x_esper_leviathan: ["Cindervault", "fire", "A"], r_phoenix_pinion: ["Nerissa, Tidecaller", "water", "C"], x_esper_anima: ["Oryn, the Hollow Star", "dark", "V"],
   ifrit: ["Yuzari, the Ninefold Flame", "fire", "B"], db_piccolo: ["Cairnroot", "earth", "A"], bahamut: ["Solvar, the Golden Oath", "light", "H"], dq_psaro: ["Nyxara, Weaver of Echoes", "dark", "D"], ramuh: ["Axiom-09", "lightning", "M"],
+  // fourth wave (7): art cut from the sixth and seventh sheets
+  zu: ["Stormspine, the Ridge Runner", "lightning", "B"], a_adamant: ["Halvard, the Adamant Lance", "earth", "H"], metal_slime: ["Mantisael, the Verdigris Reaper", "wind", "M"], dq_mimic: ["Hollowmoor Manor", "dark", "U"], bandit_chief: ["Brogmar, the Horned Warlord", "earth", "B"], black_mage: ["Orbis, the Unlidded", "dark", "V"], folk_priestess: ["Ilume, Skyveil Dancer", "light", "C"],
   // third wave (5): art cut from the fifth sheet
   hero_white_mage: ["Hinoe, Shrine Keeper", "light", "H"], malboro: ["Venomtail, the Glass Scorpion", "dark", "B"], hero_knight: ["Ashcloak, the Wandering Warden", "light", "H"], forgemaster: ["Cindergrave, the Forge Below", "fire", "A"], killing_machine: ["Axiom-07, Orbweaver", "lightning", "M"],
   // second wave (30): art cut from the four sheets of 2026-11; lore in LORE.md
