@@ -354,7 +354,7 @@ export class Hub {
       let A; try { A = simRun(b.deck, pm.foe, [2, pm.level], pm.seed, pm.kind, pm.boss, q, true); } catch (_) { return json({ ok: false, bad: true, err: "The fight could not be re-run." }); }
       if (!A.over) return json({ ok: false, bad: true, err: "The fight did not finish." });
       if (q.length > 20 + A.tick * 1.5) return json({ ok: false, bad: true, err: "Too many commands for one fight." });
-      if (now - row.at < A.tick * 100 / 2 * 0.85) return json({ ok: false, bad: true, err: "The fight was reported faster than it can be played." });
+      if (now - row.at < A.tick * 100 / 3 * 0.85) return json({ ok: false, bad: true, err: "The fight was reported faster than it can be played." });
       const win = A.winner === 0 ? true : A.winner === -1 ? null : false; this.credit(s.lname, pm.kind, win, pm.key);
       return json({ ok: true, winner: A.winner, ticks: A.tick });
     }

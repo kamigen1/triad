@@ -1302,6 +1302,60 @@ nav .dot { background: var(--ds-gold); border: 2px solid #213449; }
   .card.ar .win::after { background: linear-gradient(#000a 0, #0000 18%, #0000 62%, #000c 84%, #000f 100%) !important; }
 }
 
+
+/* ---------- card sheet icons ---------- */
+.sheet { position: relative; } .sico { position: absolute; top: 10px; z-index: 6; width: 40px; height: 40px; border: 0; border-radius: 50%; background: rgba(14, 22, 32, .55); color: #fff; font: 700 20px/1 var(--body); display: flex; align-items: center; justify-content: center; }
+.sico.l { left: 10px; font-size: 24px; color: #d8d1bf; } .sico.l.on { color: #F0D68A; } .sico.r { right: 10px; }
+
+/* ---------- summon: banners, grouped, each one carries its own buttons ---------- */
+.bnrow { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 2px 2px 12px; scrollbar-width: none; -webkit-overflow-scrolling: touch; } .bnrow::-webkit-scrollbar { display: none; }
+.bnc { flex: none; width: min(86%, 330px); scroll-snap-align: start; padding: 12px; border-radius: 20px; background: linear-gradient(150deg, color-mix(in srgb, var(--bt, #53677A) 38%, #1B2736) 0%, #1B2736 70%); box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--bt, #53677A) 55%, transparent), var(--ds-shadow-s); display: flex; flex-direction: column; gap: 10px; }
+.bnh { display: flex; gap: 12px; align-items: flex-start; } .bnh .bpk { width: 62px; height: 98px; position: relative; flex: none; } .bnh .bpk .packw { position: absolute; left: 0; top: 0; }
+.bnt { min-width: 0; flex: 1; } .bnt b { display: block; font: 400 19px/1.15 var(--display); color: #fff; } .bnt small { display: block; margin-top: 3px; font: 600 12px/1.35 var(--body); color: var(--ds-on-dark2); } .bnt .ends { display: block; margin-top: 5px; font: 700 11px var(--body); color: var(--bt, var(--ds-gold)); letter-spacing: .04em; }
+.bfeat { display: flex; gap: 8px; } .bfeat button { border: 0; padding: 0; background: none; width: 70px; text-align: center; color: #fff; } .bfeat img { width: 70px; height: 90px; object-fit: cover; border-radius: 10px; display: block; box-shadow: 0 0 0 1.5px var(--bt, var(--ds-gold)); } .bfeat small { display: block; margin-top: 3px; font: 700 10px var(--body); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bev { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font: 700 11.5px var(--body); color: var(--ds-on-dark); } .bev span { display: flex; align-items: center; gap: 4px; } .bev .btn { margin-left: auto; }
+.bnc .sumbtns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; } .bnc .sumbtns .btn { padding: 9px 6px; } .odds-link { align-self: center; border: 0; background: none; color: var(--ds-on-dark2); font: 600 11.5px var(--body); text-decoration: underline; padding: 0; }
+.bnc .bpk .packw { position: absolute; left: 0; top: 0; transform: scale(.4); transform-origin: 0 0; animation: none; }
+/* ===== arena2.css: the match screen, rebuilt. Top bar (close and log left, timer middle, auto and speed right); the opponent on top (pile left, portrait middle, hand right);
+   each side's five cards in a wide V; mine mirrored below with the hand on the left, my portrait bottom middle and the draw pile on the right. ===== */
+#ck .a2 { gap: 8px; }
+#ck .a2top { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; min-height: 38px; }
+.a2l { display: flex; gap: 6px; justify-self: start; } .a2r { display: flex; gap: 6px; justify-self: end; } .a2top .btn { min-width: 38px; }
+.a2clk { display: flex; flex-direction: column; align-items: center; line-height: 1; } .a2clk .clock { font-size: 17px; padding: 5px 15px; } .a2clk .surge { font-size: 9px; min-height: 10px; margin-top: 2px; }
+
+#ck .a2zone { display: grid; grid-template-columns: auto 92px auto; justify-content: space-between; align-items: center; gap: 6px; min-height: 0; padding: 0 4px; }
+#ck .a2zone .portrait { width: 92px; justify-self: center; } #ck .a2zone .hframe { width: 76px; height: 90px; border-radius: 40px 40px 11px 11px; } #ck .a2zone .hframe .hart { border-radius: 37px 37px 8px 8px; }
+#ck .a2zone .hhp { width: 32px; height: 32px; right: -2px; bottom: 22px; } #ck .a2zone .hhp em { font-size: 14px; }
+
+/* hand: three cards fanned slightly, overlapping a little */
+.a2hand { display: flex; flex-direction: column; gap: 4px; } .a2hand .bench { display: flex; gap: 0; justify-content: flex-start; align-items: flex-end; flex-wrap: nowrap; }
+#ck .a2hand .bench .ku { width: 54px; flex: none; margin-left: -9px; transition: translate .15s; } #ck .a2hand .bench .ku:first-child { margin-left: 0; }
+#ck .a2hand .bench .ku:nth-child(1) { rotate: -6deg; translate: 0 3px; } #ck .a2hand .bench .ku:nth-child(3) { rotate: 6deg; translate: 0 3px; }
+#ck .a2zone.foe .a2hand .bench .ku:nth-child(1) { rotate: 6deg; translate: 0 -3px; } #ck .a2zone.foe .a2hand .bench .ku:nth-child(3) { rotate: -6deg; translate: 0 -3px; }
+#ck .a2hand .bench .ku.sel { z-index: 5; translate: 0 -14px; }
+.a2zone.foe .a2hand { align-items: flex-end; } .a2zone.foe .mana { align-self: flex-end; }
+
+/* draw pile and its preview */
+.a2pile { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 86px; }
+.a2pile .pcard { position: relative; width: 54px; height: 72px; border-radius: 9px; display: grid; place-items: center; background: linear-gradient(160deg, #35506E, #1B2736); box-shadow: inset 0 0 0 2px #B99B5988, 3px 3px 0 #0a1018, 6px 6px 0 #0a101877; color: var(--ds-gold); font-size: 22px; }
+.a2pile .pcount { position: absolute; right: -9px; top: -9px; min-width: 24px; height: 24px; padding: 0 5px; border-radius: 12px; background: #243448; box-shadow: 0 0 0 2px var(--ds-gold); display: grid; place-items: center; font: 700 12px var(--body); color: #fff; } .a2pile .pcount u { text-decoration: none; }
+.a2pile .drawb { margin: 0; width: 100%; max-width: none; padding: 6px 4px; }
+
+/* energy: one row of ten crystals */
+.a2energy { padding: 0 6px; } .a2energy .mana, .a2zone .mana { display: flex; flex-direction: row; align-items: center; gap: 8px; width: 100%; justify-self: stretch; }
+.a2 .mcry { display: grid; grid-template-columns: repeat(10, 1fr); gap: 3px; flex: 1; } .a2 .mcry i { width: 100%; height: 22px; } .a2 .mana b { min-width: 30px; text-align: right; font-size: 14px; }
+.a2zone.foe .mana { width: 150px; gap: 5px; } .a2zone.foe .mcry { grid-template-columns: repeat(10, 1fr); gap: 2px; } .a2zone.foe .mcry i { width: 100%; height: 12px; } .a2zone.foe .mana b { font-size: 11px; min-width: 14px; }
+
+/* the table, and the V: the outer cards stand forward, the middle one sits back; mirrored for the opponent */
+#ck .a2arena { padding: 6px 6px; border-radius: 26px; display: flex; flex-direction: column; justify-content: space-between; gap: 0; flex: 1; min-height: 0; }
+#ck .a2arena .lanes { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+#ck .a2arena .lanes.me { padding-top: 26px; } #ck .a2arena .lanes.foe { padding-bottom: 26px; }
+.a2arena .lanes.me .slot:nth-child(1) { translate: 0 -32px; rotate: -6deg; } .a2arena .lanes.me .slot:nth-child(2) { translate: 0 -14px; rotate: -3deg; } .a2arena .lanes.me .slot:nth-child(4) { translate: 0 -14px; rotate: 3deg; } .a2arena .lanes.me .slot:nth-child(5) { translate: 0 -32px; rotate: 6deg; }
+.a2arena .lanes.foe .slot:nth-child(1) { translate: 0 32px; rotate: 6deg; } .a2arena .lanes.foe .slot:nth-child(2) { translate: 0 14px; rotate: 3deg; } .a2arena .lanes.foe .slot:nth-child(4) { translate: 0 14px; rotate: -3deg; } .a2arena .lanes.foe .slot:nth-child(5) { translate: 0 32px; rotate: -6deg; }
+#ck .a2arena .crease { margin: 0; min-height: 18px; } .a2arena .crease .vsmsg { font: 700 10px var(--body); letter-spacing: .08em; color: var(--ds-on-dark2); text-transform: uppercase; min-width: 90px; text-align: center; }
+#ck.predeal .a2hand .ku:not(.empty) { opacity: 0; }
+#ck .ckpanel { height: 70px; }
+
 @media (prefers-reduced-motion: reduce) { * { animation-duration: .01s !important; } }
 /* ===== standalone phone app: portrait only, no zoom, no rubber band, no text selection, 16px inputs so iOS never zooms on focus ===== */
 html, body { overscroll-behavior: none; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; touch-action: manipulation; }
@@ -1860,7 +1914,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.11.29-b";
+const VER = "2026.11.30-b";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -3243,14 +3297,30 @@ function arBuild() {
   const slots = (s, kind, n) => Array.from({ length: n }, (_, i) => `<div class="ku slot empty" data-ar="slot" data-s="${s}" data-i="${i}" data-kind="${kind}"></div>`).join("");
   AM.av = arAvatars(AM.A, AM.me);
   const hero = s => `<div class="portrait ${s === 0 ? "me" : "foe"}" id="core${s}"><div class="hframe"><img class="hart" src="${AM.av[s] ? artSrc(BY[AM.av[s]]) : ""}" alt=""><i class="hflash"></i><i class="hcrack"></i></div><b class="hhp"><em>40</em></b><div class="hname">${esc(s === 0 ? playerName() : AM.opp)}</div><div class="hbar"><i></i></div></div>`;
-  const mana = s => `<div class="mana ${s === 0 ? "me" : "foe"}" id="mana${s}"><div class="mcry">${"<i><u></u></i>".repeat(AR.EMAX)}</div><b id="${s === 0 ? "arenum" : "arfoeen"}">0</b>` + (s === 0 ? `<button class="drawb" id="ardraw" data-ar="draw"><b>Draw</b><small>${AR.DRAW_E} energy · <u id="arpile0">0</u> left</small></button>` : `<span class="foepile">Draw pile <u id="arpile1">0</u></span>`) + `</div>`;
+  const mana = s => `<div class="mana ${s === 0 ? "me" : "foe"}" id="mana${s}"><div class="mcry">${"<i><u></u></i>".repeat(AR.EMAX)}</div><b id="${s === 0 ? "arenum" : "arfoeen"}">0</b></div>`;
+  const pile = s => `<div class="a2pile ${s ? "foe" : "me"}"><div class="pcard"><span>♠</span><b class="pcount"><u id="arpile${s}">0</u></b></div>${s === 0 ? `<button class="drawb" id="ardraw" data-ar="draw"><b>Draw</b><small>${AR.DRAW_E} energy</small></button>` : ""}</div>`;
   $("#ck").className = "th-" + themeOf(AM.A.mode);
-  $("#ck").innerHTML = `<div class="amb">${"<i></i>".repeat(16)}</div><div class="ckwrap arwrap"><div class="ckhud"><button class="btn sm red" data-ar="menu">✕</button><span class="surge" id="arsurge"></span><button class="btn sm dark" data-ar="log" id="arlogb">Log</button>${AM.net ? '<button class="btn sm dark" data-me="emote" id="aremob" aria-label="Emotes">💬</button>' : ""}<button class="btn sm dark" data-ar="auto" id="arauto">Auto</button><button class="btn sm dark" data-ar="speed" id="arspeed">1×</button></div>` +
-    `<div class="zone foe"><div class="bench" id="arb1">${slots(1, "bench", 3)}</div>${hero(1)}${mana(1)}</div>` +
-    `<div class="arena" id="arena"><div class="lanes" id="arl1">${slots(1, "lane", 5)}</div><div class="crease"><span class="cl"></span><b class="clock" id="arclock">3:00</b><span class="cr"></span><span class="vsmsg" id="armsg"></span></div><div class="lanes" id="arl0">${slots(0, "lane", 5)}</div></div>` +
-    `<div class="zone me">${hero(0)}${mana(0)}</div><div class="handtray"><div class="bench" id="arb0">${slots(0, "bench", 3)}</div></div>` +
+  $("#ck").innerHTML = `<div class="amb">${"<i></i>".repeat(16)}</div><div class="ckwrap arwrap a2">` +
+    `<div class="a2top"><div class="a2l"><button class="btn sm red" data-ar="menu" aria-label="Menu">✕</button><button class="btn sm dark" data-ar="log" id="arlogb">Log</button></div>` +
+    `<div class="a2clk"><b class="clock" id="arclock">3:00</b><span class="surge" id="arsurge"></span></div>` +
+    `<div class="a2r">${AM.net ? '<button class="btn sm dark" data-me="emote" id="aremob" aria-label="Emotes">💬</button>' : ""}<button class="btn sm dark" data-ar="auto" id="arauto">Auto</button><button class="btn sm dark" data-ar="speed" id="arspeed">1×</button></div></div>` +
+    `<div class="a2zone foe">${pile(1)}${hero(1)}<div class="a2hand"><div class="bench" id="arb1">${slots(1, "bench", 3)}</div>${mana(1)}</div></div>` +
+    `<div class="arena a2arena" id="arena"><div class="lanes v foe" id="arl1">${slots(1, "lane", 5)}</div><div class="crease"><span class="cl"></span><span class="vsmsg" id="armsg"></span><span class="cr"></span></div><div class="lanes v me" id="arl0">${slots(0, "lane", 5)}</div></div>` +
+    `<div class="a2energy">${mana(0)}</div>` +
+    `<div class="a2zone me"><div class="a2hand"><div class="bench" id="arb0">${slots(0, "bench", 3)}</div></div>${hero(0)}${pile(0)}</div>` +
     `<div class="ckpanel" id="arpanel"></div><div class="arlog" id="arlog" hidden></div><div class="arfx" id="arfx"></div></div>`;
   document.querySelectorAll("#ck .amb i").forEach(i => { i.style.left = Math.random() * 100 + "%"; i.style.animationDelay = (-Math.random() * 14).toFixed(1) + "s"; i.style.animationDuration = (9 + Math.random() * 9).toFixed(1) + "s"; i.style.setProperty("--s", (3 + Math.random() * 5).toFixed(1) + "px"); });
+  if (AM.net) { const sp = $("#arspeed"); if (sp) sp.style.display = "none"; }
+}
+/* a drawn card floats up out of the pile and hangs there for two seconds, then flies to its place in the hand */
+function arDrawFloat(s, i) {
+  const slot = arSlotEl(s, i, "bench"), pile = document.querySelector(`.a2pile.${s ? "foe" : "me"} .pcard`); sfx("flip");
+  if (!slot || !pile || !uiMotion()) return;
+  slot.style.visibility = "hidden"; const b = slot.getBoundingClientRect(), a = pile.getBoundingClientRect();
+  const g = slot.cloneNode(true); g.removeAttribute("data-ar"); g.classList.remove("sel", "dim"); g.style.cssText = `position:fixed;left:${b.left}px;top:${b.top}px;width:${b.width}px;height:${b.height}px;margin:0;z-index:45;pointer-events:none;visibility:visible;translate:none;rotate:none;transform-origin:50% 50%`;
+  document.body.appendChild(g); const dx = a.left + a.width / 2 - (b.left + b.width / 2), dy = a.top + a.height / 2 - (b.top + b.height / 2), up = s ? 54 : -64, restore = () => { slot.style.visibility = ""; g.remove(); };
+  const an = g.animate([{ transform: `translate(${dx}px,${dy}px) scale(.7)`, opacity: 0 }, { transform: `translate(${dx}px,${dy + up}px) scale(1.75)`, opacity: 1, offset: .08, easing: "ease-in-out" }, { transform: `translate(${dx}px,${dy + up * .8}px) scale(1.75)`, opacity: 1, offset: .84, easing: "cubic-bezier(.5,0,.3,1)" }, { transform: "translate(0,0) scale(1)", opacity: 1 }], { duration: 2450, easing: "ease-out" });
+  an.onfinish = () => { restore(); sfx("tap"); }; setTimeout(restore, 3600);
 }
 const arSlotEl = (s, i, kind) => document.querySelector(`#ck .slot[data-s="${s}"][data-i="${i}"][data-kind="${kind}"]`);
 function arFill(el, u, s, kind) {
@@ -3367,7 +3437,7 @@ function arEvents(now) {
   for (const e0 of ev) {
     const e = Object.assign({}, e0); if (e.s != null) e.s ^= me;   // events speak in sim seats; the screen speaks in view sides
     const el = e.s != null && e.i != null ? laneEl(e.s, e.i) : null, col = elColor(e.el || (el && el._r && unit(e.s, e.i) && unit(e.s, e.i).el));
-    if (e.t === "draw") { const slot = arSlotEl(e.s, e.i, "bench"), src = e.s === 0 ? $("#ardraw") : document.querySelector(".foepile"); if (slot && src && uiMotion()) { const a = src.getBoundingClientRect(), b = slot.getBoundingClientRect(); slot.animate([{ transform: `translate(${a.left + a.width / 2 - b.left - b.width / 2}px,${a.top + a.height / 2 - b.top - b.height / 2}px) scale(.3) rotate(-12deg)`, opacity: .1 }, { transform: "none", opacity: 1 }], { duration: 440, easing: "cubic-bezier(.2,.9,.3,1.12)" }); } snd("flip"); continue; }
+    if (e.t === "draw") { arDrawFloat(e.s, e.i); continue; }
     if (e.t === "skill" && e.card && uiMotion()) { const hs = arSlotEl(e.s, e.b, "bench"), tg = e.ta === "ally" ? laneEl(e.s, e.ti) : e.ta === "enemy" ? laneEl(1 - e.s, e.ti) : $("#arena"); arGhostFly(hs, tg); }
     if (e.t === "strike") {
       const a = el, ts = 1 - e.s, tEl = e.ti >= 0 ? laneEl(ts, e.ti) : $("#core" + ts); if (!a || !tEl) continue;
@@ -3499,7 +3569,7 @@ document.addEventListener("click", e => {
     case "playcard": { const S0 = A.s[AM.me], sel = AM.sel, h = sel && sel.kind === "bench" ? S0.bench[sel.i] : null; if (!h || !h.skill) return; if (S0.energy < SKC[h.sid].c) return toast("Not enough energy."); arPut({ k: "play", b: sel.i }); AM.sel = null; AM.sig = ""; return; }
     case "draw": { if (A.over) return; const S0 = A.s[AM.me]; if (!S0.pile || !S0.pile.length) return toast("Your draw pile is empty."); if (!S0.bench.some(b => !b)) return toast("Your hand is full. Bring a card in first."); if (S0.energy < AR.DRAW_E) return toast("Drawing costs " + AR.DRAW_E + " energy."); sfx("select"); arPut({ k: "draw" }); AM.sig = ""; return; }
     case "menu": return openSheet(AM.net ? `<h2 class="fat">MATCH MENU</h2><p class="note" style="text-align:center">The fight keeps going while this is open.</p><div class="row c" style="margin-top:10px"><button class="btn red" data-ck="leave">Resign</button><button class="btn yellow" data-act="closeModal">Back to the fight</button></div>` : `<h2 class="fat">PAUSED</h2><div class="row c" style="margin-top:10px"><button class="btn red" data-ck="leave">Give up</button><button class="btn yellow" data-act="closeModal">Resume</button></div>`);
-    case "speed": AM.speed = AM.speed === 1 ? 2 : 1; el.textContent = AM.speed + "×"; return;
+    case "speed": AM.speed = AM.speed >= 3 ? 1 : AM.speed + 1; el.textContent = AM.speed + "×"; return;
     case "auto": AM.auto = !AM.auto; el.textContent = AM.auto ? "Auto: ON" : "Auto"; el.className = "btn sm " + (AM.auto ? "yellow" : "dark"); return;
     case "cancel": AM.mode = null; AM.sig = ""; return;
     case "log": AM.logOpen = !AM.logOpen; $("#arlog").hidden = !AM.logOpen; el.className = "btn sm " + (AM.logOpen ? "yellow" : "dark"); AM.logSig = ""; return;
@@ -3922,18 +3992,27 @@ function setVar(id, v) { P.vsel = P.vsel || {}; P.vsel[id] = v; scheduleSave(); 
 const STD_RATES = { slots: PACK_SLOTS };
 function activePools() {
   const w = weekNo(), legs = POOL.filter(c => c.lv === 5 && !c.ex), epics = POOL.filter(c => c.lv === 4), fl = legs[w % legs.length], fe = epics[(w * 3 + 1) % epics.length], fac = FAC_ORDER[(w + 3) % 8], el = ELKEYS[w % 8];
-  return [
+  const base = [
     { key: "std", id: "std", name: "Standard Summon", sub: "The everyday pool. Every card in Set 1.", slots: PACK_SLOTS, pity: 14, cost: { coins: ECON.std }, forever: true },
     { key: "prem", id: "prem", name: "Premium Summon", sub: "Better odds and a stronger hit. Every card in Set 1.", slots: PREM_SLOTS, pity: 8, cost: { gems: 50 }, forever: true },
     { key: "rate", id: "rate:" + w, name: "Rising Star", sub: "Two featured cards. Half of that rarity's pulls are the featured card.", slots: PREM_SLOTS, pity: 8, cost: { gems: 60 }, featured: [fl.id, fe.id], ends: weekLeft(), tone: "#ffd05a" },
     { key: "fest", id: "fest:" + w, name: "Faction Fest · " + FAC[fac], sub: FAC[fac] + " cards are four times as likely, and the hit card is always one.", slots: PREM_SLOTS, pity: 8, cost: { gems: 60 }, bias: c => facOf(c) === fac, biasName: FAC[fac], ends: weekLeft(), tone: FAC_TONE[fac] },
     { key: "event", id: "event:" + w, name: "Event · " + EL[el][0] + " Festival", sub: "The " + EL[el][0] + " Festival: two cards found nowhere else, and " + EL[el][0] + " cards are four times as likely. Event tickets work here.", slots: PREM_SLOTS, pity: 8, cost: { evt: 1, gems: 40 }, bias: c => (S1[c.id] || [])[0] === el, biasName: EL[el][0], ends: weekLeft(), tone: EL_TONE[el], event: true, el, featured: evOf(el).sort((a, b) => b.lv - a.lv).map(c => c.id), exclusive: true },
   ];
+  base.forEach(p => { p.group = p.key === "std" || p.key === "prem" ? "core" : "event"; });
+  /* themed banners: always on, one for each element, each race and each kind of ability. Same odds, price and pity rule as the Faction Fest (assumption: they copy it); the themed cards are four times as likely and the hit card is always one. */
+  const th = [];
+  ELKEYS.forEach(e => th.push({ key: "el:" + e, id: "el:" + e, group: "el", label: EL[e][0].toUpperCase(), name: EL[e][0] + " Surge", sub: EL[e][0] + " cards are four times as likely, and the hit card is always one.", slots: PREM_SLOTS, pity: 8, cost: { gems: 60 }, bias: c => arCard(c).el === e, biasName: EL[e][0], forever: true, tone: EL_TONE[e] }));
+  FAC_ORDER.forEach(f => th.push({ key: "fac:" + f, id: "fac:" + f, group: "fac", label: FAC[f].toUpperCase(), name: FAC[f] + " Rally", sub: FAC[f] + " cards are four times as likely, and the hit card is always one.", slots: PREM_SLOTS, pity: 8, cost: { gems: 60 }, bias: c => facOf(c) === f, biasName: FAC[f], forever: true, tone: FAC_TONE[f] }));
+  AB_BANNERS.forEach(([k, n, sub, list, tone]) => th.push({ key: "ab:" + k, id: "ab:" + k, group: "ab", label: n.toUpperCase(), name: n, sub: sub + ". These cards are four times as likely, and the hit card is always one.", slots: PREM_SLOTS, pity: 8, cost: { gems: 60 }, bias: c => list.includes(arCard(c).active), biasName: n, forever: true, tone }));
+  return base.concat(th);
 }
+const AB_BANNERS = [["strikers", "Strikers", "Cards whose skill hits hard: Strike, Arc or Volley", ["strike", "arc", "volley"], "#ff8a5a"], ["guardians", "Guardians", "Cards that heal, shield or cleanse", ["mend", "ward", "cleanse"], "#6fe0a0"], ["warbringers", "Warbringers", "Cards that empower, speed up or grow", ["empower", "gale", "pact", "overgrow"], "#ffd05a"], ["tacticians", "Tacticians", "Cards that freeze, disrupt or mark", ["freeze", "disrupt", "mark"], "#9fb4ff"]];
+const POOL_GROUPS = [["event", "Events"], ["core", "Core summons"], ["el", "Element banners"], ["fac", "Race banners"], ["ab", "Ability banners"]];
 const poolByKey = k => activePools().find(p => p.key === k) || activePools()[0];
 let SEL = "std", SV = "summon", SHSUB = "daily";
 const poolState = p => (P.pools[p.id] = P.pools[p.id] || { pity: 0, miss: false });
-const packLabel = k => { const p = poolByKey(k); return p.key === "std" ? "STANDARD" : p.key === "prem" ? "PREMIUM" : p.key === "rate" ? "RISING STAR" : p.key === "fest" ? "FACTION FEST" : "EVENT"; };
+const packLabel = k => { const p = poolByKey(k); if (p.label) return p.label; return p.key === "std" ? "STANDARD" : p.key === "prem" ? "PREMIUM" : p.key === "rate" ? "RISING STAR" : p.key === "fest" ? "FACTION FEST" : "EVENT"; };
 const packTone = k => { const p = poolByKey(k); return p.tone || ""; };
 
 /* ----- drawing cards ----- */
@@ -4052,19 +4131,13 @@ function setProgress() {
   return `<div class="panel"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><b class="fat" style="font-size:13px">SET 1</b><span class="note">${have} / ${POOL.length} cards</span></div><div class="bar" style="margin:6px 0 10px"><i style="width:${100 * have / POOL.length}%"></i></div><div class="setrows">${rows.map(x => `<div><span class="rtag r${x.r}">${RNAME[x.r]}</span><b>${x.n}/${x.t}</b></div>`).join("")}</div><p class="note" style="margin:10px 0 0;text-align:center">Event exclusives: <b>${evHave} / ${EVCARDS.length}</b></p></div>`;
 }
 function bannerHtml(p) {
-  const feat = p.featured ? BY[p.featured[0]] : null, on = p.key === SEL;
-  return `<button class="banner ${on ? "on" : ""} bk-${p.key}" data-act="pool" data-k="${p.key}" style="${p.tone ? "--bt:" + p.tone : ""}"><div class="bpk">${packHtml("mini", p.key)}</div><b class="fat">${esc(p.name.split(" · ")[0])}</b><small>${p.ends ? "Ends in " + leftTxt(p.ends) : "Always on"}</small></button>`;
-}
-function poolPanel(p) {
   const st = poolState(p), plan1 = payPlan(p, 1), planN = payPlan(p, ECON.multi), left = Math.max(0, p.pity - st.pity);
-  const feat = p.featured ? p.featured.map(id => cardHtml(BY[id], { attr: `data-act="detail" data-id="${id}"` })).join("") : "";
-  const evRow = p.event ? `<div class="evrow"><span class="ec t">${ic("ticket", "")}<b>${P.ev.tickets}</b><small>Event tickets</small></span><span class="ec s">${ic("medal", "")}<b>${P.ev.medals}</b><small>Event medals</small></span><button class="btn sm ${P.ev.loginDay === dayNo() ? "" : "yellow"}" data-act="evLogin" ${P.ev.loginDay === dayNo() ? "disabled" : ""}>${P.ev.loginDay === dayNo() ? "Claimed today" : "Claim +" + ECON.evLogin}</button></div><p class="note" style="text-align:center;margin:0 0 8px">Event tickets and medals disappear when the event ends. One ticket per win, up to ${ECON.evWinDay} a day.</p>` : "";
+  const feat = p.featured ? `<div class="bfeat">${p.featured.map(id => `<button data-act="detail" data-id="${id}"><img alt="" src="${artSrc(BY[id], true)}"><small>${esc(BY[id].name.split(",")[0])}</small></button>`).join("")}</div>` : "";
+  const ev = p.event ? `<div class="bev"><span>${ic("ticket", "")}${P.ev.tickets} event tickets</span><span>${ic("medal", "")}${P.ev.medals} event medals</span><button class="btn sm ${P.ev.loginDay === dayNo() ? "" : "yellow"}" data-act="evLogin" ${P.ev.loginDay === dayNo() ? "disabled" : ""}>${P.ev.loginDay === dayNo() ? "Claimed" : "Claim +" + ECON.evLogin}</button></div>` : "";
   const btn = (n, plan) => `<button class="btn ${plan.ok ? "yellow" : ""}" data-act="summon" data-k="${p.key}" data-n="${n}" ${plan.ok ? "" : "disabled"}><b class="sb">Summon ×${n}</b><small class="sp">${planLabel(plan) || "—"}</small></button>`;
-  return `<div class="panel poolpanel" style="${p.tone ? "--bt:" + p.tone : ""}"><div class="row" style="flex-wrap:nowrap;align-items:flex-start;gap:12px"><div class="packwrap">${packHtml("mini", p.key)}</div><div style="flex:1;min-width:0"><b class="fat" style="font-size:15px;display:block">${esc(p.name)}</b><small class="note">${esc(p.sub)}</small>${p.ends ? `<small class="ends">Ends in ${leftTxt(p.ends)}</small>` : ""}</div></div>` +
-    (feat ? `<p class="dlab" style="margin-top:12px">Featured</p><div class="featrow">${feat}</div>` : "") + evRow +
-    `<div class="pity" style="margin-top:12px"><small><span>LEGENDARY OR BETTER WITHIN</span><span>${left} summon${left === 1 ? "" : "s"}</span></small><div class="bar"><i style="width:${Math.min(100, 100 * st.pity / p.pity)}%"></i></div></div>` +
-    (p.featured ? `<p class="note" style="margin:6px 0 0">${st.miss ? "<b>Guaranteed:</b> your next Legendary is the featured one." : "The first Legendary or better is the featured Legendary half the time; if it is not, the next one is."}</p>` : "") +
-    `<div class="sumbtns">${btn(1, plan1)}${btn(ECON.multi, planN)}</div><div class="row c" style="margin-top:8px"><button class="btn sm dark" data-act="odds" data-k="${p.key}">Odds</button></div></div>`;
+  return `<div class="bnc" style="${p.tone ? "--bt:" + p.tone : ""}"><div class="bnh"><div class="bpk">${packHtml("mini", p.key)}</div><div class="bnt"><b class="fat">${esc(p.name)}</b><small>${esc(p.sub)}</small><span class="ends">${p.ends ? "Ends in " + leftTxt(p.ends) : "Always on"}</span></div></div>${feat}${ev}` +
+    `<div class="pity"><small><span>LEGENDARY OR BETTER WITHIN</span><span>${left} summon${left === 1 ? "" : "s"}</span></small><div class="bar"><i style="width:${Math.min(100, 100 * st.pity / p.pity)}%"></i></div></div>` +
+    `<div class="sumbtns">${btn(1, plan1)}${btn(ECON.multi, planN)}</div><button class="odds-link" data-act="odds" data-k="${p.key}">Odds</button></div>`;
 }
 function offerList(offers, sub) {
   return `<div class="list">${offers.map(o => { const used = P.shop.b[o.id] || 0, out = o.limit && used >= o.limit, can = Object.entries(o.cost).every(([r, n]) => have(r) >= n); return `<div class="panel item"><div class="t"><b>${esc(o.t)}</b><small>${o.limit ? `${o.limit - used} of ${o.limit} left` : "Always available"}</small>${!can && Object.keys(o.cost).length === 1 ? (([r, n]) => `<div class="bar" style="margin-top:6px"><i style="width:${Math.min(100, 100 * have(r) / n)}%"></i></div>`)(Object.entries(o.cost)[0]) : ""}</div><button class="btn sm ${can && !out ? "yellow" : ""}" data-act="buyOffer" data-id="${o.id}" ${out ? "disabled" : ""}><span class="cp">${priceChip(o)}</span></button></div>`; }).join("")}</div>`;
@@ -4074,7 +4147,7 @@ function viewSummon(v) {
   let h = `<div class="econ five"><span class="ec c">${ic("coin", "")}<b>${P.coins}</b><small>Coins</small></span><span class="ec g">${ic("gem", "")}<b>${P.gems}</b><small>Gems</small></span><span class="ec s">${ic("shard", "")}<b>${P.dust}</b><small>Shards</small></span><span class="ec t">${ic("ticket", "")}<b>${P.tickets}</b><small>Tokens</small></span><span class="ec m">${ic("medal", "")}<b>${P.medals}</b><small>Medals</small></span></div>` +
     `<div class="seg">${[["summon", "Summon"], ["exch", "Exchange"], ["shops", "Shops"]].map(([k, n]) => `<button class="${SV === k ? "on" : ""}" data-act="svtab" data-k="${k}">${n}</button>`).join("")}</div>`;
   if (SV === "summon") {
-    h += `<p class="note" style="text-align:center;margin:10px 0 6px">Choose a summon pool</p><div class="banners">${pools.map(bannerHtml).join("")}</div>${pools.length > 3 ? `<p class="bannerhint">Swipe to see all ${pools.length} pools ▸</p>` : ""}${poolPanel(p)}` +
+    h += POOL_GROUPS.map(([g, title]) => { const list = pools.filter(x => x.group === g); return list.length ? `<span class="ribbon ${g === "event" ? "gold" : ""}">${title}</span><div class="bnrow">${list.map(bannerHtml).join("")}</div>` : ""; }).join("") +
       `<p class="note" style="text-align:center;margin:10px 0 0">Free Standard packs: <b>${fi.n}/${PACK.freeMax}</b>${fi.n < PACK.freeMax ? " · the next in " + fmtT(fi.next) : ""}. Every summon pays medals by rarity.</p>` +
       `<div class="panel" style="margin-top:12px"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><div><b class="fat" style="font-size:12px">${BUNDLE.n} PACK TOKENS</b><br><small class="note">Saves ${BUNDLE.n * ECON.std - BUNDLE.coins} coins. Tokens pay for Standard summons.</small></div><button class="btn sm yellow" data-act="buyBundle" ${P.coins >= BUNDLE.coins ? "" : "disabled"}><span class="cp">${ic("coin", "")}${BUNDLE.coins}</span> Buy</button></div></div>` +
       `<span class="ribbon">COLLECTION</span>${setProgress()}` + (rec.length ? `<span class="ribbon green">RECENT PULLS</span><div class="recent">${rec.map(id => BY[id] ? cardHtml(BY[id], { attr: `data-act="detail" data-id="${id}"` }) : "").join("")}</div>` : "");
@@ -4276,6 +4349,7 @@ function emoteGot(i) {
 }
 
 /* ---------- favourites, where to get a card, deck covers ---------- */
+const favIco = id => `<button class="sico l ${P.fav && P.fav[id] ? "on" : ""}" data-me="fav" data-id="${id}" aria-label="Favourite">${P.fav && P.fav[id] ? "★" : "☆"}</button>`;
 const favBtn = id => `<button class="btn sm ${P.fav && P.fav[id] ? "yellow" : "dark"}" data-me="fav" data-id="${id}">${P.fav && P.fav[id] ? "★ Favourite" : "☆ Favourite"}</button>`;
 function whereTxt(c, n) {
   if (c.ev) return "Where to get it: the Event Summon or the Event shop.";
@@ -4441,7 +4515,7 @@ const TUT = [
   { hold: false, at: ["#arl0", "#arl1"], h: "Pick a target", b: "Tap one of your creatures, then tap an enemy. Your creature will focus that enemy until it falls.", done: A => A.s[AM.me].lane.some(u => u && u.lock != null) },
   { hold: false, at: ["#arl0"], h: "Use a skill", b: "Tap one of your creatures again and press its skill button once the energy is there. Skills hit harder than normal strikes.", done: () => AM.tut.cmds.use },
   { hold: false, at: ["#ardraw"], h: "Draw a card", b: "Your hand starts empty. Press Draw (4 energy) to pull the next card from your deck.", done: () => AM.tut.cmds.draw },
-  { hold: false, at: [".handtray", "#arl0"], h: "Play your card", b: "Tap the card in your hand. A creature: tap one of your lanes to swap it in. A skill card: tap its target, or press Play. Skill cards heal, shield or weaken, and are gone after one use.", done: () => AM.tut.cmds.swap || AM.tut.cmds.play },
+  { hold: false, at: ["#arb0", "#arl0"], h: "Play your card", b: "Tap the card in your hand. A creature: tap one of your lanes to swap it in. A skill card: tap its target, or press Play. Skill cards heal, shield or weaken, and are gone after one use.", done: () => AM.tut.cmds.swap || AM.tut.cmds.play },
   { hold: true, at: ["#core1"], h: "Break their core", b: "Bring the trainer's core to zero before the 3 minutes run out. The last minute doubles your energy. Good luck!" },
 ];
 
@@ -4520,10 +4594,10 @@ function lockSheet() { $("#modal").dataset.lock = "1"; }
 function detail(id) {
   seenInit(); if (P.own[id] > 0 && !P.seen[id]) { P.seen[id] = 1; scheduleSave(); chrome(); }
   const c = BY[id], n = P.own[id] || 0, cost = c.ex ? 0 : CRAFT[c.lv], k = arCard(c), rr = rarOf(c);
-  openSheet(`<div style="width:min(66%,248px);margin:2px auto 12px">${cardHtml(c, { miss: !n, tilt: true })}</div><div class="row" style="align-items:flex-start;flex-wrap:nowrap;gap:14px"><div style="min-width:0;flex:1"><h2 class="fat" style="text-align:left;font-size:18px;margin:2px 0 8px;line-height:1.15">${esc(c.name)}</h2><div class="row" style="gap:8px"><span class="rtag r${rr}">${RNAME[rr]}</span><span class="elchip el-${k.el}">${elIco(k.el)}${EL[k.el][0]}</span></div><p class="note" style="margin:8px 0 0;line-height:1.5">${esc(FAC[k.fac] || k.fac)}<br>Targets: ${TGT_NAME[k.tm]}<br>Strike ${+(k.atk * AR.ATKX * AR.STRIKE).toFixed(1)} every ${+(AR.IV / k.spd).toFixed(1)} s<br>Owned ${n} / 3<br>${whereTxt(c, n)}</p></div></div>` +
+  openSheet(`${n ? favIco(id) : ""}<button class="sico r" data-act="closeModal" aria-label="Close">✕</button><div style="width:min(66%,248px);margin:2px auto 12px">${cardHtml(c, { miss: !n, tilt: true })}</div><div class="row" style="align-items:flex-start;flex-wrap:nowrap;gap:14px"><div style="min-width:0;flex:1"><h2 class="fat" style="text-align:left;font-size:18px;margin:2px 0 8px;line-height:1.15">${esc(c.name)}</h2><div class="row" style="gap:8px"><span class="rtag r${rr}">${RNAME[rr]}</span><span class="elchip el-${k.el}">${elIco(k.el)}${EL[k.el][0]}</span></div><p class="note" style="margin:8px 0 0;line-height:1.5">${esc(FAC[k.fac] || k.fac)}<br>Targets: ${TGT_NAME[k.tm]}<br>Strike ${+(k.atk * AR.ATKX * AR.STRIKE).toFixed(1)} every ${+(AR.IV / k.spd).toFixed(1)} s<br>Owned ${n} / 3<br>${whereTxt(c, n)}</p></div></div>` +
     `${varsOwned(id).length ? `<div class="row c" style="margin:6px 0 0"><span class="note">Variant</span>${["std"].concat(VAR_ORDER.filter(x => varsOwned(id).includes(x))).map(x => `<button class="btn sm ${(selVariant(id) || "std") === x ? "yellow" : "dark"}" data-act="setvar" data-id="${id}" data-v="${x}">${x === "std" ? "Standard" : VARIANTS[x].name}</button>`).join("")}</div>` : ""}<div class="cstat"><div class="a"><b>${Math.round(k.atk * AR.ATKX)}</b><small>Attack</small></div><div class="h"><b>${hpOf(k)}</b><small>Health</small></div><div class="s"><b>${k.spd.toFixed(2)}</b><small>Speed</small></div><div class="c"><b>${k.cost}</b><small>Cost</small></div></div>` +
     `<div class="skillbox"><em>Passive · ${esc(PASS[k.passive][0])}</em>${passText(k.passive)}</div><div class="skillbox"><em>Skill · ${esc(actName(k))} · ${k.acost} energy</em>${actText(k.active)}</div>` +
-    `<div class="row c" style="margin-top:14px">${n ? favBtn(id) : ""}${c.ev ? '<span class="note">Only its Event Summon or Event shop gives this card.</span>' : c.ex ? '<span class="note">Only a pack gives this card.</span>' : `<button class="btn yellow sm" data-act="craft" data-id="${id}" ${P.dust < cost || n >= 3 ? "disabled" : ""}>Craft · ${cost} ${ic("shard")}</button>`}${n > 1 ? `<button class="btn sm" data-act="sell" data-id="${id}">Sell 1 · ${ECON.sell[rr]} ${ic("coin")}</button><button class="btn sm" data-act="breakc" data-id="${id}">Break 1 · ${DUST[c.ex ? "ex" : c.lv]} ${ic("shard")}</button>` : ""}<button class="btn dark sm" data-act="closeModal">Close</button></div>`);
+    `<div class="row c" style="margin-top:14px">${c.ev ? '<span class="note">Only its Event Summon or Event shop gives this card.</span>' : c.ex ? '<span class="note">Only a pack gives this card.</span>' : `<button class="btn yellow sm" data-act="craft" data-id="${id}" ${P.dust < cost || n >= 3 ? "disabled" : ""}>Craft · ${cost} ${ic("shard")}</button>`}${n > 1 ? `<button class="btn sm" data-act="sell" data-id="${id}">Sell 1 · ${ECON.sell[rr]} ${ic("coin")}</button><button class="btn sm" data-act="breakc" data-id="${id}">Break 1 · ${DUST[c.ex ? "ex" : c.lv]} ${ic("shard")}</button>` : ""}</div>`);
 }
 let DE = null;
 function editDeck(i) { DE = { i, name: P.decks[i].name, cards: P.decks[i].cards.slice() }; deckSheet(); }
