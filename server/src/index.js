@@ -5,7 +5,8 @@
 //   /hub?token=    one live connection per signed-in player: friends, who is online, and match invites that pop up on the other phone.
 // The Hub keeps accounts, friends and pending invites in the Durable Object's SQLite storage. Rooms and the queue keep nothing.
 import { CARDS, SKILLS } from "./cards.generated.js";
-import { SIM } from "./sim.generated.js";
+import { SIM, SIM_VER } from "./sim.generated.js";
+const STALE = "A new version of the game is out. Reload the page (or close and reopen the app) to update, then try again.";
 //   /match/start, /match/submit   SERVER AUTHORITY: a solo fight gets its seed, level and opponent deck from the server; afterwards the phone sends only the player's
 //                 commands and the server re-runs the whole fight (its own AI included) to decide who won. Online fights are recorded by the Room and re-run the same way.
 //                 The saved game may only count matches, wins, ranked results and campaign clears that were verified this way.
@@ -88,6 +89,7 @@ export class Room {
     let m = null; try { m = JSON.parse(msg); } catch (_) {}
     const att = ws.deserializeAttachment() || {};
     if (m && m.t === "auth") {   // who is this seat? the server looks the sign-in token up itself
+      if (m.ver !== SIM_VER) { try { ws.send(JSON.stringify({ t: "denied", why: STALE })); ws.close(1008, "version"); } catch (_) {} return; }
       const r = await this.hub("/_who", { token: m.token }); if (!r.ok) { try { ws.send('{"t":"denied","why":"Please sign in again."}'); ws.close(1008, "auth"); } catch (_) {} return; }
       ws.serializeAttachment({ ...att, lname: r.lname, name: r.name }); try { ws.send('{"t":"authed"}'); } catch (_) {} return;
     }
@@ -331,6 +333,7 @@ export class Hub {
       const now = Date.now();
       if (p === "/match/start") {
         if (this.rate("ms" + s.lname, 12)) return json({ ok: false, err: "Too many fights started. Wait a minute." });
+        if (String(b.ver || "") !== SIM_VER) return json({ ok: false, refused: true, err: STALE });
         const m = b.mode || {}, kind = String(m.kind || ""); let level, foe, opp = 0, key = "", boss = { core: 0, eMul: 0 };
         const cur = this.one("SELECT data FROM profiles WHERE lname=?", s.lname); let o = {}; try { o = cur ? JSON.parse(cur.data) || {} : {}; } catch (_) {}
         if (kind === "practice") { level = [0, 1, 2].includes(m.level) ? m.level : 1; foe = SIM.ckAiDeck(level); }
@@ -343,12 +346,13 @@ export class Hub {
         else return json({ ok: false, err: "Unknown mode." });
         const mid = hex(crypto.getRandomValues(new Uint8Array(12))), seed = crypto.getRandomValues(new Uint32Array(1))[0] >>> 1;
         this.sql.exec("DELETE FROM pend WHERE lname=? AND (at<? OR mid NOT IN (SELECT mid FROM pend WHERE lname=? ORDER BY at DESC LIMIT 3))", s.lname, now - 7200000, s.lname);
-        this.sql.exec("INSERT INTO pend VALUES (?,?,?,?)", mid, s.lname, now, JSON.stringify({ kind, level, foe, opp, key, boss, seed }));
+        this.sql.exec("INSERT INTO pend VALUES (?,?,?,?)", mid, s.lname, now, JSON.stringify({ kind, level, foe, opp, key, boss, seed, ver: SIM_VER }));
         return json({ ok: true, mid, seed, level, foe, opp });
       }
       const row = this.one("SELECT at, j FROM pend WHERE mid=? AND lname=?", String(b.mid || ""), s.lname); if (!row) return json({ ok: false, gone: true, err: "The server does not know that fight." });
       this.sql.exec("DELETE FROM pend WHERE mid=?", String(b.mid));
       let pm; try { pm = JSON.parse(row.j); } catch (_) { return json({ ok: false, bad: true, err: "Bad fight record." }); }
+      if (pm.ver !== SIM_VER) return json({ ok: false, gone: true, err: STALE });
       const why = this.deckWhy(s.lname, b.deck); if (why) return json({ ok: false, bad: true, err: why });
       const q = cleanQ(b.q, [0]); if (!q) return json({ ok: false, bad: true, err: "Bad command list." });
       let A; try { A = simRun(b.deck, pm.foe, [2, pm.level], pm.seed, pm.kind, pm.boss, q, true); } catch (_) { return json({ ok: false, bad: true, err: "The fight could not be re-run." }); }

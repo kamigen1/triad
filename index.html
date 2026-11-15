@@ -1608,7 +1608,7 @@ function cardHtml(c, o = {}) {
     `<div class="cost"><b>${k.cost}</b></div><div class="pips"><i class="pe">${elIco(k.el, "")}</i><i class="pf" style="--fc:${FAC_TONE[k.fac] || "#fff"}">${k.fac}</i></div>` +
     `<div class="shield"><b>${Math.round(k.atk * AR.ATKX)}</b></div><div class="hpb"><b>${hpOf(k)}</b></div>` + (o.count > 1 ? `<span class="cnt">×${o.count}</span>` : "") +
     `<div class="typeline"><i class="ti"></i>Unit · ${esc(fac)}<span>${k.spd.toFixed(1)} spd</span></div><div class="nameband"><b>${esc(c.name)}</b></div>` +
-    `<div class="rules"><p><b>${esc(PASS[k.passive][0])}.</b> ${passText(k.passive)}</p><p><b>${esc(actName(k))} · ${k.acost}⚡.</b> ${actText(k.active)}</p></div>` +
+    `<div class="rules"><p><b>${esc(passName(k))}.</b> ${passText(k.passive)}</p><p><b>${esc(actName(k))} · ${k.acost}⚡.</b> ${actText(k.active)}</p></div>` +
     `<div class="foot"><span>Set 1 · ${setNo}</span><span>${c.ev ? "Event " : ""}${RNAME[rr]}</span></div><div class="tint"></div></div>`;
 }
 /* the classic triad card (four side numbers), for the old Triad match and its deck editor only */
@@ -1921,7 +1921,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.12.02-a";
+const VER = "2026.12.03-b";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -2153,7 +2153,10 @@ function ckCard(c) {
   if (roll < .26) aid = "strike"; else if (roll < .5) aid = "mark"; else { const u = UTIL_BY[c.grp] || ["mend", "empower", "ward", "volley"]; aid = r() < .6 ? u[Math.floor(r() * u.length)] : ["mend", "empower", "ward", "overgrow", "volley", "disrupt"][Math.floor(r() * 6)]; }
   return (KC[c.id] = setKit(c, { id: c.id, name: c.name, cost, atk, hp, el, tribe: c.grp, rar, passive, active: aid, acost: ACT[aid].c }));
 }
-const actName = (k) => (k.active === "strike" || k.active === "mark" ? EL[k.el][0] + " " + ACT[k.active].n : ACT[k.active].n);
+/* names: a character may have its own (SKN, set1.js); every other card keeps the plain generic one */
+const SKN = {};
+const passName = (k) => { const e = SKN[k.id || k.cid]; return e ? e[0] : PASS[k.passive][0]; };
+const actName = (k) => { const e = SKN[k.id || k.cid]; if (e) return e[1]; return k.active === "strike" || k.active === "mark" ? EL[k.el][0] + " " + ACT[k.active].n : ACT[k.active].n; };
 let UID = 0;
 function ckUnit(cid) {
   const k = ckCard(BY[cid]); return { uid: ++UID, cid, name: k.name, el: k.el, atk: k.atk, hp: k.hp, max: k.hp, cost: k.cost, tribe: k.tribe, passive: k.passive, active: k.active, acost: k.acost, tmp: 0, pb: { a: 0, h: 0 }, shield: 0, mark: null, frozen: false, used: false, sponge: false, rar: k.rar };
@@ -2400,6 +2403,71 @@ const ORIG = {
 for (const [id, e] of Object.entries(ORIG)) { BY[id].name = e[0]; BY[id].orig = true; S1[id][0] = e[1]; S1[id][1] = e[2]; }
 /* CHARACTER CHAINS: one character in several forms, each form its own card (its own slot, rarity and numbers). The card sheet shows the chain so the forms can be found and compared. Nothing here changes how a card plays. */
 const CHAIN = { kradin: { name: "Kradin", forms: ["ff_ahriman", "ff_exdeath", "w_apocalypse"] } };
+/* AUTHORED KITS: every original character has a passive and a skill chosen for how it looks, with names to match (the numbers still come from the engine: AR.PS and AR.SK). Cards that are not characters keep the plain generic names.
+   [passive, skill, passive name, skill name] */
+const KIT = {
+  ff_sephiroth: ["voideater", "strike", "Black Glass Edge", "Nightglass Cut"],
+  herald: ["decree", "empower", "Lanternwarden's Writ", "Wardens, Forward"],
+  x_esper_leviathan: ["regen", "volley", "Magma Scales", "Cinder Breath"],
+  r_phoenix_pinion: ["mender", "mend", "Tidesong", "Tidecall"],
+  x_esper_anima: ["voideater", "pact", "Starless Gaze", "Hollow Star Pact"],
+  ifrit: ["berserk", "strike", "Ninefold Fury", "Foxfire"],
+  db_piccolo: ["guard", "ward", "Mossbound Hide", "Cairn Ward"],
+  bahamut: ["decree", "volley", "Oath of the Golden Host", "Sunsworn Sweep"],
+  dq_psaro: ["blood", "volley", "Weaver's Price", "Echoing Threads"],
+  ramuh: ["echo", "arc", "Double Cycle", "Arc Cannon"],
+  ff_ahriman: ["crit", "disrupt", "Spark Step", "Light Snuff"],
+  ff_exdeath: ["soul", "pact", "Shard Hunger", "Forge Pact"],
+  w_apocalypse: ["chain", "mark", "Blight Spread", "Blight Sight"],
+  zu: ["swift", "empower", "Ridge Runner", "Ridge Rush"],
+  a_adamant: ["guard", "ward", "Adamant Plate", "Lance Guard"],
+  metal_slime: ["swift", "strike", "Quickblade", "Hedgerow Cut"],
+  dq_mimic: ["mimic", "disrupt", "Lit Windows", "Cold Welcome"],
+  bandit_chief: ["berserk", "strike", "Chainbreaker's Rage", "Horn Charge"],
+  black_mage: ["soul", "strike", "Unlidded Gaze", "Shrine-Ring Bolt"],
+  folk_priestess: ["mender", "cleanse", "Crossroads Blessing", "Ribbon Veil"],
+  hero_white_mage: ["mender", "cleanse", "Gate Chant", "Dawn Name"],
+  malboro: ["thorns", "disrupt", "Glass Barbs", "Smoke Sting"],
+  hero_knight: ["laststand", "ward", "Lantern Resolve", "Lantern Shield"],
+  forgemaster: ["formation", "empower", "Forge Line", "Hammer Heat"],
+  killing_machine: ["berserk", "freeze", "Orbweaver Overdrive", "Static Web"],
+  phoenix: ["phoenix", "mend", "Ashborn Rebirth", "Ember Mend"],
+  shiva: ["chain", "freeze", "Rimeshatter", "Frozen Bulwark"],
+  titan: ["protector", "ward", "Sundered Peak", "Gold Seam Ward"],
+  x_esper_carbuncle: ["regen", "cleanse", "Dawn Lattice", "Lanternfall Blessing"],
+  nr_madara: ["soul", "volley", "Pale Hunger", "Court of Horns"],
+  op_whitebeard: ["regen", "overgrow", "Living City", "Grove Awakening"],
+  op_gol_d_roger: ["decree", "arc", "Oathwing Banner", "Wingbeat Arc"],
+  garuda: ["echo", "gale", "Twin Talons", "Skyrend Gale"],
+  voidwalker: ["voideater", "disrupt", "Unblinking Gaze", "Unveil"],
+  withered_king: ["soul", "disrupt", "Grave Wyrm Hunger", "Crown of Dust"],
+  blaze_lord: ["berserk", "strike", "Crimson Moon Fury", "Moonlit Duel"],
+  nr_itachi: ["crit", "strike", "Chainbreaker", "Oath-Chain Lash"],
+  juggernaut: ["laststand", "ward", "Crystal Plate", "Shell Harden"],
+  ff_lightning: ["crit", "arc", "Foundry Overload", "Skylance"],
+  w_excalibur: ["formation", "mark", "Orbit Alignment", "Star Fix"],
+  oathbound: ["decree", "cleanse", "Gate Writ", "Warden's Rite"],
+  behemoth: ["berserk", "strike", "Broken Chains", "Pit Charge"],
+  thornmother: ["protector", "ward", "Briar Guard", "Thorn Wall"],
+  tonberry: ["laststand", "strike", "Ghost Crew", "Phantom Broadside"],
+  ff_yuna: ["mender", "empower", "Safe-Water Glow", "Tideglow"],
+  op_law: ["pierce", "freeze", "Strait Surge", "Cold Toll"],
+  r_hermes_sandals: ["swift", "gale", "Monsoon Glide", "Cloud-Coil Gale"],
+  iron_giant: ["guard", "ward", "Rune Core", "Runeward"],
+  dq_hell_gladiator: ["soul", "strike", "Echo Silk", "Web Snap"],
+  coeurl: ["crit", "gale", "Storm Sting", "Wing Surge"],
+  r_sprint_shoes: ["swift", "gale", "Tailwind", "Lantern Run"],
+  dusk: ["vamp", "pact", "Moonbite", "Hunter's Bargain"],
+  golem: ["guard", "ward", "Moss Hide", "Bramble Wall"],
+  op_chopper: ["berserk", "mark", "Frenzy Bite", "Scent the Blood"],
+  ff_chocobo: ["swift", "gale", "Weather Runner", "Gale Dash"],
+  db_frieza: ["amp", "freeze", "Winter's Maw", "Rime Bite"],
+  hero_dragoon: ["echo", "strike", "Double Draw", "Thornshot"],
+  x_esper_diabolos: ["blood", "disrupt", "Undying Court", "Crown Break"],
+  slime: ["guard", "mend", "Gelatin Crown", "Crown Jelly Mend"],
+  warlord: ["decree", "empower", "Emberbrand Rally", "Brand the Blade"],
+};
+for (const [id, e] of Object.entries(KIT)) { if (!S1[id]) continue; S1[id][2] = e[0]; S1[id][3] = e[1]; SKN[id] = [e[2], e[3]]; }
 const POOL = C.filter(c => S1[c.id]);            // what packs, opponents and the campaign draw from (the 100 base cards; event cards are not in it)
 /* EVENT CARDS: two exclusives per element, one Legendary and one Epic. They come only from that element's Event Summon and Event shop, which run one week in every eight
    (the festival rotates through the eight elements). They are never in any other pool, never craftable, and never sold by the Exchange. Same stat budget and rules as any card of their rarity. */
@@ -2441,9 +2509,9 @@ Object.assign(PASS, {
   echo: ["Echo", "Every third strike hits twice"], crit: ["Overload", "Every fourth strike hits for double"],
 });
 /* role: [health multiplier, attack multiplier]; f (fast) is +0.1 speed, applied in arCard */
-/* NUDGE: a per-card multiplier on health and speed from the balance sweep (cards whose win rate sat off their rarity's average, refit against the Hard AI, match levels and the current numbers). Re-run the sweep after changing a kit.
+/* NUDGE: a per-card multiplier on health and speed from the balance sweep (cards whose win rate sat off their rarity's average, refit against the Hard AI, match levels and the current numbers; refit again 2026-12-03 after the kit rebuild and AR.RATK). Re-run the sweep after changing a kit.
    ATKADD: flat base attack for a card whose rarity budget leaves it with almost none (armour). */
-const NUDGE = {"healslime":0.83,"flan":1.07,"coeurl":0.95,"zu":0.94,"black_mage":0.95,"killing_machine":0.95,"tonberry":0.85,"iron_giant":0.76,"behemoth":1.09,"frost_queen":1.22,"archmage":0.95,"shiva":1.06,"bandit_chief":0.82,"hero_black_mage":1.56,"hero_ninja":0.81,"folk_guide":0.93,"folk_merchant":1.11,"folk_outrider":0.92,"r_hermes_sandals":1.26,"x_esper_diabolos":1.02,"ff_sephiroth":1.05,"ff_yuna":0.82,"dq_bubble_slime":0.79,"dq_mimic":1.09,"db_krillin":1.1,"db_piccolo":1.15,"nr_rock_lee":1.08,"nr_kakashi":1.32,"nr_itachi":0.88,"op_chopper":1.15,"op_gol_d_roger":0.9,"goblin":1.16,"dracky":1.24,"cactuar":1.14,"shadow":0.6,"bomb":0.94,"metal_slime":1.14,"dusk":0.88,"thornmother":0.85,"forgemaster":0.81,"juggernaut":1.08,"oathbound":0.79,"voidwalker":0.88,"withered_king":1.11,"ramuh":1.02,"titan":0.9,"phoenix":1.02,"bahamut":0.88,"bandit":1.05,"dominant_phoenix":1.26,"dominant_shiva":0.91,"hero_mime":0.85,"hero_thief":0.89,"hero_time_mage":0.9,"folk_blacksmith":0.77,"w_icebrand":0.87,"w_defender":0.89,"w_excalibur":1.05,"w_apocalypse":0.83,"a_dragon":0.85,"r_phoenix_pinion":1.08,"x_esper_leviathan":1.14,"ff_ahriman":0.89,"ff_exdeath":0.76,"ff_lightning":0.99,"op_sanji":1.12,"warlord":0.86,"hero_dragoon":1.05,"w_blood_sword":0.95,"king_slime":1.05,"oracle":0.94,"garuda":0.93,"ifrit":0.95,"w_kingdom_key":0.95,"x_esper_anima":0.94,"ff_chocobo":0.97,"dq_hell_gladiator":1.03,"herald":0.97,"dq_psaro":0.97,"op_whitebeard":1.03,"malboro":1.03,"r_protect_ring":0.96,"ev_fire_l":0.97,"ev_fire_e":0.71,"ev_water_l":1.04,"ev_water_e":1.14,"ev_wind_l":0.87,"ev_wind_e":0.76,"ev_earth_l":0.94,"ev_earth_e":0.94,"ev_lightning_l":0.83,"ev_lightning_e":0.88,"ev_ice_l":1.03,"ev_ice_e":1.13,"ev_light_e":1.24,"ev_dark_l":0.8,"ev_dark_e":0.71};
+const NUDGE = {"healslime":0.81,"flan":1.06,"coeurl":1,"zu":0.9,"black_mage":0.99,"killing_machine":0.97,"tonberry":0.89,"iron_giant":0.76,"behemoth":1.15,"frost_queen":1.24,"archmage":0.86,"shiva":1.04,"bandit_chief":0.72,"hero_black_mage":1.4,"hero_ninja":0.8,"folk_guide":0.91,"folk_merchant":1.16,"folk_outrider":0.9,"r_hermes_sandals":1.28,"x_esper_diabolos":1.07,"ff_sephiroth":1.06,"ff_yuna":0.74,"dq_bubble_slime":0.79,"dq_mimic":1.05,"db_krillin":1.18,"db_piccolo":1.12,"nr_rock_lee":1.07,"nr_kakashi":1.37,"nr_itachi":0.81,"op_chopper":1.21,"op_gol_d_roger":0.84,"goblin":1.11,"dracky":1.32,"cactuar":1.09,"shadow":0.72,"bomb":0.89,"metal_slime":0.99,"dusk":0.92,"thornmother":0.82,"forgemaster":0.81,"juggernaut":1.1,"oathbound":0.82,"voidwalker":0.95,"withered_king":1.22,"ramuh":0.98,"titan":0.89,"phoenix":1,"bahamut":0.9,"bandit":1.06,"dominant_phoenix":1.16,"dominant_shiva":0.91,"hero_mime":0.82,"hero_thief":0.87,"hero_time_mage":0.87,"folk_blacksmith":0.79,"w_icebrand":0.85,"w_defender":0.87,"w_excalibur":1.05,"w_apocalypse":0.86,"a_dragon":0.9,"r_phoenix_pinion":1.16,"x_esper_leviathan":1.09,"ff_ahriman":0.88,"ff_exdeath":0.83,"ff_lightning":0.91,"op_sanji":1.08,"warlord":0.89,"hero_dragoon":1.06,"w_blood_sword":0.85,"king_slime":1.03,"oracle":0.97,"garuda":0.95,"ifrit":0.91,"w_kingdom_key":0.95,"x_esper_anima":0.97,"ff_chocobo":0.98,"dq_hell_gladiator":0.99,"herald":1.04,"dq_psaro":0.95,"op_whitebeard":0.96,"malboro":1.02,"r_protect_ring":0.95,"ev_fire_l":0.97,"ev_fire_e":0.71,"ev_water_l":1.04,"ev_water_e":1.14,"ev_wind_l":0.87,"ev_wind_e":0.76,"ev_earth_l":0.94,"ev_earth_e":0.94,"ev_lightning_l":0.83,"ev_lightning_e":0.88,"ev_ice_l":1.03,"ev_ice_e":1.13,"ev_light_e":1.24,"ev_dark_l":0.8,"ev_dark_e":0.71,"slime":1.09,"she_slime":1.04,"soldier":1.08,"golem":1.01,"blaze_lord":1.01,"hero_knight":0.96,"hero_monk":0.93,"hero_white_mage":1.02,"folk_priestess":0.97,"w_mythril_sword":0.99,"w_flametongue":0.99,"a_adamant":0.96,"r_sprint_shoes":0.99,"x_esper_carbuncle":0.97,"db_mr_satan":0.99,"db_frieza":0.95,"nr_madara":0.98,"op_law":1.04};
 const ATKADD = { a_dragon: 1 };
 const ROLE = { t: [1.4, .95], g: [.9, 1.25], f: [1, 1] };
 /* called by ckCard for cards in the set: replaces the generated element, passive and skill with the authored ones */
@@ -2548,6 +2616,7 @@ const ACOST = { disrupt: 1, mark: 1, mend: 2, cleanse: 2, ward: 2, empower: 3, g
 /* skill strengths in 'stat points' (HP-type ones are multiplied by HPX): the numbers the balance sweep tunes */
 /* passive strengths (same idea) */
 /* rarity: extra health on top of the card's own stats, by rarity (1 = common ... 6) */
+AR.RATK = { 1: 1.17, 2: 1.1, 3: 1, 4: 1, 5: .96, 6: .96 };   // attack by rarity: commons hit a little harder and legendaries a little softer, so a deck of low rarity cards stays in the fight against a high one (AI vs AI: the weaker deck wins 42 to 47 percent of the time, same-tier decks 47 to 49)
 AR.RHP = { 1: 1.4, 2: 1.22, 3: 1.02, 4: .93, 5: .79, 6: .79 };
 AR.PS = { mender: 0.3, fortify: 0.6, rally: 0.12, grow: 0.17, lastwords: 0.22, battery: 0.1, berserk: 5.5, amp: 3.2, overkill: 1, thorns: 0.35, spongeT: 10, pack: 1.3, guard: 0.85, pierce: 0.3, swift: 1.15, vamp: 0.6, soul: 0.15, laststand: 3, lsGuard: 0.7, blood: 0.6, bloodCost: 0.05, chainAmp: 2.2, decree: 1.1, phoenix: 0.15, formation: 0.5, treasure: 7, regen: 0.011, crit: 2.2, voideater: 1.15 };
 AR.SK = { mend: 1.5, empower: 5.5, empowerT: 8, overgrow: 1.25, ward: 1.8, volley: 4.0, strike: 1.4, gale: 1.7, galeT: 10, arc: 1.3, freezeT: 2.8, cleanse: 1.3, pact: 8.5, pactT: 8, pactCost: 0.1 };
@@ -2562,7 +2631,7 @@ const ARC = {};
 function arCard(c) {
   if (ARC[c.id]) return ARC[c.id]; const k = ckCard(c), r = rngOf("ar" + c.id);
   const spd = Math.round(((SPD_BY[c.grp] || 1) * (.9 + r() * .2) + (k.role === "f" ? .1 : 0)) * (k.nudge || 1) * 100) / 100;
-  return (ARC[c.id] = Object.assign({}, k, { spd, tm: TGT_BY[c.grp] || "nearest", acost: ACOST[k.active] }));
+  return (ARC[c.id] = Object.assign({}, k, { spd, tm: TGT_BY[c.grp] || "nearest", acost: ACOST[k.active], atk: k.atk * (AR.RATK[k.rar] || 1) }));
 }
 function arUnit(A, cid) {
   const k = arCard(BY[cid]), spd = k.spd * (k.passive === "swift" ? AR.PS.swift : 1);
@@ -2974,7 +3043,7 @@ let CKD = null;
 const SLOT_NAME = k => "Slot " + (k + 1);
 function deckEditor(i) { ckInit(); const cs = P.cd[i].cards.slice(); CKD = { i, cards: cs, orig: cs.slice(), name: P.cd[i].name, sel: 0, el: "all", sort: "cost", cmp: null, undo: [], flash: -1, tab: "cr" }; deckSheet2(); }
 const deckDirty = D => JSON.stringify(D.cards) !== JSON.stringify(D.orig) || (D.name || "") !== P.cd[D.i].name;
-function deckKit(id) { if (isSkill(id)) return { id, skill: true, k: SKC[id], name: SKC[id].n, cost: SKC[id].c, text: skText(id) }; const c = BY[id]; if (!c) return null; const k = arCard(c); return { id, c, k, atk: Math.round(k.atk * AR.ATKX), hp: hpOf(k), spd: +k.spd.toFixed(2), cost: k.cost, acost: k.acost, act: actName(k), pass: (PASS[k.passive] || [k.passive || "none"])[0], el: k.el, fac: k.fac }; }
+function deckKit(id) { if (isSkill(id)) return { id, skill: true, k: SKC[id], name: SKC[id].n, cost: SKC[id].c, text: skText(id) }; const c = BY[id]; if (!c) return null; const k = arCard(c); return { id, c, k, atk: Math.round(k.atk * AR.ATKX), hp: hpOf(k), spd: +k.spd.toFixed(2), cost: k.cost, acost: k.acost, act: actName(k), pass: PASS[k.passive] ? passName(k) : (k.passive || "none"), el: k.el, fac: k.fac }; }
 /* why a proposed deck is not allowed (copy limits and what the player owns), or "" */
 function deckRules(cards) {
   const n = {}; let sk = 0, cr = 0;
@@ -3396,7 +3465,7 @@ function arInfo() {
   const u = sel.kind === "bench" ? A.s[sel.s ^ me].bench[sel.i] : A.s[sel.s ^ me].lane[sel.i]; if (!u) return;
   if (u.skill) { const k = SKC[u.sid]; return openSheet(`<h2 class="fat">${esc(k.n)}</h2><div class="skillbox"><em>Skill card · ${k.c} energy · ${k.t === "ally" ? "one of your cards" : k.t === "enemy" ? "one enemy card" : "affects a whole side"}</em>${esc(skText(u.sid))}</div><p class="note" style="text-align:center">Used once, then it is gone.</p><div class="row c" style="margin-top:12px"><button class="btn yellow" data-act="closeModal">Back to the fight</button></div>`); }
   openSheet(`<h2 class="fat">${esc(u.name)}</h2><div class="row" style="gap:8px;justify-content:center"><span class="elchip el-${u.el}">${elIco(u.el)}${EL[u.el][0]}</span><span class="note">${esc(FAC[u.fac] || u.fac)} · targets ${esc(TGT_NAME[u.tm])}</span></div>` +
-    `<div class="skillbox"><em>Passive · ${esc(PASS[u.passive][0])}</em>${passText(u.passive)}</div><div class="skillbox"><em>Skill · ${esc(actName(u))} · ${u.acost} energy</em>${actText(u.active)}</div>` +
+    `<div class="skillbox"><em>Passive · ${esc(passName(u))}</em>${passText(u.passive)}</div><div class="skillbox"><em>Skill · ${esc(actName(u))} · ${u.acost} energy</em>${actText(u.active)}</div>` +
     `<div class="skillbox"><em>Match level ${u.lv}</em>${lvText(u)}</div>${u.mark ? `<div class="skillbox"><em>Marked</em><span class="elchip el-${u.mark.el}">${elIco(u.mark.el)}${EL[u.mark.el][0]}</span> Extra damage from the matching element.</div>` : ""}<div class="row c" style="margin-top:12px"><button class="btn yellow" data-act="closeModal">Back to the fight</button></div>`);
 }
 function arUpdate(now) {
@@ -3673,7 +3742,7 @@ function cknSrvConnect2(code, opts) {
     else if (m.t === "left") { if (G && G.online && !G.over) arWin("Your opponent left."); else if (!me.started) toast("Your friend left the room."); }
     else if (m.t === "full") toast("That room is full.");
   };
-  ws.onopen = () => send({ t: "auth", token: ACC ? ACC.token : "" });
+  ws.onopen = () => send({ t: "auth", token: ACC ? ACC.token : "", ver: VER });
   ws.onerror = () => { if (!me.started) toast("Could not reach the server."); };
   ws.onclose = () => { if (SRVC === me && G && G.online && !G.over && me.started) arWin("Connection lost.") };
   return me;
@@ -4455,7 +4524,7 @@ async function matchStart(mode, level) {
   try {
     if (P && P.us && typeof cloudPushNow === "function") await cloudPushNow();   // the server checks the deck and the unlocked stage against the saved game
     const ctl = new AbortController(), tm = setTimeout(() => ctl.abort(), 6000);
-    const r = await fetch(SERVER_HTTP + "/match/start", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ token: ACC.token, mode: { kind: mode.kind, ch: mode.ch, k: mode.k, level } }), signal: ctl.signal });
+    const r = await fetch(SERVER_HTTP + "/match/start", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ token: ACC.token, ver: VER, mode: { kind: mode.kind, ch: mode.ch, k: mode.k, level } }), signal: ctl.signal });
     clearTimeout(tm); const j = await r.json(); if (j.ok) return j; if (r.status >= 500 || j.auth) return null; return { refused: true, err: j.err };
   } catch (_) { return null; }
 }
@@ -4618,7 +4687,7 @@ function detail(id) {
   const c = BY[id], n = P.own[id] || 0, cost = c.ex ? 0 : CRAFT[c.lv], k = arCard(c), rr = rarOf(c);
   openSheet(`${n ? favIco(id) : ""}<button class="sico r" data-act="closeModal" aria-label="Close">✕</button><div style="width:min(66%,248px);margin:2px auto 12px">${cardHtml(c, { miss: !n, tilt: true })}</div><div class="row" style="align-items:flex-start;flex-wrap:nowrap;gap:14px"><div style="min-width:0;flex:1"><h2 class="fat" style="text-align:left;font-size:18px;margin:2px 0 8px;line-height:1.15">${esc(c.name)}</h2><div class="row" style="gap:8px"><span class="rtag r${rr}">${RNAME[rr]}</span><span class="elchip el-${k.el}">${elIco(k.el)}${EL[k.el][0]}</span></div><p class="note" style="margin:8px 0 0;line-height:1.5">${esc(FAC[k.fac] || k.fac)}<br>Targets: ${TGT_NAME[k.tm]}<br>Strike ${+(k.atk * AR.ATKX * AR.STRIKE).toFixed(1)} every ${+(AR.IV / k.spd).toFixed(1)} s<br>Owned ${n} / 3<br>${whereTxt(c, n)}</p></div></div>` +
     `${varsOwned(id).length ? `<div class="row c" style="margin:6px 0 0"><span class="note">Variant</span>${["std"].concat(VAR_ORDER.filter(x => varsOwned(id).includes(x))).map(x => `<button class="btn sm ${(selVariant(id) || "std") === x ? "yellow" : "dark"}" data-act="setvar" data-id="${id}" data-v="${x}">${x === "std" ? "Standard" : VARIANTS[x].name}</button>`).join("")}</div>` : ""}<div class="cstat"><div class="a"><b>${Math.round(k.atk * AR.ATKX)}</b><small>Attack</small></div><div class="h"><b>${hpOf(k)}</b><small>Health</small></div><div class="s"><b>${k.spd.toFixed(2)}</b><small>Speed</small></div><div class="c"><b>${k.cost}</b><small>Cost</small></div></div>` +
-    `${chainStrip(id)}<div class="skillbox"><em>Passive · ${esc(PASS[k.passive][0])}</em>${passText(k.passive)}</div><div class="skillbox"><em>Skill · ${esc(actName(k))} · ${k.acost} energy</em>${actText(k.active)}</div>` +
+    `${chainStrip(id)}<div class="skillbox"><em>Passive · ${esc(passName(k))}</em>${passText(k.passive)}</div><div class="skillbox"><em>Skill · ${esc(actName(k))} · ${k.acost} energy</em>${actText(k.active)}</div>` +
     `<div class="row c" style="margin-top:14px">${c.ev ? '<span class="note">Only its Event Summon or Event shop gives this card.</span>' : c.ex ? '<span class="note">Only a pack gives this card.</span>' : `<button class="btn yellow sm" data-act="craft" data-id="${id}" ${P.dust < cost || n >= 3 ? "disabled" : ""}>Craft · ${cost} ${ic("shard")}</button>`}${n > 1 ? `<button class="btn sm" data-act="sell" data-id="${id}">Sell 1 · ${ECON.sell[rr]} ${ic("coin")}</button><button class="btn sm" data-act="breakc" data-id="${id}">Break 1 · ${DUST[c.ex ? "ex" : c.lv]} ${ic("shard")}</button>` : ""}</div>`);
 }
 let DE = null;
