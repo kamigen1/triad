@@ -277,6 +277,8 @@ const S1 = {
 const ORIG = {
   ff_sephiroth: ["Veyr, the Nightglass", "dark", "V"], herald: ["Auralis, Dawnvein", "light", "C"], x_esper_leviathan: ["Cindervault", "fire", "A"], r_phoenix_pinion: ["Nerissa, Tidecaller", "water", "C"], x_esper_anima: ["Oryn, the Hollow Star", "dark", "V"],
   ifrit: ["Yuzari, the Ninefold Flame", "fire", "B"], db_piccolo: ["Cairnroot", "earth", "A"], bahamut: ["Solvar, the Golden Oath", "light", "H"], dq_psaro: ["Nyxara, Weaver of Echoes", "dark", "D"], ramuh: ["Axiom-09", "lightning", "M"],
+  // third wave (5): art cut from the fifth sheet
+  hero_white_mage: ["Hinoe, Shrine Keeper", "light", "H"], malboro: ["Venomtail, the Glass Scorpion", "dark", "B"], hero_knight: ["Ashcloak, the Wandering Warden", "light", "H"], forgemaster: ["Cindergrave, the Forge Below", "fire", "A"], killing_machine: ["Axiom-07, Orbweaver", "lightning", "M"],
   // second wave (30): art cut from the four sheets of 2026-11; lore in LORE.md
   phoenix: ["Pyrelle, the Ashborn", "fire", "C"], shiva: ["Glaciarch, the Frozen Bulwark", "ice", "M"], titan: ["Aurumax, the Sundered Peak", "earth", "A"], x_esper_carbuncle: ["Seraphel, Lattice of Dawn", "light", "C"],
   nr_madara: ["Lilivane, the Pale Horn", "dark", "D"], op_whitebeard: ["Eldergrove, the Living City", "earth", "A"], op_gol_d_roger: ["Halcyra, the Oathwing", "light", "A"], garuda: ["Skyrend, the Gilded Gale", "wind", "B"],
