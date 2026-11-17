@@ -1923,7 +1923,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.12.06-a";
+const VER = "2026.12.06-b";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -2338,19 +2338,20 @@ function withSkills(deck, level, r) {
 /* ===== DECK STYLES. A deck is more than twelve good cards: these are the plans a deck can have. Each style names the passives and skills that serve it and the skill cards that fit.
    The computer builds its opponents around one (so no two fights feel alike) and the deck editor tells the player which style their deck leans toward and can fill empty slots by style. ===== */
 const ARCH = {
-  rush: { n: "Rush", d: "Hit first and hardest: fast, aggressive cards and attack boosts, to win before the other side sets up.", pass: ["swift", "berserk", "crit", "echo", "overkill", "blood", "pierce", "soul", "amp"], act: ["empower", "gale", "strike", "pact", "arc"], sk: ["sk_empower", "sk_frenzy", "sk_gale", "sk_sharpen"] },
-  fortress: { n: "Fortress", d: "Take the hits and wait: guards, shields and thorns that grind the attacker down, with a weakening skill to turn it around.", pass: ["guard", "protector", "sponge", "laststand", "thorns", "fortify", "reserve", "pierce"], act: ["ward", "mend", "strike"], sk: ["sk_ward", "sk_aegis", "sk_massward", "sk_weaken", "sk_empower"] },
-  control: { n: "Control", d: "Stop the other side playing: freezes, strips and marks, so their best cards never get to act.", pass: ["voideater", "mimic", "chain", "amp", "pierce"], act: ["freeze", "disrupt", "mark", "arc"], sk: ["sk_freeze", "sk_massfreeze", "sk_disrupt", "sk_massdisrupt", "sk_weaken", "sk_massweaken"] },
-  sustain: { n: "Sustain", d: "Outlast them: healing, regeneration and second lives, so every fight goes long in your favour.", pass: ["mender", "regen", "phoenix", "vamp", "lastwords", "fortify"], act: ["mend", "cleanse", "overgrow"], sk: ["sk_mend", "sk_mend2", "sk_massheal", "sk_cleanse", "sk_vitality"] },
-  rally: { n: "Rally", d: "Win together: cards that make their neighbours and their faction stronger, grown by buffs.", pass: ["decree", "pack", "formation", "rally", "grow", "battery", "treasure"], act: ["empower", "overgrow", "gale"], sk: ["sk_rally", "sk_overgrow", "sk_empower", "sk_sharpen"] },
-  reaction: { n: "Reactions", d: "Set up element combos: two elements that react, marks to start the chain, and the cards that cash it in.", pass: ["amp", "chain"], act: ["mark", "strike", "arc"], sk: [], special: true },
+  rush: { n: "Rush", d: "Hit first and hardest: fast, aggressive cards and attack boosts, to win before the other side sets up.", pass: ["swift", "berserk", "crit", "echo", "overkill", "blood", "pierce", "soul", "amp"], act: ["buff", "haste", "pact", "fire", "lightning", "hit", "wind"], sk: ["sk_empower", "sk_frenzy", "sk_gale", "sk_sharpen"] },
+  fortress: { n: "Fortress", d: "Take the hits and wait: guards, shields and thorns that grind the attacker down, with a weakening skill to turn it around.", pass: ["guard", "protector", "sponge", "laststand", "thorns", "fortify", "reserve", "pierce"], act: ["weaken", "vuln"], sk: ["sk_ward", "sk_aegis", "sk_massward", "sk_weaken", "sk_empower"] },
+  control: { n: "Control", d: "Stop the other side playing: freezes, strips and marks, so their best cards never get to act.", pass: ["voideater", "mimic", "chain", "amp", "pierce"], act: ["stun", "strip", "silence", "slow", "mark", "ice", "fate"], sk: ["sk_freeze", "sk_massfreeze", "sk_disrupt", "sk_massdisrupt", "sk_weaken", "sk_massweaken"] },
+  sustain: { n: "Sustain", d: "Outlast them: healing, regeneration and second lives, so every fight goes long in your favour.", pass: ["mender", "regen", "phoenix", "vamp", "lastwords", "fortify"], act: ["heal", "regen", "cleanse", "grow", "light"], sk: ["sk_mend", "sk_mend2", "sk_massheal", "sk_cleanse", "sk_vitality"] },
+  rally: { n: "Rally", d: "Win together: cards that make their neighbours and their faction stronger, grown by buffs.", pass: ["decree", "pack", "formation", "rally", "grow", "battery", "treasure"], act: ["buff", "grow", "haste", "light"], sk: ["sk_rally", "sk_overgrow", "sk_empower", "sk_sharpen"] },
+  reaction: { n: "Reactions", d: "Set up element combos: two elements that react, marks to start the chain, and the cards that cash it in.", pass: ["amp"], act: ["mark"], sk: [], special: true },
 };
 const REACT_PAIRS = [["water", "lightning"], ["ice", "fire"], ["wind", "earth"], ["fire", "wind"], ["light", "dark"], ["water", "ice"]];
-const archFit = (k, a) => (a.pass.includes(k.passive) ? 2 : 0) + (a.act.includes(k.active) ? 2 : 0);
+const archFit = (k, a) => (a.pass.includes(k.passive) ? 2 : 0) + (a.act.includes(k.active) || (typeof ABIL !== "undefined" && ABIL[k.active] && a.act.includes(ABIL[k.active].fam)) ? 2 : 0);
+let RARW = .35;
 function ckAiDeck(level, archId) {
   const keys = Object.keys(ARCH), id = ARCH[archId] ? archId : keys[Math.floor(Math.random() * keys.length)], a = ARCH[id], pair = REACT_PAIRS[Math.floor(Math.random() * REACT_PAIRS.length)];
   const maxR = level === 0 ? 2 : level === 1 ? 4 : 6, base = level >= 1 && typeof POOLALL !== "undefined" ? POOLALL : POOL, pool = base.filter(c => rarOf(c) <= maxR && !(c.ex && level < 2));
-  const score = c => { const k = ckCard(c); let s = a.special ? (k.el === pair[0] || k.el === pair[1] ? 1.8 : 0) + archFit(k, a) * .5 : archFit(k, a); return s + Math.random() * 2.4; };
+  const score = c => { const k = ckCard(c); let s = a.special ? (k.el === pair[0] || k.el === pair[1] ? 1.8 : 0) + archFit(k, a) * .5 : archFit(k, a); return s + rarOf(c) * RARW + Math.random() * 2.4; };
   const ranked = pool.map(c => [c, score(c)]).sort((p, q) => q[1] - p[1]).map(p => p[0]), pick = [], n = {}, k = level >= 2 ? 4 : 3;
   for (const c of ranked) { if (pick.length >= 12 - k) break; if ((n[c.id] || 0) >= (rarOf(c) >= 5 ? 1 : 2)) continue; pick.push(c.id); n[c.id] = (n[c.id] || 0) + 1; }
   const plain = ["sk_mend", "sk_ward", "sk_empower", "sk_gale", "sk_cleanse", "sk_disrupt", "sk_m_fire", "sk_m_water", "sk_m_wind", "sk_m_earth"], allowed = level >= 1 ? null : plain;
@@ -2694,18 +2695,18 @@ for (const el of ELK8.concat("none")) for (let t = 0; t < 4; t++) {
 }
 /* ----- support, status and unique families: [family, kind, tier names, tier parameters] ----- */
 const SUPDEF = [
-  ["heal", "heal", ["Salve", "Mend", "Renewal", "Miracle"], [{ c: 2, t: "ally", v: 1.9 }, { c: 4, t: "ally", v: 4 }, { c: 6, t: "none", v: 1.9 }, { c: 8, t: "none", v: 3.8, cleanse: 1 }]],
-  ["shield", "shield", ["Guard", "Ward", "Bulwark", "Sanctuary"], [{ c: 2, t: "ally", v: 1.8 }, { c: 4, t: "ally", v: 3.6 }, { c: 6, t: "none", v: 1.5 }, { c: 8, t: "none", v: 3 }]],
-  ["buff", "buff", ["Focus", "Empower", "Frenzy", "Ascension"], [{ c: 2, t: "ally", v: 3, T: 8 }, { c: 3, t: "ally", v: 4.8, T: 8 }, { c: 5, t: "ally", v: 7.5, T: 8 }, { c: 6, t: "none", v: 3, T: 8 }]],
+  ["heal", "heal", ["Salve", "Mend", "Renewal", "Miracle"], [{ c: 2, t: "ally", v: 2 }, { c: 4, t: "ally", v: 4.2 }, { c: 6, t: "none", v: 2 }, { c: 8, t: "none", v: 4, cleanse: 1 }]],
+  ["shield", "shield", ["Guard", "Ward", "Bulwark", "Sanctuary"], [{ c: 2, t: "ally", v: 2.25 }, { c: 4, t: "ally", v: 4.5 }, { c: 6, t: "none", v: 1.9 }, { c: 8, t: "none", v: 3.75 }]],
+  ["buff", "buff", ["Focus", "Empower", "Frenzy", "Ascension"], [{ c: 2, t: "ally", v: 4.2, T: 8 }, { c: 3, t: "ally", v: 6.7, T: 8 }, { c: 5, t: "ally", v: 10.5, T: 8 }, { c: 6, t: "none", v: 4.2, T: 8 }]],
   ["haste", "haste", ["Quicken", "Haste", "Overdrive", "Timeslip"], [{ c: 2, t: "ally", T: 5 }, { c: 3, t: "ally", T: 10 }, { c: 6, t: "none", T: 6 }, { c: 8, t: "none", T: 10, reset: 1 }]],
-  ["weaken", "weaken", ["Sap", "Weaken", "Cripple", "Ruin"], [{ c: 2, t: "enemy", v: 2, T: 8 }, { c: 3, t: "enemy", v: 3.5, T: 8 }, { c: 6, t: "none", v: 2, T: 8 }, { c: 8, t: "none", v: 3.5, T: 8, vuln: .25 }]],
-  ["vuln", "vuln", ["Expose", "Unmask", "Shatter"], [{ c: 2, t: "enemy", m: .25, T: 8 }, { c: 4, t: "enemy", m: .4, T: 8 }, { c: 6, t: "none", m: .3, T: 8 }]],
+  ["weaken", "weaken", ["Sap", "Weaken", "Cripple", "Ruin"], [{ c: 2, t: "enemy", v: 2, T: 8 }, { c: 3, t: "enemy", v: 3.4, T: 8 }, { c: 6, t: "none", v: 2, T: 8 }, { c: 8, t: "none", v: 3.4, T: 8, vuln: .25 }]],
+  ["vuln", "vuln", ["Expose", "Unmask", "Shatter"], [{ c: 2, t: "enemy", m: .24, T: 8 }, { c: 4, t: "enemy", m: .38, T: 8 }, { c: 6, t: "none", m: .29, T: 8 }]],
   ["slow", "slow", ["Drag", "Mire", "Stasis"], [{ c: 2, t: "enemy", m: .3, T: 6 }, { c: 3, t: "enemy", m: .45, T: 8 }, { c: 6, t: "none", m: .5, T: 6 }]],
   ["stun", "stun", ["Stagger", "Stun", "Paralyze"], [{ c: 2, t: "enemy", T: 1.4 }, { c: 3, t: "enemy", T: 2.8 }, { c: 7, t: "none", T: 1.8 }]],
   ["poison", "poison", ["Venom", "Toxin", "Plague"], [{ c: 2, t: "enemy", d: .35, T: 6 }, { c: 4, t: "enemy", d: .6, T: 7 }, { c: 7, t: "none", d: .5, T: 7 }]],
   ["silence", "silence", ["Hush", "Mute", "Void Seal"], [{ c: 2, t: "enemy", T: 3 }, { c: 3, t: "enemy", T: 5 }, { c: 6, t: "none", T: 4 }]],
-  ["regen", "regen", ["Bloom", "Spring", "Eden"], [{ c: 2, t: "ally", d: .3, T: 6 }, { c: 4, t: "ally", d: .5, T: 7 }, { c: 6, t: "none", d: .38, T: 7 }]],
-  ["grow", "grow", ["Sharpen", "Vitality", "Overgrow"], [{ c: 4, t: "ally", a: 2.5, h: 0 }, { c: 4, t: "ally", a: 0, h: 3 }, { c: 6, t: "ally", a: 1.25, h: 1.25 }]],
+  ["regen", "regen", ["Bloom", "Spring", "Eden"], [{ c: 2, t: "ally", d: .32, T: 6 }, { c: 4, t: "ally", d: .53, T: 7 }, { c: 6, t: "none", d: .4, T: 7 }]],
+  ["grow", "grow", ["Sharpen", "Vitality", "Overgrow"], [{ c: 4, t: "ally", a: 3.4, h: 0 }, { c: 4, t: "ally", a: 0, h: 4 }, { c: 6, t: "ally", a: 1.7, h: 1.7 }]],
   ["strip", "strip", ["Dispel", "Purge"], [{ c: 1, t: "enemy" }, { c: 4, t: "none" }]],
   ["cleanse", "cleanse", ["Cleanse", "Absolve"], [{ c: 2, t: "ally", v: 1.3 }, { c: 4, t: "none", v: 1.3 }]],
   ["pact", "pact", ["Pact", "Blood Pact"], [{ c: 3, t: "ally", v: 8.5, T: 8, cost: .1, cr: 1 }, { c: 4, t: "ally", v: 12, T: 8, cost: .15, cr: 1 }]],
