@@ -1923,7 +1923,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.12.06-b";
+const VER = "2026.12.06-c";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -2091,7 +2091,7 @@ function packTearBind() {
   w.onpointerup = () => { if (x0 === null) return; x0 = null; if (p > .5) packTear(); else { top.style.transition = "transform .2s"; set(0); setTimeout(() => { top.style.transition = ""; }, 220); } };
 }
 function packTear() {
-  if (!PK || PK.torn) return; PK.torn = true; sfx("charge"); const w = $("#pw"); if (w) w.classList.add("torn");
+  if (!PK || PK.torn) return; PK.torn = true; sfx("seal"); setTimeout(() => sfx("gather"), 160); setTimeout(() => sfx("whoosh"), 380); const w = $("#pw"); if (w) w.classList.add("torn");
   setTimeout(() => { if (PK) { PK.i = 0; PK.flipped = false; packStage(); } }, 520);
 }
 function packNext() {
@@ -3580,7 +3580,7 @@ function arLaunch(A, mode, opp, me, net, level) {
   ME = me; AM = { A, me, net, speed: 1, auto: false, sel: null, mode: null, last: 0, acc: 0, sig: "", done: false, sfxAt: 0, maxCore: [A.s[0].core, A.s[1].core], opp, aiTick: -1, stall: 0 };
   G = { arena: true, over: false, phase: "arena", online: !!net, mode, level: level || 0, winner: null, round: 1, time: 0, s: [{ core: A.s[0].core }, { core: A.s[1].core }], speed: 1 };
   if (!A.replay) { A.rec = []; A.tw = [A.s[0].core, A.s[1].core, A.s[0].eMul || 0, A.s[1].eMul || 0, A.s[0].energy, A.s[1].energy]; }
-  $("#ck").hidden = false; closeModal(); musicMode("match"); if (typeof BG !== "undefined") BG.speed = 1; arBuild(); arIntroStart(); if (typeof introTip === "function") introTip(); AM.raf = requestAnimationFrame(arLoop);
+  $("#ck").hidden = false; closeModal(); musicMode("match"); if (typeof ambArena === "function") ambArena(A); if (typeof BG !== "undefined") BG.speed = 1; arBuild(); arIntroStart(); if (typeof introTip === "function") introTip(); AM.raf = requestAnimationFrame(arLoop);
   if (net) { $("#arspeed").style.display = "none"; AM.ka = setInterval(arNetPulse, 1000); }
 }
 /* ----- online: deterministic lockstep. Both phones run the same fight; only commands (with the tick they apply on) and heartbeats cross the wire. ----- */
@@ -3783,6 +3783,7 @@ function arEvents(now) {
     if (e.t === "skill" && e.card && uiMotion()) { const hs = arSlotEl(e.s, e.b, "bench"), tg = e.ta === "ally" ? laneEl(e.s, e.ti) : e.ta === "enemy" ? laneEl(1 - e.s, e.ti) : $("#arena"); arGhostFly(hs, tg); }
     if (e.t === "strike") {
       const a = el, ts = 1 - e.s, tEl = e.ti >= 0 ? laneEl(ts, e.ti) : $("#core" + ts); if (!a || !tEl) continue;
+      if (now - (AM.lAt || 0) > 90) { AM.lAt = now; sfx("launch", e.el || (unit(e.s, e.i) && unit(e.s, e.i).el)); }
       const pa = fxPos(a), pt = fxPos(tEl), dx = (pt.x - pa.x) * .62, dy = (pt.y - pa.y) * .62;
       a.animate([{ transform: "translate(0,0) scale(1)", zIndex: 9 }, { transform: `translate(${-dx * .08}px,${-dy * .08}px) scale(1.04)`, offset: .18, zIndex: 9 }, { transform: `translate(${dx}px,${dy}px) scale(1.14)`, offset: .42, zIndex: 9 }, { transform: "translate(0,0) scale(1)", zIndex: 9 }], { duration: 430, easing: "ease-in-out" });
       setTimeout(() => { if (!AM) return; const p2 = fxPos(tEl); fxSlash(p2, col, e.s ? 35 : -35); fxSparks(p2, col, 6, 26, 360); }, 190);
@@ -3790,13 +3791,13 @@ function arEvents(now) {
     else if (e.t === "hit") {
       if (el) { const p = fxPos(el); if (el._fx) el._fx.hurt = now + 280; kpop(el, "-" + Math.max(1, Math.round(e.d)), e.react ? "react" : ""); fxFlash(p, e.react ? "#ffffff" : elColor(e.el), e.react ? 96 : 60); if (e.d > 16) { fxSparks(p, elColor(e.el), 12, 44, 520); fxShake(arena, 3, 200); }
         if (e.react) { kpop(el, e.react, "rname"); fxRing(p, elColor(e.el), 96, 620); fxRing(p, "#ffffff", 64, 480, 80); } }
-      snd(e.react ? "plus" : "flip");
+      snd("impact", { el: e.el, d: e.d, react: !!e.react });
     }
     else if (e.t === "core") { const c = $("#core" + e.s); if (c) { const p = fxPos(c.querySelector(".hframe")); c.classList.remove("shake"); void c.offsetWidth; c.classList.add("shake"); kpop(c, "-" + Math.max(1, Math.round(e.d)), "react"); fxFlash(p, "#ff4a5e", 120, 340); fxSparks(p, "#ff8d98", 14, 52, 600); fxRing(p, "#ff4a5e", 110, 560); c.querySelector(".hflash").animate([{ opacity: .9 }, { opacity: 0 }], 360); if (e.d > 6) fxShake(arena, 6, 320); const hc = c.querySelector(".hcrack"); hc.style.opacity = Math.min(1, (1 - Math.max(0, A.s[e.s ^ me].core) / AM.maxCore[e.s ^ me]) * 1.4); } snd("err"); }
-    else if (e.t === "die") { $("#armsg").textContent = e.name + " falls"; snd("lose"); const g = el && el._gone && performance.now() - el._gone.t < 400 ? el._gone : null; if (g && el) { const r = fxPos(el); fxShatter({ html: g.html, cls: g.cls, l: r.l, t: r.t, w: r.w, h: r.h }, col || "#fff"); } }
-    else if (e.t === "enter") { if (el) { if (el._fx) el._fx.enter = now + 500; const p = fxPos(el); fxRing(p, col || "#e3bf66", 90, 560); fxFlash(p, "#fff3bf", 80, 340); fxMotes(p, "#fff3bf", 5, 30); } }
+    else if (e.t === "die") { $("#armsg").textContent = e.name + " falls"; snd("fall"); const g = el && el._gone && performance.now() - el._gone.t < 400 ? el._gone : null; if (g && el) { const r = fxPos(el); fxShatter({ html: g.html, cls: g.cls, l: r.l, t: r.t, w: r.w, h: r.h }, col || "#fff"); } }
+    else if (e.t === "enter") { snd("cardPlace"); if (el) { if (el._fx) el._fx.enter = now + 500; const p = fxPos(el); fxRing(p, col || "#e3bf66", 90, 560); fxFlash(p, "#fff3bf", 80, 340); fxMotes(p, "#fff3bf", 5, 30); } }
     else if (e.t === "skill") {
-      $("#armsg").textContent = (e.s ? "Foe: " : "") + e.name; sfx("ping", 3);
+      $("#armsg").textContent = (e.s ? "Foe: " : "") + e.name; sfx("cast", e.el);
       const srcEl = el || (e.card ? $("#core" + e.s) : null); if (srcEl) { const pc = fxPos(srcEl); fxRing(pc, col, 100, 600); fxFlash(pc, col, 90, 380);
         const tEl = e.ta === "ally" ? laneEl(e.s, e.ti) : e.ta === "enemy" ? laneEl(1 - e.s, e.ti) : null;
         if (tEl) { const pt = fxPos(tEl); fxBeam(pc, pt, col); setTimeout(() => { if (AM) { fxRing(fxPos(tEl), col, 90, 520); fxSparks(fxPos(tEl), col, 8, 34, 420); } }, 260); }
@@ -3877,6 +3878,7 @@ function arFinale() {
   const A = AM.A, me = AM.me, w = A.winner, ck = $("#ck"), lose = w === -1 ? null : (w === me ? 1 : 0), el = lose != null ? $("#core" + lose) : null; ck.classList.add("finale");
   if (el && uiMotion()) { const p = fxPos(el); fxFlash(p, "#ffffff", 240, 560); fxRing(p, "#ffffff", 170, 760); fxSparks(p, "#ffd9a0", 24, 96, 760); fxShake($("#arena"), 9, 460); }
   sfx("charge"); uiHaptic("heavy");
+  setTimeout(() => sfx(w === -1 ? "tap" : w === me ? "victory" : "defeat"), 900);
   setTimeout(() => { if (AM) arBanner(w === -1 ? "DRAW" : w === me ? "VICTORY" : "DEFEAT", "", w === -1 ? "draw" : w === me ? "win" : "lose", 1500); }, uiMotion() ? 700 : 0);
   setTimeout(arFinish, uiMotion() ? 2500 : 600);
 }
@@ -4609,7 +4611,7 @@ function profileSheet() {
 /* ---------- settings ---------- */
 function settingsSheet() {
   const pf = P.prefs = P.prefs || {}, tg = (id, on, lab) => `<div class="row setrow"><span>${lab}</span><button class="btn sm ${on ? "yellow" : "dark"}" data-me="${id}" style="min-width:76px">${on ? "ON" : "OFF"}</button></div>`;
-  openSheet(`<h2 class="fat">Settings</h2><div class="panel">${tg("sHap", pf.haptics !== false, "Vibration")}${tg("sMot", !(pf.motion === "off" || UI.mq.matches), "Animations")}${tg("sSfx", AU.sfx, "Sound effects")}<div class="row" style="flex-wrap:nowrap;margin:2px 0 10px"><input id="svol" class="rng" type="range" min="0" max="100" value="${Math.round(AU.sv * 100)}"></div>${tg("sBgm", AU.bgm, "Music")}<div class="row" style="flex-wrap:nowrap;margin:2px 0 0"><input id="mvol" class="rng" type="range" min="0" max="100" value="${Math.round(AU.mv * 100)}"></div>${UI.mq.matches ? '<p class="note" style="margin:8px 0 0">Your phone asks apps to reduce motion, so animations stay off.</p>' : ""}</div>` +
+  openSheet(`<h2 class="fat">Settings</h2><div class="panel">${tg("sHap", pf.haptics !== false, "Vibration")}${tg("sMot", !(pf.motion === "off" || UI.mq.matches), "Animations")}${tg("sSfx", AU.sfx, "Sound effects")}<div class="row" style="flex-wrap:nowrap;margin:2px 0 10px"><input id="svol" class="rng" type="range" min="0" max="100" value="${Math.round(AU.sv * 100)}"></div>${tg("sBgm", AU.bgm, "Music")}<div class="row" style="flex-wrap:nowrap;margin:2px 0 0"><input id="mvol" class="rng" type="range" min="0" max="100" value="${Math.round(AU.mv * 100)}"></div>${tg("sAmb", AU.amb, "Ambience")}<div class="row" style="flex-wrap:nowrap;margin:2px 0 0"><input id="avol" class="rng" type="range" min="0" max="100" value="${Math.round(AU.av * 100)}"></div><div class="row" style="margin:10px 0 0"><button class="btn sm dark" data-act="soundLab">Sound test</button></div>${UI.mq.matches ? '<p class="note" style="margin:8px 0 0">Your phone asks apps to reduce motion, so animations stay off.</p>' : ""}</div>` +
     `<span class="ribbon">HELP</span><div class="row c" style="gap:8px"><button class="btn sm" data-ck="rules">How to play</button><button class="btn sm" data-me="tut">Replay the tutorial</button></div>` +
     `<span class="ribbon">ACCOUNT</span><div class="panel"><p class="note" style="margin:0 0 8px">${ACC ? "Signed in as <b style=\"color:var(--yellow)\">" + esc(ACC.name) + "</b>. Your progress is saved to your account." : "Playing as a guest. Progress is only on this phone."}</p><div class="row" style="gap:8px">${ACC ? `<button class="btn sm dark" data-me="blocked">Blocked (${blockedList().length})</button>` : ""}${ACC ? '<button class="btn sm dark" data-ac="logout">Sign out</button>' : '<button class="btn sm yellow" data-ac="up">Create account</button>'}<button class="btn sm red" data-me="del">${ACC ? "Delete account" : "Erase my progress"}</button></div>${ACC ? `<p class="note" style="margin:10px 0 4px">Which save wins when you sign in: <b>${srcPref() === "device" ? "this phone" : "your online save"}</b>.</p><button class="btn sm dark" data-me="${srcPref() === "device" ? "srconl" : "srcdev"}">${srcPref() === "device" ? "Use my online save" : "Use this phone instead…"}</button>` : ""}</div>` +
     `<div class="row c" style="margin-top:12px"><button class="btn sm dark" data-me="profile">Back</button></div>`);
@@ -4856,6 +4858,8 @@ document.addEventListener("click", async e => {
     case "sHap": P.prefs = P.prefs || {}; P.prefs.haptics = P.prefs.haptics === false; scheduleSave(); uiHaptic("ok"); return settingsSheet();
     case "sMot": P.prefs = P.prefs || {}; P.prefs.motion = P.prefs.motion === "off" ? "on" : "off"; scheduleSave(); return settingsSheet();
     case "sSfx": AU.sfx = !AU.sfx; auSave(); sfx("tap"); chrome(); return settingsSheet();
+    case "sAmb": AU.amb = !AU.amb; auSave(); ambFor(AU.mode || "menu"); chrome(); return settingsSheet();
+    case "soundLab": return soundLab();
     case "sBgm": AU.bgm = !AU.bgm; auSave(); if (AU.bgm) musicStart(); else musicStop(); chrome(); return settingsSheet();
     case "del": return deleteAccount();
     case "delgo": {
@@ -5015,9 +5019,9 @@ function viewDaily(v) {
 }
 
 /* ===== sound: effects are synthesized (nothing to download); music is whatever songs you add from your own phone ===== */
-const AU = { ctx: null, out: null, sfx: true, bgm: true, mine: true, mode: "menu", sv: .8, mv: .6, tracks: [], idx: -1, el: null, url: "" };
-try { const a = JSON.parse(localStorage.getItem("triad.audio") || "{}"); ["sfx", "bgm", "mine", "sv", "mv"].forEach(k => { if (a[k] !== undefined) AU[k] = a[k]; }); } catch (_) {}
-const auSave = () => { try { localStorage.setItem("triad.audio", JSON.stringify({ sfx: AU.sfx, bgm: AU.bgm, mine: AU.mine, sv: AU.sv, mv: AU.mv })); } catch (_) {} };
+const AU = { ctx: null, out: null, sfx: true, bgm: true, amb: true, av: .7, mine: true, mode: "menu", sv: .8, mv: .6, tracks: [], idx: -1, el: null, url: "" };
+try { const a = JSON.parse(localStorage.getItem("triad.audio") || "{}"); ["sfx", "bgm", "amb", "mine", "sv", "mv", "av"].forEach(k => { if (a[k] !== undefined) AU[k] = a[k]; }); } catch (_) {}
+const auSave = () => { try { localStorage.setItem("triad.audio", JSON.stringify({ sfx: AU.sfx, bgm: AU.bgm, amb: AU.amb, mine: AU.mine, sv: AU.sv, mv: AU.mv, av: AU.av })); } catch (_) {} };
 function auCtx() {
   if (!AU.ctx) { const K = window.AudioContext || window.webkitAudioContext; if (!K) return null; try { AU.ctx = new K(); AU.out = AU.ctx.createGain(); AU.out.connect(AU.ctx.destination); } catch (_) { return null; } }
   if (AU.ctx.state === "suspended") AU.ctx.resume(); return AU.ctx;
@@ -5052,7 +5056,7 @@ const SFX = {
   err: (c, t) => { tone(c, 150, t, .2, { type: "sawtooth", v: .2, to: 110 }); },
 };
 function sfx(name, arg) { if (!name || !AU.sfx) return; const c = auCtx(); if (!c || !SFX[name]) return; try { SFX[name](c, c.currentTime + .01, arg); } catch (_) {} }
-const SFXMAP = { cell: null, reveal: null, deckSel: null, filt: null, hand: "select", deckAdd: "select", deckRemove: "back", closeModal: "back", leave: "back", pull: "charge", stageGo: "go", openPack: null, packNext: null, packTear: null, packDone: "back", tiltToggle: null, again: "go", rematch: "go", login: "coin", claimM: "coin", craft: "coin", deckSave: "coin", take: "coin", muteAll: null, sfxT: null, bgmT: null };
+const SFXMAP = { cell: null, reveal: null, deckSel: null, filt: null, hand: "select", deckAdd: "select", deckRemove: "back", closeModal: "back", leave: "back", pull: "gather", stageGo: "go", openPack: null, packNext: null, packTear: null, packDone: "back", tiltToggle: null, again: "go", rematch: "go", login: "coin", claimM: "coin", craft: "coin", deckSave: "coin", take: "coin", muteAll: null, sfxT: null, bgmT: null };
 const IDB = {
   db: null,
   open() { return this.db ? Promise.resolve(this.db) : new Promise((res, rej) => { const q = indexedDB.open("triad-music", 1); q.onupgradeneeded = () => q.result.createObjectStore("songs", { keyPath: "id", autoIncrement: true }); q.onsuccess = () => res(this.db = q.result); q.onerror = () => rej(q.error); }); },
@@ -5131,6 +5135,205 @@ const usingMine = () => AU.mine && AU.tracks.length > 0;
 function musicStart() { if (!AU.bgm) return; if (usingMine()) { bgStop(); bgmStart(); } else { bgmStop(); if (auCtx()) bgSet(AU.mode || "menu"); } }
 function musicStop() { bgmStop(); bgStop(); }
 function musicMode(m) { AU.mode = m; if (AU.bgm && BG.on && !usingMine()) bgSet(m); }
+/* ===== audio identity (inlined into app.src.html after the sound engine) =====
+   Everything here is synthesized live: no audio files, nothing to download. Three layers sit under the music:
+   1. ambience beds (AMB): menu, summon page, and one per element for the arena. Continuous noise + oscillator textures plus random one-off events (birds, chimes, crackles...).
+   2. effects added to SFX: card slide and place, per-element launch and cast, impacts (light, heavy "crit", spell collision), unit fall, stingers, pack seal / gather / whoosh, rarity reveals.
+   3. a Sound test sheet in Settings that plays every one of them, so the identity can be judged by ear and tuned. */
+const R_ = (a, b) => a + Math.random() * (b - a), PICK_ = a => a[Math.floor(Math.random() * a.length)];
+const ELS8 = ["fire", "water", "wind", "earth", "lightning", "ice", "light", "dark"];
+
+/* ----- noise buffers (white, pink, brown): 4 s, looped, with a short fade at the seam ----- */
+const NZ_ = {};
+function noiseBuf(c, kind) {
+  const hit = NZ_[kind]; if (hit && hit.c === c) return hit.b;
+  const n = Math.floor(c.sampleRate * 4), b = c.createBuffer(1, n, c.sampleRate), d = b.getChannelData(0); let l = 0, b0 = 0, b1 = 0, b2 = 0;
+  for (let i = 0; i < n; i++) { const w = Math.random() * 2 - 1; if (kind === "white") d[i] = w; else if (kind === "brown") { l = (l + .02 * w) / 1.02; d[i] = l * 3.5; } else { b0 = .99765 * b0 + w * .099046; b1 = .963 * b1 + w * .2965164; b2 = .57 * b2 + w * 1.0526913; d[i] = (b0 + b1 + b2 + w * .1848) * .2; } }
+  const f = 1500; for (let j = 0; j < f; j++) { const k = j / f; d[j] *= k; d[n - 1 - j] *= k; }
+  NZ_[kind] = { c, b }; return b;
+}
+const ambLfo = (c, rate, depth, param, nodes) => { const o = c.createOscillator(), g = c.createGain(); o.frequency.value = rate; g.gain.value = depth; o.connect(g); g.connect(param); o.start(); nodes.push(o); return o; };
+function ambNoise(c, kind, dest, nodes, o = {}) {
+  const s = c.createBufferSource(); s.buffer = noiseBuf(c, kind); s.loop = true; const f = c.createBiquadFilter(); f.type = o.type || "lowpass"; f.frequency.value = o.f || 800; f.Q.value = o.q || .7;
+  const g = c.createGain(); g.gain.value = o.v ?? .1; s.connect(f); f.connect(g); g.connect(dest); s.start(c.currentTime, Math.random() * 3);
+  if (o.lr) ambLfo(c, o.lr, o.ld, f.frequency, nodes); if (o.gr) ambLfo(c, o.gr, o.gd, g.gain, nodes); nodes.push(s); return { s, f, g };
+}
+function ambOsc(c, type, f, v, dest, nodes, o = {}) {
+  const os = c.createOscillator(), g = c.createGain(); os.type = type; os.frequency.value = f; if (o.detune) os.detune.value = o.detune; g.gain.value = v; os.connect(g); g.connect(dest); os.start(); nodes.push(os);
+  if (o.gr) ambLfo(c, o.gr, o.gd, g.gain, nodes); return { os, g };
+}
+const ambFilt = (c, type, f, dest, q = .7) => { const b = c.createBiquadFilter(); b.type = type; b.frequency.value = f; b.Q.value = q; b.connect(dest); return b; };
+const ambPan = (c, bus, p) => { if (!c.createStereoPanner) return bus; const s = c.createStereoPanner(); s.pan.value = p; s.connect(bus); return s; };
+const RAW_ = (bus, v, o = {}) => ({ bus, raw: true, v, ...o });
+
+/* ----- one-off event sounds the beds scatter ----- */
+function bell(c, t, bus, m, v = .04, dur = 3) { const f = mf(m); tone(c, f, t, dur, RAW_(bus, v, { a: .004 })); tone(c, f * 2.76, t, dur * .45, RAW_(bus, v * .35, { a: .003 })); tone(c, f * 5.4, t, dur * .2, RAW_(bus, v * .15, { a: .002 })); }
+const PENTA_A = [81, 83, 85, 88, 90, 93];
+function chimeCascade(c, t, bus) { const n = Math.random() < .35 ? 3 : 1; let i = Math.floor(R_(0, 4)); for (let k = 0; k < n; k++) { bell(c, t + k * R_(.16, .3), ambPan(c, bus, R_(-.5, .5)), PENTA_A[Math.min(5, i)] + (Math.random() < .2 ? 12 : 0), R_(.028, .045), 3.2); i += Math.random() < .6 ? 1 : -1; i = Math.max(0, i); } }
+function bird(c, t, bus) {
+  const out = ambFilt(c, "lowpass", 5200, ambPan(c, bus, R_(-.85, .85))), n = 2 + Math.floor(Math.random() * 4), f0 = R_(2300, 3600);
+  for (let i = 0; i < n; i++) tone(c, f0 * R_(.92, 1.1), t + i * R_(.09, .13), .08, RAW_(out, R_(.022, .04), { a: .006, to: f0 * R_(1.12, 1.38) }));
+}
+function crystal(c, t, bus) { const f = mf(PICK_([88, 91, 93, 95, 100])), o = ambPan(c, bus, R_(-.6, .6)); tone(c, f, t, 2.8, RAW_(o, .03, { a: .6 })); tone(c, f * 1.004, t, 2.8, RAW_(o, .03, { a: .6 })); }
+function pop(c, t, bus, v = .05) { hiss(c, t, R_(.012, .03), RAW_(bus, R_(.5, 1) * v, { f: R_(2200, 5500), q: 1.5, a: .002 })); if (Math.random() < .3) tone(c, R_(90, 180), t, .05, RAW_(bus, v * .5, { to: 50 })); }
+function crackle(c, t, bus) { const n = 1 + Math.floor(Math.random() * 4); for (let i = 0; i < n; i++) pop(c, t + i * R_(.02, .12), ambPan(c, bus, R_(-.7, .7)), .055); }
+function thunder(c, t, bus) { hiss(c, t, 3.6, RAW_(bus, .22, { type: "lowpass", f: 650, to: 50, q: .6, a: .4 })); tone(c, 46, t + .1, 3, RAW_(bus, .08, { a: .5, to: 30 })); }
+function whisper(c, t, bus) { const out = ambPan(c, bus, R_(-.9, .9)), f = R_(1700, 2900), d = R_(.9, 1.6); hiss(c, t, d, RAW_(out, .045, { type: "bandpass", f, to: f * R_(.75, .9), q: 7, a: .5 })); hiss(c, t + .05, d, RAW_(out, .025, { type: "bandpass", f: f * 1.6, q: 9, a: .5 })); }
+function gravel(c, t, bus) { const n = 3 + Math.floor(Math.random() * 4); let k = 0; for (let i = 0; i < n; i++) { k += R_(.02, .08); hiss(c, t + k, .02, RAW_(ambPan(c, bus, R_(-.6, .6)), R_(.02, .045), { f: R_(900, 1900), q: 1.2, a: .002 })); } }
+function bubble(c, t, bus) { const f = R_(300, 700); tone(c, f, t, .07, RAW_(ambPan(c, bus, R_(-.6, .6)), .03, { a: .004, to: f * 1.9 })); }
+function creak(c, t, bus) { const o = ambPan(c, bus, R_(-.5, .5)), f = R_(650, 950); tone(c, f, t, .4, RAW_(o, .022, { a: .05, to: f * .65, type: "triangle" })); tone(c, f * 1.5, t + .03, .3, RAW_(o, .01, { a: .04, to: f * .9, type: "triangle" })); hiss(c, t, .12, RAW_(o, .018, { f: 3000, q: 2 })); }
+
+/* ----- the beds: (c, bus, nodes) => [[minSeconds, maxSeconds, (c, t, bus) => event], ...] ----- */
+const BEDS = {
+  menu(c, bus, N) {   // a sanctuary: soft wind, a room, distant birds, small chimes
+    ambNoise(c, "pink", bus, N, { type: "bandpass", f: 520, q: .6, v: .15, lr: .07, ld: 220, gr: .05, gd: .05 });
+    ambNoise(c, "brown", bus, N, { type: "lowpass", f: 160, v: .07 });
+    ambNoise(c, "white", bus, N, { type: "highpass", f: 6000, v: .005 });
+    return [[5, 12, bird], [7, 16, chimeCascade]];
+  },
+  summon(c, bus, N) {   // humming energy and crystal, under a drifting wind
+    const lp = ambFilt(c, "lowpass", 320, bus); [[55, .035], [55.4, .028], [82.4, .014]].forEach(([f, v]) => ambOsc(c, "sine", f, v, lp, N, { gr: .13, gd: v * .25 }));
+    ambOsc(c, "sine", 110, .01, bus, N, { gr: .5, gd: .008 });
+    ambNoise(c, "pink", bus, N, { type: "bandpass", f: 900, q: .7, v: .06, lr: .09, ld: 400 });
+    return [[6, 14, crystal]];
+  },
+  fire(c, bus, N) {
+    ambNoise(c, "brown", bus, N, { type: "lowpass", f: 90, v: .13, lr: .08, ld: 30 });
+    return [[.25, 1.1, crackle], [9, 18, (c2, t, b) => hiss(c2, t, 2.5, RAW_(b, .1, { type: "lowpass", f: 60, to: 110, q: .7, a: .8 }))]];
+  },
+  water(c, bus, N) {
+    ambNoise(c, "pink", bus, N, { type: "bandpass", f: 600, q: .5, v: .13, gr: .6, gd: .04 });
+    ambNoise(c, "white", bus, N, { type: "bandpass", f: 3000, q: .8, v: .02, gr: .9, gd: .01 });
+    ambNoise(c, "pink", bus, N, { type: "lowpass", f: 400, v: .1, gr: .11, gd: .07 });
+    return [[.4, 1.5, bubble]];
+  },
+  wind(c, bus, N) {
+    ambNoise(c, "pink", bus, N, { type: "bandpass", f: 700, q: .6, v: .17, lr: .1, ld: 300, gr: .06, gd: .05 });
+    return [[2, 6, (c2, t, b) => hiss(c2, t, .4, RAW_(ambPan(c2, b, R_(-.8, .8)), .03, { type: "highpass", f: 4000, a: .12 }))], [8, 16, (c2, t, b) => { const o = ambPan(c2, b, R_(-.7, .7)); tone(c2, 900, t, .9, RAW_(o, .018, { a: .2, to: 1400 })); tone(c2, 1400, t + .45, .6, RAW_(o, .014, { a: .15, to: 1000 })); }]];
+  },
+  earth(c, bus, N) {
+    ambNoise(c, "brown", bus, N, { type: "lowpass", f: 70, v: .2, gr: .07, gd: .05 });
+    return [[1.2, 4, gravel], [10, 20, (c2, t, b) => { hiss(c2, t, 1.5, RAW_(b, .08, { type: "lowpass", f: 120, to: 200, a: .4 })); tone(c2, 48, t, 1.5, RAW_(b, .07, { a: .4, to: 38 })); }]];
+  },
+  lightning(c, bus, N) {
+    const lp = ambFilt(c, "lowpass", 600, bus); ambOsc(c, "sawtooth", 100, .012, lp, N, { gr: .7, gd: .006 }); ambOsc(c, "sawtooth", 150, .008, lp, N);
+    return [[11, 24, thunder], [1, 4, (c2, t, b) => { for (let i = 0; i < 1 + Math.floor(Math.random() * 3); i++) hiss(c2, t + i * R_(.01, .06), .01, RAW_(ambPan(c2, b, R_(-.7, .7)), .04, { type: "highpass", f: 4500, a: .001 })); }]];
+  },
+  ice(c, bus, N) {
+    ambNoise(c, "pink", bus, N, { type: "bandpass", f: 1100, q: 1, v: .1, lr: .08, ld: 350 });
+    ambNoise(c, "white", bus, N, { type: "highpass", f: 5000, v: .008 });
+    return [[5, 11, creak], [8, 15, (c2, t, b) => { const o = ambPan(c2, b, R_(-.6, .6)); tone(c2, R_(3000, 4500), t, .12, RAW_(o, .02)); tone(c2, R_(3000, 4500), t + .09, .1, RAW_(o, .016)); }]];
+  },
+  light(c, bus, N) {
+    [[81, .03], [88, .026], [93, .022]].forEach(([m, v], i) => ambOsc(c, "sine", mf(m), v, bus, N, { gr: .07 + i * .02, gd: v * .5 }));
+    return [[3, 7, (c2, t, b) => bell(c2, t, ambPan(c2, b, R_(-.6, .6)), PICK_([93, 95, 97, 100, 102]), R_(.028, .04), 3.4)], [9, 16, (c2, t, b) => { const f = mf(PICK_([81, 85, 88])); [1, 2, 3].forEach(h => tone(c2, f * h, t, 2.6, RAW_(b, .026 / h, { a: .8 }))); }]];
+  },
+  dark(c, bus, N) {
+    const lp = ambFilt(c, "lowpass", 180, bus); ambOsc(c, "sawtooth", 55, .04, lp, N); ambOsc(c, "sawtooth", 55.5, .035, lp, N); ambLfo(c, .06, 60, lp.frequency, N); ambOsc(c, "sine", 36, .035, bus, N);
+    return [[4, 9, whisper]];
+  },
+};
+
+/* ----- the ambience manager: one bed at a time, crossfaded, on its own volume ----- */
+const AMB = { on: false, id: null, bus: null, nodes: [], ev: [], timer: 0 };
+function ambTick() {
+  const c = AU.ctx; if (!c || !AMB.on) return; const now = c.currentTime;
+  for (const e of AMB.ev) { if (e.next === undefined) e.next = now + R_(.3, e.max); while (e.next < now + .5) { try { e.fn(c, Math.max(e.next, now), AMB.bus); } catch (_) {} e.next += R_(e.min, e.max); } }
+}
+function ambStop() {
+  if (!AMB.bus) { AMB.on = false; AMB.id = null; return; } const old = { bus: AMB.bus, nodes: AMB.nodes }, c = AU.ctx; clearInterval(AMB.timer); AMB.on = false; AMB.id = null; AMB.bus = null; AMB.nodes = []; AMB.ev = [];
+  try { old.bus.gain.cancelScheduledValues(c.currentTime); old.bus.gain.setValueAtTime(old.bus.gain.value, c.currentTime); old.bus.gain.linearRampToValueAtTime(0, c.currentTime + 1.2); } catch (_) {}
+  setTimeout(() => { old.nodes.forEach(n => { try { n.stop(); } catch (_) {} }); try { old.bus.disconnect(); } catch (_) {} }, 1500);
+}
+function ambSet(id) {
+  if (!id || !AU.amb || !BEDS[id]) { ambStop(); return; } const c = auCtx(); if (!c) return; if (AMB.on && AMB.id === id) return; ambStop();
+  const bus = c.createGain(); bus.gain.setValueAtTime(0, c.currentTime); bus.gain.linearRampToValueAtTime(AU.av * 1.4, c.currentTime + 1.6); bus.connect(AU.out);
+  AMB.bus = bus; AMB.id = id; AMB.nodes = []; AMB.ev = BEDS[id](c, bus, AMB.nodes).map(([min, max, fn]) => ({ min, max, fn })); AMB.on = true; AMB.timer = setInterval(ambTick, 250); ambTick();
+}
+function ambVol() { if (AMB.bus && AU.ctx) AMB.bus.gain.setTargetAtTime(AU.av * 1.4, AU.ctx.currentTime, .1); }
+function ambFor(m) { if (!AU.amb) return ambStop(); if (m === "summon") ambSet("summon"); else if (m === "menu") ambSet("menu"); else ambStop(); }
+/* the arena takes the most common element across both decks */
+function arenaElement(A) {
+  const n = {}; try { for (const s of A.s) { const ids = [].concat(s.pile || [], s.lane.filter(Boolean).map(u => u.cid), s.bench.filter(Boolean).map(u => u.cid)); for (const id of ids) { if (!id || (typeof isSkill === "function" && isSkill(id))) continue; const k = BY[id] && ckCard(BY[id]); if (k && k.el) n[k.el] = (n[k.el] || 0) + 1; } } } catch (_) {}
+  let best = null; for (const el of ELS8) if (n[el] && (!best || n[el] > n[best])) best = el; return best || "wind";
+}
+function ambArena(A) { if (!AU.amb) return; ambSet(arenaElement(A)); }
+{ const _mm = musicMode; musicMode = function (m) { _mm(m); ambFor(m); }; }
+document.addEventListener("pointerdown", () => { if (AU.ctx && AU.ctx.state === "suspended") AU.ctx.resume(); if (!AMB.on && AU.amb && AU.mode !== "match") ambFor(AU.mode || "menu"); }, { once: true });
+
+/* ----- effects ----- */
+const EL_LAUNCH = {
+  fire: (c, t) => { hiss(c, t, .3, { f: 600, to: 2800, q: 1, v: .3 }); tone(c, 180, t, .25, { type: "sawtooth", v: .08, to: 520 }); },
+  water: (c, t) => { tone(c, 300, t, .2, { v: .15, to: 900 }); tone(c, 420, t + .07, .18, { v: .12, to: 1100 }); hiss(c, t, .2, { type: "lowpass", f: 1500, v: .18 }); },
+  wind: (c, t) => { hiss(c, t, .3, { f: 500, to: 2400, q: 1.2, v: .3 }); },
+  earth: (c, t) => { tone(c, 90, t, .3, { v: .3, to: 60 }); hiss(c, t, .25, { type: "lowpass", f: 500, v: .25 }); },
+  lightning: (c, t) => { tone(c, 1400, t, .12, { type: "square", v: .1, to: 200 }); hiss(c, t, .12, { type: "highpass", f: 4000, v: .3 }); },
+  ice: (c, t) => { tone(c, 2400, t, .25, { type: "triangle", v: .12, to: 3200 }); tone(c, 3600, t + .04, .2, { type: "triangle", v: .08 }); hiss(c, t, .2, { type: "highpass", f: 6000, v: .1 }); },
+  light: (c, t) => { [0, 4, 7].forEach((s, i) => tone(c, NOTE(s, 2), t + i * .05, .3, { type: "triangle", v: .14 })); },
+  dark: (c, t) => { tone(c, 90, t, .35, { type: "sawtooth", v: .1, to: 200 }); hiss(c, t, .3, { f: 300, q: 1, v: .2 }); },
+};
+Object.assign(SFX, {
+  cardSlide: (c, t) => { hiss(c, t, .14, { f: 1400, to: 700, q: .8, v: .2 }); hiss(c, t + .02, .1, { type: "lowpass", f: 500, v: .1 }); },
+  cardPlace: (c, t) => { SFX.cardSlide(c, t); hiss(c, t + .1, .05, { type: "lowpass", f: 800, v: .3 }); tone(c, 140, t + .1, .16, { v: .45, to: 60 }); },
+  launch: (c, t, el) => (EL_LAUNCH[el] || ((c2, t2) => hiss(c2, t2, .18, { f: 900, to: 1800, q: 1, v: .22 })))(c, t),
+  cast: (c, t, el) => { SFX.launch(c, t, el); tone(c, NOTE(7, 1), t + .1, .22, { v: .12 }); tone(c, NOTE(12, 1), t + .18, .3, { v: .1 }); },
+  impact: (c, t, a) => {   // a = { el, d, react }: a normal hit, a heavy "critical" hit (d >= 30), or a spell collision (a reaction)
+    const d = (a && a.d) || 10, v = Math.min(1, .6 + d / 60);
+    tone(c, 120, t, .12, { v: .4 * v, to: 50 }); hiss(c, t, .06, { f: 2200, q: 1, v: .3 * v }); hiss(c, t, .03, { type: "highpass", f: 3000, v: .3 * v });
+    if (a && a.react) { tone(c, 400, t, .18, { type: "sawtooth", v: .12, to: 1200 }); tone(c, 1600, t, .18, { type: "sawtooth", v: .1, to: 500 }); hiss(c, t, .2, { f: 1800, q: .6, v: .35 }); tone(c, 880, t + .05, .3, { v: .12 }); }
+    else if (d >= 30) { tone(c, 70, t, .3, { v: .5, to: 35 }); tone(c, 1800, t, .35, { v: .1 }); hiss(c, t, .15, { type: "highpass", f: 5000, v: .3 }); }
+  },
+  fall: (c, t) => { tone(c, 300, t, .25, { type: "sawtooth", v: .14, to: 90 }); hiss(c, t, .2, { type: "lowpass", f: 700, v: .25 }); },
+  victory: (c, t) => {
+    [0, 4, 7, 12, 16, 19].forEach((s, i) => tone(c, NOTE(s, 1), t + i * .09, .4, { type: "triangle", v: .17 }));
+    [0, 4, 7].forEach(s => tone(c, NOTE(s, 1), t + .6, 1.6, { type: "sine", v: .13, a: .05 })); tone(c, NOTE(0, 0), t + .6, 1.8, { type: "sine", v: .2, a: .05 });
+    for (let i = 0; i < 12; i++) tone(c, R_(2000, 4200), t + .7 + i * .07, .25, { v: .07 });
+  },
+  defeat: (c, t) => {
+    [7, 3, 0, -5].forEach((s, i) => tone(c, NOTE(s), t + i * .22, .6, { type: "triangle", v: .15, to: NOTE(s - 1) }));
+    tone(c, NOTE(-5, -1), t + .5, 1.8, { type: "sawtooth", v: .09, a: .3 }); hiss(c, t + .5, 1.6, { type: "lowpass", f: 400, to: 120, v: .14, a: .3 });
+  },
+  seal: (c, t) => {
+    for (let i = 0; i < 14; i++) hiss(c, t + i * .025 + R_(0, .012), .03, { type: "highpass", f: R_(3000, 6000), v: .22, a: .002 });
+    tone(c, 600, t, .25, { v: .15, to: 200, type: "triangle" }); hiss(c, t + .1, .3, { f: 1200, q: .6, v: .12 });
+  },
+  gather: (c, t) => { tone(c, 200, t, 1, { v: .14, to: 1000 }); tone(c, 400, t, 1, { type: "triangle", v: .08, to: 2000 }); hiss(c, t, 1, { f: 400, to: 5000, q: 2, v: .2 }); },
+  whoosh: (c, t) => { hiss(c, t, .5, { type: "highpass", f: 800, to: 9000, v: .25 }); tone(c, 300, t, .5, { type: "triangle", v: .1, to: 1800 }); },
+  reveal: (c, t, r = 1) => {   // a card materializes, then a rarity-sized impact
+    hiss(c, t, .3, { type: "highpass", f: 4000, to: 9000, v: .2 });
+    [0, 4, 7, 12, 16].slice(0, Math.min(r, 5)).forEach((s, i) => tone(c, NOTE(s, 1), t + .04 + i * .07, .6, { type: "triangle", v: .17 }));
+    if (r <= 2) { tone(c, 392, t + .1, .3, { type: "triangle", v: .1 }); if (r === 2) tone(c, 523, t + .16, .3, { type: "triangle", v: .1 }); }
+    if (r >= 3) { tone(c, 80, t + .1, .2, { v: .25, to: 50 }); bell(c, t + .1, AU.out, 72, .13 * AU.sv, 1.2); }
+    if (r >= 4) { tone(c, 70, t + .1, .5, { v: .3, to: 40 }); [0, 4, 7].forEach(s => tone(c, NOTE(s, 0), t + .1, .8, { type: "triangle", v: .07, a: .05 })); }
+    if (r >= 5) { [0, 7, 12, 16, 19, 24].forEach(s => tone(c, NOTE(s, 0), t + .05, 1.4, { v: .05, a: .25 })); tone(c, 60, t + .1, .8, { v: .3, to: 30 }); for (let i = 0; i < 10; i++) tone(c, R_(1800, 4400), t + .2 + i * .06, .25, { v: .06 }); }
+    if (r >= 6) { tone(c, NOTE(0, -1), t, 1.2, { type: "sawtooth", v: .1, to: NOTE(0, -1) * 1.5 }); tone(c, 50, t + .1, 1.2, { v: .3, to: 25 }); hiss(c, t, 1, { f: 400, to: 7000, v: .18 }); }
+  },
+});
+
+/* ----- offline checks: how loud is each bed or effect (the page's own test hooks) ----- */
+async function ambMeasure(id, secs = 30) {
+  const sr = 22050, oc = new OfflineAudioContext(2, sr * secs, sr), bus = oc.createGain(); bus.gain.value = AU.av * 1.4; bus.connect(oc.destination);
+  const ev = BEDS[id](oc, bus, []).map(([min, max, fn]) => ({ min, max, fn })); for (const e of ev) for (let t = R_(.3, e.max); t < secs; t += R_(e.min, e.max)) e.fn(oc, t, bus);
+  return stats_(await oc.startRendering(), id);
+}
+async function sfxMeasure(name, arg) {
+  const sr = 22050, oc = new OfflineAudioContext(2, sr * 4, sr), saved = AU.out; AU.out = oc.createGain(); AU.out.connect(oc.destination);
+  try { SFX[name](oc, .01, arg); return stats_(await oc.startRendering(), name); } finally { AU.out = saved; }
+}
+function stats_(buf, id) { const d = buf.getChannelData(0); let pk = 0, sq = 0, bad = 0; for (const x of d) { const a = Math.abs(x); if (a > pk) pk = a; sq += x * x; if (x !== x) bad++; } return { id, peak: +pk.toFixed(3), rms: +Math.sqrt(sq / d.length).toFixed(4), nan: bad }; }
+
+/* ----- the Sound test sheet ----- */
+const LAB_SFX = [["cardSlide", "Card slide"], ["cardPlace", "Card place"], ["launch:fire", "Launch: fire"], ["launch:water", "Launch: water"], ["launch:wind", "Launch: wind"], ["launch:earth", "Launch: earth"], ["launch:lightning", "Launch: lightning"], ["launch:ice", "Launch: ice"], ["launch:light", "Launch: light"], ["launch:dark", "Launch: dark"], ["cast:fire", "Skill cast (fire)"], ["impact:", "Hit"], ["impact:crit", "Heavy hit"], ["impact:react", "Spell collision"], ["fall", "Card falls"], ["victory", "Victory"], ["defeat", "Defeat"], ["seal", "Pack seal tears"], ["gather", "Energy gathers"], ["whoosh", "Rising whoosh"], ["reveal:1", "Reveal: rarity 1"], ["reveal:2", "Reveal: rarity 2"], ["reveal:3", "Reveal: rarity 3"], ["reveal:4", "Reveal: rarity 4"], ["reveal:5", "Reveal: rarity 5"], ["reveal:6", "Reveal: rarity 6"]];
+function soundLab() {
+  const amb = ["menu", "summon"].concat(ELS8), nm = { menu: "Main menu", summon: "Summoning page" };
+  openSheet(`<h2 class="fat">Sound test</h2><p class="note" style="text-align:center">Tap to hear each part of the game's sound. Ambience loops until you stop it.</p><span class="ribbon">AMBIENCE</span><div class="panel"><div class="row" style="gap:6px">${amb.map(a => `<button class="btn sm dark" data-lab="amb:${a}">${nm[a] || a[0].toUpperCase() + a.slice(1)}</button>`).join("")}<button class="btn sm yellow" data-lab="amb:stop">Back to the game</button></div></div><span class="ribbon">EFFECTS</span><div class="panel"><div class="row" style="gap:6px">${LAB_SFX.map(([k, n]) => `<button class="btn sm dark" data-lab="sfx:${k}">${n}</button>`).join("")}</div></div>`);
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-lab]"); if (!b) return; const [kind, rest] = [b.dataset.lab.split(":")[0], b.dataset.lab.slice(b.dataset.lab.indexOf(":") + 1)];
+  if (kind === "amb") { if (rest === "stop") ambFor(AU.mode || "menu"); else { AU.amb = true; ambSet(rest); } return; }
+  if (rest.indexOf(":") >= 0 || LAB_SFX.some(x => x[0] === b.dataset.lab)) { const [n, a] = b.dataset.lab.slice(4).split(":"); sfx(n, n === "impact" ? (a === "crit" ? { d: 40 } : a === "react" ? { d: 20, react: true } : { d: 10 }) : n === "reveal" ? +a : a); }
+});
+
 document.addEventListener("visibilitychange", () => { if (!AU.ctx) return; if (document.hidden) { AU.ctx.suspend(); if (AU.el) AU.el.pause(); } else { AU.ctx.resume(); if (AU.el && AU.bgm && usingMine()) AU.el.play().catch(() => {}); } });
 /* a check that runs the three songs through an offline mixer and reports how loud they are (the page's own test hook) */
 async function bgMeasure(mode, bars = 8) {
@@ -5159,6 +5362,7 @@ function soundPanel() {
   const list = AU.tracks.map(t => `<div class="row" style="justify-content:space-between;flex-wrap:nowrap"><span class="note" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(t.name.replace(/\.[a-z0-9]+$/i, ""))}</span><button class="btn sm dark" data-act="songDel" data-id="${t.id}">✕</button></div>`).join("");
   return `<span class="ribbon">SOUND</span><div class="panel"><div class="row" style="flex-wrap:nowrap"><button class="btn sm ${AU.sfx ? "yellow" : "dark"}" data-act="sfxT" style="min-width:128px">Effects ${AU.sfx ? "ON" : "OFF"}</button><input id="svol" class="rng" type="range" min="0" max="100" value="${Math.round(AU.sv * 100)}"></div>` +
     `<div class="row" style="flex-wrap:nowrap;margin-top:10px"><button class="btn sm ${AU.bgm ? "yellow" : "dark"}" data-act="bgmT" style="min-width:128px">Music ${AU.bgm ? "ON" : "OFF"}</button><input id="mvol" class="rng" type="range" min="0" max="100" value="${Math.round(AU.mv * 100)}"></div>` +
+    `<div class="row" style="flex-wrap:nowrap;margin-top:10px"><button class="btn sm ${AU.amb ? "yellow" : "dark"}" data-act="ambT" style="min-width:128px">Ambience ${AU.amb ? "ON" : "OFF"}</button><input id="avol" class="rng" type="range" min="0" max="100" value="${Math.round(AU.av * 100)}"></div><div class="row" style="margin-top:8px"><button class="btn sm dark" data-act="soundLab">Sound test</button></div>` +
     `<p class="note" style="margin:10px 0 0">${AU.tracks.length && AU.mine ? "Playing your songs." : "Playing the game's own music: a lobby groove, a match beat and a summon shimmer."} Add your own audio files (mp3, m4a or wav) and they play instead. They stay on this device and are never uploaded.</p><div style="margin-top:8px">${list}</div>${AU.tracks.length ? `<div class="row" style="margin:8px 0"><button class="btn sm ${AU.mine ? "yellow" : "dark"}" data-act="mineT">My songs ${AU.mine ? "ON" : "OFF"}</button></div>` : ""}<div class="row"><label class="btn sm" style="position:relative">Add songs<input id="songs" type="file" accept="audio/*" multiple style="position:absolute;inset:0;opacity:0;width:100%;height:100%"></label>${AU.tracks.length ? '<button class="btn sm red" data-act="songsClear">Remove all</button>' : ""}</div><p class="note" style="margin:8px 0 0">On iPhone the music volume follows the volume buttons.</p></div>`;
 }
 
@@ -5224,6 +5428,8 @@ document.addEventListener("click", async e => {
     case "claimM": { const m = missions().find(x => x.id === d.id); if (m && m.have >= m.need && !P.mis.claimed[m.id]) { P.mis.claimed[m.id] = 1; if (m.tk) P.tickets += m.tk; else if (m.coins) P.coins += m.coins; else P.dust += m.dust; if (missions().every(x => P.mis.claimed[x.id])) { P.tickets += ECON.allFour.tickets; earn(0, ECON.allFour.gems); chrome(); toast("All four done: +" + ECON.allFour.gems + " gems" + (ECON.allFour.tickets ? ", +" + ECON.allFour.tickets + " token" : "")); } scheduleSave(); } return show("daily"); }
     case "muteAll": { const on = !(AU.sfx || AU.bgm); AU.sfx = on; AU.bgm = on; auSave(); if (on) { sfx("tap"); musicStart(); } else musicStop(); chrome(); if (tab === "daily") show("daily"); return; }
     case "sfxT": AU.sfx = !AU.sfx; auSave(); sfx("tap"); chrome(); return show("daily");
+    case "ambT": AU.amb = !AU.amb; auSave(); ambFor(AU.mode || "menu"); chrome(); return show("daily");
+    case "soundLab": return soundLab();
     case "bgmT": AU.bgm = !AU.bgm; auSave(); if (AU.bgm) musicStart(); else musicStop(); chrome(); return show("daily");
     case "mineT": AU.mine = !AU.mine; auSave(); musicStop(); musicStart(); return show("daily");
     case "songDel": try { await IDB.del(+d.id); } catch (_) {} AU.tracks = AU.tracks.filter(t => t.id !== +d.id); bgmStop(); if (AU.el) AU.el.removeAttribute("src"); musicStart(); return show("daily");
@@ -5247,7 +5453,7 @@ function closeModal() {
   if (typeof G !== "undefined" && G && G.over && !$("#ck").hidden) setTimeout(() => { if (G && G.over && $("#modal").hidden && !$("#ck").hidden) ckLeave(); }, 80);
 }
 $("#modal").addEventListener("click", e => { if (e.target.id === "modal" && !e.target.dataset.lock) closeModal(); });
-document.addEventListener("input", e => { if (e.target.id === "svol") { AU.sv = e.target.value / 100; auSave(); } if (e.target.id === "mvol") { AU.mv = e.target.value / 100; auSave(); if (AU.el) AU.el.volume = AU.mv; } });
+document.addEventListener("input", e => { if (e.target.id === "svol") { AU.sv = e.target.value / 100; auSave(); } if (e.target.id === "mvol") { AU.mv = e.target.value / 100; auSave(); if (AU.el) AU.el.volume = AU.mv; } if (e.target.id === "avol") { AU.av = e.target.value / 100; auSave(); ambVol(); } });
 const unlockAudio = () => { auCtx(); musicStart(); };
 document.addEventListener("pointerup", unlockAudio, true); document.addEventListener("touchend", unlockAudio, true);
 window.addEventListener("pagehide", () => { dirty = true; flush(); });
