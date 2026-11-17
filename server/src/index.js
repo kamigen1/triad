@@ -260,9 +260,9 @@ export class Hub {
     const row = this.one("SELECT data FROM profiles WHERE lname=?", lname); if (!row) return "Your account has no saved game yet. Play once online with the app open, then try again.";
     let o; try { o = JSON.parse(row.data); } catch (_) { return "Saved game unreadable."; }
     if (!Array.isArray(deck) || deck.length !== 12) return "Deck size is wrong.";
-    const need = {}; let sk = 0; for (const id of deck) { if (typeof id !== "string" || !(id in CARDS || SKILLS.includes(id))) return "Deck has an unknown card."; need[id] = (need[id] || 0) + 1; if (SKILLS.includes(id)) { sk++; if (need[id] > 2) return "A skill card is in the deck more than twice."; } }
+    const need = {}; let sk = 0; for (const id of deck) { if (typeof id !== "string" || !(id in CARDS || SIM.isSkill(id))) return "Deck has an unknown card."; need[id] = (need[id] || 0) + 1; if (SIM.isSkill(id)) { sk++; if (need[id] > 2) return "A skill card is in the deck more than twice."; } }
     if (sk > 7 || 12 - sk < 5) return "A deck needs 5 to 12 creatures and at most 7 skill cards.";
-    for (const [id, n] of Object.entries(need)) if (!SKILLS.includes(id) && (n > ((o.own || {})[id] || 0) || n > (CARDS[id] >= 5 ? 1 : 2))) return "Deck uses a card that is not in your saved collection yet.";
+    for (const [id, n] of Object.entries(need)) if (!SIM.isSkill(id) && (n > ((o.own || {})[id] || 0) || n > (CARDS[id] >= 5 ? 1 : 2))) return "Deck uses a card that is not in your saved collection yet.";
     return "";
   }
   /* verified totals: b = what the saved game already had when verification began, v = what the server has verified since, keys = campaign stages cleared */
