@@ -336,7 +336,7 @@ export class Hub {
         if (String(b.ver || "") !== SIM_VER) return json({ ok: false, refused: true, err: STALE });
         const m = b.mode || {}, kind = String(m.kind || ""); let level, foe, opp = 0, key = "", boss = { core: 0, eMul: 0 };
         const cur = this.one("SELECT data FROM profiles WHERE lname=?", s.lname); let o = {}; try { o = cur ? JSON.parse(cur.data) || {} : {}; } catch (_) {}
-        if (kind === "practice") { level = [0, 1, 2].includes(m.level) ? m.level : 1; foe = SIM.ckAiDeck(level); }
+        if (kind === "practice") { level = [0, 1, 2].includes(m.level) ? m.level : 1; foe = SIM.ckAiDeck(level, typeof m.arch === "string" && SIM.ARCH[m.arch] ? m.arch : undefined); }
         else if (kind === "camp") {
           const ch = m.ch, k = m.k; if (!Number.isInteger(ch) || !Number.isInteger(k) || ch < 0 || ch > 4 || k < 0 || k > 5) return json({ ok: false, err: "Unknown stage." });
           const vt = this.vinit(s.lname), cl = Object.assign({}, (o.camp && o.camp.cl) || {}); for (const x of vt.keys) cl[x] = true;
