@@ -268,11 +268,12 @@ table.odds { width: 100%; border-collapse: collapse; } table.odds td { padding: 
 .slots .empty { border: 3px dashed #ffffff44; border-radius: 10px; background: #0003; }
 .dk { padding: 10px 10px 12px; margin-bottom: 10px; cursor: pointer; }
 .dkh { position: relative; text-align: center; margin-bottom: 8px; min-height: 22px; display: flex; align-items: center; justify-content: center; }
-.dkh b { font-size: 15px; padding: 0 74px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+.dkh b { font-size: 16px; padding: 0 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
 .dkh .tag { position: absolute; right: 0; top: 50%; transform: translateY(-50%); }
 .dstrip { display: flex; gap: 6px; overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: none; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
 .dstrip::-webkit-scrollbar { display: none; }
-.dstrip > .card, .dstrip > .ku { flex: 0 0 calc((100% - 36px) / 6.5); width: calc((100% - 36px) / 6.5); scroll-snap-align: start; }
+.dstrip > .card, .dstrip > .ku { flex: 0 0 calc((100% - 24px) / 4.5); width: calc((100% - 24px) / 4.5); scroll-snap-align: start; }
+.hm-slide { margin: 10px 12px 0; } .bpre { margin: 8px 0 2px; } .bpn { display: block; text-align: center; font-size: 10.5px; opacity: .65; margin: 2px 0 6px; }
 .cbar { display: flex; gap: 8px; align-items: center; margin: 4px 0 8px; }
 .cbar input { flex: 1; min-width: 0; height: 44px; }
 .fbtn { position: relative; width: 44px; height: 44px; flex: none; padding: 0; border-radius: 12px; border: 0; background: rgba(38, 54, 74, .8); color: #e8ecf0; display: grid; place-items: center; }
@@ -286,6 +287,7 @@ table.odds { width: 100%; border-collapse: collapse; } table.odds td { padding: 
 .filters { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 9px; }
 .filters select, .filters input { flex: 1 1 100px; }
 .setsub { display: block; font-size: 11px; opacity: .6; font-weight: 400; margin-top: 2px; max-width: 210px; line-height: 1.25; }
+.ttl { display: block; font-size: 10.5px; line-height: 1.15; color: var(--yellow, #e3bf66); letter-spacing: 0; margin: 1px 0 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .mute svg { width: 20px; height: 20px; color: #e8ecf0; }
 .mute { flex: none; width: 36px; height: 36px; border-radius: 50%; border: 3px solid #000; background: linear-gradient(#34413a, #151d19); box-shadow: inset 0 2px 0 #ffffff44, 0 3px 0 #000; font-size: 16px; line-height: 1; padding: 0; }
 .rng { flex: 1; min-width: 0; accent-color: var(--yellow); height: 28px; }
@@ -1468,7 +1470,6 @@ const BY = Object.fromEntries(C.map(c => [c.id, c]));
 const TIERS = ["Novice", "Adept", "Master", "Champion"];
 const STARTER = ["goblin", "slime", "dracky", "cactuar", "shadow", "bomb", "flan", "soldier", "healslime", "she_slime", "bandit", "ff_chocobo"];
 const SUM_CAP = 20;   // summons per day
-const GROUPS = { all: "All", monster: "Monsters", hero: "Heroes", folk: "Folk", weapon: "Weapons", armor: "Armour", relic: "Relics", esper: "Espers", dominant: "Dominants", ff: "Final Fantasy", dq: "Dragon Quest", db: "Dragon Ball", nr: "Naruto", op: "One Piece" };
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -1676,7 +1677,7 @@ const NAME_A = ["Lucky", "Wild", "Royal", "Sly", "Neon", "Golden", "Daring", "Co
 const NAME_B = ["Ace", "Joker", "Shark", "Fox", "Dealer", "Knight", "Spade", "Comet", "Falcon", "Queen", "Rogue", "Bandit"];
 const randName = () => NAME_A[Math.floor(Math.random() * NAME_A.length)] + " " + NAME_B[Math.floor(Math.random() * NAME_B.length)];
 function nameSheet(first) {
-  openSheet(`<h2 class="fat">${first ? "WHAT'S YOUR NAME?" : "YOUR NAME"}</h2><p class="note" style="text-align:center;margin:0 0 10px">Friends see it in matches and on the score. You can change it any time by tapping your name.</p><input type="text" id="nm" maxlength="14" value="${esc(P.name || "")}" placeholder="${esc(randName())}" style="width:100%;text-align:center;font-size:18px"><div class="row c" style="margin-top:14px"><button class="btn sm" data-act="nameRand">Surprise me</button><button class="btn yellow" data-act="nameSave">Save</button><button class="btn sm dark" data-act="${first ? "nameSkip" : "closeModal"}">${first ? "Later" : "Cancel"}</button></div>`);
+  openSheet(`<h2 class="fat">${first ? "WHAT'S YOUR NAME?" : "YOUR NAME"}</h2><p class="note" style="text-align:center;margin:0 0 10px">Friends see it in matches and on the score. You can change it any time in Settings. Every name is one of a kind.</p><input type="text" id="nm" maxlength="14" value="${esc(P.name || "")}" placeholder="${esc(randName())}" style="width:100%;text-align:center;font-size:18px"><p class="note" id="nmerr" style="color:#ff9aa4;min-height:18px;text-align:center;margin:6px 0 0"></p><div class="row c" style="margin-top:8px"><button class="btn sm" data-act="nameRand">Surprise me</button><button class="btn yellow" data-act="nameSave">Save</button><button class="btn sm dark" data-act="${first ? "nameSkip" : "closeModal"}">${first ? "Later" : "Cancel"}</button></div>`);
   setTimeout(() => { const i = $("#nm"); if (i && !first) i.select(); }, 50);
 }
 function playerName() { return (P && P.name) || myName || "Player"; }
@@ -1715,7 +1716,7 @@ const UIC = {};   // last shown coin and gem totals, so the pills count up or do
 function chrome() {
   if (!P) { $("#hud").innerHTML = ""; return; }
   const pct = Math.floor(100 * P.xp / need(P.lv));
-  $("#hud").innerHTML = `<div class="hexw" data-me="profile" data-frame="${P.frame && frameOk(P.frame) ? P.frame : ""}"><div class="hex">${P.avatar && BY[P.avatar] && P.own[P.avatar] > 0 ? `<img class="hexart" alt="" src="${artSrc(BY[P.avatar])}">` : "<span>♠</span>"}</div><b class="lvbadge">${P.lv}</b></div><div class="who" data-me="profile"><b class="fat">${esc(playerName())}</b><div class="xp"><i style="width:${pct}%"></i><small>${P.xp} / ${need(P.lv)}${saveMode === "local" ? " · on this device" : ""}</small></div></div><div class="pills"><span class="pill c">${ic("coin", "")}<b data-n="coins">${P.coins == null ? 0 : P.coins}</b></span><span class="pill g">${ic("gem", "")}<b data-n="gems">${P.gems == null ? 0 : P.gems}</b></span>${P.tokens > 0 ? `<span class="pill t">${ic("ticket", "")}<b data-n="tokens">${P.tokens}</b></span>` : ""}</div><button class="mute" data-me="settings" aria-label="Settings">${ic("gear", "")}</button>`;
+  $("#hud").innerHTML = `<div class="hexw" data-me="profile" data-frame="${P.frame && frameOk(P.frame) ? P.frame : ""}"><div class="hex">${P.avatar && BY[P.avatar] && P.own[P.avatar] > 0 ? `<img class="hexart" alt="" src="${artSrc(BY[P.avatar])}">` : "<span>♠</span>"}</div><b class="lvbadge">${P.lv}</b></div><div class="who" data-me="profile"><b class="fat">${esc(playerName())}</b>${P.title ? `<small class="ttl">${esc(P.title)}</small>` : ""}<div class="xp"><i style="width:${pct}%"></i><small>${P.xp} / ${need(P.lv)}${saveMode === "local" ? " · on this device" : ""}</small></div></div><div class="pills"><span class="pill c">${ic("coin", "")}<b data-n="coins">${P.coins == null ? 0 : P.coins}</b></span><span class="pill g">${ic("gem", "")}<b data-n="gems">${P.gems == null ? 0 : P.gems}</b></span>${P.tokens > 0 ? `<span class="pill t">${ic("ticket", "")}<b data-n="tokens">${P.tokens}</b></span>` : ""}</div><button class="mute" data-me="settings" aria-label="Settings">${ic("gear", "")}</button>`;
   for (const k of ["coins", "gems"]) { const el = document.querySelector('#hud [data-n="' + k + '"]'), v = P[k] == null ? 0 : P[k]; if (el) { const prev = UIC[k]; if (prev !== undefined && prev !== v) { el.dataset.v = prev; uiCount(el, v); uiPulse(el.parentNode, v > prev ? "gain" : "spend"); } else el.dataset.v = v; UIC[k] = v; } }
   if (typeof achCheck === "function") { achCheck(); seasonCheck(); }
   const claimable = !P.login || missions().some(m => m.have >= m.need && !P.mis.claimed[m.id]);
@@ -1733,9 +1734,10 @@ function avPreview() {
   return c ? `<img alt="" src="${artSrc(c, true)}"><div><b>${esc(c.name)}</b><small>${EL[k.el][0]} · ${esc(FAC[k.fac] || k.fac)} · ${RNAME[rarOf(c)]}</small></div>` : `<div class="avnone"><b>Follows your best card</b><small>Your strongest card in the active deck becomes your portrait.</small></div>`;
 }
 function avGrid() { const l = avList(); return l.map(c => `<button class="avc ${AV.pick === c.id ? "on" : ""} r${rarOf(c)}" data-act="avpick" data-id="${c.id}"><img alt="" loading="lazy" decoding="async" src="${artSrc(c)}"><small>${esc(c.name)}</small></button>`).join("") || '<p class="note" style="grid-column:1/-1;text-align:center">No cards match.</p>'; }
+const avTabs = t => `<div class="seg" style="margin:0 0 8px"><button class="${t === "p" ? "on" : ""}" data-act="avtab" data-k="p">Portrait</button><button class="${t === "f" ? "on" : ""}" data-act="avtab" data-k="f">Frame</button></div>`;
 function avatarSheet() {
   AV = { q: "", el: "all", pick: P.avatar && P.own[P.avatar] > 0 ? P.avatar : null };
-  openSheet(`<div class="avp"><h2 class="fat">Your portrait</h2><div class="avprev" id="avprev">${avPreview()}</div><div class="row" style="margin:8px 0 6px;gap:6px"><input type="search" id="avq" placeholder="Search your cards" style="flex:1;min-width:0"><select id="avel"><option value="all">All elements</option>${ELKEYS.map(e => `<option value="${e}">${EL[e][1]} ${EL[e][0]}</option>`).join("")}</select></div>` +
+  openSheet(`<div class="avp"><h2 class="fat">Portrait &amp; frame</h2>${avTabs("p")}<div class="avprev" id="avprev">${avPreview()}</div><div class="row" style="margin:8px 0 6px;gap:6px"><input type="search" id="avq" placeholder="Search your cards" style="flex:1;min-width:0"><select id="avel"><option value="all">All elements</option>${ELKEYS.map(e => `<option value="${e}">${EL[e][1]} ${EL[e][0]}</option>`).join("")}</select></div>` +
     `<div class="avlist" id="avlist">${avGrid()}</div><div class="row c avfoot"><button class="btn yellow" data-act="avuse">Use this portrait</button><button class="btn sm dark" data-act="setav" data-id="">Follow my best card</button><button class="btn sm dark" data-act="closeModal">Close</button></div></div>`);
   const sh = $("#modal .sheet"); if (sh) sh.classList.add("avsheet");
 }
@@ -1943,7 +1945,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.12.06-i";
+const VER = "2026.12.06-k";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -2036,12 +2038,14 @@ function viewVersus(v) {
     deckRow + `<p class="note" style="text-align:center;opacity:.7">App version ${VER}. Both players need the same version.</p>`;
 }
 
-/* ===== PACKS: ripping packs is how you get cards. A pack holds 5 cards; the last slot is the "hit" slot. A free pack recharges every 8 hours (2 stored);
+/* ===== PACKS: ripping packs is how you get cards. A pack holds 10 cards; the last slot is the "hit" slot. A free pack recharges every 8 hours (2 stored);
    more packs come from daily missions, wins and levelling up. Foil follows the device's tilt (or a finger, or a gentle sway when there is no sensor). ===== */
-const PACK = { size: 5, pity: 14, freeEvery: 24 * 3600e3, freeMax: 2 };
-const PACK_SLOTS = [   // [rarity, % chance] per slot; "ex" is a Secret Rare
+const PACK = { size: 10, pity: 14, freeEvery: 24 * 3600e3, freeMax: 2 };
+/* a pack is ten cards: the five slot patterns below are spread over nine regular slots (3, 2, 2 and 2 of the first four patterns), and the last slot stays the hit */
+const slots10 = a => [0, 0, 0, 1, 1, 2, 2, 3, 3, 4].map(i => a[i]);
+const PACK_SLOTS = slots10([   // [rarity, % chance] per slot; "ex" is a Secret Rare
   [[1, 75], [2, 25]], [[1, 72], [2, 28]], [[1, 68], [2, 32]], [[2, 55], [3, 40], [4, 5]], [[3, 52], [4, 30], [5, 14], ["ex", 4]],
-];
+]);
 const wpick = l => { let r = Math.random() * 100; for (const [k, w] of l) { r -= w; if (r < 0) return k; } return l[0][0]; };
 /* ----- the pack itself, drawn in CSS ----- */
 function packGfx(kind = "std") { return `<div class="pgfx"><div class="crimp t"></div><div class="crimp b"></div><div class="emb"><svg viewBox="0 0 32 32"><use href="#i-spade"/></svg><b class="fat">TRIAD</b><i class="fat">SUMMONS</i><small>${packLabel(kind)}</small><span>★ ★ ★ ★ ★</span></div><div class="sheen"></div></div>`; }
@@ -3291,14 +3295,14 @@ function viewBattle(v) {
     : `<button class="hm-go" data-ck="start" data-l="1" ${err ? "disabled" : ""}><span class="th">${hmImg(heroId)}</span><span class="tx"><small>Campaign complete</small><b>Quick battle</b><span>Normal difficulty</span></span><i class="go">▶</i></button>`;
   const dest = (cls, attrs, id, title, sub) => `<button class="hm-dest ${cls}" ${attrs}>${hmImg(id, true)}<span class="tx"><b>${title}</b><small>${sub}</small></span></button>`;
   v.innerHTML = `<section class="hm"><div class="hm-hero">${hmImg(heroId, true)}${hk ? `<div class="hm-id"><small><i style="--c:var(--ds-${hk.el}-1)"></i>${EL[hk.el][0]} · ${esc(FAC[hk.fac] || hk.fac)}</small><h1>${esc(BY[heroId].name)}</h1></div>` : ""}<button class="hm-change" data-act="avatar">Change portrait</button></div>` +
+    `<div class="hm-slide" data-ck="deckEdit"><div class="dstrip">${d.cards.map(id => (isSkill(id) ? skTile(id) : BY[id] ? cardHtml(BY[id]) : "")).join("")}</div></div>` +
     `<div class="hm-tray">${go}${err ? `<p class="hm-err">${esc(err)}</p>` : ""}` +
     `<div class="hm-h"><b>Play</b><span>${rec.w} wins · ${rec.l} losses</span></div><div class="hm-dests">` +
     dest("", `data-ck="camp" ${err ? "disabled" : ""}`, nx ? HM_REGION_ART[nx[0]] : HM_REGION_ART[0], "Campaign", `${campDone()} of 30 beaten`) +
     dest(unlocked ? "" : "lock", `data-ck="ranked" ${err || !unlocked ? "disabled" : ""}`, HM_ART.ranked, "Ranked", unlocked ? `${TIERS_R[tier][0]} · ${rk.pts} pts${nextT ? " · " + (nextT[1] - rk.pts) + " to " + nextT[0] : ""}` : `Unlocks at level ${RANK_LV}`) +
     dest("", `data-act="tab" data-k="versus"`, HM_ART.friend, "Play a friend", "Online challenge or room code") +
     dest("", `data-ck="practiceSheet" ${err ? "disabled" : ""}`, HM_ART.practice, "Practice", "Easy, Normal or Hard") + `</div>` +
-    `<div class="hm-h"><b>Your deck</b><button data-ck="deckEdit">Edit</button></div><div class="hm-deck">${d.cards.map(id => (isSkill(id) ? skTile(id) : BY[id] ? cardHtml(BY[id]) : "")).join("")}</div>` +
-    `<div class="hm-deckbar"><select id="ckdeck" data-ck="deckSel" aria-label="Deck">${P.cd.map((x, i) => `<option value="${i}" ${i === P.cdi ? "selected" : ""}>${esc(x.name)}${ckDeckOk(x.cards) ? " (incomplete)" : ""}</option>`).join("")}</select><button class="btn sm dark" data-ck="deckNew" ${P.cd.length >= 8 ? "disabled" : ""}>New deck</button></div>` +
+    `<div class="hm-deckbar"><select id="ckdeck" data-ck="deckSel" aria-label="Deck">${P.cd.map((x, i) => `<option value="${i}" ${i === P.cdi ? "selected" : ""}>${esc(x.name)}${ckDeckOk(x.cards) ? " (incomplete)" : ""}</option>`).join("")}</select><button class="btn sm dark" data-ck="deckEdit">Edit</button><button class="btn sm dark" data-ck="deckNew" ${P.cd.length >= 8 ? "disabled" : ""}>New deck</button></div>` +
     `</div></section>`;
 }
 const campDone = () => Object.keys((P.camp && P.camp.cl) || {}).length;
@@ -3404,7 +3408,7 @@ function ckPanel() {
   if (!sel) return `<div class="kp1"><span>${CKU.busy && G.online && G.phase === "plan" ? "Waiting for your opponent…" : "Tap a card to read its skills. Spend your energy, then press Fight."}</span></div>`;
   const u = sel.kind === "bench" ? G.s[sel.s].bench[sel.i] : lane(sel.s, sel.i); if (!u) return `<div class="kp1"><span>Tap a card to read its skills.</span></div>`;
   const A = ACT[u.active], P1 = PASS[u.passive], mine = sel.s === ME, plan = G.phase === "plan" && !CKU.busy;
-  h = `<div class="kp2"><div class="kinfo"><b>${esc(u.name)}</b> <span class="kel2" style="color:${EL[u.el][2]}">${EL[u.el][1]} ${EL[u.el][0]}</span> <small>cost ${u.cost} · ${esc(GROUPS[u.tribe] || u.tribe)}</small><br><em>${P1[0]}:</em> ${P1[1]}<br><em>${actName(u)} (${A.c}):</em> ${A.d}${u.mark ? `<br><em>Marked:</em> ${EL[u.mark.el][0]}` : ""}</div>`;
+  h = `<div class="kp2"><div class="kinfo"><b>${esc(u.name)}</b> <span class="kel2" style="color:${EL[u.el][2]}">${EL[u.el][1]} ${EL[u.el][0]}</span> <small>cost ${u.cost}</small><br><em>${P1[0]}:</em> ${P1[1]}<br><em>${actName(u)} (${A.c}):</em> ${A.d}${u.mark ? `<br><em>Marked:</em> ${EL[u.mark.el][0]}` : ""}</div>`;
   if (mine && plan && sel.kind === "lane") h += `<div class="kbtns"><button class="btn sm yellow" data-ck="use" ${u.used || G.s[ME].energy < A.c ? "disabled" : ""}>${u.used ? "Used" : esc(actName(u)) + " · " + A.c + "⚡"}</button><button class="btn sm dark" data-ck="shift" data-d="-1" ${sel.i === 0 || G.s[ME].energy < 1 ? "disabled" : ""}>◀ 1⚡</button><button class="btn sm dark" data-ck="shift" data-d="1" ${sel.i === 4 || G.s[ME].energy < 1 ? "disabled" : ""}>1⚡ ▶</button></div>`;
   else if (mine && plan && sel.kind === "bench") h += `<div class="kbtns"><span class="note">Tap a lane to bring it in for ${u.cost}⚡${G.s[ME].energy < u.cost ? " (not enough energy)" : ""}.</span></div>`;
   return h + "</div>";
@@ -3509,6 +3513,8 @@ document.addEventListener("click", async e => {
     case "rules": return rulesSheet();
     case "practiceSheet": return openSheet(`<h2 class="fat">Practice</h2><p class="note" style="text-align:center;margin:0 0 10px">Practice pays coins and XP.</p><div class="hm-practice"><button class="btn" data-ck="start" data-l="0">Easy<small>Forgiving opponent</small></button><button class="btn yellow" data-ck="start" data-l="1">Normal<small>A fair fight</small></button><button class="btn red" data-ck="start" data-l="2">Hard<small>Plays to win</small></button></div><p class="note" style="text-align:center;margin:12px 0 6px">Opponent style</p><div class="stylechips" id="stylechips">${styleChips(CKU.arch)}</div><div class="row c" style="margin-top:12px"><button class="btn dark" data-act="closeModal">Close</button></div>`);
     case "deckEdit": return deckEditor(P.cdi);
+    case "deckSwap": return openSheet(`<h2 class="fat">Swap deck</h2><div class="list">${P.cd.map((x, i) => `<button class="panel item" data-ck="deckPick" data-i="${i}" style="${i === P.cdi ? "border-color:var(--line)" : ""}">${deckCover(x)}<div class="t"><b>${esc(x.name)}</b><small>${ckDeckOk(x.cards) ? "Incomplete" : x.cards.length + " cards, ready"}</small></div>${i === P.cdi ? '<span class="tag gold">ACTIVE</span>' : ""}</button>`).join("")}</div><div class="row c" style="margin-top:10px"><button class="btn sm dark" data-act="closeModal">Close</button></div>`);
+    case "deckPick": P.cdi = +d.i; scheduleSave(); closeModal(); chrome(); return show(tab);
     case "deckOpen": P.cdi = +d.i; scheduleSave(); return deckEditor(+d.i);
     case "deckNew": ckInit(); P.cd.push({ name: "Deck " + (P.cd.length + 1), cards: ckAutoDeck() }); P.cdi = P.cd.length - 1; scheduleSave(); return deckEditor(P.cdi);
     case "deckDel": { const D = CKD; return void uiConfirm({ title: "Delete this deck?", body: "<b>" + esc(P.cd[D.i].name) + "</b> will be removed. Your cards are not affected.", ok: "Delete", danger: true }).then(ok => { if (!ok || !CKD) return; P.cd.splice(CKD.i, 1); P.cdi = 0; scheduleSave(); CKD = null; closeModal(); show(tab); toast("Deck deleted"); }); }
@@ -4334,7 +4340,7 @@ document.addEventListener("change", e => { if (e.target && e.target.id === "avel
      Gems    buy every other summon (Premium, Set 2, the rotating pools and the banners); earned slowly (region clears, ranked tiers, the daily list, every 5th level) and bought in the Shop
      Tokens  strictly for events (mini stories and event quests, none yet); leftover Tokens convert to Gems or Coins in the Exchange
    Pools are permanent (Standard, Premium, Set 2, the element / race / ability banners) or rotate on a schedule worked out from the calendar (no server needed): Rising Star, Faction Fest and the Element Festival.
-   Every summon is five cards (the last one is the hit). Every price, rate and payout below is a placeholder for tuning. */
+   Every summon is ten cards (the last one is the hit). Every price, rate and payout below is a placeholder for tuning. */
 const ECON = {
   startCoins: 3000, startGems: 0,
   sell: { 1: 10, 2: 20, 3: 50, 4: 120, 5: 300, 6: 500 },   // a spare copy sells for this, and a duplicate past three copies turns into it
@@ -4348,7 +4354,7 @@ const IAP = [   // placeholder ladder: the $5 and $10 rows are the ones you gave
   { id: "g1", usd: "$0.99", gems: 100, bonus: 0, coins: 1000 }, { id: "g5", usd: "$4.99", gems: 500, bonus: 40, coins: 5000 }, { id: "g10", usd: "$9.99", gems: 1200, bonus: 200, coins: 15000 },
   { id: "g20", usd: "$19.99", gems: 2500, bonus: 500, coins: 35000 }, { id: "g50", usd: "$49.99", gems: 6500, bonus: 1500, coins: 100000 }, { id: "g100", usd: "$99.99", gems: 13500, bonus: 4000, coins: 220000 }, { id: "g200", usd: "$199.99", gems: 28000, bonus: 10000, coins: 500000 },
 ];
-const PREM_SLOTS = [[[1, 60], [2, 40]], [[1, 50], [2, 50]], [[2, 70], [3, 30]], [[3, 70], [4, 30]], [[3, 35], [4, 40], [5, 20], ["ex", 5]]];
+const PREM_SLOTS = slots10([[[1, 60], [2, 40]], [[1, 50], [2, 50]], [[2, 70], [3, 30]], [[3, 70], [4, 30]], [[3, 35], [4, 40], [5, 20], ["ex", 5]]]);
 const FAC_ORDER = ["H", "C", "D", "A", "M", "U", "B", "V"], FAC_TONE = { C: "#ffe08a", D: "#ff5a6e", A: "#d9a45a", M: "#9fb4d4", U: "#6fe0a0", B: "#ffb066", H: "#6fb4ff", V: "#b98aff" };
 const EL_TONE = { fire: "#ff6a3a", water: "#3aa0ff", wind: "#4fe0a4", earth: "#c9a05a", lightning: "#ffe03a", ice: "#9fe6ff", light: "#fff0b0", dark: "#b074ff" };
 /* All resets use standard Eastern time (EST, UTC-5, no daylight saving): days turn over at 12:00 AM EST and weeks at 12:00 AM EST on Monday. */
@@ -4394,7 +4400,7 @@ function activePools() {
   AB_BANNERS.forEach(([k, n, sub, list, tone]) => th.push({ key: "ab:" + k, id: "ab:" + k, group: "ab", label: n.toUpperCase(), name: n, sub: sub + ". These cards are four times as likely, and the hit card is always one.", slots: PREM_SLOTS, pity: 8, cost: { gems: 60 }, bias: c => list.includes(arCard(c).active), biasName: n, forever: true, all: true, tone }));
   return base.concat(th);
 }
-const S2_SLOTS = [[[2, 100]], [[2, 70], [3, 30]], [[3, 70], [4, 30]], [[3, 40], [4, 50], [5, 10]], [[4, 75], [5, 25]]];   // Set 2 has no Secret Rares: five cards a summon, the last the hit
+const S2_SLOTS = slots10([[[2, 100]], [[2, 70], [3, 30]], [[3, 70], [4, 30]], [[3, 40], [4, 50], [5, 10]], [[4, 75], [5, 25]]]);   // Set 2 has no Secret Rares: ten cards a summon, the last the hit
 const AB_BANNERS = [["strikers", "Strikers", "Cards whose skill hits hard: Strike, Arc or Volley", ["strike", "arc", "volley"], "#ff8a5a"], ["guardians", "Guardians", "Cards that heal, shield or cleanse", ["mend", "ward", "cleanse"], "#6fe0a0"], ["warbringers", "Warbringers", "Cards that empower, speed up or grow", ["empower", "gale", "pact", "overgrow"], "#ffd05a"], ["tacticians", "Tacticians", "Cards that freeze, disrupt or mark", ["freeze", "disrupt", "mark"], "#9fb4ff"]];
 const POOL_GROUPS = [["rot", "Rotating summons"], ["core", "Core summons"], ["el", "Element banners"], ["fac", "Race banners"], ["ab", "Ability banners"]];
 const poolByKey = k => activePools().find(p => p.key === k) || activePools()[0];
@@ -4468,9 +4474,17 @@ function setProgress() {
   const rows = [1, 2, 3, 4, 5, 6].map(r => { const all = POOL.filter(c => rarOf(c) === r), n = all.filter(c => (P.own[c.id] || 0) > 0).length; return { r, n, t: all.length }; }), have = rows.reduce((a, x) => a + x.n, 0), evHave = EVCARDS.filter(c => (P.own[c.id] || 0) > 0).length;
   return `<div class="panel"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><b class="fat" style="font-size:13px">SET 1</b><span class="note">${have} / ${POOL.length} cards</span></div><div class="bar" style="margin:6px 0 10px"><i style="width:${100 * have / POOL.length}%"></i></div><div class="setrows">${rows.map(x => `<div><span class="rtag r${x.r}">${RNAME[x.r]}</span><b>${x.n}/${x.t}</b></div>`).join("")}</div><p class="note" style="margin:10px 0 0;text-align:center">Festival exclusives: <b>${evHave} / ${EVCARDS.length}</b></p></div>`;
 }
+/* what a pool can give: featured cards first, then the pool's themed cards, then everything by rarity (the top 24; the Odds sheet has the rest of the rules) */
+function poolPreview(p) {
+  let list = poolBase(p).slice(); if (p.bias) list = list.filter(p.bias);
+  const fi = c => { const k = (p.featured || []).indexOf(c.id); return k < 0 ? 99 : k; }, rr = c => (c.ex ? 6 : c.lv);
+  list.sort((a, b) => fi(a) - fi(b) || rr(b) - rr(a) || a.name.localeCompare(b.name));
+  const more = list.length - 24; list = list.slice(0, 24);
+  return `<div class="dstrip bpre">${list.map(c => cardHtml(c, { attr: `data-act="detail" data-id="${c.id}"` }).replace('decoding="async"', 'loading="lazy" decoding="async"')).join("")}</div><small class="bpn">${more > 0 ? "Top 24 of " + (more + 24) + " cards" : list.length + " cards"} · swipe to see them</small>`;
+}
 function bannerHtml(p) {
   const st = poolState(p), plan1 = payPlan(p, 1), planN = payPlan(p, ECON.multi), left = Math.max(0, p.pity - st.pity);
-  const feat = p.featured ? `<div class="bfeat">${p.featured.map(id => `<button data-act="detail" data-id="${id}"><img alt="" src="${artSrc(BY[id], true)}"><small>${esc(BY[id].name.split(",")[0])}</small></button>`).join("")}</div>` : "";
+  const feat = poolPreview(p);
   const ev = "";
   const btn = (n, plan) => `<button class="btn ${plan.ok ? "yellow" : ""}" data-act="summon" data-k="${p.key}" data-n="${n}" ${plan.ok ? "" : "disabled"}><b class="sb">Summon ×${n}</b><small class="sp">${planLabel(plan) || "—"}</small></button>`;
   return `<div class="bnc" style="${p.tone ? "--bt:" + p.tone : ""}"><div class="bnh"><div class="bpk">${packHtml("mini", p.key)}</div><div class="bnt"><b class="fat">${esc(p.name)}</b><small>${esc(p.sub)}</small><span class="ends">${p.ends ? "Ends in " + leftTxt(p.ends) : "Always on"}</span></div></div>${feat}${ev}` +
@@ -4503,7 +4517,7 @@ function oddsModal(key = "std") {
   if (p.bias) extra = ` ${p.biasName} cards count four times in every rarity, and the hit card is always a ${p.biasName} card when its rarity has one.`;
   if (p.exclusive) extra += " The two featured cards are Festival exclusives: they are in no other pool. This festival returns every eight weeks.";
   const price = Object.entries(p.cost).map(([r, n]) => n + " " + r).join(" or ");
-  openSheet(`<h2 class="fat">${esc(p.name)} ODDS</h2><p class="note">Five cards per summon. Chance per card:</p><table class="odds">${rows}</table><table class="odds" style="margin-top:8px">${[1, 2, 3, 4, 5].map(r => `<tr><td><span class="rtag r${r}">${RNAME[r].toUpperCase()}</span> ${cnt(r)} cards</td><td></td></tr>`).join("")}<tr><td><span class="rtag r6">SECRET RARE</span> ${ex} cards</td><td></td></tr></table><p class="note">Within a rarity every card is equally likely.${extra} Secret Rares only come from summons. Variants are cosmetic only and never stronger: any card can come out Holographic (${VARIANTS.holo.chance * 100}%), Alternate Art (${VARIANTS.alt.chance * 100}%) or Secret (${VARIANTS.secret.chance * 100}%), whatever the pool. If ${p.pity - 1} summons in a row hold no Legendary or better, the next one's last card is one (a Secret Rare 1 time in 5). The counter belongs to this pool${p.ends ? " and resets when it ends" : ""}. Price: ${price}; ten summons cost nine.</p><div class="row c"><button class="btn dark" data-act="closeModal">Close</button></div>`);
+  openSheet(`<h2 class="fat">${esc(p.name)} ODDS</h2><p class="note">${PACK.size} cards per summon. Chance per card:</p><table class="odds">${rows}</table><table class="odds" style="margin-top:8px">${[1, 2, 3, 4, 5].map(r => `<tr><td><span class="rtag r${r}">${RNAME[r].toUpperCase()}</span> ${cnt(r)} cards</td><td></td></tr>`).join("")}<tr><td><span class="rtag r6">SECRET RARE</span> ${ex} cards</td><td></td></tr></table><p class="note">Within a rarity every card is equally likely.${extra} Secret Rares only come from summons. Variants are cosmetic only and never stronger: any card can come out Holographic (${VARIANTS.holo.chance * 100}%), Alternate Art (${VARIANTS.alt.chance * 100}%) or Secret (${VARIANTS.secret.chance * 100}%), whatever the pool. If ${p.pity - 1} summons in a row hold no Legendary or better, the next one's last card is one (a Secret Rare 1 time in 5). The counter belongs to this pool${p.ends ? " and resets when it ends" : ""}. Price: ${price}; ten summons cost nine.</p><div class="row c"><button class="btn dark" data-act="closeModal">Close</button></div>`);
 }
 
 /* ----- the free Standard pack: two stored, one recharges every 8 hours ----- */
@@ -4527,37 +4541,68 @@ function histAdd(win, draw) {
   } catch (_) {}
 }
 function ago(t) { const s = Math.max(0, (Date.now() - t) / 1000); return s < 90 ? "just now" : s < 3600 ? Math.round(s / 60) + " min ago" : s < 86400 ? Math.round(s / 3600) + " h ago" : Math.round(s / 86400) + " d ago"; }
-function historySheet() {
+function histBody() {
   const h = P.hist || [], w = h.filter(x => x.r === "w").length;
-  openSheet(`<h2 class="fat">Match history</h2><p class="note" style="text-align:center;margin:0 0 10px">${h.length ? `Last ${h.length} fights · ${w} won` : "Your fights will show up here."}</p><div class="list mlist">${h.map(x => `<div class="panel item"><span class="tag ${x.r === "w" ? "ok" : x.r === "d" ? "" : "bad"}">${x.r === "w" ? "WIN" : x.r === "d" ? "DRAW" : "LOSS"}</span><div class="t"><b>${esc(x.o)}</b><small>${ME_MODE[x.k] || "Match"} · ${ago(x.t)}${x.s ? " · " + Math.floor(x.s / 60) + ":" + String(x.s % 60).padStart(2, "0") : ""}</small></div></div>`).join("")}</div>${(P.rep || []).length ? `<span class="ribbon">REPLAYS</span><div class="list">${P.rep.map((r, i) => `<div class="panel item"><span class="tag ${r.r === "w" ? "ok" : ""}">${r.r === "w" ? "WIN" : r.r === "d" ? "DRAW" : "LOSS"}</span><div class="t"><b>vs ${esc(r.opp)}</b><small>${ago(r.t)} · ${Math.floor(r.dur / 60)}:${String(r.dur % 60).padStart(2, "0")}</small></div><button class="btn sm yellow" data-me="watch" data-i="${i}">Watch</button></div>`).join("")}</div>` : ""}<div class="row c" style="margin-top:12px"><button class="btn sm dark" data-me="profile">Back</button></div>`);
+  return `<p class="note" style="text-align:center;margin:0 0 10px">${h.length ? `Last ${h.length} fights · ${w} won` : "Your fights will show up here."}</p><div class="list mlist">${h.map(x => `<div class="panel item"><span class="tag ${x.r === "w" ? "ok" : x.r === "d" ? "" : "bad"}">${x.r === "w" ? "WIN" : x.r === "d" ? "DRAW" : "LOSS"}</span><div class="t"><b>${esc(x.o)}</b><small>${ME_MODE[x.k] || "Match"} · ${ago(x.t)}${x.s ? " · " + Math.floor(x.s / 60) + ":" + String(x.s % 60).padStart(2, "0") : ""}</small></div></div>`).join("")}</div>${(P.rep || []).length ? `<span class="ribbon">REPLAYS</span><div class="list">${P.rep.map((r, i) => `<div class="panel item"><span class="tag ${r.r === "w" ? "ok" : ""}">${r.r === "w" ? "WIN" : r.r === "d" ? "DRAW" : "LOSS"}</span><div class="t"><b>vs ${esc(r.opp)}</b><small>${ago(r.t)} · ${Math.floor(r.dur / 60)}:${String(r.dur % 60).padStart(2, "0")}</small></div><button class="btn sm yellow" data-me="watch" data-i="${i}">Watch</button></div>`).join("")}</div>` : ""}`;
 }
+const historySheet = () => lbSheet("h");
 
 /* ---------- achievements: titles to show off, no currency ---------- */
 const nOwned = () => ownedList().length, nCamp = () => Object.keys((P.camp && P.camp.cl) || {}).length + Object.keys(P.cleared || {}).length;
+const nLeg = () => ownedList().filter(c => rarOf(c) >= 5 && !c.ex).length, nSecret = () => ownedList().filter(c => c.ex).length, nSet2 = () => ownedList().filter(c => c.set2).length,
+  nVars = () => Object.values(P.vars || {}).reduce((a, l) => a + (Array.isArray(l) ? l.length : 0), 0), nFav = () => Object.keys(P.fav || {}).filter(k => P.fav[k]).length, nReady = () => (P.cd || []).filter(d => !ckDeckOk(d.cards)).length;
+/* n: name, t: what to do, ti: the title it unlocks (20 letters at most: the server keeps that much), r: how rare the title looks (1 to 6), v: the number that counts, need: how many */
 const ACH = [
-  { id: "w1", n: "First blood", t: "Win a match", ti: "Rookie", v: () => P.wins || 0, need: 1 },
-  { id: "w10", n: "On a roll", t: "Win 10 matches", ti: "Contender", v: () => P.wins || 0, need: 10 },
-  { id: "w50", n: "Veteran", t: "Win 50 matches", ti: "Veteran", v: () => P.wins || 0, need: 50 },
-  { id: "w200", n: "Unbreakable", t: "Win 200 matches", ti: "Champion", v: () => P.wins || 0, need: 200 },
-  { id: "p25", n: "Regular", t: "Play 25 matches", ti: "Regular", v: () => P.plays || 0, need: 25 },
-  { id: "c25", n: "Collector", t: "Own 25 different cards", ti: "Collector", v: nOwned, need: 25 },
-  { id: "c60", n: "Curator", t: "Own 60 different cards", ti: "Curator", v: nOwned, need: 60 },
-  { id: "leg", n: "Legend found", t: "Own a Legendary card", ti: "Legend Hunter", v: () => ownedList().filter(c => rarOf(c) >= 5).length, need: 1 },
-  { id: "pul", n: "Summoner", t: "Open 50 summons", ti: "Summoner", v: () => P.pulls || 0, need: 50 },
-  { id: "lv10", n: "Rising star", t: "Reach level 10", ti: "Adept", v: () => P.lv || 1, need: 10 },
-  { id: "lv25", n: "Seasoned", t: "Reach level 25", ti: "Expert", v: () => P.lv || 1, need: 25 },
-  { id: "cmp", n: "Explorer", t: "Clear 8 campaign stages", ti: "Explorer", v: nCamp, need: 8 },
-  { id: "rk", n: "Climber", t: "Reach Gold in Ranked", ti: "Gold Rank", v: () => ((P.rank && P.rank.tierBest) || 0), need: 2 },
-  { id: "dk", n: "Deckbuilder", t: "Keep 3 ready decks", ti: "Strategist", v: () => (P.cd || []).filter(d => !ckDeckOk(d.cards)).length, need: 3 },
+  { id: "w1", n: "First blood", t: "Win a match", ti: "Firstblood", r: 1, v: () => P.wins || 0, need: 1 },
+  { id: "w10", n: "On a roll", t: "Win 10 matches", ti: "Rising Blade", r: 2, v: () => P.wins || 0, need: 10 },
+  { id: "w25", n: "Sharpened", t: "Win 25 matches", ti: "Duelist of Dusk", r: 2, v: () => P.wins || 0, need: 25 },
+  { id: "w50", n: "Veteran", t: "Win 50 matches", ti: "Iron Veteran", r: 3, v: () => P.wins || 0, need: 50 },
+  { id: "w100", n: "Centurion", t: "Win 100 matches", ti: "Centurion", r: 4, v: () => P.wins || 0, need: 100 },
+  { id: "w200", n: "Unbreakable", t: "Win 200 matches", ti: "The Unyielding", r: 4, v: () => P.wins || 0, need: 200 },
+  { id: "w500", n: "Warlord", t: "Win 500 matches", ti: "Warlord of Tables", r: 5, v: () => P.wins || 0, need: 500 },
+  { id: "p10", n: "Warming up", t: "Play 10 matches", ti: "Table Regular", r: 1, v: () => P.plays || 0, need: 10 },
+  { id: "p25", n: "Regular", t: "Play 25 matches", ti: "Lantern Bearer", r: 1, v: () => P.plays || 0, need: 25 },
+  { id: "p100", n: "Road-worn", t: "Play 100 matches", ti: "Wayfarer", r: 2, v: () => P.plays || 0, need: 100 },
+  { id: "p500", n: "No days off", t: "Play 500 matches", ti: "Endless Challenger", r: 4, v: () => P.plays || 0, need: 500 },
+  { id: "c10", n: "First shelf", t: "Own 10 different cards", ti: "Pocket Archivist", r: 1, v: nOwned, need: 10 },
+  { id: "c25", n: "Collector", t: "Own 25 different cards", ti: "Card Warden", r: 2, v: nOwned, need: 25 },
+  { id: "c60", n: "Curator", t: "Own 60 different cards", ti: "Keeper of Halls", r: 3, v: nOwned, need: 60 },
+  { id: "c100", n: "Archivist", t: "Own 100 different cards", ti: "Grand Archivist", r: 5, v: nOwned, need: 100 },
+  { id: "leg", n: "Legend found", t: "Own a Legendary card", ti: "Legendbound", r: 4, v: nLeg, need: 1 },
+  { id: "leg5", n: "Myth hoard", t: "Own 5 Legendary cards", ti: "Mythkeeper", r: 5, v: nLeg, need: 5 },
+  { id: "sec", n: "Whispered about", t: "Own a Secret Rare", ti: "Whisperwalker", r: 5, v: nSecret, need: 1 },
+  { id: "s2a", n: "Dusk and dawn", t: "Own 10 Set 2 cards", ti: "Dusk and Dawn", r: 3, v: nSet2, need: 10 },
+  { id: "var3", n: "Shiny things", t: "Own 3 card variants", ti: "Gilded Eye", r: 3, v: nVars, need: 3 },
+  { id: "fav10", n: "Heart cards", t: "Favourite 10 cards", ti: "Heartstrung", r: 2, v: nFav, need: 10 },
+  { id: "bind", n: "Showpiece", t: "Fill your 6-card showcase", ti: "Showpiece", r: 2, v: () => (P.binder || []).filter(id => BY[id]).length, need: 6 },
+  { id: "pul10", n: "Curious", t: "Open 10 summons", ti: "Seeker", r: 1, v: () => P.pulls || 0, need: 10 },
+  { id: "pul", n: "Summoner", t: "Open 50 summons", ti: "Starcaller", r: 2, v: () => P.pulls || 0, need: 50 },
+  { id: "pul200", n: "Rift regular", t: "Open 200 summons", ti: "Riftwalker", r: 4, v: () => P.pulls || 0, need: 200 },
+  { id: "pul1k", n: "Worldsplitter", t: "Open 1,000 summons", ti: "Worldsplitter", r: 6, v: () => P.pulls || 0, need: 1000 },
+  { id: "lv5", n: "First spark", t: "Reach level 5", ti: "Spark Tamer", r: 1, v: () => P.lv || 1, need: 5 },
+  { id: "lv10", n: "Rising star", t: "Reach level 10", ti: "Ember Adept", r: 2, v: () => P.lv || 1, need: 10 },
+  { id: "lv25", n: "Seasoned", t: "Reach level 25", ti: "Stormwalker", r: 3, v: () => P.lv || 1, need: 25 },
+  { id: "lv50", n: "Skyforged", t: "Reach level 50", ti: "Skyforged", r: 5, v: () => P.lv || 1, need: 50 },
+  { id: "cmp", n: "Explorer", t: "Clear 8 campaign stages", ti: "Trailblazer", r: 2, v: nCamp, need: 8 },
+  { id: "cmp20", n: "Far from home", t: "Clear 20 campaign stages", ti: "Realm Walker", r: 4, v: nCamp, need: 20 },
+  { id: "cmp30", n: "End of the road", t: "Clear every campaign stage", ti: "Crown of the Road", r: 6, v: nCamp, need: 30 },
+  { id: "rk1", n: "Silver lining", t: "Reach Silver in Ranked", ti: "Silvershield", r: 2, v: () => ((P.rank && P.rank.tierBest) || 0), need: 1 },
+  { id: "rk", n: "Climber", t: "Reach Gold in Ranked", ti: "Goldbound", r: 3, v: () => ((P.rank && P.rank.tierBest) || 0), need: 2 },
+  { id: "rk3", n: "Above the clouds", t: "Reach Platinum in Ranked", ti: "Starlit Champion", r: 4, v: () => ((P.rank && P.rank.tierBest) || 0), need: 3 },
+  { id: "rk4", n: "Flawless", t: "Reach Diamond in Ranked", ti: "Diamondheart", r: 5, v: () => ((P.rank && P.rank.tierBest) || 0), need: 4 },
+  { id: "rk5", n: "The summit", t: "Reach Master in Ranked", ti: "Master of the Table", r: 6, v: () => ((P.rank && P.rank.tierBest) || 0), need: 5 },
+  { id: "dk", n: "Deckbuilder", t: "Keep 3 ready decks", ti: "Tactician", r: 2, v: nReady, need: 3 },
+  { id: "dk8", n: "Armoury", t: "Keep 8 ready decks", ti: "Armory Lord", r: 4, v: nReady, need: 8 },
 ];
 function achCheck() {
   if (!P) return; const first = !P.ach; P.ach = P.ach || {}; const won = [];
   for (const a of ACH) { let v = 0; try { v = a.v(); } catch (_) {} if (v >= a.need && !P.ach[a.id]) { P.ach[a.id] = Date.now(); if (!first) won.push(a); } }
+  if (P.title && !ACH.some(a => a.ti === P.title && P.ach[a.id])) { P.title = ""; scheduleSave(); }   // a title from the old list is retired
   if (first) scheduleSave(); else if (won.length) { scheduleSave(); won.forEach((a, i) => setTimeout(() => { toast("Achievement: " + a.n + " · title \"" + a.ti + "\""); sfx("level"); uiHaptic("ok"); }, 600 + i * 2600)); }
 }
 function achSheet() {
-  achCheck(); const done = ACH.filter(a => P.ach && P.ach[a.id]).length;
-  openSheet(`<h2 class="fat">Achievements</h2><p class="note" style="text-align:center;margin:0 0 10px">${done} of ${ACH.length} earned. Each one unlocks a title for your profile.</p><div class="list mlist">${ACH.map(a => { const got = !!(P.ach && P.ach[a.id]), v = Math.min(a.need, a.v()); return `<div class="panel item ${got ? "" : "dim"}"><div class="t"><b>${esc(a.n)}</b><small>${esc(a.t)}${got ? "" : " · " + v + " / " + a.need}</small>${got ? "" : `<div class="bar" style="margin-top:5px"><i style="width:${100 * v / a.need}%"></i></div>`}</div>${got ? `<button class="btn sm ${P.title === a.ti ? "yellow" : "dark"}" data-me="title" data-t="${esc(a.ti)}">${P.title === a.ti ? "Title ✓" : "Use title"}</button>` : '<span class="tag">LOCKED</span>'}</div>`; }).join("")}</div><div class="row c" style="margin-top:12px"><button class="btn sm dark" data-me="profile">Back</button></div>`);
+  achCheck(); const done = ACH.filter(a => P.ach && P.ach[a.id]).length, order = ACH.map((a, i) => ({ a, i, got: !!(P.ach && P.ach[a.id]) })).sort((x, y) => (x.got ? 1 : 0) - (y.got ? 1 : 0) || x.i - y.i).map(x => x.a);
+  openSheet(`<h2 class="fat">Achievements</h2><p class="note" style="text-align:center;margin:0 0 10px">${done} of ${ACH.length} earned. Each one unlocks a title, and some unlock a portrait frame. Your title shows under your name.</p><div class="list mlist">${order.map(a => { const got = !!(P.ach && P.ach[a.id]), v = Math.min(a.need, a.v()), fr = FRAMES.find(f => f.a === a.id); return `<div class="panel item ${got ? "" : "dim"}"><div class="t"><b>${esc(a.n)}</b><small>${esc(a.t)}${got ? "" : " · " + v.toLocaleString() + " / " + a.need.toLocaleString()}</small><span class="rtag r${a.r}" style="align-self:flex-start;margin-top:4px">${esc(a.ti)}</span>${fr ? `<small style="margin-top:3px">Also unlocks the ${esc(fr.n)} frame</small>` : ""}${got ? "" : `<div class="bar" style="margin-top:5px"><i style="width:${100 * v / a.need}%"></i></div>`}</div>${got ? `<button class="btn sm ${P.title === a.ti ? "yellow" : "dark"}" data-me="title" data-t="${esc(a.ti)}">${P.title === a.ti ? "Title ✓" : "Use title"}</button>` : '<span class="tag">LOCKED</span>'}</div>`; }).join("")}</div><div class="row c" style="margin-top:12px"><button class="btn sm dark" data-me="profile">Back</button></div>`);
 }
 
 /* ---------- profile ---------- */
@@ -4567,7 +4612,7 @@ function profileSheet() {
   const st = (n, l) => `<div><b>${n}</b><small>${l}</small></div>`;
   openSheet(`<div class="prof"><div class="hexw" data-act="avatar" data-frame="${P.frame && frameOk(P.frame) ? P.frame : ""}"><div class="hex">${art}</div><b class="lvbadge">${P.lv}</b></div><h2 class="fat">${esc(playerName())}</h2>${P.title ? `<span class="rtag r4">${esc(P.title)}</span>` : ""}<p class="note" style="margin:6px 0 0">${tier} · ${rk.pts} points${ACC ? " · online as " + esc(ACC.name) : " · guest"}</p></div>` +
     `<p class="note" style="margin:10px 0 4px">Showcase</p>${binderStrip()}<div class="pstats">${st(P.plays || 0, "Matches")}${st(P.wins || 0, "Wins")}${st(wr + "%", "Win rate")}${st(nOwned() + "/" + C.length, "Cards")}${st(P.pulls || 0, "Summons")}${st(done + "/" + ACH.length, "Achievements")}</div>` +
-    `<div class="row c" style="gap:8px"><button class="btn sm" data-me="ach">Achievements</button><button class="btn sm" data-me="hist">Match history</button><button class="btn sm" data-act="nameEdit">Rename</button><button class="btn sm" data-act="avatar">Portrait</button><button class="btn sm" data-me="frames">Frame</button><button class="btn sm" data-me="lb">Leaderboard</button></div>` +
+    `<div class="row c" style="gap:8px"><button class="btn sm" data-me="ach">Achievements</button><button class="btn sm" data-me="lb">Leaderboard</button><button class="btn sm" data-act="avatar">Portrait &amp; frame</button></div>` +
     `<div class="row c" style="margin-top:10px;gap:8px"><button class="btn sm yellow" data-me="settings">Settings</button><button class="btn sm dark" data-act="closeModal">Close</button></div>`);
 }
 
@@ -4581,7 +4626,7 @@ function settingsSheet() {
     `<span class="ribbon">SOUND</span><div class="panel">${tg("sMute", allOff, "Mute all sound")}${tg("sBgm", AU.bgm, "Music")}${sl("mvol", AU.mv)}${tg("sSfx", AU.sfx, "Sound effects")}${sl("svol", AU.sv)}${tg("sAmb", AU.amb, "Ambience", "Wind and environment sounds")}${sl("avol", AU.av)}<div class="row"><button class="btn sm dark" data-act="soundLab">Sound test</button></div></div>` +
     `<span class="ribbon">DISPLAY</span><div class="panel">${tg("sMot", !(pf.motion === "off" || UI.mq.matches), "Animations", "Menu and card movement")}${tg("sVfx", pf.vfx !== false, "Battle effects", "Flashes, sparks and rings")}${tg("sShake", pf.shake !== false, "Screen shake")}${tg("sHap", pf.haptics !== false, "Vibration")}${UI.mq.matches ? '<p class="note" style="margin:8px 0 0">Your phone asks apps to reduce motion, so animations stay off.</p>' : ""}</div>` +
     `<span class="ribbon">CARDS AND PACKS</span><div class="panel">${tg("sTilt", TILT.on, "Card tilt", tiltNote)}${tg("sPack", pf.packQuick === true, "Quick pack opening", "Skip the tear and the flips, and go straight to your cards")}</div>` +
-    `<span class="ribbon">ACCOUNT AND DATA</span><div class="panel"><p class="note" style="margin:0 0 8px">${ACC ? "Signed in as <b style=\"color:var(--yellow)\">" + esc(ACC.name) + "</b>. Your progress is saved to your account." : "Playing as a guest. Progress is only on this phone."}</p>${ACC ? `<p class="note" style="margin:0 0 4px">Which save wins when you sign in: <b>${srcDev ? "this phone" : "your online save"}</b>.</p><div class="row"><button class="btn sm dark" data-me="${srcDev ? "srconl" : "srcdev"}">${srcDev ? "Use my online save" : "Use this phone instead…"}</button></div>` : ""}<div class="row" style="gap:8px;margin-top:8px">${ACC ? `<button class="btn sm dark" data-me="blocked">Blocked (${blockedList().length})</button>` : ""}${ACC ? '<button class="btn sm dark" data-ac="logout">Sign out</button>' : '<button class="btn sm yellow" data-ac="up">Create account</button>'}<button class="btn sm red" data-me="del">${ACC ? "Delete account" : "Erase my progress"}</button></div></div>` +
+    `<span class="ribbon">ACCOUNT AND DATA</span><div class="panel"><div class="row setrow"><span>Display name<small class="setsub">${esc(playerName())}</small></span><button class="btn sm dark" data-act="nameEdit">Rename</button></div><p class="note" style="margin:0 0 8px">${ACC ? "Signed in as <b style=\"color:var(--yellow)\">" + esc(ACC.name) + "</b>. Your progress is saved to your account." : "Playing as a guest. Progress is only on this phone."}</p>${ACC ? `<p class="note" style="margin:0 0 4px">Which save wins when you sign in: <b>${srcDev ? "this phone" : "your online save"}</b>.</p><div class="row"><button class="btn sm dark" data-me="${srcDev ? "srconl" : "srcdev"}">${srcDev ? "Use my online save" : "Use this phone instead…"}</button></div>` : ""}<div class="row" style="gap:8px;margin-top:8px">${ACC ? `<button class="btn sm dark" data-me="blocked">Blocked (${blockedList().length})</button>` : ""}${ACC ? '<button class="btn sm dark" data-ac="logout">Sign out</button>' : '<button class="btn sm yellow" data-ac="up">Create account</button>'}<button class="btn sm red" data-me="del">${ACC ? "Delete account" : "Erase my progress"}</button></div></div>` +
     `<span class="ribbon">HELP</span><div class="row c" style="gap:8px"><button class="btn sm" data-ck="rules">How to play</button><button class="btn sm" data-me="tut">Replay the tutorial</button><button class="btn sm" data-ck="triad">Classic Triad</button></div>` +
     `<p class="note" style="text-align:center;margin:12px 0 0;opacity:.6;font-size:11px">Version ${typeof VER !== "undefined" ? VER : ""}</p>` +
     `<div class="row c" style="margin-top:10px"><button class="btn sm dark" data-me="profile">Back</button></div>`);
@@ -4698,21 +4743,50 @@ function whereTxt(c, n) {
 function deckCover(d) { const id = d.cover && BY[d.cover] ? d.cover : d.cards.find(x => BY[x]); return id ? `<img class="dcov" alt="" src="${artSrc(BY[id])}">` : ""; }
 
 /* ---------- profile frames and the binder showcase ---------- */
+const ring = (id, n, ok, h, bg, c, g, a) => ({ id, n, ok, h, bg, c, g, a });
 const FRAMES = [
-  { id: "", n: "Plain", ok: () => true }, { id: "silver", n: "Silver", ok: () => rk() >= 1, h: "Reach Silver in Ranked" }, { id: "gold", n: "Gold", ok: () => rk() >= 2, h: "Reach Gold in Ranked" },
-  { id: "plat", n: "Platinum", ok: () => rk() >= 3, h: "Reach Platinum" }, { id: "diamond", n: "Diamond", ok: () => rk() >= 4, h: "Reach Diamond" }, { id: "master", n: "Master", ok: () => rk() >= 5, h: "Reach Master" },
-  { id: "vet", n: "Veteran", ok: () => !!(P.ach && P.ach.w50), h: "Win 50 matches" }, { id: "coll", n: "Collector", ok: () => !!(P.ach && P.ach.c60), h: "Own 60 cards" }, { id: "legend", n: "Legend", ok: () => !!(P.ach && P.ach.leg), h: "Own a Legendary" },
+  { id: "", n: "Plain", ok: () => true },
+  ring("silver", "Silver", () => rk() >= 1, "Reach Silver in Ranked", "linear-gradient(150deg,#f1f4f7,#8f9cab)", "#c9d1da", 4),
+  ring("gold", "Gold", () => rk() >= 2, "Reach Gold in Ranked", "linear-gradient(150deg,#ffe9a8,#c9982e)", "#d2b979", 6),
+  ring("plat", "Platinum", () => rk() >= 3, "Reach Platinum in Ranked", "linear-gradient(150deg,#c9fffb,#4fb6ad)", "#8fd5d0", 7),
+  ring("diamond", "Diamond", () => rk() >= 4, "Reach Diamond in Ranked", "conic-gradient(from 30deg,#8cb8f2,#eaf5ff,#8cb8f2,#4a7fd0,#8cb8f2)", "#8cb8f2", 8),
+  ring("master", "Master", () => rk() >= 5, "Reach Master in Ranked", "conic-gradient(#a892ba,#f1e4ff,#a892ba,#6b4f8a,#a892ba)", "#a892ba", 9),
+  ring("vet", "Veteran", () => !!(P.ach && P.ach.w50), "Win 50 matches", "repeating-linear-gradient(135deg,#b7b1a0 0 4px,#53677a 4px 8px)", "", 0, "w50"),
+  ring("coll", "Collector", () => !!(P.ach && P.ach.c60), "Own 60 different cards", "linear-gradient(150deg,#b8f0d0,#2f8a62)", "#7fb59a", 6, "c60"),
+  ring("legend", "Legend", () => !!(P.ach && P.ach.leg), "Own a Legendary card", "conic-gradient(#f0d68a,#a892ba,#f0d68a,#fff3c7,#f0d68a)", "#f0d68a", 10, "leg"),
+  ring("ember", "Ember", () => !!(P.ach && P.ach.w25), "Win 25 matches", "linear-gradient(160deg,#ffb36b,#ff4a2a 55%,#7a1608)", "#ff6a3a", 8, "w25"),
+  ring("frost", "Frost", () => !!(P.ach && P.ach.w10), "Win 10 matches", "linear-gradient(160deg,#f4fcff,#9fe6ff 50%,#5c8fb8)", "#9fe6ff", 6, "w10"),
+  ring("duelist", "Duelist", () => !!(P.ach && P.ach.w100), "Win 100 matches", "repeating-linear-gradient(45deg,#e8ecf0 0 3px,#c04050 3px 6px)", "#c04050", 5, "w100"),
+  ring("tide", "Tide", () => !!(P.ach && P.ach.p100), "Play 100 matches", "linear-gradient(160deg,#9fe6ff,#3aa0ff 55%,#14407a)", "#3aa0ff", 8, "p100"),
+  ring("storm", "Stormcall", () => !!(P.ach && P.ach.lv25), "Reach level 25", "conic-gradient(from 45deg,#ffe03a,#3a2a8a,#ffe03a,#fff6a8,#ffe03a)", "#ffe03a", 9, "lv25"),
+  ring("royal", "Royal", () => !!(P.ach && P.ach.lv50), "Reach level 50", "linear-gradient(160deg,#d9b6ff,#7a3acb 55%,#2a1050)", "#b074ff", 10, "lv50"),
+  ring("starlit", "Starlit", () => !!(P.ach && P.ach.c100), "Own 100 different cards", "conic-gradient(#1a2a5a,#6fb4ff,#ffffff,#6fb4ff,#1a2a5a)", "#6fb4ff", 9, "c100"),
+  ring("radiant", "Radiant", () => !!(P.ach && P.ach.pul200), "Open 200 summons", "conic-gradient(#fff0b0,#ffd05a,#ffffff,#ffd05a,#fff0b0)", "#fff0b0", 10, "pul200"),
+  ring("umbral", "Umbral", () => !!(P.ach && P.ach.sec), "Own a Secret Rare", "conic-gradient(from 90deg,#1a1030,#7a3acb,#1a1030,#b074ff,#1a1030)", "#b074ff", 9, "sec"),
+  ring("verdant", "Verdant", () => !!(P.ach && P.ach.cmp20), "Clear 20 campaign stages", "linear-gradient(160deg,#c9f58f,#3ea85c 55%,#1c5a34)", "#5fe0a0", 8, "cmp20"),
+  ring("crown", "Crowned", () => !!(P.ach && P.ach.cmp30), "Clear every campaign stage", "linear-gradient(160deg,#fff3c7,#e3bf66 40%,#8a5a1a)", "#b074ff", 10, "cmp30"),
+  ring("prism", "Prism", () => !!(P.ach && P.ach.var3), "Own 3 card variants", "conic-gradient(#ff6a8a,#ffd05a,#6fe0a0,#4fa8ff,#b074ff,#ff6a8a)", "#ffffff", 8, "var3"),
 ];
+/* a frame is a ring drawn behind the hexagon (a shadow on the hexagon itself would be clipped away) */
+(function frameStyles() {
+  const st = document.createElement("style");
+  st.textContent = '.hexw[data-frame]:not([data-frame=""])::before{content:"";position:absolute;inset:-5px;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);z-index:0}.hexw[data-frame]:not([data-frame=""]) .hex{z-index:1}.fscroll{overflow-y:auto;max-height:54dvh;padding:6px 2px}' +
+    FRAMES.filter(f => f.id).map(f => `.hexw[data-frame="${f.id}"]::before{background:${f.bg}}.hexw[data-frame="${f.id}"]{filter:drop-shadow(0 0 ${f.g || 0}px ${f.c || "transparent"})}`).join("");
+  document.head.appendChild(st);
+})();
 const rk = () => (P.rank && P.rank.tierBest) || 0, frameOk = id => { const f = FRAMES.find(x => x.id === id); return !!f && f.ok(); };
 function frameSheet() {
-  openSheet(`<h2 class="fat">Portrait frame</h2><div class="frames">${FRAMES.map(f => { const ok = f.ok(); return `<button class="fr ${P.frame === f.id || (!P.frame && !f.id) ? "on" : ""}" ${ok ? `data-me="setframe" data-f="${f.id}"` : "disabled"}><span class="hexw" data-frame="${f.id}"><span class="hex"><span>♠</span></span></span><b>${f.n}</b><small>${ok ? "" : esc(f.h)}</small></button>`; }).join("")}</div><div class="row c" style="margin-top:12px"><button class="btn sm dark" data-me="profile">Back</button></div>`);
+  const art = P.avatar && BY[P.avatar] && P.own[P.avatar] > 0 ? `<img class="hexart" alt="" src="${artSrc(BY[P.avatar])}">` : "<span>♠</span>";
+  openSheet(`<div class="avp"><h2 class="fat">Portrait &amp; frame</h2>${avTabs("f")}<p class="note" style="text-align:center;margin:0 0 6px">${FRAMES.filter(f => f.ok()).length} of ${FRAMES.length} frames unlocked. Earn more from achievements and ranked tiers.</p><div class="frames fscroll">${FRAMES.map(f => { const ok = f.ok(); return `<button class="fr ${P.frame === f.id || (!P.frame && !f.id) ? "on" : ""}" data-f="${f.id}" ${ok ? `data-me="setframe"` : "disabled"}><span class="hexw" data-frame="${f.id}"><span class="hex">${art}</span></span><b>${f.n}</b><small>${ok ? "" : esc(f.h)}</small></button>`; }).join("")}</div><div class="row c avfoot"><button class="btn yellow" data-act="closeModal">Done</button></div></div>`);
+  const sh = $("#modal .sheet"); if (sh) sh.classList.add("avsheet");
 }
 const BIND_MAX = 6;
 function binderStrip() { const b = (P.binder || []).filter(id => BY[id] && P.own[id] > 0); return `<div class="binder" data-me="binder">${Array.from({ length: BIND_MAX }, (_, i) => b[i] ? `<img alt="" src="${artSrc(BY[b[i]])}">` : "<span>+</span>").join("")}</div>`; }
 function binderSheet() {
   const sel = new Set(P.binder || []), list = ownedList().sort((a, b) => rarOf(b) - rarOf(a) || a.name.localeCompare(b.name));
-  openSheet(`<div class="avp"><h2 class="fat">Showcase</h2><p class="note" style="text-align:center;margin:0 0 8px"><b id="bcount">${sel.size}</b> of ${BIND_MAX} chosen. Friends who open your profile see these.</p><div class="avlist" id="avlist">${list.map(c => `<button class="avc ${sel.has(c.id) ? "on" : ""} r${rarOf(c)}" data-me="bind" data-id="${c.id}"><img alt="" loading="lazy" decoding="async" src="${artSrc(c)}"><small>${esc(c.name)}</small></button>`).join("")}</div><div class="row c avfoot"><button class="btn sm yellow" data-me="profile">Done</button></div></div>`);
+  openSheet(`<div class="avp"><h2 class="fat">Showcase</h2><p class="note" style="text-align:center;margin:0 0 8px"><b id="bcount">${sel.size}</b> of ${BIND_MAX} chosen. Friends who open your profile see these.</p><input type="search" id="bq" placeholder="Search your cards" style="width:100%;margin:0 0 8px"><div class="avlist" id="avlist">${list.map(c => `<button class="avc ${sel.has(c.id) ? "on" : ""} r${rarOf(c)}" data-me="bind" data-id="${c.id}"><img alt="" loading="lazy" decoding="async" src="${artSrc(c)}"><small>${esc(c.name)}</small></button>`).join("")}</div><div class="row c avfoot"><button class="btn sm yellow" data-me="profile">Done</button></div></div>`);
   const sh = $("#modal .sheet"); if (sh) sh.classList.add("avsheet");
+  const bq = $("#bq"); if (bq) bq.oninput = () => { const q = bq.value.trim().toLowerCase(); document.querySelectorAll("#avlist .avc").forEach(b => { b.style.display = !q || b.textContent.toLowerCase().includes(q) ? "" : "none"; }); };
 }
 
 /* ---------- replays: the fight is deterministic, so a seed, both decks and the list of commands are enough to play it again ---------- */
@@ -4740,11 +4814,14 @@ function promoFx(name) { const e = document.createElement("div"); e.className = 
 const TIER_N = ["Bronze", "Silver", "Gold", "Platinum", "Diamond", "Master"];
 const tierOf = pts => TIER_N[Math.min(5, rankTier(pts))];
 function pHex(p) { return `<span class="hexw" data-frame="${esc(p.frame || "")}"><span class="hex">${p.avatar && BY[p.avatar] ? `<img class="hexart" alt="" src="${artSrc(BY[p.avatar])}">` : "<span>♠</span>"}</span></span>`; }
-async function lbSheet() {
-  if (!ACC) return toast("Sign in to see the leaderboard."); openSheet(`<h2 class="fat">Leaderboard</h2><p class="note" style="text-align:center">Loading…</p>`);
+async function lbSheet(tab) {
+  tab = tab === "h" || !ACC ? "h" : "t";
+  const seg = `<div class="seg" style="margin:0 0 10px"><button class="${tab === "t" ? "on" : ""}" data-me="lb" data-t="t">Top players</button><button class="${tab === "h" ? "on" : ""}" data-me="lb" data-t="h">My matches</button></div>`, back = `<div class="row c" style="margin-top:12px"><button class="btn sm dark" data-me="profile">Back</button></div>`;
+  if (tab === "h") return openSheet(`<h2 class="fat">Leaderboard</h2>${seg}${histBody()}${back}`);
+  openSheet(`<h2 class="fat">Leaderboard</h2>${seg}<p class="note" style="text-align:center">Loading…</p>`);
   const r = await accCall("/lb", { token: ACC.token }); if (!$("#modal .sheet")) return;
-  if (!r.ok) return openSheet(`<h2 class="fat">Leaderboard</h2><p class="note" style="text-align:center">${esc(r.err || "The leaderboard is not available right now.")}</p><div class="row c" style="margin-top:12px"><button class="btn sm dark" data-me="profile">Back</button></div>`);
-  openSheet(`<h2 class="fat">Leaderboard</h2><p class="note" style="text-align:center;margin:0 0 10px">${r.you ? "You are #" + r.you.rank + " with " + r.you.pts + " points" : "Play a ranked match to appear here."}</p><div class="list mlist">${r.rows.map((p, i) => `<button class="panel item lbrow" data-me="view" data-n="${esc(p.name)}"><b class="lbn">${i + 1}</b>${pHex(p)}<div class="t"><b>${esc(p.name)}</b><small>${tierOf(p.pts)} · Lv ${p.lv}${p.title ? " · " + esc(p.title) : ""}</small></div><span class="tag gold">${p.pts}</span></button>`).join("") || '<p class="note" style="text-align:center">No ranked players yet. Be the first.</p>'}</div><div class="row c" style="margin-top:12px"><button class="btn sm dark" data-me="profile">Back</button></div>`);
+  if (!r.ok) return openSheet(`<h2 class="fat">Leaderboard</h2>${seg}<p class="note" style="text-align:center">${esc(r.err || "The leaderboard is not available right now.")}</p>${back}`);
+  openSheet(`<h2 class="fat">Leaderboard</h2>${seg}<p class="note" style="text-align:center;margin:0 0 10px">${r.you ? "You are #" + r.you.rank + " with " + r.you.pts + " points" : "Play a ranked match to appear here."}</p><div class="list mlist">${r.rows.map((p, i) => `<button class="panel item lbrow" data-me="view" data-n="${esc(p.name)}"><b class="lbn">${i + 1}</b>${pHex(p)}<div class="t"><b>${esc(p.name)}</b><small>${tierOf(p.pts)} · Lv ${p.lv}${p.title ? " · " + esc(p.title) : ""}</small></div><span class="tag gold">${p.pts}</span></button>`).join("") || '<p class="note" style="text-align:center">No ranked players yet. Be the first.</p>'}</div>${back}`);
 }
 async function viewPlayer(name, back) {
   if (!ACC) return toast("Sign in to view players."); openSheet(`<h2 class="fat">${esc(name)}</h2><p class="note" style="text-align:center">Loading…</p>`);
@@ -4823,7 +4900,7 @@ document.addEventListener("click", async e => {
     case "profile": uiFx("tap"); return profileSheet();
     case "settings": uiFx("tap"); return settingsSheet();
     case "ach": uiFx("tap"); return achSheet();
-    case "hist": uiFx("tap"); return historySheet();
+    case "hist": uiFx("tap"); return lbSheet("h");
     case "title": P.title = P.title === t.t ? "" : t.t; scheduleSave(); uiFx("ok"); return achSheet();
     case "sMute": { const on = AU.sfx || AU.bgm || AU.amb; AU.sfx = AU.bgm = AU.amb = !on; auSave(); if (AU.bgm) musicStart(); else musicStop(); ambFor(AU.mode || "menu"); chrome(); return settingsSheet(); }
     case "sVfx": P.prefs = P.prefs || {}; P.prefs.vfx = P.prefs.vfx === false; scheduleSave(); return settingsSheet();
@@ -4851,14 +4928,14 @@ document.addEventListener("click", async e => {
     case "claimall": return claimAll();
     case "srconl": srcSet("online"); toast("Your online save will win at sign-in."); return settingsSheet();
     case "srcdev": { if (!(await uiConfirm({ title: "Use this phone's save?", body: "At every sign-in, this phone's progress will replace the one saved online. Only choose this if this phone has progress you want to keep.", ok: "Use this phone", danger: true }))) return; srcSet("device"); toast("This phone's save will win at sign-in."); return settingsSheet(); }
-    case "lb": return lbSheet();
+    case "lb": return lbSheet(t.t);
     case "view": return viewPlayer(t.n);
     case "addf": if (hubSend({ t: "friend_add", name: t.n })) { el.disabled = true; el.textContent = "Sent"; } return;
     case "watch": return repWatch(+t.i);
     case "fav": P.fav = P.fav || {}; if (P.fav[t.id]) delete P.fav[t.id]; else P.fav[t.id] = 1; scheduleSave(); uiFx("ok"); detail(t.id); if ($("#coll")) fillColl(); return;
     case "cover": { if (!CKD) return; const id = CKD.cards[CKD.sel]; if (id && BY[id]) { CKD.cover = id; toast("Deck cover set"); uiFx("ok"); } return; }
     case "frames": return frameSheet();
-    case "setframe": P.frame = t.f; scheduleSave(); chrome(); uiFx("ok"); return frameSheet();
+    case "setframe": { P.frame = t.f; scheduleSave(); chrome(); uiFx("ok"); document.querySelectorAll(".fr").forEach(b => b.classList.toggle("on", b.dataset.f === P.frame || (!P.frame && !b.dataset.f))); return; }
     case "binder": return binderSheet();
     case "bind": { P.binder = P.binder || []; const i = P.binder.indexOf(t.id); if (i >= 0) P.binder.splice(i, 1); else if (P.binder.length < BIND_MAX) P.binder.push(t.id); else return toast("The showcase holds " + BIND_MAX + " cards."); el.classList.toggle("on", i < 0); const bc = $("#bcount"); if (bc) bc.textContent = P.binder.length; scheduleSave(); uiFx("tap"); return; }
     case "person": return personSheet(t.n);
@@ -4937,18 +5014,17 @@ document.addEventListener("click", e => {
 
 
 /* ===== cards: collection, detail, decks ===== */
-let F = { q: "", own: "own", lv: 0, grp: "all", el: "all", sort: "rar", kind: "char", ssort: "name", sel: "all" };
+let F = { q: "", own: "own", lv: 0, el: "all", sort: "rar", kind: "char", ssort: "name", sel: "all" };
 function viewCards(v) {
-  ckInit(); seenInit(); const have = ownedList().filter(c => S1[c.id]).length;
-  const deckPanel = (d, i) => { const ok = !ckDeckOk(d.cards), st = i === P.cdi ? "ACTIVE" : ok ? "READY" : "INCOMPLETE";
-    return `<div class="panel dk" data-ck="deckOpen" data-i="${i}" style="${i === P.cdi ? "border-color:var(--line)" : ""}"><div class="dkh"><b class="fat">${esc(d.name)}</b><span class="tag ${i === P.cdi ? "gold" : ok ? "ok" : ""}">${st}</span></div><div class="dstrip">${d.cards.map(id => (isSkill(id) ? skTile(id) : BY[id] ? cardHtml(BY[id]) : "")).join("") || '<p class="note" style="margin:6px auto">Empty deck</p>'}</div></div>`; };
-  v.innerHTML = `<span class="ribbon">DECKS</span>${P.cd.map(deckPanel).join("")}<div class="row c" style="margin-top:10px"><button class="btn sm yellow" data-ck="deckNew" ${P.cd.length >= 8 ? "disabled" : ""}>New deck</button><button class="btn sm dark" data-me="import" ${P.cd.length >= 8 ? "disabled" : ""}>Import code</button></div>` +
+  ckInit(); seenInit(); const have = ownedList().filter(c => S1[c.id]).length, di = Math.min(P.cdi || 0, P.cd.length - 1), d = P.cd[di];
+  const deckPanel = `<div class="panel dk" data-ck="deckOpen" data-i="${di}"><div class="dkh"><b class="fat">${esc(d.name)}</b></div><div class="dstrip">${d.cards.map(id => (isSkill(id) ? skTile(id) : BY[id] ? cardHtml(BY[id]) : "")).join("") || '<p class="note" style="margin:6px auto">Empty deck</p>'}</div></div>`;
+  v.innerHTML = `<span class="ribbon">DECK</span>${deckPanel}<div class="row c" style="margin-top:10px">${P.cd.length > 1 ? '<button class="btn sm" data-ck="deckSwap">Swap deck</button>' : ""}<button class="btn sm yellow" data-ck="deckNew" ${P.cd.length >= 8 ? "disabled" : ""}>New deck</button><button class="btn sm dark" data-me="import" ${P.cd.length >= 8 ? "disabled" : ""}>Import code</button></div>` +
     `<span class="ribbon">COLLECTION · SET 1 ${have}/${POOL.length} · SET 2 ${ownedList().filter(c => c.set2).length}/${POOL2.length}</span>` +
     `<div class="cbar"><input type="search" id="fq" placeholder="${F.kind === "skill" ? "Search skill cards" : "Search cards"}" value="${esc(F.q)}"><button class="fbtn" data-act="filtOpen" aria-label="Sort and filter">${ic("filter", "")}${filtN() ? '<i class="dot"></i>' : ""}</button></div>` +
     `<div class="seg ckind"><button class="${F.kind !== "skill" ? "on" : ""}" data-act="ckind" data-k="char">Character cards</button><button class="${F.kind === "skill" ? "on" : ""}" data-act="ckind" data-k="skill">Skill cards</button></div><div class="grid" id="coll"></div>`;
   fillColl(); const q = $("#fq"); q.oninput = () => { F.q = q.value; fillColl(); };
 }
-const filtN = () => F.kind === "skill" ? (F.sel !== "all" ? 1 : 0) + (F.ssort !== "name" ? 1 : 0) : (F.own !== "own" ? 1 : 0) + (F.lv ? 1 : 0) + (F.grp !== "all" ? 1 : 0) + (F.el !== "all" ? 1 : 0) + (F.sort !== "rar" ? 1 : 0);
+const filtN = () => F.kind === "skill" ? (F.sel !== "all" ? 1 : 0) + (F.ssort !== "name" ? 1 : 0) : (F.own !== "own" ? 1 : 0) + (F.lv ? 1 : 0) + (F.el !== "all" ? 1 : 0) + (F.sort !== "rar" ? 1 : 0);
 /* cards the player has not looked at yet are marked NEW; the first time this runs, everything already owned counts as seen */
 function seenInit() { if (!P.seen) { P.seen = {}; for (const id in P.own) if (P.own[id] > 0) P.seen[id] = 1; scheduleSave(); } }
 const newCount = () => { if (!P || !P.seen) return 0; return Object.keys(P.own).filter(id => P.own[id] > 0 && !P.seen[id]).length; };
@@ -4966,7 +5042,7 @@ function fillColl() {
     return;
   }
   const fv = c => (P.fav && P.fav[c.id] ? 1 : 0), base = collSort();
-  const list = C.filter(c => (inSet(c.id) || P.own[c.id] > 0) && (!q || c.name.toLowerCase().includes(q)) && (F.lv === 0 || c.lv === F.lv) && (F.grp === "all" || c.grp === F.grp) && (F.el === "all" || arCard(c).el === F.el) && (F.own === "all" || (F.own === "own" ? (P.own[c.id] || 0) > 0 : F.own === "miss" ? !(P.own[c.id] > 0) : F.own === "fav" ? !!(P.fav && P.fav[c.id]) : c.ex)))
+  const list = C.filter(c => (inSet(c.id) || P.own[c.id] > 0) && (!q || c.name.toLowerCase().includes(q)) && (F.lv === 0 || c.lv === F.lv) && (F.el === "all" || arCard(c).el === F.el) && (F.own === "all" || (F.own === "own" ? (P.own[c.id] || 0) > 0 : F.own === "miss" ? !(P.own[c.id] > 0) : F.own === "fav" ? !!(P.fav && P.fav[c.id]) : c.ex)))
     .sort((a, b) => fv(b) - fv(a) || base(a, b));
   box.innerHTML = list.map(c => { const h = cardHtml(c, { count: P.own[c.id] || 0, miss: !(P.own[c.id] > 0), attr: `data-act="detail" data-id="${c.id}"` }); let h2 = h; if (P.own[c.id] > 0 && !P.seen[c.id]) h2 = h2.replace('<i class="crn"></i>', '<i class="crn"></i><i class="newtag">NEW</i>'); if (P.fav && P.fav[c.id]) h2 = h2.replace('<i class="crn"></i>', '<i class="crn"></i><i class="favtag">★</i>'); return h2; }).join("") || `<p class="note">${F.own === "own" ? "No cards match. Try another filter, or open packs to find more." : "No cards match."}</p>`;
 }
@@ -4980,8 +5056,7 @@ function filterSheet() {
     b = sec("SORT BY", [["rar", "Rarity"], ["new", "Newest"], ["cost", "Cost"], ["atk", "Attack"], ["hp", "Health"], ["name", "Name"], ["cnt", "Copies"]].map(([v, n]) => chip("sort", v, n, F.sort === v)).join("")) +
       sec("SHOW", [["own", "My cards"], ["all", "Unowned too"], ["miss", "Only missing"], ["ex", "Secret Rare"], ["fav", "Favourites"]].map(([v, n]) => chip("own", v, n, F.own === v)).join("")) +
       sec("RARITY", chip("lv", 0, "Any", F.lv === 0) + [1, 2, 3, 4, 5].map(l => chip("lv", l, RNAME[l], F.lv === l)).join("")) +
-      sec("ELEMENT", chip("el", "all", "Any", F.el === "all") + ELKEYS.map(e => chip("el", e, EL[e][1] + " " + EL[e][0], F.el === e)).join("")) +
-      sec("RACE", Object.entries(GROUPS).map(([k, n]) => chip("grp", k, n, F.grp === k)).join(""));
+      sec("ELEMENT", chip("el", "all", "Any", F.el === "all") + ELKEYS.map(e => chip("el", e, EL[e][1] + " " + EL[e][0], F.el === e)).join(""));
   }
   openSheet(`<h2 class="fat">Sort &amp; filter</h2>${b}<p class="note" style="text-align:center;margin:10px 0 0">Favourites always come first.</p><div class="row c" style="margin-top:12px"><button class="btn sm dark" data-act="freset">Reset</button><button class="btn yellow" data-act="closeModal">Done</button></div>`);
 }
@@ -5496,10 +5571,11 @@ document.addEventListener("click", async e => {
     case "ckind": F.kind = d.k; F.q = ""; return show("cards");
     case "filtOpen": return filterSheet();
     case "fset": { const f = d.f, v = ["lv"].includes(f) ? +d.v : d.v; F[f] = v; document.querySelectorAll(`#modal .chip[data-f="${f}"]`).forEach(b => b.classList.toggle("on", b.dataset.v === String(v))); fillColl(); const fb = document.querySelector(".fbtn"); if (fb) fb.innerHTML = ic("filter", "") + (filtN() ? '<i class="dot"></i>' : ""); return; }
-    case "freset": F = Object.assign(F, { own: "own", lv: 0, grp: "all", el: "all", sort: "rar", ssort: "name", sel: "all" }); return show("cards"), filterSheet();
+    case "freset": F = Object.assign(F, { own: "own", lv: 0, el: "all", sort: "rar", ssort: "name", sel: "all" }); return show("cards"), filterSheet();
     case "skdetail": return skillSheet(d.id);
     case "setvar": return setVar(d.id, d.v);
     case "avatar": return avatarSheet();
+    case "avtab": return d.k === "f" ? frameSheet() : avatarSheet();
     case "avpick": { AV.pick = d.id; document.querySelectorAll("#avlist .avc").forEach(b => b.classList.toggle("on", b.dataset.id === AV.pick)); $("#avprev").innerHTML = avPreview(); return uiFx("tap"); }
     case "avuse": { P.avatar = AV.pick || null; scheduleSave(); chrome(); closeModal(); uiFx("ok"); return toast(AV.pick ? BY[AV.pick].name + " is now your portrait" : "Your portrait follows your best card"); }
     case "setav": P.avatar = d.id || null; scheduleSave(); chrome(); closeModal(); return toast(d.id ? BY[d.id].name + " is now your portrait" : "Your portrait follows your best card");
@@ -5534,7 +5610,17 @@ document.addEventListener("click", async e => {
     case "songsClear": try { await IDB.clear(); } catch (_) {} AU.tracks = []; bgmStop(); if (AU.el) AU.el.removeAttribute("src"); musicStart(); return show("daily");
     case "nameEdit": return nameSheet(false);
     case "nameRand": { const i = $("#nm"); if (i) i.value = randName(); return; }
-    case "nameSave": { const v = ($("#nm").value || "").trim().slice(0, 14); if (!v) return toast("Type a name, or tap Surprise me."); P.name = v; P.named = true; scheduleSave(); closeModal(); chrome(); toast("Hi, " + v + "!"); if (tab === "daily") show("daily"); return; }
+    case "nameSave": {
+      const v = ($("#nm").value || "").trim().slice(0, 14), err = $("#nmerr"); if (!v) return toast("Type a name, or tap Surprise me.");
+      if (ACC) {   // one name per account: the server refuses a name somebody already has
+        if (!/^[A-Za-z0-9_]{3,14}$/.test(v)) { if (err) err.textContent = "3 to 14 letters, numbers or underscores."; return; }
+        if (v === ACC.name) { P.name = v; closeModal(); return chrome(); }
+        el.disabled = true; const r = await accCall("/auth/rename", { token: ACC.token, name: v }); el.disabled = false;
+        if (!r.ok) { if (err) err.textContent = r.taken ? "That name is already taken. Try another." : (r.err || "Could not change the name right now."); return; }
+        ACC.name = r.name; accSave(); hubStop(); HUBSTOP = false; hubConnect(); P.name = r.name;
+      } else P.name = v;
+      P.named = true; scheduleSave(); closeModal(); chrome(); toast("Hi, " + P.name + "!"); return;
+    }
     case "nameSkip": P.named = true; scheduleSave(); return closeModal();
     case "saveName": P.name = ($("#pname").value || "").trim().slice(0, 14); scheduleSave(); toast("Name saved"); return chrome();
   }

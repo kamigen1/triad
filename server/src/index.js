@@ -177,7 +177,7 @@ function guardProfile(old, nw, dtSec, credit0) {
   if (!old) {   // the first save of an account: a starter profile, or an older save from before accounts, which has to look like it was played
     const cardsN = ownSum(nw.own), lv = g(nw, "lv") || 1;
     if (g(nw, "coins") > 60000 || g(nw, "gems") > 1500 || g(nw, "tokens") > 400 || lv > 60) return bad("first save too rich");
-    if (cardsN > 14 + 6 * g(nw, "pulls") + 2 * g(nw, "plays") + 8 * lv) return bad("first save has more cards than were earned");
+    if (cardsN > 14 + 12 * g(nw, "pulls") + 2 * g(nw, "plays") + 8 * lv) return bad("first save has more cards than were earned");
     return { why: "", credit: freshCredit() };
   }
   const cr = {}; for (const [k, r] of Object.entries(RATE)) cr[k] = Math.min(r[1], (credit0 && Number.isFinite(credit0[k]) ? credit0[k] : r[1]) + r[0] * dtSec);
@@ -193,13 +193,13 @@ function guardProfile(old, nw, dtSec, credit0) {
   const tierG = Math.max(0, g(nw.rank, "tierBest") - g(old.rank, "tierBest")), clG = Math.max(0, cleared(nw) - cleared(old)), lvP = Math.max(0, lvG);
   /* the one-time move to three currencies: the old pack tokens, shards and medals pay out as coins, and event tickets become Tokens */
   const moved = nw.econv >= 2 && !(old.econv >= 2), legacy = moved ? g(old, "tickets") * 500 + g(old, "dust") * 3 + g(old, "medals") + g(old.ev, "medals") : 0, legacyTok = moved ? g(old.ev, "tickets") : 0;
-  const coinsA = 500 * pG + 400 * lvP + sell + 600 * Math.max(0, pullG) + legacy, gemsA = 12 * lvP + 25 * tierG + 25 * clG, tixA = legacyTok;
+  const coinsA = 500 * pG + 400 * lvP + sell + 1200 * Math.max(0, pullG) + legacy, gemsA = 12 * lvP + 25 * tierG + 25 * clG, tixA = legacyTok;
   const pullMax = Math.floor((g(old, "coins") + coinsA + cr.coins) / 500) + 3 + g(old, "gems") + gemsA + cr.gems;
   if (pullG > pullMax) return bad("summons above what could be paid for");
   if (!use("coins", g(nw, "coins") - g(old, "coins"), coinsA)) return bad("coins above budget");
   if (!use("gems", g(nw, "gems") - g(old, "gems"), gemsA)) return bad("gems above budget");
   if (!use("tix", g(nw, "tokens") - g(old, "tokens"), tixA)) return bad("tokens above budget");
-  if (!use("cards", gained, 6 * Math.max(0, pullG))) return bad("more cards than were earned");
+  if (!use("cards", gained, 12 * Math.max(0, pullG))) return bad("more cards than were earned");
   if (nw.rank && old.rank) {
     const rG = g(nw.rank, "w") + g(nw.rank, "l") - g(old.rank, "w") - g(old.rank, "l"); if (g(nw.rank, "w") < g(old.rank, "w") || g(nw.rank, "l") < g(old.rank, "l")) return bad("rank record went backwards");
     if (rG > pG) return bad("more ranked matches than matches"); if (g(nw.rank, "pts") > g(old.rank, "pts") + 32 * Math.max(0, rG)) return bad("rank points above budget");
@@ -298,6 +298,18 @@ export class Hub {
       for (const q of ["DELETE FROM sessions WHERE lname=?", "DELETE FROM profiles WHERE lname=?", "DELETE FROM pbak WHERE lname=?", "DELETE FROM credit WHERE lname=?", "DELETE FROM flags WHERE lname=?", "DELETE FROM oauth WHERE lname=?", "DELETE FROM pend WHERE lname=?", "DELETE FROM vt WHERE lname=?", "DELETE FROM accounts WHERE lname=?"]) this.sql.exec(q, l);
       for (const q of ["DELETE FROM friends WHERE a=? OR b=?", "DELETE FROM reqs WHERE frm=? OR too=?", "DELETE FROM invites WHERE frm=? OR too=?", "DELETE FROM blocks WHERE a=? OR b=?"]) this.sql.exec(q, l, l);
       return json({ ok: true });
+    }
+    if (p === "/auth/rename") {   // change the account's name: 3 to 14 letters, numbers or underscores, and never one that is taken (any capitalisation)
+      if (this.limited(req.headers.get("cf-connecting-ip") || "x")) return json({ ok: false, err: "Too many tries. Wait a minute." }, 429);
+      const s = this.one("SELECT lname FROM sessions WHERE th=?", await sha(String(b.token || ""))); if (!s) return json({ ok: false, auth: true, err: "Please sign in again." }, 401);
+      const nm = String(b.name || "").trim(); if (!NAME_RE.test(nm)) return json({ ok: false, err: "3 to 14 letters, numbers or underscores." });
+      const old = s.lname, nl = nm.toLowerCase();
+      if (nl !== old) {
+        if (this.one("SELECT 1 AS x FROM accounts WHERE lname=?", nl)) return json({ ok: false, taken: true, err: "That name is already taken." });
+        for (const t of ["accounts", "sessions", "profiles", "pbak", "credit", "flags", "oauth", "pend", "vt"]) this.sql.exec(`UPDATE ${t} SET lname=? WHERE lname=?`, nl, old);
+        for (const [t, c] of [["friends", "a"], ["friends", "b"], ["reqs", "frm"], ["reqs", "too"], ["invites", "frm"], ["invites", "too"], ["blocks", "a"], ["blocks", "b"], ["reports", "frm"], ["reports", "about"]]) this.sql.exec(`UPDATE ${t} SET ${c}=? WHERE ${c}=?`, nl, old);
+      }
+      this.sql.exec("UPDATE accounts SET name=? WHERE lname=?", nm, nl); return json({ ok: true, name: nm });
     }
     if (p === "/_blk") return json({ blocked: !!this.one("SELECT 1 AS x FROM blocks WHERE (a=? AND b=?) OR (a=? AND b=?)", String(b.a || ""), String(b.b || ""), String(b.b || ""), String(b.a || "")) });
     if (p === "/log") {   // client error reports: version, message, browser. No account, no save data.
