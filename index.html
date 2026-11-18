@@ -311,7 +311,7 @@ table.odds { width: 100%; border-collapse: collapse; } table.odds td { padding: 
 .st-shade { position: absolute; inset: 0; background: linear-gradient(rgba(4, 8, 14, .55), rgba(4, 8, 14, .08) 35%, rgba(4, 8, 14, .5) 62%, rgba(4, 8, 14, .9)); }
 .st-top { position: absolute; left: 0; right: 0; top: 0; display: flex; justify-content: space-between; align-items: center; padding: max(10px, env(safe-area-inset-top)) 12px 6px; z-index: 5; }
 .st-title { font: 700 12px var(--body); letter-spacing: .08em; color: #e8ecf0cc; text-transform: uppercase; max-width: 44%; }
-.st-btns { display: flex; gap: 6px; } .st-btns button { border: 0; border-radius: 999px; padding: 7px 11px; background: rgba(14, 22, 32, .72); color: #fff; font: 700 12px var(--body); } .st-btns button.on { background: #e3bf66; color: #1a1408; }
+.st-btns { display: flex; gap: 6px; } .st-btns button { border: 1px solid rgba(255,255,255,.18); border-radius: 999px; padding: 9px 14px; min-height: 38px; background: rgba(14, 22, 32, .72); color: #fff; font: 700 13px var(--body); } .st-btns button.on { background: #e3bf66; color: #1a1408; }
 .st-stage { position: relative; flex: 1; min-height: 0; z-index: 2; }
 .st-p { position: absolute; bottom: -6px; width: 70%; aspect-ratio: .78; opacity: 0; filter: brightness(.45) saturate(.7); transform: scale(.95); transition: transform .35s, filter .35s, opacity .35s; }
 .st-p:not(:empty) { opacity: 1; } .st-p.l { left: -12%; } .st-p.r { right: -12%; } .st-p.on { filter: none; transform: scale(1.02); z-index: 3; }
@@ -1989,7 +1989,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.12.09-d";
+const VER = "2026.12.10-a";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -3761,23 +3761,240 @@ const STORY = {
   eps: [
     /* ---------- Arc 1: The Waking Road ---------- */
     { t: "Glass Underfoot",
-      before: ["n: The road out of Verrowmere is paved with black glass for the first mile. After that it is only road.", "veyr/calm: Three years of waking up in these ruins. Time to ask somebody why.", "n: Scouts of the Lanternwardens step out of the tall grass.", "scout/angry: By order of the High Lanternwarden, you will come with us. Quietly.", "veyr/calm: I don't remember agreeing to anything."],
-      after: ["scout/afraid: His sword. That is the same glass as the ruins.", "veyr/shock: What did you say?", "n: The scouts are gone before he can ask again. Behind him the glass road hums, very softly."] },
+      before: [
+        "@card Verrowmere, dawn",
+        "n: The road out of Verrowmere is paved with black glass for the first mile. After that it is only road, and Veyr is almost sorry to feel dirt under his boots.",
+        "n: The glass does not go quietly. It hums when he steps on it, a note so low it lives in the teeth.",
+        "veyr/calm: Three years of waking up in those ruins, and I have never walked past the last spire.",
+        "veyr/calm: Today I decided that was long enough.",
+        "n: He carries nothing but the sword on his back, black and clear as a night pond, and a name he is not even sure was his.",
+        "veyr/mystery: Someone knows what happened here. Someone always knows. I only have to find out who is not afraid to say.",
+        "@bg arena:forest",
+        "n: By noon the glass is behind him. The grass on both sides of the road is tall and gold, and too still for a windy day.",
+        "n: Veyr slows. A crow lifts out of the grass a long way ahead, and does not come back down.",
+        "veyr/calm: I am being watched.",
+        "n: He stops walking. Behind him, ten paces back, a boot scuffs gravel.",
+        "n: Scouts of the Lanternwardens step out of the tall grass on both sides, grey cloaks, hooded lanterns, hands on their swords but not drawn.",
+        "scout/calm: Stand easy. Nobody wants this to go badly.",
+        "veyr/calm: Then you will let me walk.",
+        "scout/angry: By order of the High Lanternwarden, you will come with us. Quietly.",
+        "veyr/calm: I don't remember agreeing to anything.",
+        "scout/calm: You don't remember anything. That is rather the point.",
+        "veyr/shock: You know who I am?",
+        "scout/afraid: We know what you carry. That will do. Draw, and it becomes a different conversation.",
+        "n: The sword is already half out of its scabbard. Veyr did not decide that. His hand did.",
+        "veyr/afraid: Then it is already a different conversation.",
+      ],
+      after: [
+        "n: The last scout drops to one knee, panting, his lantern rolling in the dust.",
+        "scout/afraid: His sword. That is the same glass as the ruins.",
+        "veyr/shock: What did you say?",
+        "scout/afraid: The Judge said the glass would come walking. We were meant to be the ones who stopped it, not the ones who watched it.",
+        "veyr/angry: Who is the Judge? Who sent you? Tell me.",
+        "n: The scout looks up at him. For a moment there is a person behind the helmet, and he looks only young and very tired.",
+        "scout/sad: I only have my orders. They have never told me why.",
+        "n: He reaches for his lantern. It is lit, and burning gold instead of the soft white wardens use.",
+        "scout/shock: That is not the right colour. That is not my light.",
+        "n: He stumbles back, and the others run with him. They are gone before Veyr can ask again.",
+        "veyr/calm: Gold lanterns. The Judge. Glass.",
+        "n: Veyr sits on a milestone and looks at his sword for a long time. The black glass shows a face that could be anyone's.",
+        "veyr/sad: It is the only thing I own, and it frightens them more than it frightens me.",
+        "n: Behind him, back where the road meets the ruins, the glass hums once, very softly, like something answering.",
+      ] },
     { t: "A Message for Nobody",
-      before: ["sylwen/angry: Hands off the cart! That grain is for three villages!", "n: A courier cart, a handful of raiders, and a ranger in a green cloak standing in front of both.", "veyr/calm: You look like you could use a second sword.", "sylwen/smug: I could use a first one. Yours will do."],
-      after: ["sylwen/happy: Sylwen Thornwake. I run messages for the Thornwake. Who are you?", "veyr/calm: Veyr. That is all I have.", "n: On a far rooftop, a hooded figure watches them, shoulders a satchel, and is gone."] },
+      before: [
+        "@card The grain road, three days on",
+        "n: Three days of walking, and Veyr has learned the road: it bends where the river bends, and the villages on it all keep their doors shut.",
+        "n: He has eaten twice. He has slept in a hayloft and a ditch. He has heard the same rumour in four places: a courier cart that never arrives.",
+        "veyr/calm: Every farmer I ask looks over my shoulder before they answer. As if somebody is listening.",
+        "@bg arena:forest",
+        "sylwen/angry: Hands off the cart! That grain is for three villages!",
+        "n: A courier cart, tipped halfway into a ditch. A handful of raiders on the road. And a ranger in a green cloak, standing in front of both, a short bow in her fist and no arrows left.",
+        "n: Veyr is close enough to see her knuckles are white around the bow.",
+        "veyr/calm: You look like you could use a second sword.",
+        "sylwen/smug: I could use a first one. Yours will do.",
+        "veyr/calm: There are six of them.",
+        "sylwen/calm: Seven. One is hiding in the grain. I counted.",
+        "veyr/shock: And you were going to take them alone?",
+        "sylwen/angry: I was going to take them until my arrows ran out. Then I was going to take them with this bow. It has a nice weight to it.",
+                "n: The raider in front grins. 'A kid in a green cloak and a vagrant. Hand over the cart and nobody bleeds.'",
+        "sylwen/calm: Stranger. If you are going to stand there, stand left. If you are going to help, now is nice.",
+        "n: Veyr puts a hand on his hilt. It is warm.",
+        "veyr/calm: Left it is.",
+      ],
+      after: [
+        "n: The last raider flees across the field, leaving a sack of oats behind. Sylwen watches him go, then slowly lowers her bow.",
+        "sylwen/happy: Seven. I said seven. Do you know how long I have wanted to say that to someone?",
+        "n: She laughs, bright and a little shaky, and sits down on the cart's edge to catch her breath.",
+        "sylwen/calm: Sylwen Thornwake. I run messages for the Thornwake, when somebody is paying and sometimes when they aren't. Who are you?",
+        "veyr/calm: Veyr. That is all I have.",
+        "sylwen/mystery: That is not an answer. That is a door you have closed.",
+        "veyr/sad: It is the only answer. I woke up three years ago and I do not remember anything before. I was in the ruins of Verrowmere, holding this.",
+        "n: Sylwen looks at the sword, black and clear as river ice, and her smile goes away without hurry.",
+        "sylwen/shock: You woke up in Verrowmere. In the glass.",
+        "sylwen/calm: Everyone on the Reach knows that road. You do not walk it. You do not even look at it.",
+        "veyr/calm: I walked it. I was looking for somebody to tell me why.",
+        "n: A silence. The river runs past them, loud over the stones.",
+        "sylwen/calm: I will not ask any more tonight. You can tell me when you like, or never.",
+        "sylwen/happy: Come on. Help me right this cart, and I will feed you. It is the least I can do for someone who counted to seven with me.",
+        "n: They get the wheel out of the ditch together. Neither of them notices the figure on a far rooftop.",
+        "n: A hooded courier, legs dangling over the edge, a leather satchel on his shoulder. He has been there for some time. He watches them to the bend in the road, then slings his bag and is gone.",
+      ] },
     { t: "The Hollow Patrol",
-      before: ["n: A patrol marches down the road in perfect step. Every soldier carries a lantern, and every lantern burns the same hard gold.", "sylwen/afraid: Those aren't wardens. Wardens argue. These don't blink.", "hollow/mystery: Glass. Glass is noted. Glass is noted. Glass is noted."],
-      after: ["sylwen/shock: They walked past me like I was a fence post. They only wanted you.", "veyr/calm: Then I should be told why.", "n: The lanterns on the dead patrol flicker out, one by one, and the glass in his sword gives off a faint glow."] },
+      before: [
+        "@card A road at dusk",
+        "n: Sylwen drives the cart and Veyr walks beside it. The old horse has opinions and sighs about all of them.",
+        "sylwen/smug: You have a lot of questions for somebody who has no answers.",
+        "veyr/calm: I have a lot of answers I have not been told yet.",
+        "sylwen/happy: Tomorrow I will tell you what a Thornwake courier does for a living, and you will be disappointed.",
+        "veyr/calm: Will I?",
+        "sylwen/calm: It is mostly walking. And arguing with horses. And carrying other people's secrets so heavy that you stop reading them.",
+        "sylwen/sad: Mostly the sorry ones. I read those twice.",
+        "n: The light goes amber, then violet. Frogs begin, one after another, down in the reeds.",
+        "veyr/calm: Why do you do it?",
+        "sylwen/calm: Because somebody should. If a letter does not get there, a person goes on waiting.",
+        "@bg arena:sky",
+        "n: A line of light appears on the road ahead. A patrol, marching in perfect step. Every soldier carries a lantern, and every lantern burns the same hard gold.",
+        "sylwen/afraid: Stop the cart. Those are not wardens.",
+        "veyr/calm: How can you tell?",
+        "sylwen/afraid: Wardens argue. Wardens grumble about the weather and who has the good boots. These do not blink.",
+        "n: The patrol stops, all at once, forty paces off. Not a boot out of line. Their faces are blank as plates.",
+        "hollow/mystery: Glass. Glass is noted. Glass is noted. Glass is noted.",
+        "sylwen/shock: They are not looking at me. They are looking at you.",
+        "veyr/calm: Get behind the cart.",
+        "sylwen/angry: Do not tell me to hide.",
+        "veyr/calm: Then get behind the cart and shoot over it.",
+      ],
+      after: [
+        "n: The last lantern gutters on the road and goes out. Silence settles, thick as a held breath.",
+        "sylwen/shock: They walked past me like I was a fence post. They only wanted you.",
+        "veyr/calm: Then I should be told why.",
+        "n: He kneels by the fallen soldier. Underneath the plate there is a face, ordinary, a man with a scar on his chin and a ring on a chain around his neck.",
+        "veyr/sad: He was someone. A person lit that lantern for him. Somebody was waiting for him to come home.",
+        "sylwen/sad: They are not dead. Look. His chest moves. Whatever that gold light was, it only borrowed him.",
+        "veyr/calm: Then it let him go.",
+        "n: The sword gives off a faint glow, the way embers do when you breathe on them. Sylwen steps back from it.",
+        "sylwen/mystery: It woke up when the lanterns died.",
+        "veyr/mystery: It was the glass that frightened them. And the lanterns were afraid of the glass.",
+        "sylwen/calm: Then we need to find out what the lanterns are for.",
+        "n: They carry the soldier to the cart and lay him in the straw. He sleeps, finally, like a child.",
+        "sylwen/calm: In the morning we take him to the next village. They will know his family.",
+        "veyr/tender: You are good at this.",
+        "sylwen/smug: Carrying things. It is what I do.",
+      ] },
     { t: "Gale Riders",
-      before: ["n: Riders on wind-beasts circle the party, shouting over the gusts.", "sylwen/angry: Bandits do not carry coin like that.", "n: One drops a coin. It is stamped with a tiny gold lantern.", "veyr/calm: Somebody is paying them to find me."],
-      after: ["sylwen/calm: That sigil is older than the wardens. I have only seen it in the Thornwake's oldest stories.", "veyr/calm: What do the stories say?", "sylwen/sad: That it marks something to be judged."] },
+      before: [
+        "@card Open country, two days later",
+        "n: The grass gives way to red clay and standing stones. Wind in the Reach has always been a little restless. Today it is nervous.",
+        "sylwen/calm: There is a storm in the west that has not moved in a day. Something is holding it there.",
+        "veyr/calm: Who would hold a storm?",
+        "sylwen/calm: Somebody with a very large reason.",
+        "n: Veyr has stopped asking whether his sword is humming. It always is now, a note at the edge of hearing, and he has learned to sleep through it.",
+        "n: They share a flatbread between them. Sylwen tells him a story about a courier who tried to deliver a letter to a mountain.",
+        "veyr/happy: Did the mountain read it?",
+        "sylwen/happy: The mountain never wrote back. The courier says that proves it did.",
+        "n: For the first time, Veyr laughs. It surprises both of them.",
+        "@bg arena:sky",
+        "n: The wind turns, and the laughter stops. Riders on wind-beasts rise over the ridge, thin and fast, circling the party in tightening rings.",
+        "sylwen/angry: Bandits do not carry that kind of speed. Those are trained beasts.",
+        "n: A rider swoops low and flings something at Veyr's feet. It rings on a stone and rolls. A coin, stamped with a tiny gold lantern.",
+        "veyr/calm: Somebody is paying them to find me.",
+        "sylwen/afraid: Somebody is paying a lot. Look at the stamp. That is fresh minted.",
+        "n: The riders call to each other over the wind, one word again and again. 'Glass-sword. Glass-sword. The Judge pays for glass.'",
+        "veyr/angry: Then I will be a very expensive afternoon.",
+        "sylwen/calm: Veyr. The wind is on their side. Mind your feet.",
+      ],
+      after: [
+        "n: The wind drops, all at once, as if somebody had shut a door on it.",
+        "sylwen/calm: That sigil is older than the wardens. I have only seen it in the Thornwake's oldest stories.",
+        "veyr/calm: What do the stories say?",
+        "sylwen/sad: That it marks something to be judged.",
+        "veyr/calm: Judged by whom?",
+        "sylwen/mystery: The stories do not say. They never do. They only say it was never anybody who came back.",
+        "n: She turns the coin over in her fingers. On its edge, in letters so small they could be scratches, is a single word. She reads it out.",
+        "sylwen/afraid: 'Forgiven.' What does that mean? Forgiven for what?",
+        "n: Veyr takes the coin from her. The sword hums, and for one breath the coin goes cold in his palm.",
+        "veyr/mystery: I do not know. But I think it was written about me.",
+        "sylwen/calm: You do not know that.",
+        "veyr/calm: No. I just have a feeling about the shape of it.",
+        "n: Sylwen is quiet. Then she takes the coin back and ties it into her sleeve.",
+        "sylwen/calm: Then we keep this. Evidence is a good thing to carry. It weighs more than gold.",
+        "n: They walk on into the clay, two small figures under a very large sky.",
+      ] },
     { t: "Stone Wardens",
-      before: ["n: A stone bridge, and four guards with a lantern-sealed gate.", "scout/angry: No glass crosses this bridge. Orders from the Judge.", "sylwen/shock: The what?", "veyr/calm: Somebody has been giving orders in a name I haven't heard."],
-      after: ["n: The seal on the gate cracks as Veyr's blade passes it. The lantern inside goes dark.", "sylwen/shock: Your sword just ate a warding lantern.", "veyr/calm: I didn't ask it to."] },
+      before: [
+        "@card The river crossing",
+        "n: The road drops toward a wide, brown river, and the only way across is a stone bridge older than the wardens themselves.",
+        "sylwen/calm: The Old Weir Bridge. My grandmother used to say it was built by someone who liked to be crossed by interesting people.",
+        "veyr/calm: And am I interesting?",
+        "sylwen/smug: You are the most interesting thing to walk the Reach in three years. Which is not saying much, but it is saying something.",
+        "n: As they come to the bank, a gate of black iron slides shut across the bridge's mouth. A lantern burns above it, gold and steady.",
+        "n: Four guards stand in front of it. Their armour is the old warden grey. Their faces are not.",
+        "scout/angry: No glass crosses this bridge. Orders from the Judge.",
+        "sylwen/shock: The what? Wardens do not take orders from anything called a Judge.",
+        "scout/calm: We were wardens. We are what is left of them, now. We hold the gate.",
+        "veyr/calm: Let us through. I have no quarrel with you.",
+        "scout/calm: The quarrel is not yours. It is the lantern's.",
+        "n: The lantern above the gate flares. Veyr feels the sword go cold against his back.",
+        "veyr/calm: Somebody has been giving orders in a name I have never heard, and everybody on the Reach seems to know it.",
+        "sylwen/afraid: Not everybody. Just everybody who has been quiet lately.",
+        "veyr/calm: I do not want to fight you.",
+        "scout/sad: Nobody does. Do it anyway.",
+      ],
+      after: [
+        "n: The gate stands open, one iron wing swung back. Where the seal was there is only a ring of cracked stone, and a lantern gone dark.",
+        "n: The seal on the gate cracked as Veyr's blade passed it. The lantern inside went dark.",
+        "sylwen/shock: Your sword just ate a warding lantern.",
+        "veyr/calm: I didn't ask it to.",
+        "sylwen/calm: Did you tell it not to?",
+        "veyr/calm: I have no idea what the rules are. I only know it listens when I am afraid.",
+        "n: The old guard sits against the parapet, rubbing his temples, eyes slowly clearing.",
+        "scout/calm: I was standing here a long time. It felt like a week. It felt like I was inside a bell.",
+        "veyr/calm: And now?",
+        "scout/sad: Now I can hear the river.",
+        "n: He looks at the broken lantern, then at the party. For a moment, it seems he might say something. He only shakes his head.",
+        "scout/calm: Go. Cross while the gate is down. There are more of us on the far bank, but they are younger and do not remember being wardens.",
+        "sylwen/tender: Thank you.",
+        "scout/calm: Do not thank me. Just be somebody worth the trouble.",
+        "n: They cross at dusk. Halfway over, Veyr stops and looks down at the brown water sliding under the arch.",
+        "veyr/mystery: Sylwen. If the Judge is hunting the glass, and the glass woke up in me, then what am I?",
+        "sylwen/calm: A man crossing a bridge. Keep walking.",
+      ] },
     { t: "Chief Brogan",
-      before: ["brogan/smug: The Judge pays double for the boy with the glass sword. Double! I can retire!", "sylwen/angry: Who is the Judge, Brogan?", "brogan/afraid: Nobody knows. A voice in a lantern. It tells you where to stand."],
-      after: ["brogan/afraid: Take the Thornwake road. The Judge's lanterns are thick there. Don't say I said so.", "sylwen/calm: The Thornwake is my home. If lanterns are hanging in it, I am coming with you.", "veyr/calm: I would be glad of the company.", "n: A small, quiet party sets off toward the forest. Behind them, the road keeps humming."] },
+      before: [
+        "@card The far bank, a night later",
+        "n: The village on the far bank is called Fordholm, and it has been robbed so many times it has stopped bothering with locks.",
+        "n: A fire is going in the square. A bandit chief sits beside it, a big man in a coat too fine for the road, feet up on a stolen chair, eating a stolen pie.",
+        "brogan/smug: The Judge pays double for the boy with the glass sword. Double! I can retire!",
+        "sylwen/angry: Who is the Judge, Brogan?",
+        "n: Brogan nearly chokes. He knows Sylwen's cloak, and puts his pie down.",
+        "brogan/afraid: Thornwake courier. You are not supposed to be here. You are supposed to be somewhere with trees.",
+        "sylwen/calm: I am supposed to be wherever I am delivering. Today it is a question. Who is the Judge?",
+        "brogan/afraid: Nobody knows. A voice in a lantern. It tells you where to stand. It tells you what to take and from whom.",
+        "veyr/calm: You do not sound like someone who likes it.",
+        "brogan/calm: Boy. I have robbed travellers for twenty years. I know when I am a man's boss and when I am a man's tool. The Judge made me a tool a month ago.",
+        "n: Around the fire, a dozen bandits stand, a little too still. Gold light glints in each of their pockets, a lantern in every coat.",
+        "brogan/afraid: I cannot take these off. Believe me, I tried. They are in my pockets when I wake.",
+        "veyr/calm: Then let me help you.",
+        "brogan/angry: Help me? You are the thing the voice is after!",
+        "brogan/afraid: ...Please. Hurry. It is telling me to hit you, and I do not want to.",
+      ],
+      after: [
+        "n: Brogan sits against the cart, breathing hard, and for the first time all evening his hands are shaking.",
+        "brogan/afraid: Take the Thornwake road. The Judge's lanterns are thick there. Don't say I said so.",
+        "sylwen/calm: The Thornwake is my home. If lanterns are hanging in it, I am coming with you.",
+        "veyr/calm: I would be glad of the company.",
+        "n: Brogan looks at Veyr properly, as if for the first time, and what he sees makes him frown.",
+        "brogan/mystery: There was a man like you once. Walked right out of the glass, they said. Years back, before the lanterns went wrong.",
+        "veyr/shock: What man?",
+        "brogan/calm: I never saw him myself. I only heard it from a cousin who guards a toll. A man with a black blade, hands that did not shake.",
+        "brogan/afraid: I might be wrong. It might only be a story. Do not go building your life on a toll-guard's cousin.",
+        "veyr/sad: I will not. But I will keep it.",
+        "n: The bandits are already scattering, rubbing their pockets, some laughing, some crying. The pie is the only thing left on the fire.",
+        "sylwen/happy: You are paying for that pie, Brogan.",
+        "brogan/smug: I just paid you in information. We are square.",
+        "n: A small, quiet party sets off toward the forest at first light. Behind them, the road keeps humming.",
+      ] },
     /* ---------- Arc 2: The Thornwake ---------- */
     { t: "A Forest That Grows Over Its Own Paths",
       before: ["n: The Thornwake never lets you find the same path twice. Today it is worse than that.", "sylwen/afraid: The brambles are closing the trails. The Wake has never been this angry.", "n: Thorn hounds burst through the hedge."],
@@ -4317,7 +4534,7 @@ const storyEp = (ch, k) => storyEps(ch)[k] || null;
 const spkCard = key => { const nm = SPK[key]; return nm ? (C.find(c => c.name === nm) || null) : null; };
 const storyState = () => (P.story = P.story || { read: {}, b: 0, c: 0, f: 0, full: {} });
 const storyRead = id => !!(P && P.story && P.story.read && P.story.read[id]);
-function parseLine(s) { const m = /^([a-z0-9_]+)(?:\/([a-z]+))?:\s*(.*)$/.exec(s); return m ? { who: m[1], mood: m[2] || "calm", text: m[3] } : { who: "n", mood: "calm", text: s }; }
+function parseLine(s) { const d = /^@(bg|card)\s+(.*)$/.exec(s); if (d) return { dir: d[1], arg: d[2] }; const m = /^([a-z0-9_]+)(?:\/([a-z]+))?:\s*(.*)$/.exec(s); return m ? { who: m[1], mood: m[2] || "calm", text: m[3] } : { who: "n", mood: "calm", text: s }; }
 function storyBgUrl(bg) { const [g, k] = String(bg || "region:0").split(":"); return art2(g, k) || art2("region", 0); }
 const sceneEp = (ch, k, w) => { const ep = storyEp(ch, k); return { id: `e:${ch}-${k}:${w}`, kind: "ep", title: w === "b" ? `Episode ${k + 1}: ${ep.t}` : "", bg: storyBgFor(ch, k), lines: w === "b" ? ep.before : ep.after }; };
 const sceneBanter = b => ({ id: "b:" + b.id, kind: "banter", title: b.title, bg: storyBgFor(+b.after.split("-")[0], +b.after.split("-")[1]), lines: b.lines });
@@ -4341,12 +4558,12 @@ function storyFinish(sc) {
 function storyPlay(sc, done, cancel) {
   if (!sc || !sc.lines || !sc.lines.length) { if (done) done(); return; }
   const old = document.getElementById("story"); if (old) old.remove();
-  const lines = sc.lines.map(parseLine), el = document.createElement("div"); el.id = "story";
+  const lines = sc.lines.map(parseLine), lead = lines[0] && lines[0].dir === "card" && sc.title ? lines.shift().arg : "", el = document.createElement("div"); el.id = "story";
   el.innerHTML = `<div class="st-bg" style="background-image:url(${storyBgUrl(sc.bg)})"></div><div class="st-shade"></div>` +
-    `<div class="st-top"><span class="st-title">${esc(sc.title || "")}</span><div class="st-btns"><button data-st="auto">Auto</button><button data-st="log">Log</button><button data-st="skip">Skip ▸▸</button><button data-st="x" aria-label="Close">✕</button></div></div>` +
+    `<div class="st-top"><span class="st-title">${esc(sc.title || "")}</span><div class="st-btns"><button data-st="auto" class="${(() => { try { return localStorage.getItem("tc_auto") === "1" ? "on" : ""; } catch (_) { return ""; } })()}">${(() => { try { return localStorage.getItem("tc_auto") === "1" ? "Auto ▶ on" : "Auto"; } catch (_) { return "Auto"; } })()}</button><button data-st="log">Log</button><button data-st="skip">Skip ▸▸</button><button data-st="x" aria-label="Close">✕</button></div></div>` +
     `<div class="st-stage"><div class="st-p l"></div><div class="st-p r"></div></div><div class="st-box"><div class="st-name"></div><div class="st-text"></div><i class="st-next">▼</i></div><div class="st-log" hidden></div>`;
   document.body.appendChild(el); if (typeof thDuck === "function") thDuck(.5, .6);
-  const S = { i: -1, typing: false, tm: 0, auto: false, at: 0, seen: [], slot: { l: null, r: null }, ended: false }, $s = q => el.querySelector(q), text = $s(".st-text"), name = $s(".st-name"), box = $s(".st-box");
+  const S = { i: -1, typing: false, tm: 0, auto: (() => { try { return localStorage.getItem("tc_auto") === "1"; } catch (_) { return false; } })(), at: 0, seen: [], slot: { l: null, r: null }, ended: false }, $s = q => el.querySelector(q), text = $s(".st-text"), name = $s(".st-name"), box = $s(".st-box");
   const end = (ok) => { if (S.ended) return; S.ended = true; clearInterval(S.tm); clearTimeout(S.at); el.classList.add("out"); setTimeout(() => el.remove(), 200); if (typeof thDuck === "function") thDuck(1, 1); if (ok) { storyFinish(sc); if (done) setTimeout(done, 120); } else if (cancel) setTimeout(cancel, 120); };
   /* a transparent cut-out (art_new/portrait_<card id>.webp) is used when there is one; otherwise the card art. A painting that would look away from the person it talks to is mirrored. */
   const setSlot = (side, card, key) => {
@@ -4355,26 +4572,30 @@ function storyPlay(sc, done, cancel) {
     const cut = art2("portrait", card.id), face = FACE[key] || "f", flip = (side === "l" && face === "l") || (side === "r" && face === "r");
     p.innerHTML = `<img class="${cut ? "cut" : ""}" alt="" style="${flip ? "scale:-1 1" : ""}" src="${cut || artSrc(card, true)}"><i class="st-mood"></i>`; return p;
   };
+  /* directives: "@bg region:2" swaps the painting behind the scene (a place change), "@card Three days later" shows a full-screen title card (time passing, a journey) and clears the stage */
+  const showCard = (txt, cont) => { const c = document.createElement("div"); c.className = "st-card"; c.innerHTML = `<b class="fat">${esc(txt)}</b>`; el.appendChild(c); let gone = false; const go = () => { if (gone) return; gone = true; c.classList.add("out"); setTimeout(() => c.remove(), 400); cont(); }; c.addEventListener("click", e => { e.stopPropagation(); go(); }); setTimeout(go, 1900); };
   const next = () => {
     clearTimeout(S.at); S.i++; if (S.i >= lines.length) return end(true);
+    if (lines[S.i].dir === "bg") { const b = $s(".st-bg"); b.style.opacity = 0; setTimeout(() => { b.style.backgroundImage = `url(${storyBgUrl(lines[S.i].arg)})`; b.style.opacity = 1; }, 220); return next(); }
+    if (lines[S.i].dir === "card") { setSlot("l", null); setSlot("r", null); text.textContent = ""; name.style.visibility = "hidden"; S.typing = true; return showCard(lines[S.i].arg, () => { S.typing = false; next(); }); }
     const L = lines[S.i], card = L.who === "n" ? null : spkCard(L.who); S.seen.push(L);
     const side = L.who === "veyr" ? "l" : "r"; if (card) setSlot(side, card, L.who);
     el.querySelectorAll(".st-p").forEach(p => { p.classList.remove("on"); p.className = p.className.replace(/\bm-\w+\b/g, "").trim(); }); const act = card ? $s(".st-p." + side) : null;
     if (act) { act.classList.add("on", "m-" + L.mood); const mi = act.querySelector(".st-mood"); if (mi) mi.textContent = MOODS[L.mood] || ""; }
     const k = card ? arCard(card) : null; name.textContent = card ? card.name.split(",")[0] : ""; name.style.setProperty("--nc", k ? (EL[k.el] ? EL[k.el][2] : "#e3bf66") : "#aab4c2"); name.style.visibility = card ? "visible" : "hidden"; box.classList.toggle("nar", !card);
-    S.typing = true; text.textContent = ""; let n = 0; clearInterval(S.tm); S.tm = setInterval(() => { n += 1; text.textContent = L.text.slice(0, n); if (n >= L.text.length) { clearInterval(S.tm); S.typing = false; if (S.auto) S.at = setTimeout(next, 700 + L.text.length * 38); } }, 24);
+    S.typing = true; text.textContent = ""; let n = 0; clearInterval(S.tm); S.tm = setInterval(() => { n += 1; text.textContent = L.text.slice(0, n); if (n >= L.text.length) { clearInterval(S.tm); S.typing = false; if (S.auto) S.at = setTimeout(next, 900 + L.text.length * 45); } }, 24);
   };
-  const finishTyping = () => { clearInterval(S.tm); S.typing = false; text.textContent = lines[S.i].text; if (S.auto) S.at = setTimeout(next, 700 + lines[S.i].text.length * 38); };
+  const finishTyping = () => { clearInterval(S.tm); S.typing = false; text.textContent = lines[S.i].text; if (S.auto) S.at = setTimeout(next, 900 + lines[S.i].text.length * 45); };
   el.addEventListener("click", e => {
     const b = e.target.closest("[data-st]"); if (b) {
       const a = b.dataset.st; if (a === "skip") return end(true); if (a === "x") return end(false);
-      if (a === "auto") { S.auto = !S.auto; b.classList.toggle("on", S.auto); if (S.auto && !S.typing) next(); return; }
+      if (a === "auto") { S.auto = !S.auto; try { localStorage.setItem("tc_auto", S.auto ? "1" : "0"); } catch (_) {} b.classList.toggle("on", S.auto); b.textContent = S.auto ? "Auto ▶ on" : "Auto"; if (S.auto && !S.typing) { if (S.i >= 0) finishTyping(); } return; }
       if (a === "log") { const lg = $s(".st-log"); lg.hidden = !lg.hidden; lg.innerHTML = S.seen.map(L => { const c = L.who === "n" ? null : spkCard(L.who); return `<p><b>${c ? esc(c.name.split(",")[0]) : "·"}</b> ${esc(L.text)}</p>`; }).join(""); lg.scrollTop = lg.scrollHeight; return; }
     }
     if (!$s(".st-log").hidden) { $s(".st-log").hidden = true; return; }
     sfx("tap"); if (S.typing) finishTyping(); else next();
   });
-  if (sc.title && sc.kind !== "ep" || (sc.kind === "ep" && sc.title)) { const card = document.createElement("div"); card.className = "st-card"; card.innerHTML = `<b class="fat">${esc(sc.title)}</b>`; el.appendChild(card); sfx("level"); setTimeout(() => { card.classList.add("out"); setTimeout(() => card.remove(), 400); next(); }, 1500); } else next();
+  if (sc.title && sc.kind !== "ep" || (sc.kind === "ep" && sc.title)) { const card = document.createElement("div"); card.className = "st-card"; card.innerHTML = `<b class="fat">${esc(sc.title)}</b>` + (lead ? `<small style="display:block;margin-top:12px;color:#c9c2ae;font-size:14px;letter-spacing:.08em">${esc(lead)}</small>` : ""); el.appendChild(card); sfx("level"); let cd = false; const gc = () => { if (cd) return; cd = true; card.classList.add("out"); setTimeout(() => card.remove(), 400); next(); }; card.addEventListener("click", e => { e.stopPropagation(); gc(); }); setTimeout(gc, lead ? 2300 : 1500); } else next();
 }
 
 /* ----- campaign hooks: the opening of an episode and the scene after a win ----- */
