@@ -1989,7 +1989,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.12.09-a";
+const VER = "2026.12.09-b";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -3047,7 +3047,11 @@ const CAMP = [
       "Thorn Hounds", "Briar Pilgrims", "The Mossbound Choir", "Greenhide Stalkers", "The Hesitant Wardens", "Old Bramble",
       "Plinth Militia", "The Honour Guard", "Roan's Cairn Drill", "Cairn Sentries", "The Lantern Market", "High Lanternwarden Auralis",
       "Glass Husks", "The Hollow Wardens", "Lanternbound Legion", "Orla, Lantern-Bearer", "The Last Wardens", "The Lantern Judge"] },
-  { name: "Ashen Wastes", sub: "Cinder plains under a red sky", els: ["fire", "wind"], hint: "Fire then Wind splashes the lanes beside the target.", foes: ["Ember Hounds", "Cinder Marauders", "The Smoulder Guard", "Ash Dancers", "Furnace Knights", "Warlord Pyra"] },
+  { name: "The Ashen Wastes", sub: "Cinder plains, fox shrines and a mountain with a mouth", els: ["fire", "wind"], hint: "Fire then Wind splashes the lanes beside the target.", arcs: ["The Cinder Road", "The Ninefold Embers", "The Vault Below", "The Pyre"],
+    foes: ["Ember Hounds", "Cinder Marauders", "The Smoulder Guard", "Ash Dancers", "Furnace Knights", "Kael, Emberbrand",
+      "Pilgrim Pyres", "The Forgeguard", "The Cooled Smiths", "Ash Shrine Keepers", "Brand-Mad Hounds", "Yuzari, the Ninefold Flame",
+      "Slag Crawlers", "The Echoweaver Pickets", "The Vault Sentries", "Magma Wyrmlings", "The Gilded Lanterns", "Cindervault",
+      "Pyre Pilgrims", "Lantern Pyres", "The Ashen Legion", "The Burnt Choir", "The Herald's Guard", "The Pyre Herald"] },
   { name: "Frostmere", sub: "A frozen pass and a silent court", els: ["ice", "water"], hint: "Water then Ice freezes a card: it skips its next attack.", foes: ["Snow Wolves", "Rimebound Pilgrims", "The Quiet Court", "Glacier Wardens", "Frostweavers", "The Frost Queen"] },
   { name: "Tidal Ruins", sub: "Drowned stairs and a sunken throne", els: ["water", "lightning"], hint: "Water then Lightning is Conduct: ×1.5 damage.", foes: ["Reef Skulkers", "Stormcallers", "The Drowned Choir", "Tidebreakers", "Thunder Sentinels", "Leviathan's Voice"] },
   { name: "The Hollow Crown", sub: "The last road, and the last table", els: ["light", "dark"], hint: "Light and Dark react both ways: Eclipse strips buffs.", foes: ["Pale Heralds", "Dusk Stalkers", "The Veiled Court", "Dawnblades", "Eclipse Knights", "The Hollow King"] },
@@ -3394,7 +3398,7 @@ function viewBattle(v) {
   ckInit(); rankInit(); if (BV === "camp") return viewCamp(v);
   if (!P.camp) P.camp = { cl: {} };
   const d = P.cd[P.cdi], err = ckDeckOk(d.cards), rec = P.ck, rk = P.rank, unlocked = P.lv >= RANK_LV, tier = rankTier(rk.pts), nextT = TIERS_R[tier + 1];
-  let nx = null; for (let ch = 0; ch < CAMP.length && !nx; ch++) for (let k = 0; k < 6; k++) if (campOpen(ch, k) && !P.camp.cl[ch + "-" + k]) { nx = [ch, k]; break; }
+  let nx = null; for (let ch = 0; ch < CAMP.length && !nx; ch++) for (let k = 0; k < CAMP[ch].foes.length; k++) if (campOpen(ch, k) && !P.camp.cl[ch + "-" + k]) { nx = [ch, k]; break; }
   const heroId = P.avatar && BY[P.avatar] && P.own[P.avatar] > 0 ? P.avatar : bestCard(d.cards.filter(id => BY[id])) || d.cards.find(id => BY[id]), hk = heroId ? arCard(BY[heroId]) : null;
   const regionArt = nx ? "region:" + nx[0] : heroId, hmAny = (id, big) => (typeof id === "string" && id.indexOf("region:") === 0 ? regionImg(+id.slice(7)) : hmImg(id, big));
   const go = nx ? `<button class="hm-go" data-ck="campStage" data-ch="${nx[0]}" data-k="${nx[1]}" ${err ? "disabled" : ""}><span class="th">${hmAny(regionArt)}</span><span class="tx"><small>${campDone() ? "Continue campaign" : "Begin campaign"}</small><b>${esc(CAMP[nx[0]].name)}</b><span>${esc(CAMP[nx[0]].foes[nx[1]])}</span></span><i class="go">▶</i></button>`
@@ -3715,7 +3719,7 @@ setInterval(() => {
 /* ===== story.js: the story, as pure data. Nothing here touches code. =====
    A line is  "speaker/mood: text"  ("n" is the narrator; the mood is optional). Speakers are card names resolved in storyui.js (SPK below).
    Moods: calm happy angry sad shock afraid smug mystery tender.
-   Season 1 is written. Seasons 2 to 5 have their first six episodes as fights without scenes yet; 6 to 10 are planned (SEASON_PLAN).
+   Season 1 is here, season 2 is in story2.js (STORY.s[1]). Seasons 3 to 5 have their first six episodes as fights without scenes yet; 6 to 10 are planned (SEASON_PLAN).
    Series bible: STORY_DESIGN.md. World and cast: LORE.md. */
 const SPK = {
   veyr: "Veyr, the Nightglass", auralis: "Auralis, Dawnvein", sylwen: "Sylwen, Thornwake", roan: "Roan Redband", nyxara: "Nyxara, Weaver of Echoes", zarek: "Zarek Duskhorn",
@@ -3851,6 +3855,129 @@ const STORY = {
   },
 };
 
+/* ===== story2.js: Season 2, The Ashen Wastes (24 episodes), as pure data. Same line format as story.js. =====
+   Beats: the heavens' second being, the Pyre Herald, burns "tainted" places across the Wastes. Each arc ends with a guardian who mistakes the party for the Herald's side.
+   Veyr finds the gold lantern sigil on the Herald. Nyxara joins in arc 3. Kradin crosses their path. Kami is not mentioned (seasons 1 to 4). */
+Object.assign(SPK, { kael: "Kael, Emberbrand", yuzari: "Yuzari, the Ninefold Flame", cindervault: "Cindervault", pyrelle: "Pyrelle, the Ashborn" });
+Object.assign(FACE, { kael: "f", yuzari: "l", cindervault: "r", pyrelle: "f" });
+STORY.s = STORY.s || {};
+STORY.s[1] = {
+  bg: ["region:1", "arena:lava", "arena:lava", "region:1"],
+  intro: {
+    id: "s1:intro", title: "Season 2: The Ashen Wastes", bg: "region:1", lines: [
+      "n: East of the Reach the green gives out, and the sky turns the colour of a banked fire.",
+      "n: The Ashen Wastes were quiet for fifty years, ever since the Ashen Accord ended the War of Two Winters.",
+      "n: Now the pyres are burning again, and the coins in the dead raiders' purses carry a small gold lantern.",
+      "veyr/calm: The Judge is gone, but whoever built her is not. Same sigil, new fire.",
+      "auralis/calm: Then we follow the smoke.",
+    ],
+  },
+  eps: [
+    /* ---------- Arc 1: The Cinder Road ---------- */
+    { t: "Red Sky",
+      before: ["n: The dawn comes up red and keeps getting redder.", "roan/shock: Is the sun supposed to look like that?", "sylwen/calm: Smoke. A lot of it, and not from cooking.", "n: Ember hounds pour over the ridge, their collars stamped with a tiny gold lantern."],
+      after: ["auralis/calm: Look at the collars. The same sigil that hung in the Thornwake.", "roan/smug: Somebody is very proud of their branding.", "veyr/calm: Somebody wants every thing out here marked.", "n: Far east, a thin column of black smoke stands straight up into the red sky."] },
+    { t: "The Tithe of Ash",
+      before: ["n: A village. Every door has been chalked with a gold lantern and every granary is empty.", "sylwen/angry: Marauders. They are taking everything that burns and leaving everything that does not.", "n: A woman clutches a sack of grain. A raider laughs.", "n: Cinder marauders step out of the haze."],
+      after: ["n: The villagers get their grain back. The chalk sigils on the doors smoke and turn to ash.", "auralis/sad: They said it was a tithe for the Herald. They said the Herald only burns the tainted.", "veyr/calm: And who decides what is tainted?"] },
+    { t: "The Smoulder Guard",
+      before: ["n: A line of town guards stands across the road. Their armour is warm to the touch and their eyes are empty gold.", "auralis/shock: Those are not hollow wardens. Those are people. Someone is wearing them.", "n: The guards speak all at once.", "n: Marked. Marked. Marked. The road is closed."],
+      after: ["n: When the last guard falls, the gold fades from his eyes and he blinks like a man waking from a nap.", "n: The man looks at his own hands, then at Veyr.", "roan/calm: He does not remember any of it.", "veyr/sad: Neither do I, most days. I am starting to think that is not a coincidence."] },
+    { t: "Ash Dancers",
+      before: ["n: A road festival, in the middle of the plague of smoke. Drums, bells, and a ring of dancers.", "sylwen/afraid: Nobody sings at a funeral. These people are dancing to cover a sound.", "roan/shock: What sound?", "n: Beneath the drums, a faint, steady crackling."],
+      after: ["n: Behind the stage, a pyre the size of a barn, built from the villagers' own furniture.", "auralis/angry: They were making them build it themselves.", "veyr/calm: Then we take it down before the Herald comes to light it."] },
+    { t: "Furnace Knights",
+      before: ["n: The gates of Emberholt, a Brandwright town, stand open. Furnace knights line the walls.", "roan/smug: Finally, a proper fight. They look expensive.", "sylwen/calm: They are expensive. That armour is Brandwright steel.", "n: A knight lifts his visor. There is only an ember inside."],
+      after: ["n: The knights collapse into slag and cooling iron.", "auralis/calm: The Brandwrights make mercenaries, not saints. Why would they guard a town like this?", "veyr/calm: Because somebody paid them. Let us find out who."] },
+    { t: "Kael, Emberbrand",
+      before: ["n: Beyond the gate, a red-haired woman sits on the edge of a forge with a flame running down her sword.", "kael/smug: Glass-sword boy. I have been told to hold this town against you.", "veyr/calm: Who told you?", "kael/calm: A man in a gold coat with a lantern for a face. He paid in advance. I am a professional.", "kael/smug: Come on, then. I will try to enjoy it."],
+      after: ["n: Kael drops her sword, laughing, and looks at the coin in her hand.", "kael/shock: It is the gold-lantern coin. Every coin I took this week.", "kael/angry: I do not work for people who pay in lanterns. Contract void.", "kael/calm: You want the Herald? Then you want the fox. Yuzari keeps the old shrines, and the Herald is burning them one by one.", "kael/smug: I owe her a favour anyway. I will walk you in."] },
+    /* ---------- Arc 2: The Ninefold Embers ---------- */
+    { t: "Pilgrim Pyres",
+      before: ["n: Pilgrims climb the road to the shrines, each carrying a small clay pyre.", "kael/calm: Brandwrights light a little fire for every promise made. They are carrying their promises up to be blessed.", "sylwen/shock: And what are those?", "n: Gold lanterns shine behind the pilgrims' eyes. They turn together."],
+      after: ["n: The pilgrims drop their pyres and weep, as though they had been holding their breath for days.", "kael/sad: They were being walked to the Herald's fire. Their own pyres would have been the kindling.", "veyr/calm: The shrine is next."] },
+    { t: "The Forgeguard",
+      before: ["n: The Brandwright forges stand cold. The Forgeguard hammer lantern-iron on every anvil.", "roan/angry: They are melting their own swords into lanterns.", "kael/angry: Eight generations of marked steel. Somebody told them it was tainted.", "n: Hammers rise in perfect time."],
+      after: ["n: One of the smiths lowers her hammer, shaking.", "kael/calm: Back at the anvil, Hesta. The steel will remember you.", "n: The forge fire catches again, orange, not gold."] },
+    { t: "The Cooled Smiths",
+      before: ["n: A courtyard full of smiths who stand over their anvils, doing nothing.", "kael/shock: Their flames are gone. Not out. Taken.", "auralis/afraid: Taken. Like the lanterns in the wardens.", "n: A smith turns and grips her tools. They are cold and she does not know why."],
+      after: ["kael/sad: The Herald takes the flame from a thing and leaves the shape. A Brandwright without a fire is a statue with opinions.", "sylwen/calm: Can it be given back?", "kael/calm: Only by someone who still owes them. That is why we are going to the shrine."] },
+    { t: "Ash Shrine Keepers",
+      before: ["n: A hillside of fox statues, each with eight tails. One tail missing on each, the stone worn smooth where it should be.", "roan/calm: Is it supposed to look unfinished?", "kael/calm: The ninth tail. Ask her about it and she changes the subject.", "n: Shrine keepers, their eyes gold, bar the steps."],
+      after: ["n: A bell rings once, high up the hill. The air smells suddenly of cherry blossom, in a place where nothing blooms.", "veyr/mystery: Somebody has been waiting for us.", "kael/calm: She always is."] },
+    { t: "Brand-Mad Hounds",
+      before: ["n: The last stretch before the shrine is a field of ash. Something is running through it.", "sylwen/shock: Hounds. But their eyes are wrong. They are burning from the inside.", "kael/angry: The Herald's pyres feed them. They are Brandwright hunting hounds. They would never.", "n: They are fast. They are furious. They are very, very sorry."],
+      after: ["n: The hounds collapse, their fur smoking, whimpering like pups.", "auralis/tender: They were not evil. They were only hot, and frightened.", "roan/calm: That is the second time this week the Herald has made me angry at a fire."] },
+    { t: "Yuzari, the Ninefold Flame",
+      before: ["n: A white fox with eight tails sits on the shrine's highest step, framed by falling cherry petals made of ash.", "yuzari/calm: Glass. I can smell it from here. You come into my wastes with a sword made of the thing that burned Verrowmere.", "veyr/calm: I did not burn Verrowmere. I woke up in it.", "yuzari/mystery: Everyone says so. Show me you are not the glass, and I will believe you for a little while."],
+      after: ["n: The fox bows her head. Seven of her tails fan out behind her. The eighth rests on the stone.", "yuzari/calm: You are not the fire. You are something the fire left behind.", "yuzari/sad: The ninth tail. I gave it away. I cannot remember why, and every time I get close the memory goes up like smoke.", "n: Footsteps, lantern light, and a courier with a long coat steps into the clearing.", "kradin/calm: A message for the fox, delivered as promised. It comes every spring.", "yuzari/shock: I have never once remembered who it is from.", "kradin/mystery: That is rather the point.", "n: The courier is gone before anyone can ask. Yuzari opens the letter. Whatever it says, she folds it, closes her eyes, and does not tell them."] },
+    /* ---------- Arc 3: The Vault Below ---------- */
+    { t: "Slag Crawlers",
+      before: ["n: Cindervault is a mountain with a mouth. The road to it is a river of cooling slag.", "yuzari/calm: Cindervault and I share a debt. I cannot tell you what it is. I can only tell you that he will not forgive the Herald for coming near it.", "n: Things crawl out of the rock, glowing red where they have been forced to melt."],
+      after: ["roan/calm: Everything out here is running. The slag, the hounds, the pilgrims.", "sylwen/calm: Everything except the vault.", "n: Far above, a gold light flickers at the mouth of the mountain."] },
+    { t: "A Voice in the Rock",
+      before: ["n: A line of hooded figures stands on the road, humming the same four notes into the stone.", "sylwen/shock: Echoweavers. They are pulling sound out of the mountain.", "n: A voice from above, amused, unhurried.", "nyxara/smug: Do not hurt them too badly. They are paid by the hour and I am sure they do not know why."],
+      after: ["n: A woman in a wide purple hat sits on a boulder, her boots swinging.", "nyxara/smug: Nyxara. I teach this trade, at least when my students listen. Hello, glass-sword.", "veyr/calm: You know me?", "nyxara/mystery: I know your sword. I heard it from three valleys away. It is very, very loud."] },
+    { t: "The Vault Sentries",
+      before: ["n: A gate carved into the mountain, sealed with gold lantern-iron. Sentries made of stone patrol it.", "nyxara/calm: They echo me. I could silence them, but where is the fun in that?", "roan/angry: There is a lot of fun in that. Watch.", "nyxara/smug: Do. I like to see how the young solve problems."],
+      after: ["n: Nyxara taps the gate. The lantern-iron rings, and the lock shatters.", "nyxara/smug: Some doors only open when you hum the right note.", "sylwen/shock: You could have done that at the start!", "nyxara/smug: And miss the part where you did it with a sword?"] },
+    { t: "Magma Wyrmlings",
+      before: ["n: Inside the mountain, the walls glow. Small things like dragons, hatched too early, crawl from the lava.", "auralis/afraid: Those are not meant to be awake yet.", "nyxara/calm: The Herald's light wakes things that should sleep. It is the second thing it does badly.", "veyr/calm: What is the first?", "nyxara/sad: Listening."],
+      after: ["n: Veyr's blade glows, softly, in the dark. Nyxara looks at it, then quickly away.", "nyxara/calm: When the Glass Night happened, I was far away. I heard it anyway.", "veyr/calm: What did it sound like?", "nyxara/sad: Not now. When I am ready, and not before."] },
+    { t: "The Gilded Lanterns",
+      before: ["n: At the heart of the mountain, a ring of tall gold lanterns burns without fuel, wrapped around a door of black iron.", "auralis/shock: Heavenly wardwork. Whoever built these did not do it from this world.", "nyxara/mystery: The vault is behind that door. Something in it is older than the lanterns.", "n: The lanterns turn, one by one, to look at the party."],
+      after: ["n: The gold lanterns crack and go dark. The black door groans, but does not open.", "auralis/calm: Whatever is inside, the Herald did not get there first.", "veyr/calm: Somebody did, though. Somebody a very long time ago."] },
+    { t: "Cindervault",
+      before: ["n: The vault door opens from the inside. Something the size of a hillside lifts its head, eyes like forge doors.", "cindervault/angry: GLASS. THE GLASS COMES TO MY HOME. AGAIN.", "yuzari/afraid: Old friend. They are not the Herald's.", "cindervault/angry: Then they will tell me themselves, in the only language I trust.", "n: The mountain roars."],
+      after: ["n: Cindervault lowers his head. A long, slow breath, and the lava in the walls goes quiet.", "cindervault/calm: You fight like someone who is afraid of what he is. That is the way of a person who is not the thing I feared.", "cindervault/calm: The Herald is at the Pyre, three days east. It means to burn the last shrine. Stop it, and I will remember you.", "nyxara/smug: I think I will go with them.", "veyr/calm: You do not even know where we are going.", "nyxara/smug: That is exactly why. Curious people are dangerous. It is the best kind of company."] },
+    /* ---------- Arc 4: The Pyre ---------- */
+    { t: "Pyre Pilgrims",
+      before: ["n: A thousand people walk east, slowly, carrying armfuls of wood. Their eyes are gold.", "auralis/sad: They were told the Herald would forgive them if they brought their own fuel.", "sylwen/angry: Forgive them for what?", "nyxara/calm: For being alive in a place the heavens consider unclean."],
+      after: ["n: The pilgrims drop their wood and blink, as if from a long dream.", "n: An old man holds out his hand to Veyr, and Veyr does not know what to do with it.", "veyr/calm: I am no one's saviour.", "roan/smug: Take the hand, hero. It is free of charge."] },
+    { t: "Lantern Pyres",
+      before: ["n: Tall iron braziers stand along the road, each shaped like a lantern. Gold fire pours from them, and anything it touches goes quiet.", "auralis/calm: This is lantern law. Wardens write it into the sky. Somebody turned it to fire.", "veyr/calm: Can you stop it?", "auralis/calm: Not by myself. Not yet."],
+      after: ["n: The braziers topple, the gold fire guttering to a handful of embers.", "auralis/tender: Thank you for giving me the nerve to try.", "veyr/calm: You did that yourself."] },
+    { t: "The Ashen Legion",
+      before: ["n: An army of grey soldiers marches across the plain. Every face is a Brandwright's.", "kael/shock: That is the Ninth Company. They went missing a year ago. They are my friends.", "kael/angry: Do not hurt them more than you must.", "n: The legion does not blink."],
+      after: ["n: The Ashen Legion falls apart like a burned house, and the people inside it step out, bewildered.", "kael/tender: Hesta. Brin. Tolliver. You are all stupid and I love you.", "n: Kael turns her back so nobody sees her face."] },
+    { t: "The Burnt Choir",
+      before: ["n: On the edge of the Pyre's amphitheatre, the burned stand in rows and sing four notes, over and over.", "nyxara/shock: Those notes. I have heard them. In his sword.", "veyr/calm: In mine?", "nyxara/afraid: The Glass Night had a voice, and these people are singing it back."],
+      after: ["n: The choir falls silent, one voice at a time. At the very end, a single note stays, and Veyr's blade answers it.", "veyr/sad: Someone has been teaching them my song.", "nyxara/calm: Or teaching you theirs."] },
+    { t: "The Herald's Guard",
+      before: ["n: At the foot of the Pyre, a ring of tall guards in gold and white armour. They carry spears with lantern heads.", "pip/shock: Halt! Halt! This is an unscheduled disturbance! The Herald is not to be interrupted!", "auralis/angry: Pip? Is that your name? Tell the heavens that I am done taking orders.", "pip/afraid: I only carry them!"],
+      after: ["n: The guards fall, and the little cherub scrambles up the steps, satchel clutched tight.", "pip/afraid: You do not understand! If the Herald fails, they will send another! And another! Each worse than the last!", "veyr/calm: Then we will stop each one.", "pip/sad: I know you will. That is what frightens them."] },
+    { t: "The Pyre Herald",
+      before: ["n: At the top of the amphitheatre, a bird of living flame hangs in the air above a pyre built for a whole city.", "pyrelle/calm: I am the Herald. I was kindled to find what carries the taint, and to burn it clean.", "veyr/angry: Whoever kindled you, they were wrong.", "pyrelle/calm: That is not a thing I am made to consider.", "n: The Herald spreads her wings, and the sky catches."],
+      after: ["n: The Herald crashes down, her fire guttering, and in the ashes there is a small gold mark on her breastbone: a lantern with a crack through it.", "veyr/shock: The same mark as the coins. The same as the Judge.", "pyrelle/sad: I was only told where to burn. I never saw a face. Only light.", "n: Pip lands beside her with a scroll, trembling.", "pip/afraid: Herald, you are recalled. Immediately.", "n: A beam of light takes the burning bird, and Pip with her, up into the sky.", "n: The gold lanterns across the Wastes go dark, one by one.", "veyr/calm: Whoever is up there is not finished with us.", "auralis/calm: Then neither are we.", "n: Far to the north, a thin wind carries the first snow across the ash."] },
+  ],
+};
+/* ----- banters (read once each for 500 coins): `after` is the stage that unlocks it ----- */
+STORY.banters.push(
+  { id: "b6", after: "1-2", title: "Hot air", lines: ["roan/angry: I have been sweating through my headband for two days.", "sylwen/smug: You took the red one. It was always going to be a mistake in the desert.", "roan/shock: It is a statement!", "auralis/calm: It is a very damp statement."] },
+  { id: "b7", after: "1-8", title: "Kael's coin", lines: ["kael/smug: I keep the gold-lantern coin. A thing that bad deserves to be remembered.", "roan/calm: You are going to spend it on soup.", "kael/shock: I was going to spend it on soup."] },
+  { id: "b8", after: "1-14", title: "An ear for glass", lines: ["nyxara/smug: Your sword is humming flat.", "veyr/calm: I did not know it could be flat.", "nyxara/calm: Everything can. That is what makes it music."] },
+  { id: "b9", after: "1-20", title: "The sound of ash", lines: ["sylwen/calm: It is too quiet here. The Wake always talks.", "nyxara/calm: The ash has swallowed it. Listen. Nothing is left to echo.", "veyr/sad: Then we make something worth echoing."] },
+  { id: "b10", after: "1-23", title: "Soup, again", lines: ["auralis/tender: Roan, you promised me soup.", "roan/smug: I promised you the best soup.", "kael/happy: I will see your soup and raise you a stew.", "sylwen/shock: Why is there now a contest."] },
+);
+/* ----- character stories (3 episodes each; unlocked by owning the card) ----- */
+Object.assign(STORY.chars, {
+  nyxara: [
+    { t: "Hedge Craft", lines: ["n: Nyxara sits in the road and listens to nothing at all.", "nyxara/calm: People think an echo is a copy. It is a witness.", "nyxara/smug: A place remembers every sound it has ever held. You only need to be rude enough to ask."] },
+    { t: "A Lost Voice", lines: ["n: Nyxara hums the same three notes whenever she thinks nobody is listening.", "nyxara/sad: I am looking for a voice. I have not found it in any valley I have heard.", "veyr/calm: Whose voice?", "nyxara/calm: One I would know anywhere, and cannot place at all."] },
+    { t: "What She Heard", lines: ["nyxara/calm: When the Glass Night happened, I was in a cellar three valleys away. Every echo in the world went quiet for a heartbeat.", "nyxara/sad: Then every echo screamed.", "nyxara/calm: I will tell you what it said when you can hear it without turning away."] },
+  ],
+  kael: [
+    { t: "Contract Law", lines: ["n: Kael recites the oath of a Brandwright over the forge fire.", "kael/smug: A Brandwright marks the gear, keeps the contract and never works for someone who pays in anything but coin.", "kael/calm: I was always very good at the last part."] },
+    { t: "Borrowed Fire", lines: ["kael/calm: Every time I light my sword, I owe the fox a little.", "kael/sad: She calls it a loan. I call it the best thing anyone has ever done for me.", "kael/happy: I will pay her back when she lets me."] },
+    { t: "The Ninth Seat", lines: ["kael/calm: A Brandwright company has eight seats. The ninth is always empty at the table.", "kael/sad: I know whose it was. I also know why she asked us not to say.", "kael/calm: Some secrets are the only things holding a company together."] },
+  ],
+  yuzari: [
+    { t: "Eight Tails", lines: ["n: Yuzari curls her tails around herself in the cold.", "yuzari/calm: People count them. Then they count them again. Then they ask politely, which is the worst part.", "yuzari/smug: I tell them nine is bad luck."] },
+    { t: "A Letter Every Spring", lines: ["n: A letter arrives under the shrine's bell. Yuzari reads it, then burns it.", "yuzari/calm: I know what it says for as long as I hold it.", "yuzari/sad: When the smoke clears, it is gone, and I only know I have been told something kind."] },
+    { t: "Why Forget", lines: ["yuzari/calm: I gave away a tail on purpose. I know that much.", "yuzari/mystery: Whatever I traded it for, I decided I would rather not remember the price.", "yuzari/tender: I trust that woman. She was me."] },
+  ],
+});
+
 /* ===== storyui.js: the scene player, the story log and the story rewards. The words themselves are in story.js. =====
    A scene is dialogue over a painted background: the speaker's card art stands as a bust, a name plate in the speaker's element colour, typewriter text.
    Every character has one painting, so mood is shown with tint, motion and a small icon, not new art.
@@ -3858,14 +3985,17 @@ const STORY = {
    Reading means reaching the last line: Skip jumps to the end and counts. Closing with the X does not. ===== */
 const MOODS = { calm: "", happy: "♪", angry: "💢", sad: "…", shock: "!", afraid: "💧", smug: "~", mystery: "?", tender: "♥" };
 const STORY_PAY = { banter: 500, char: 500, full: 20 };
-const storyEp = (ch, k) => (ch === 0 && STORY.eps[k]) || null;
+/* seasons: season 1 lives in STORY.eps; later seasons in STORY.s[ch] = { bg, intro, eps } (story2.js ...) */
+const storyEps = ch => (ch === 0 ? STORY.eps : (STORY.s && STORY.s[ch] ? STORY.s[ch].eps : null)) || [];
+const storyBgFor = (ch, k) => (ch === 0 ? ARC_BG : (STORY.s[ch] && STORY.s[ch].bg) || ARC_BG)[Math.floor(k / 6)] || "region:" + ch;
+const storyEp = (ch, k) => storyEps(ch)[k] || null;
 const spkCard = key => { const nm = SPK[key]; return nm ? (C.find(c => c.name === nm) || null) : null; };
 const storyState = () => (P.story = P.story || { read: {}, b: 0, c: 0, f: 0, full: {} });
 const storyRead = id => !!(P && P.story && P.story.read && P.story.read[id]);
 function parseLine(s) { const m = /^([a-z0-9_]+)(?:\/([a-z]+))?:\s*(.*)$/.exec(s); return m ? { who: m[1], mood: m[2] || "calm", text: m[3] } : { who: "n", mood: "calm", text: s }; }
 function storyBgUrl(bg) { const [g, k] = String(bg || "region:0").split(":"); return art2(g, k) || art2("region", 0); }
-const sceneEp = (ch, k, w) => { const ep = STORY.eps[k]; return { id: `e:${ch}-${k}:${w}`, kind: "ep", title: w === "b" ? `Episode ${k + 1}: ${ep.t}` : "", bg: ARC_BG[Math.floor(k / 6)] || "region:0", lines: w === "b" ? ep.before : ep.after }; };
-const sceneBanter = b => ({ id: "b:" + b.id, kind: "banter", title: b.title, bg: ARC_BG[Math.floor(+b.after.split("-")[1] / 6)] || "region:0", lines: b.lines });
+const sceneEp = (ch, k, w) => { const ep = storyEp(ch, k); return { id: `e:${ch}-${k}:${w}`, kind: "ep", title: w === "b" ? `Episode ${k + 1}: ${ep.t}` : "", bg: storyBgFor(ch, k), lines: w === "b" ? ep.before : ep.after }; };
+const sceneBanter = b => ({ id: "b:" + b.id, kind: "banter", title: b.title, bg: storyBgFor(+b.after.split("-")[0], +b.after.split("-")[1]), lines: b.lines });
 const sceneChar = (key, i) => { const e = STORY.chars[key][i]; return { id: `c:${key}:${i}`, kind: "char", key, i, title: e.t, bg: "region:0", lines: e.lines }; };
 const banterOpen = b => { const [ch, k] = b.after.split("-").map(Number); return !!(P.camp && P.camp.cl && P.camp.cl[ch + "-" + k]); };
 const storyCharKey = cardId => { const c = BY[cardId]; if (!c) return null; return Object.keys(STORY.chars).find(k => SPK[k] === c.name) || null; };
@@ -3928,7 +4058,10 @@ function campBegin(ch, k) {
   if (ep && ep.before && ep.before.length && !storyRead(`e:${ch}-${k}:b`)) return storyPlay(sceneEp(ch, k, "b"), go, () => show("battle"));
   go();
 }
-function storyIntroMaybe() { if (!storyRead(STORY.intro.id)) setTimeout(() => { if (typeof BV !== "undefined" && BV === "camp" && !storyRead(STORY.intro.id) && !document.getElementById("story")) storyPlay(STORY.intro); }, 500); }
+function storyIntroMaybe() {
+  const pick = () => { for (let ch = 0; ch < CAMP.length; ch++) { const it = ch === 0 ? STORY.intro : STORY.s && STORY.s[ch] && STORY.s[ch].intro; if (it && campOpen(ch, 0) && !storyRead(it.id)) return it; } return null; };
+  if (pick()) setTimeout(() => { const it = pick(); if (it && typeof BV !== "undefined" && BV === "camp" && !document.getElementById("story")) storyPlay(it); }, 500);
+}
 { const _leave = ckLeave; ckLeave = function () {
   try { const m = G && G.mode; if (m && m.kind === "camp" && G.over && G.winner === ME) { const ep = storyEp(m.ch, m.k); if (ep && ep.after && ep.after.length && !storyRead(`e:${m.ch}-${m.k}:a`)) { storyPlay(sceneEp(m.ch, m.k, "a"), () => _leave(), () => _leave()); return; } } } catch (_) {}
   return _leave();
@@ -3940,8 +4073,13 @@ const storyNew = () => STORY.banters.filter(b => banterOpen(b) && !storyRead("b:
 function storyLogSheet() {
   let b = "";
   if (SLOGT === "ep") {
-    const rows = STORY.eps.map((ep, k) => ({ ep, k, done: !!(P.camp && P.camp.cl && P.camp.cl["0-" + k]) })).filter(x => x.done || storyRead(`e:0-${x.k}:b`));
-    b = `<p class="note" style="text-align:center;margin:0 0 8px">Season 1: The Shattered Reach · ${rows.length} of ${STORY.eps.length} episodes seen. Tap an episode to watch its scenes again.</p><div class="list">${rows.map(x => `<button class="panel item" data-ck="storyEp" data-ch="0" data-k="${x.k}"><div class="t"><b>Episode ${x.k + 1}: ${esc(x.ep.t)}</b><small>${esc(CAMP[0].foes[x.k])}</small></div><span class="tag">WATCH</span></button>`).join("") || '<p class="note" style="text-align:center">Play the campaign to unlock scenes.</p>'}</div>`;
+    b = ""; let any = false;
+    for (let ch = 0; ch < CAMP.length; ch++) {
+      const eps = storyEps(ch); if (!eps.length) continue;
+      const rows = eps.map((ep, k) => ({ ep, k, done: !!(P.camp && P.camp.cl && P.camp.cl[ch + "-" + k]) })).filter(x => x.done || storyRead(`e:${ch}-${x.k}:b`)); if (!rows.length) continue; any = true;
+      b += `<p class="note" style="text-align:center;margin:8px 0">Season ${ch + 1}: ${esc(CAMP[ch].name)} · ${rows.length} of ${eps.length} episodes seen. Tap an episode to watch its scenes again.</p><div class="list">${rows.map(x => `<button class="panel item" data-ck="storyEp" data-ch="${ch}" data-k="${x.k}"><div class="t"><b>Episode ${x.k + 1}: ${esc(x.ep.t)}</b><small>${esc(CAMP[ch].foes[x.k])}</small></div><span class="tag">WATCH</span></button>`).join("")}</div>`;
+    }
+    if (!any) b = '<p class="note" style="text-align:center">Play the campaign to unlock scenes.</p>';
   } else if (SLOGT === "ban") {
     b = `<p class="note" style="text-align:center;margin:0 0 8px">Short scenes between the party. Reading one for the first time pays ${STORY_PAY.banter} coins.</p><div class="list">${STORY.banters.map(x => { const open = banterOpen(x), rd = storyRead("b:" + x.id); return `<button class="panel item ${open ? "" : "dim"}" ${open ? `data-ck="storyBanter" data-id="${x.id}"` : "disabled"}><div class="t"><b>${esc(open ? x.title : "Locked")}</b><small>${open ? (rd ? "Read" : "New · +" + STORY_PAY.banter + " coins") : "Beat episode " + (+x.after.split("-")[1] + 1)}</small></div><span class="tag ${rd ? "" : open ? "gold" : ""}">${rd ? "READ" : open ? "NEW" : "🔒"}</span></button>`; }).join("")}</div>`;
   } else {
