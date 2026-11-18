@@ -152,7 +152,7 @@ const roomCode = (n) => Array.from({ length: n }, () => "ABCDEFGHJKMNPQRSTUVWXYZ
 const hex = (buf) => [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
 const NAME_RE = /^[A-Za-z0-9_]{3,14}$/;
 const INVITE_TTL = 45000;
-const SELLV = { 1: 10, 2: 20, 3: 50, 4: 120, 5: 300, 6: 500 }, DUSTV = { 1: 3, 2: 5, 3: 13, 4: 30, 5: 75, 6: 125 };
+const SELLV = { 1: 10, 2: 20, 3: 50, 4: 120, 5: 300, 6: 500 };
 const xpTotal = (lv, xp) => { let t = xp || 0; for (let l = 1; l < lv; l++) t += 80 + l * 30; return t; };
 const cnt = (o) => Object.keys(o || {}).length;
 const posInt = (x, max) => Number.isFinite(x) && x >= 0 && x <= max;
@@ -163,12 +163,12 @@ const ownSum = (o) => Object.values(o || {}).reduce((a, n) => a + n, 0);
    (2) a per-account CREDIT BUCKET that fills with real elapsed time (daily login, shop offers, mission rewards, anything not tied to a counter) and drains when used, so repeated small saves cannot mint extra.
    Spending is always allowed. Over budget means refused, logged, and the phone is sent the last verified save back.
    This is a plausibility check, not proof: the matches are still played on the phone (the next step is to replay them on the server). */
-const RATE = { plays: [1 / 20, 40], xp: [400 / 86400, 400], coins: [3000 / 86400, 2500], gems: [60 / 86400, 60], tix: [10 / 86400, 20], cards: [8 / 86400, 12], dust: [400 / 86400, 800], medals: [200 / 86400, 400] };
+const RATE = { plays: [1 / 20, 40], xp: [400 / 86400, 400], coins: [3000 / 86400, 2500], gems: [60 / 86400, 60], tix: [10 / 86400, 20], cards: [8 / 86400, 12] };
 const freshCredit = () => Object.fromEntries(Object.entries(RATE).map(([k, r]) => [k, r[1]]));
 function guardProfile(old, nw, dtSec, credit0) {
   const bad = (why) => ({ why });
   if (!nw || typeof nw !== "object" || typeof nw.own !== "object" || nw.own === null || Array.isArray(nw.own)) return bad("bad shape");
-  const lim = { coins: 1e6, gems: 5000, tickets: 1000, dust: 1e5, medals: 1e5, lv: 100, xp: 1e5, plays: 1e6, wins: 1e6, pulls: 1e6 };
+  const lim = { coins: 1e6, gems: 5000, tokens: 1e5, lv: 100, xp: 1e5, plays: 1e6, wins: 1e6, pulls: 1e6 };
   for (const k in lim) if (nw[k] !== undefined && !posInt(nw[k], lim[k])) return bad(k + " out of range");
   for (const [id, n] of Object.entries(nw.own)) if (!(id in CARDS) || !Number.isInteger(n) || n < 0 || n > 3) return bad("unknown card or count " + id);
   const rk = nw.rank; if (rk && (!posInt(rk.pts, 4000) || !posInt(rk.w, 1e6) || !posInt(rk.l, 1e6))) return bad("rank out of range");
@@ -176,7 +176,7 @@ function guardProfile(old, nw, dtSec, credit0) {
   if (g(nw, "wins") > g(nw, "plays")) return bad("wins above plays");
   if (!old) {   // the first save of an account: a starter profile, or an older save from before accounts, which has to look like it was played
     const cardsN = ownSum(nw.own), lv = g(nw, "lv") || 1;
-    if (g(nw, "coins") > 60000 || g(nw, "gems") > 1500 || g(nw, "tickets") > 400 || g(nw, "dust") > 30000 || g(nw, "medals") > 30000 || lv > 60) return bad("first save too rich");
+    if (g(nw, "coins") > 60000 || g(nw, "gems") > 1500 || g(nw, "tokens") > 400 || lv > 60) return bad("first save too rich");
     if (cardsN > 14 + 6 * g(nw, "pulls") + 2 * g(nw, "plays") + 8 * lv) return bad("first save has more cards than were earned");
     return { why: "", credit: freshCredit() };
   }
@@ -188,19 +188,18 @@ function guardProfile(old, nw, dtSec, credit0) {
   if (!use("plays", pG, 0)) return bad("too many matches for the time");
   if (wG > pG) return bad("more wins than matches");
   if (!use("xp", xpTotal(g(nw, "lv") || 1, g(nw, "xp")) - xpTotal(g(old, "lv") || 1, g(old, "xp")), 90 * pG)) return bad("xp above budget");
-  let sell = 0, dust = 0, gained = 0;
-  for (const id of new Set([...Object.keys(old.own || {}), ...Object.keys(nw.own)])) { const d = (nw.own[id] || 0) - ((old.own || {})[id] || 0), r = CARDS[id] || 1; if (d < 0) { sell += -d * SELLV[r]; dust += -d * DUSTV[r]; } else gained += d; }
+  let sell = 0, gained = 0;
+  for (const id of new Set([...Object.keys(old.own || {}), ...Object.keys(nw.own)])) { const d = (nw.own[id] || 0) - ((old.own || {})[id] || 0), r = CARDS[id] || 1; if (d < 0) sell += -d * SELLV[r]; else gained += d; }
   const tierG = Math.max(0, g(nw.rank, "tierBest") - g(old.rank, "tierBest")), clG = Math.max(0, cleared(nw) - cleared(old)), lvP = Math.max(0, lvG);
-  const coinsA = 160 * pG + sell, gemsA = 12 * lvP + 25 * tierG + 25 * clG, tixA = 3 * pG + 2 * lvP + 4 * clG;
-  const pullMax = Math.floor((g(old, "coins") + coinsA + cr.coins) / 250) + g(old, "tickets") + tixA + cr.tix + g(old, "gems") + gemsA + cr.gems;
+  /* the one-time move to three currencies: the old pack tokens, shards and medals pay out as coins, and event tickets become Tokens */
+  const moved = nw.econv >= 2 && !(old.econv >= 2), legacy = moved ? g(old, "tickets") * 500 + g(old, "dust") * 3 + g(old, "medals") + g(old.ev, "medals") : 0, legacyTok = moved ? g(old.ev, "tickets") : 0;
+  const coinsA = 500 * pG + 400 * lvP + sell + 600 * Math.max(0, pullG) + legacy, gemsA = 12 * lvP + 25 * tierG + 25 * clG, tixA = legacyTok;
+  const pullMax = Math.floor((g(old, "coins") + coinsA + cr.coins) / 500) + 3 + g(old, "gems") + gemsA + cr.gems;
   if (pullG > pullMax) return bad("summons above what could be paid for");
   if (!use("coins", g(nw, "coins") - g(old, "coins"), coinsA)) return bad("coins above budget");
   if (!use("gems", g(nw, "gems") - g(old, "gems"), gemsA)) return bad("gems above budget");
-  if (!use("tix", g(nw, "tickets") - g(old, "tickets"), tixA)) return bad("tickets above budget");
-  if (!use("dust", g(nw, "dust") - g(old, "dust"), 30 * pG + dust + 40 * Math.max(0, pullG))) return bad("shards above budget");
-  if (!use("medals", g(nw, "medals") - g(old, "medals"), 400 * Math.max(0, pullG))) return bad("medals above budget");
-  const spentD = Math.max(0, g(old, "dust") - g(nw, "dust")), spentM = Math.max(0, g(old, "medals") - g(nw, "medals"));
-  if (!use("cards", gained, 6 * Math.max(0, pullG) + Math.floor(spentD / 30) + Math.floor(spentM / 150))) return bad("more cards than were earned");
+  if (!use("tix", g(nw, "tokens") - g(old, "tokens"), tixA)) return bad("tokens above budget");
+  if (!use("cards", gained, 6 * Math.max(0, pullG))) return bad("more cards than were earned");
   if (nw.rank && old.rank) {
     const rG = g(nw.rank, "w") + g(nw.rank, "l") - g(old.rank, "w") - g(old.rank, "l"); if (g(nw.rank, "w") < g(old.rank, "w") || g(nw.rank, "l") < g(old.rank, "l")) return bad("rank record went backwards");
     if (rG > pG) return bad("more ranked matches than matches"); if (g(nw.rank, "pts") > g(old.rank, "pts") + 32 * Math.max(0, rG)) return bad("rank points above budget");

@@ -749,7 +749,7 @@ select:focus, input:focus { outline: 1px solid var(--gold); }
 .econ { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 4px; }
 .ec { display: flex; flex-direction: column; align-items: center; padding: 8px 4px 6px; border-radius: 12px; background: var(--glass); border: 1px solid var(--line-soft); }
 .ec svg { width: 20px; height: 20px; } .ec b { font: 700 18px/1.1 var(--num); color: #fff; margin-top: 2px; } .ec small { font: 700 8px var(--display); letter-spacing: .18em; color: var(--muted); text-transform: uppercase; }
-.ec.c svg, .pill.c svg { color: var(--gold); } .ec.g svg, .pill.g svg { color: #7fe0ff; } .ec.s svg { color: #c9a0ff; } .ec.t svg { color: #b8f0d0; }
+.ec.c svg, .pill.c svg { color: var(--gold); } .ec.g svg, .pill.g svg { color: #7fe0ff; } .ec.s svg { color: #c9a0ff; } .ec.t svg, .pill.t svg { color: #b8f0d0; }
 .shoplist { display: flex; flex-direction: column; gap: 12px; }
 .shopitem { display: grid; grid-template-columns: 96px 1fr; gap: 14px; align-items: center; }
 .shopitem.tone-prem { border-color: #8a52e066; } .shopitem.tone-feat { border-color: color-mix(in srgb, var(--ft, #e3bf66) 55%, transparent); }
@@ -1450,8 +1450,6 @@ const BY = Object.fromEntries(C.map(c => [c.id, c]));
 const TIERS = ["Novice", "Adept", "Master", "Champion"];
 const STARTER = ["goblin", "slime", "dracky", "cactuar", "shadow", "bomb", "flan", "soldier", "healslime", "she_slime", "bandit", "ff_chocobo"];
 const SUM_CAP = 20;   // summons per day
-const DUST = { 1: 3, 2: 5, 3: 13, 4: 30, 5: 75, ex: 125 };
-const CRAFT = { 1: 30, 2: 90, 3: 300, 4: 900, 5: 3000 };
 const GROUPS = { all: "All", monster: "Monsters", hero: "Heroes", folk: "Folk", weapon: "Weapons", armor: "Armour", relic: "Relics", esper: "Espers", dominant: "Dominants", ff: "Final Fantasy", dq: "Dragon Quest", db: "Dragon Ball", nr: "Naruto", op: "One Piece" };
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -1630,7 +1628,7 @@ let P = null, db = null, uid = null, myName = "", saveMode = "wait", saving = fa
 const today = () => { const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); };
 function newProfile() {
   const own = {}; STARTER.forEach(id => own[id] = 1);
-  return { v: 1, tickets: 10, dust: 0, coins: 300, gems: 0, pityPrem: 0, pityFeat: 0, xp: 0, lv: 1, own, decks: [{ name: "Starter", cards: STARTER.slice(0, 5) }], deck: 0, pityHi: 0, pityTop: 0, pulls: 0, cleared: {}, day: "", login: false, mis: { win: 0, play: 0, cap: 0, sum: 0, claimed: {} }, claims: [], wins: 0, plays: 0, name: "", recent: [] };
+  return { v: 1, econv: 2, tokens: 0, coins: 3000, gems: 0, pityPrem: 0, pityFeat: 0, xp: 0, lv: 1, own, decks: [{ name: "Starter", cards: STARTER.slice(0, 5) }], deck: 0, pityHi: 0, pityTop: 0, pulls: 0, cleared: {}, day: "", login: false, mis: { win: 0, play: 0, cap: 0, sum: 0, claimed: {} }, claims: [], wins: 0, plays: 0, name: "", recent: [] };
 }
 const need = lv => 80 + lv * 30;
 function rollover() { if (P.day !== today()) { P.day = today(); P.login = false; P.mis = { win: 0, play: 0, cap: 0, sum: 0, claimed: {} }; } }
@@ -1665,11 +1663,11 @@ function nameSheet(first) {
 }
 function playerName() { return (P && P.name) || myName || "Player"; }
 function toast(m) { const t = $("#toast"); t.textContent = m; t.classList.add("on"); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove("on"), 2400); }
-function gainXp(x) { P.xp += x; const ups = []; while (P.xp >= need(P.lv)) { P.xp -= need(P.lv); P.lv++; const t = 1 + (P.lv % 5 === 0 ? 2 : 0); P.tickets += t; let g = ""; if (P.lv % 5 === 0) { P.gems = (P.gems || 0) + ECON.level5.gems; g = " and " + ECON.level5.gems + " gems"; } ups.push("Level " + P.lv + ": +" + t + " tickets" + g); } return ups; }
-/* A new card joins the collection. Copies stack to three (a deck holds at most three); past that a duplicate becomes dust, which crafts cards. */
+function gainXp(x) { P.xp += x; const ups = []; while (P.xp >= need(P.lv)) { P.xp -= need(P.lv); P.lv++; const five = P.lv % 5 === 0, cn = ECON.levelCoins + (five ? ECON.level5.coins : 0); P.coins = (P.coins || 0) + cn; let g = ""; if (five) { P.gems = (P.gems || 0) + ECON.level5.gems; g = " and " + ECON.level5.gems + " gems"; } ups.push("Level " + P.lv + ": +" + cn + " coins" + g); } return ups; }
+/* A new card joins the collection. Copies stack to three (a deck holds at most three); past that a duplicate turns into coins. */
 function addCard(id) {
   const n = P.own[id] || 0, c = BY[id];
-  if (n >= 3) { const d = DUST[c.ex ? "ex" : c.lv]; P.dust += d; return { dup: true, dust: d }; }
+  if (n >= 3) { const d = ECON.sell[c.ex ? 6 : c.lv]; P.coins += d; return { dup: true, coins: d }; }
   P.own[id] = n + 1; return { isNew: n === 0 };
 }
 const ownedList = () => C.filter(c => (P.own[c.id] || 0) > 0);
@@ -1699,7 +1697,7 @@ const UIC = {};   // last shown coin and gem totals, so the pills count up or do
 function chrome() {
   if (!P) { $("#hud").innerHTML = ""; return; }
   const pct = Math.floor(100 * P.xp / need(P.lv));
-  $("#hud").innerHTML = `<div class="hexw" data-act="avatar" data-frame="${P.frame && frameOk(P.frame) ? P.frame : ""}"><div class="hex">${P.avatar && BY[P.avatar] && P.own[P.avatar] > 0 ? `<img class="hexart" alt="" src="${artSrc(BY[P.avatar])}">` : "<span>♠</span>"}</div><b class="lvbadge">${P.lv}</b></div><div class="who" data-me="profile"><b class="fat">${esc(playerName())} ✎</b><div class="xp"><i style="width:${pct}%"></i><small>${P.xp} / ${need(P.lv)}${saveMode === "local" ? " · on this device" : ""}</small></div></div><div class="pills"><span class="pill c">${ic("coin", "")}<b data-n="coins">${P.coins == null ? 0 : P.coins}</b></span><span class="pill g">${ic("gem", "")}<b data-n="gems">${P.gems == null ? 0 : P.gems}</b></span></div><button class="mute" data-me="settings" aria-label="Settings">${ic("gear", "")}</button>`;
+  $("#hud").innerHTML = `<div class="hexw" data-me="profile" data-frame="${P.frame && frameOk(P.frame) ? P.frame : ""}"><div class="hex">${P.avatar && BY[P.avatar] && P.own[P.avatar] > 0 ? `<img class="hexart" alt="" src="${artSrc(BY[P.avatar])}">` : "<span>♠</span>"}</div><b class="lvbadge">${P.lv}</b></div><div class="who" data-me="profile"><b class="fat">${esc(playerName())}</b><div class="xp"><i style="width:${pct}%"></i><small>${P.xp} / ${need(P.lv)}${saveMode === "local" ? " · on this device" : ""}</small></div></div><div class="pills"><span class="pill c">${ic("coin", "")}<b data-n="coins">${P.coins == null ? 0 : P.coins}</b></span><span class="pill g">${ic("gem", "")}<b data-n="gems">${P.gems == null ? 0 : P.gems}</b></span>${P.tokens > 0 ? `<span class="pill t">${ic("ticket", "")}<b data-n="tokens">${P.tokens}</b></span>` : ""}</div><button class="mute" data-me="settings" aria-label="Settings">${ic("gear", "")}</button>`;
   for (const k of ["coins", "gems"]) { const el = document.querySelector('#hud [data-n="' + k + '"]'), v = P[k] == null ? 0 : P[k]; if (el) { const prev = UIC[k]; if (prev !== undefined && prev !== v) { el.dataset.v = prev; uiCount(el, v); uiPulse(el.parentNode, v > prev ? "gain" : "spend"); } else el.dataset.v = v; UIC[k] = v; } }
   if (typeof achCheck === "function") { achCheck(); seasonCheck(); }
   const claimable = !P.login || missions().some(m => m.have >= m.need && !P.mis.claimed[m.id]);
@@ -1835,7 +1833,7 @@ function endMatch() {
   const tile = (i, n, t) => `<div class="rwi ${t}">${ic(i, "")}<b>×${n}</b></div>`, chips = []; let ups = [];
   if (M.kind === "ai") {
     if (win) {
-      let xp = 20 + 15 * M.tier; if (M.stage) { xp += 10; const k = stageKey(M.stage.c, M.stage.s); if (!P.cleared[k]) { P.cleared[k] = 1; const tk = CAMPAIGN[M.stage.c].tickets[M.stage.s]; P.tickets += tk; chips.push(tile("ticket", tk, "p")); } }
+      let xp = 20 + 15 * M.tier; if (M.stage) { xp += 10; const k = stageKey(M.stage.c, M.stage.s); if (!P.cleared[k]) { P.cleared[k] = 1; const tk = CAMPAIGN[M.stage.c].tickets[M.stage.s] * 100; P.coins += tk; chips.push(tile("coin", tk, "p")); } }
       ups = gainXp(xp); chips.unshift(tile("xp", xp, "b"));
     } else { ups = gainXp(5); chips.push(tile("xp", 5, "b")); }
   } else { const xp = win ? 25 : 10; ups = gainXp(xp); chips.push(tile("xp", xp, "b")); }
@@ -1852,7 +1850,7 @@ function endMatch() {
 }
 function takeCard(id) {
   if (!M || M.took) return; M.took = true; const r = addCard(id); if (M.claimKey) { P.claims.push(M.claimKey); P.claims = P.claims.slice(-20); } scheduleSave(); chrome();
-  const box = $("#modal2 .pickbox"); if (box) box.innerHTML = `<p style="text-align:center"><b>${esc(BY[id].name)}</b> ${r.dup ? "is fully fused: +" + r.dust + " dust" : r.isNew ? "joins your collection!" : "(another copy) added."}</p>`;
+  const box = $("#modal2 .pickbox"); if (box) box.innerHTML = `<p style="text-align:center"><b>${esc(BY[id].name)}</b> ${r.dup ? "is fully fused: +" + r.coins + " coins" : r.isNew ? "joins your collection!" : "(another copy) added."}</p>`;
 }
 
 /* ===== versus: one shared state, from a room on claude.ai or over a direct connection ===== */
@@ -1926,7 +1924,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.12.06-g";
+const VER = "2026.12.06-h";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -2108,7 +2106,7 @@ function packNext() {
 function packSkip() { if (!PK || !PK.torn) return; sfx("flip", 1); PK.i = PK.res.length; packSummary(); }
 function packSummary() {
   const m = $("#modal"); m.hidden = false; const best = Math.max(...PK.res.map(x => rarOf(x.c))), order = PK.multi ? PK.res.slice().sort((p, q) => rarOf(q.c) - rarOf(p.c)) : PK.res, news = PK.res.filter(x => x.r.isNew).length;
-  m.innerHTML = `<div class="packfs sum"><span class="ribbon gold" style="font-size:22px">${best >= 5 ? "AMAZING PULL" : "YOUR PULL"}</span><p class="note" style="margin:0;text-align:center">${PK.multi ? PK.n + " summons · " + PK.res.length + " cards · " : ""}${news} new · +${PK.medals} medals${PK.evm ? " · +" + PK.evm + " event medals" : ""}</p><div class="psum">${order.map(x => `<div class="wrap">${cardHtml(x.c, { tilt: !PK.multi, v: x.v })}<div class="tg ${x.r.dup ? "d" : ""}">${x.r.dup ? "+" + x.r.dust : x.r.isNew ? "NEW" : ""}${x.v ? (x.r.dup || x.r.isNew ? " · " : "") + VARIANTS[x.v].short : ""}</div></div>`).join("")}</div><div class="row c" style="margin-top:12px"><button class="btn dark" data-act="packDone">Done</button><button class="btn yellow" data-act="summon" data-k="${PK.kind}" data-n="1">Summon again</button></div></div>`;
+  m.innerHTML = `<div class="packfs sum"><span class="ribbon gold" style="font-size:22px">${best >= 5 ? "AMAZING PULL" : "YOUR PULL"}</span><p class="note" style="margin:0;text-align:center">${PK.multi ? PK.n + " summons · " + PK.res.length + " cards · " : ""}${news} new${PK.res.some(x => x.r.dup) ? " · +" + PK.res.reduce((a, x) => a + (x.r.dup ? x.r.coins : 0), 0) + " coins from duplicates" : ""}</p><div class="psum">${order.map(x => `<div class="wrap">${cardHtml(x.c, { tilt: !PK.multi, v: x.v })}<div class="tg ${x.r.dup ? "d" : ""}">${x.r.dup ? "+" + x.r.coins : x.r.isNew ? "NEW" : ""}${x.v ? (x.r.dup || x.r.isNew ? " · " : "") + VARIANTS[x.v].short : ""}</div></div>`).join("")}</div><div class="row c" style="margin-top:12px"><button class="btn dark" data-act="packDone">Done</button><button class="btn yellow" data-act="summon" data-k="${PK.kind}" data-n="1">Summon again</button></div></div>`;
   if (tab === "summon") show("summon");
 }
 function packDone() { PK = null; if (typeof thDuck === "function") thDuck(1, 2); closeModal(); if (tab === "summon") show("summon"); }
@@ -3282,7 +3280,7 @@ function viewBattle(v) {
     dest("", `data-ck="practiceSheet" ${err ? "disabled" : ""}`, HM_ART.practice, "Practice", "Easy, Normal or Hard") + `</div>` +
     `<div class="hm-h"><b>Your deck</b><button data-ck="deckEdit">Edit</button></div><div class="hm-deck">${d.cards.map(id => (isSkill(id) ? skTile(id) : BY[id] ? cardHtml(BY[id]) : "")).join("")}</div>` +
     `<div class="hm-deckbar"><select id="ckdeck" data-ck="deckSel" aria-label="Deck">${P.cd.map((x, i) => `<option value="${i}" ${i === P.cdi ? "selected" : ""}>${esc(x.name)}${ckDeckOk(x.cards) ? " (incomplete)" : ""}</option>`).join("")}</select><button class="btn sm dark" data-ck="deckNew" ${P.cd.length >= 8 ? "disabled" : ""}>New deck</button></div>` +
-    `<div class="hm-foot"><button data-ck="rules">How to play</button><button data-ck="triad">Classic Triad</button></div></div></section>`;
+    `</div></section>`;
 }
 const campDone = () => Object.keys((P.camp && P.camp.cl) || {}).length;
 function viewCamp(v) {
@@ -3435,24 +3433,24 @@ function ckResult() {
   if (G && !G.verified) return ckResultPlain();
   const w = G.winner, win = w === ME, draw = w === -1, mode = G.mode || { kind: "practice" }, L = G.level || 0; rollover(); P.mis.play++; let promo = "", dust = 0, packs = 0, xp = 0, extra = "", coins = 0, gems = 0;
   if (win) P.mis.win++;
-  if (mode.kind === "practice") { P.ck.w += win ? 1 : 0; P.ck.l += win || draw ? 0 : 1; dust = win ? 15 + L * 10 : 5; xp = win ? 25 + 10 * L : 10; coins = win ? 5 + 10 * L : 3; }
+  if (mode.kind === "practice") { P.ck.w += win ? 1 : 0; P.ck.l += win || draw ? 0 : 1; xp = win ? 25 + 10 * L : 10; coins = win ? ECON.pracWin + ECON.pracLv * L : ECON.loss; }
   else if (mode.kind === "camp") {
     const key = mode.ch + "-" + mode.k, first = !P.camp.cl[key]; xp = win ? 30 : 10;
-    if (win) { if (first) { P.camp.cl[key] = true; if (mode.k === 5) { packs = 3; extra = "Region cleared!"; coins = 150; gems = ECON.region.gems; } else { if (mode.k % 2) packs = 1; else dust = 30; coins = 60; } } else { dust = 10; coins = 20; } } else { dust = 5; coins = 3; }
+    if (win) { if (first) { P.camp.cl[key] = true; if (mode.k === 5) { extra = "Region cleared!"; coins = ECON.campBoss; gems = ECON.region.gems; } else coins = ECON.campFirst; } else coins = ECON.campRepeat; } else coins = ECON.loss;
   } else if (mode.kind === "ranked") {
     rankInit(); const rk = P.rank, opp = mode.opp, E = 1 / (1 + Math.pow(10, (opp - rk.pts) / 400)), S = win ? 1 : draw ? .5 : 0, before = rankTier(rk.pts), delta = Math.round(32 * (S - E)); rk.pts = Math.max(0, rk.pts + delta); win ? rk.w++ : draw ? 0 : rk.l++; const after = rankTier(rk.pts);
-    extra = (delta >= 0 ? "+" : "") + delta + " points · " + TIERS_R[after][0] + " " + rk.pts; xp = win ? 40 : 15; dust = win ? 25 : 8; coins = win ? 25 : 5;
-    if (win && rk.day !== today()) { rk.day = today(); packs += 1; }
-    if (after > rk.tierBest) { rk.tierBest = after; packs += 3; gems += ECON.tierUp.gems; promo = TIERS_R[after][0]; extra += " · NEW TIER, +3 packs, +" + ECON.tierUp.gems + " gems"; }
-  } else if (mode.kind === "online") { dust = win ? 10 : 5; xp = win ? 20 : 10; coins = win ? 20 : 5; }
+    extra = (delta >= 0 ? "+" : "") + delta + " points · " + TIERS_R[after][0] + " " + rk.pts; xp = win ? 40 : 15; coins = win ? ECON.rankWin : ECON.loss;
+    if (win && rk.day !== today()) { rk.day = today(); coins += ECON.rankDaily; }
+    if (after > rk.tierBest) { rk.tierBest = after; coins += ECON.tierUp.coins; gems += ECON.tierUp.gems; promo = TIERS_R[after][0]; extra += " · NEW TIER, +" + ECON.tierUp.coins + " coins, +" + ECON.tierUp.gems + " gems"; }
+  } else if (mode.kind === "online") { xp = win ? 20 : 10; coins = win ? ECON.onlineWin : ECON.loss; }
   if (G.note) extra = G.note + (extra ? " · " + extra : "");
-  P.plays = (P.plays || 0) + 1; if (win) P.wins = (P.wins || 0) + 1; histAdd(win, draw); P.dust += dust; P.tickets += packs; earn(coins, gems); if (win) eventWin(); const xp0 = P.xp, lv0 = P.lv, ups = xp ? gainXp(xp) : []; scheduleSave(); chrome(); sfx(win ? "win" : draw ? "draw" : "lose");
+  P.plays = (P.plays || 0) + 1; if (win) P.wins = (P.wins || 0) + 1; histAdd(win, draw); earn(coins, gems); const xp0 = P.xp, lv0 = P.lv, ups = xp ? gainXp(xp) : []; scheduleSave(); chrome(); sfx(win ? "win" : draw ? "draw" : "lose");
   const opp = mode.kind === "online" && AM && AM.opp ? String(AM.opp) : "", again = opp ? `<button class="btn sm dark" data-me="rep" data-n="${esc(opp)}">Report</button><button class="btn sm dark" data-me="blk" data-n="${esc(opp)}">Block</button>` : mode.kind === "online" || G.online ? "" : `<button class="btn yellow" data-ck="rematch">${mode.kind === "camp" ? "Again" : "Rematch"}</button>`;
   const chip = (cls, icon, n, lab) => `<div class="rchip ${cls}"><span class="ri">${icon}</span><b data-n="${parseInt(String(n).replace(/\D/g, ""), 10)}">${n}</b><small>${lab}</small></div>`;
   const xpPct = (lv, x) => Math.min(100, Math.round(100 * x / need(lv))), xpBar = xp ? `<div class="rxp"><small id="rxpl">Level ${lv0}</small><div class="bar"><i id="rxpi" style="width:${xpPct(lv0, xp0)}%"></i></div></div>` : "";
   openSheet(`<div class="res ${win ? "win" : draw ? "draw" : "lose"}"><b class="rtitle">${win ? "VICTORY" : draw ? "DRAW" : "DEFEAT"}</b><small class="rsub">${G.arena ? "Match time " + arClock(G.time) : "Round " + Math.min(G.round, CK.MAXR)}</small>` +
     `<div class="rcores"><div class="me"><small>YOU</small><b>${Math.max(0, Math.ceil(G.s[ME].core))}</b></div><i>CORE</i><div class="foe"><small>${esc(((G.arena && AM && AM.opp) || "FOE").toString().toUpperCase().slice(0, 9))}</small><b>${Math.max(0, Math.ceil(G.s[1 - ME].core))}</b></div></div>` +
-    `<div class="rrow">${coins ? chip("g", ic("coin", ""), "+" + coins, "coins") : ""}${gems ? chip("p", ic("gem", ""), "+" + gems, "gems") : ""}${dust ? chip("s", ic("shard", ""), "+" + dust, "shards") : ""}${packs ? chip("p", ic("ticket", ""), "+" + packs, packs > 1 ? "packs" : "pack") : ""}${xp ? chip("x", ic("xp", ""), "+" + xp, "xp") : ""}</div>` +
+    `<div class="rrow">${coins ? chip("g", ic("coin", ""), "+" + coins, "coins") : ""}${gems ? chip("p", ic("gem", ""), "+" + gems, "gems") : ""}${xp ? chip("x", ic("xp", ""), "+" + xp, "xp") : ""}</div>` +
     `${extra ? `<p class="rnote">${esc(extra)}</p>` : ""}${ups.length ? `<p class="rnote up">${ups.map(esc).join("<br>")}</p>` : ""}${xpBar}</div><div class="row c" style="margin-top:14px">${again}<button class="btn dark" data-ck="leave">Continue</button></div>`);
   lockSheet(); resAnim(xp, xpPct, lv0); if (promo && typeof promoFx === "function") promoFx(promo);
 }
@@ -3486,11 +3484,11 @@ document.addEventListener("click", async e => {
     case "campStage": return campSheet(+d.ch, +d.k);
     case "campGo": closeModal(); return ckStart(campLevel(+d.ch, +d.k), campMode(+d.ch, +d.k));
     case "ranked": if (P.lv < RANK_LV) return toast("Ranked unlocks at level " + RANK_LV + "."); return rankedFind();
-    case "triad": return show("play");
+    case "triad": closeModal(); return show("play");
     case "rematch": return ckRematch();
     case "leave": return ckLeave();
     case "rules": return rulesSheet();
-    case "practiceSheet": return openSheet(`<h2 class="fat">Practice</h2><p class="note" style="text-align:center;margin:0 0 10px">Practice pays shards, coins and XP.</p><div class="hm-practice"><button class="btn" data-ck="start" data-l="0">Easy<small>Forgiving opponent</small></button><button class="btn yellow" data-ck="start" data-l="1">Normal<small>A fair fight</small></button><button class="btn red" data-ck="start" data-l="2">Hard<small>Plays to win</small></button></div><p class="note" style="text-align:center;margin:12px 0 6px">Opponent style</p><div class="stylechips" id="stylechips">${styleChips(CKU.arch)}</div><div class="row c" style="margin-top:12px"><button class="btn dark" data-act="closeModal">Close</button></div>`);
+    case "practiceSheet": return openSheet(`<h2 class="fat">Practice</h2><p class="note" style="text-align:center;margin:0 0 10px">Practice pays coins and XP.</p><div class="hm-practice"><button class="btn" data-ck="start" data-l="0">Easy<small>Forgiving opponent</small></button><button class="btn yellow" data-ck="start" data-l="1">Normal<small>A fair fight</small></button><button class="btn red" data-ck="start" data-l="2">Hard<small>Plays to win</small></button></div><p class="note" style="text-align:center;margin:12px 0 6px">Opponent style</p><div class="stylechips" id="stylechips">${styleChips(CKU.arch)}</div><div class="row c" style="margin-top:12px"><button class="btn dark" data-act="closeModal">Close</button></div>`);
     case "deckEdit": return deckEditor(P.cdi);
     case "deckOpen": P.cdi = +d.i; scheduleSave(); return deckEditor(+d.i);
     case "deckNew": ckInit(); P.cd.push({ name: "Deck " + (P.cd.length + 1), cards: ckAutoDeck() }); P.cdi = P.cd.length - 1; scheduleSave(); return deckEditor(P.cdi);
@@ -4312,23 +4310,23 @@ document.addEventListener("input", e => { if (e.target && e.target.id === "avq")
 document.addEventListener("change", e => { if (e.target && e.target.id === "avel") { AV.el = e.target.value; const l = document.getElementById("avlist"); if (l) { l.innerHTML = avGrid(); l.scrollTop = 0; } } });
 
 /* ===== SHOP, SUMMON POOLS and ECONOMY =====
-   The player chooses WHICH pool to summon from. Pools are permanent (Standard, Premium) or rotate on a schedule worked out from the calendar (no server needed):
-     Rising Star  weekly, two featured cards (a Legendary and an Epic) with a 50/50-then-guaranteed rule
-     Faction Fest weekly, one faction is far likelier and the hit card is always from it
-     Event Summon weekly, an element festival with its own tickets, medals and shop that expire when it ends
-   Every summon is five cards (the last one is the hit) and pays Medals by rarity; Medals buy the card you want in the Exchange (the safety net against bad luck).
-   Cycling shops: Daily (4 offers from a pool of templates), Weekly (themed to the week's faction) and the Event shop. No real-money purchase exists anywhere.
-   Every price, rate and payout below is a placeholder for tuning. Currencies: Coins, Gems, Shards, Pack tokens, Medals (+ Event tickets and Event medals while an event runs). */
+   Three currencies, and only three:
+     Coins   buy Standard summons (500 each); earned from every fight, the daily login and missions
+     Gems    buy every other summon (Premium, Set 2, the rotating pools and the banners); earned slowly (region clears, ranked tiers, the daily list, every 5th level) and bought in the Shop
+     Tokens  strictly for events (mini stories and event quests, none yet); leftover Tokens convert to Gems or Coins in the Exchange
+   Pools are permanent (Standard, Premium, Set 2, the element / race / ability banners) or rotate on a schedule worked out from the calendar (no server needed): Rising Star, Faction Fest and the Element Festival.
+   Every summon is five cards (the last one is the hit). Every price, rate and payout below is a placeholder for tuning. */
 const ECON = {
-  startCoins: 300, startGems: 0,
-  sell: { 1: 10, 2: 20, 3: 50, 4: 120, 5: 300, 6: 500 },
-  std: 300, login: { coins: 60, tickets: 0 }, allFour: { gems: 5, tickets: 0 }, level5: { gems: 10 }, region: { gems: 20 }, tierUp: { gems: 25 },
-  medal: { 1: 1, 2: 2, 3: 5, 4: 15, 5: 40, 6: 80 },           // medals per card pulled, by rarity
-  exchange: { 3: 150, 4: 500, 5: 1500, 6: 3000 },                // medals for the card of your choice, by rarity
-  multi: 10, evLogin: 1, evWin: 1, evWinDay: 2,                 // a 10-summon costs 9; event tickets: daily claim, per win (capped per day)
+  startCoins: 3000, startGems: 0,
+  sell: { 1: 10, 2: 20, 3: 50, 4: 120, 5: 300, 6: 500 },   // a spare copy sells for this, and a duplicate past three copies turns into it
+  std: 500, login: { coins: 80 }, allFour: { gems: 5 }, levelCoins: 100, level5: { gems: 10, coins: 300 }, region: { gems: 20 }, tierUp: { gems: 25, coins: 500 },
+  pracWin: 40, pracLv: 12, loss: 10, campFirst: 200, campBoss: 500, campRepeat: 55, rankWin: 65, rankDaily: 150, onlineWin: 60,
+  multi: 10,                                                 // a 10-summon costs 9
+  tokGems: 10, tokCoins: 800,                                // one Token converts to this many Gems or Coins
 };
+/* the Shop: real-money packages of Gems (with a bonus) and Coins. Not connected to a payment provider yet, so the buttons say so. */
+const IAP = [{ id: "g5", usd: "$5", gems: 500, bonus: 40, coins: 5000 }, { id: "g10", usd: "$10", gems: 1200, bonus: 200, coins: 15000 }];
 const PREM_SLOTS = [[[1, 60], [2, 40]], [[1, 50], [2, 50]], [[2, 70], [3, 30]], [[3, 70], [4, 30]], [[3, 35], [4, 40], [5, 20], ["ex", 5]]];
-const BUNDLE = { n: 5, coins: 1350 };   // five Standard summons at a 10% discount
 const FAC_ORDER = ["H", "C", "D", "A", "M", "U", "B", "V"], FAC_TONE = { C: "#ffe08a", D: "#ff5a6e", A: "#d9a45a", M: "#9fb4d4", U: "#6fe0a0", B: "#ffb066", H: "#6fb4ff", V: "#b98aff" };
 const EL_TONE = { fire: "#ff6a3a", water: "#3aa0ff", wind: "#4fe0a4", earth: "#c9a05a", lightning: "#ffe03a", ice: "#9fe6ff", light: "#fff0b0", dark: "#b074ff" };
 /* All resets use standard Eastern time (EST, UTC-5, no daylight saving): days turn over at 12:00 AM EST and weeks at 12:00 AM EST on Monday. */
@@ -4337,11 +4335,11 @@ const estNow = () => Date.now() - EST, dayNo = () => Math.floor(estNow() / DAY),
 const leftTxt = ms => { const m = Math.max(1, Math.ceil(ms / 60000)), d = Math.floor(m / 1440), h = Math.floor((m % 1440) / 60); return d ? d + "d " + h + "h" : h ? h + "h " + (m % 60) + "m" : m + "m"; };
 const weekLeft = () => (weekNo() + 1) * WEEK + MON + EST - Date.now(), dayLeft = () => (dayNo() + 1) * DAY + EST - Date.now();
 const econInit = () => {
-  if (P.coins == null) P.coins = ECON.startCoins; if (P.gems == null) P.gems = ECON.startGems; if (P.medals == null) P.medals = 0;
-  if (!P.pools) P.pools = {}; if (!P.shop) P.shop = { d: dayNo(), w: weekNo(), b: {} };
-  if (!P.ev || P.ev.w !== weekNo()) P.ev = { w: weekNo(), tickets: 0, medals: 0, loginDay: -1, wins: 0, winDay: -1 };
-  if (P.shop.d !== dayNo()) { for (const k of Object.keys(P.shop.b)) if (k[0] === "d") delete P.shop.b[k]; P.shop.d = dayNo(); }
-  if (P.shop.w !== weekNo()) { for (const k of Object.keys(P.shop.b)) if (k[0] === "w" || k[0] === "e") delete P.shop.b[k]; P.shop.w = weekNo(); }
+  if (P.coins == null) P.coins = ECON.startCoins; if (P.gems == null) P.gems = ECON.startGems; if (P.tokens == null) P.tokens = 0; if (!P.pools) P.pools = {};
+  if (P.econv !== 2) {   // the old currencies are retired: pack tokens pay out as Standard summons' worth of coins, shards and medals as coins, event tickets become Tokens
+    const ev = P.ev || {}; P.coins += (P.tickets || 0) * ECON.std + (P.dust || 0) * 3 + (P.medals || 0) + (ev.medals || 0); P.tokens += ev.tickets || 0;
+    delete P.tickets; delete P.dust; delete P.medals; delete P.ev; delete P.shop; P.econv = 2;
+  }
 };
 
 /* ----- card variants: cosmetic only, never stronger (GAME_RULES_v2 section 8) -----
@@ -4363,9 +4361,9 @@ function activePools() {
     { key: "prem", id: "prem", name: "Premium Summon", sub: "Better odds and a stronger hit. Every card in Set 1.", slots: PREM_SLOTS, pity: 8, cost: { gems: 50 }, forever: true },
     { key: "rate", id: "rate:" + w, name: "Rising Star", sub: "Two featured cards. Half of that rarity's pulls are the featured card.", slots: PREM_SLOTS, pity: 8, cost: { gems: 60 }, featured: [fl.id, fe.id], ends: weekLeft(), tone: "#ffd05a" },
     { key: "fest", id: "fest:" + w, name: "Faction Fest · " + FAC[fac], sub: FAC[fac] + " cards are four times as likely, and the hit card is always one.", slots: PREM_SLOTS, pity: 8, cost: { gems: 60 }, bias: c => facOf(c) === fac, biasName: FAC[fac], ends: weekLeft(), tone: FAC_TONE[fac] },
-    { key: "event", id: "event:" + w, name: "Event · " + EL[el][0] + " Festival", sub: "The " + EL[el][0] + " Festival: two cards found nowhere else, and " + EL[el][0] + " cards are four times as likely. Event tickets work here.", slots: PREM_SLOTS, pity: 8, cost: { evt: 1, gems: 40 }, bias: c => (S1[c.id] || [])[0] === el, biasName: EL[el][0], ends: weekLeft(), tone: EL_TONE[el], event: true, el, featured: evOf(el).sort((a, b) => b.lv - a.lv).map(c => c.id), exclusive: true },
+    { key: "event", id: "event:" + w, name: EL[el][0] + " Festival", sub: "The " + EL[el][0] + " Festival: two cards found nowhere else, and " + EL[el][0] + " cards are four times as likely.", slots: PREM_SLOTS, pity: 8, cost: { gems: 60 }, bias: c => (S1[c.id] || [])[0] === el, biasName: EL[el][0], ends: weekLeft(), tone: EL_TONE[el], el, featured: evOf(el).sort((a, b) => b.lv - a.lv).map(c => c.id), exclusive: true },
   ];
-  base.forEach(p => { p.group = p.key === "std" || p.key === "prem" ? "core" : "event"; });
+  base.forEach(p => { p.group = p.key === "std" || p.key === "prem" ? "core" : "rot"; });
   base.splice(2, 0, { key: "s2", id: "s2", group: "core", label: "SET 2", name: "Set 2: Angels & Demons", sub: "Twenty-two new cards, found only here: the Celestial choir and the Demonic court. Priced like Premium (an assumption).", slots: S2_SLOTS, pity: 8, cost: { gems: 50 }, set: 2, forever: true, tone: "#A892BA" });
   /* themed banners: always on, one for each element, each race and each kind of ability. Same odds, price and pity rule as the Faction Fest (assumption: they copy it); the themed cards are four times as likely and the hit card is always one. */
   const th = [];
@@ -4376,11 +4374,11 @@ function activePools() {
 }
 const S2_SLOTS = [[[2, 100]], [[2, 70], [3, 30]], [[3, 70], [4, 30]], [[3, 40], [4, 50], [5, 10]], [[4, 75], [5, 25]]];   // Set 2 has no Secret Rares: five cards a summon, the last the hit
 const AB_BANNERS = [["strikers", "Strikers", "Cards whose skill hits hard: Strike, Arc or Volley", ["strike", "arc", "volley"], "#ff8a5a"], ["guardians", "Guardians", "Cards that heal, shield or cleanse", ["mend", "ward", "cleanse"], "#6fe0a0"], ["warbringers", "Warbringers", "Cards that empower, speed up or grow", ["empower", "gale", "pact", "overgrow"], "#ffd05a"], ["tacticians", "Tacticians", "Cards that freeze, disrupt or mark", ["freeze", "disrupt", "mark"], "#9fb4ff"]];
-const POOL_GROUPS = [["event", "Events"], ["core", "Core summons"], ["el", "Element banners"], ["fac", "Race banners"], ["ab", "Ability banners"]];
+const POOL_GROUPS = [["rot", "Rotating summons"], ["core", "Core summons"], ["el", "Element banners"], ["fac", "Race banners"], ["ab", "Ability banners"]];
 const poolByKey = k => activePools().find(p => p.key === k) || activePools()[0];
-let SEL = "std", SV = "summon", SHSUB = "daily";
+let SEL = "std", SV = "summon";
 const poolState = p => (P.pools[p.id] = P.pools[p.id] || { pity: 0, miss: false });
-const packLabel = k => { const p = poolByKey(k); if (p.label) return p.label; return p.key === "std" ? "STANDARD" : p.key === "prem" ? "PREMIUM" : p.key === "rate" ? "RISING STAR" : p.key === "fest" ? "FACTION FEST" : "EVENT"; };
+const packLabel = k => { const p = poolByKey(k); if (p.label) return p.label; return p.key === "std" ? "STANDARD" : p.key === "prem" ? "PREMIUM" : p.key === "rate" ? "RISING STAR" : p.key === "fest" ? "FACTION FEST" : "FESTIVAL"; };
 const packTone = k => { const p = poolByKey(k); return p.tone || ""; };
 
 /* ----- drawing cards ----- */
@@ -4409,91 +4407,35 @@ function pullOne(pool) {
 
 /* ----- paying: what a summon of n will spend ----- */
 function payPlan(pool, n) {
-  const p = { parts: [], ok: true, free: 0, tok: 0, evt: 0, coins: 0, gems: 0 }, unit = pool.cost;
+  const p = { ok: true, free: 0, coins: 0, gems: 0 }, unit = pool.cost;
   if (pool.key === "std") {
-    let need = n;
-    if (n === 1) { const fi = freeInfo(); if (fi.n >= 1) { p.free = 1; need = 0; } }
-    const t = Math.min(P.tickets, need); p.tok = t; need -= t;
+    let need = n; if (n === 1) { const fi = freeInfo(); if (fi.n >= 1) { p.free = 1; need = 0; } }
     if (need) { p.coins = n >= ECON.multi && need === n ? unit.coins * (n - 1) : unit.coins * need; p.ok = P.coins >= p.coins; }
-  } else {
-    let need = n;
-    if (pool.event) { const e = Math.min(P.ev.tickets, need); p.evt = e; need -= e; }
-    if (need) { const g = unit.gems * (n >= ECON.multi && need === n ? n - 1 : need); p.gems = g; p.ok = P.gems >= g; }
-  }
+  } else { const g = unit.gems * (n >= ECON.multi ? n - 1 : n); p.gems = g; p.ok = P.gems >= g; }
   return p;
 }
-const planLabel = p => p.free ? "Free pack" : [p.tok ? p.tok + " token" + (p.tok > 1 ? "s" : "") : "", p.evt ? p.evt + " event ticket" + (p.evt > 1 ? "s" : "") : "", p.coins ? ic("coin", "") + p.coins : "", p.gems ? ic("gem", "") + p.gems : ""].filter(Boolean).join(" + ");
+const planLabel = p => p.free ? "Free pack" : [p.coins ? ic("coin", "") + p.coins : "", p.gems ? ic("gem", "") + p.gems : ""].filter(Boolean).join(" + ");
 function summon(key, n = 1) {
   rollover(); econInit(); const pool = poolByKey(key), plan = payPlan(pool, n);
-  if (!plan.ok) return toast(pool.key === "std" ? "Not enough coins. Winning fights earns more." : "Not enough gems. Region clears, ranked tiers and daily goals earn them.");
+  if (!plan.ok) return toast(pool.key === "std" ? "Not enough coins. Winning fights earns more." : "Not enough gems. Region clears, ranked tiers and daily goals earn them, or visit the Shop.");
   tiltAsk();
   if (plan.free) { P.fp.n--; if (P.fp.n === PACK.freeMax - 1) P.fp.t = Date.now(); }
-  P.tickets -= plan.tok; P.ev.tickets -= plan.evt; P.coins -= plan.coins; P.gems -= plan.gems;
-  P.mis.sum += n; let medals = 0, evm = 0; const res = [];
-  for (let i = 0; i < n; i++) for (const c of pullOne(pool)) { const m = ECON.medal[rarOf(c)]; medals += m; if (pool.event) evm += m; { const v = rollVariant(); res.push({ c, r: addCard(c.id), v, nv: v ? grantVariant(c.id, v) : false }); } }
-  P.medals += medals; if (pool.event) P.ev.medals += evm;
+  P.coins -= plan.coins; P.gems -= plan.gems;
+  P.mis.sum += n; const res = [];
+  for (let i = 0; i < n; i++) for (const c of pullOne(pool)) { const v = rollVariant(); res.push({ c, r: addCard(c.id), v, nv: v ? grantVariant(c.id, v) : false }); }
   res.forEach(x => { P.recent = [x.c.id].concat((P.recent || []).filter(i => i !== x.c.id)).slice(0, 16); });
-  scheduleSave(); chrome(); PK = { res, i: 0, flipped: false, torn: false, kind: key, multi: n > 1, n, medals, evm };
+  scheduleSave(); chrome(); PK = { res, i: 0, flipped: false, torn: false, kind: key, multi: n > 1, n };
   if (n > 1) return packSummary(); packStage();
 }
-async function buyBundle() {
-  if (P.coins < BUNDLE.coins) return toast("Not enough coins."); if (!(await uiConfirm({ title: "Buy pack tokens?", body: `${BUNDLE.n} pack tokens for ${ic("coin", "")}${BUNDLE.coins}.`, ok: "Buy" }))) return; if (P.coins < BUNDLE.coins) return; P.coins -= BUNDLE.coins; P.tickets += BUNDLE.n; scheduleSave(); chrome(); toast("+" + BUNDLE.n + " pack tokens"); show("summon");
-}
 function sellCopy(id) { const c = BY[id], n = P.own[id] || 0; if (n < 2) return toast("Keep at least one copy."); P.own[id]--; const v = ECON.sell[rarOf(c)]; P.coins += v; scheduleSave(); chrome(); toast("+" + v + " coins"); detail(id); }
-function breakCopy(id) { const c = BY[id], n = P.own[id] || 0; if (n < 2) return toast("Keep at least one copy."); P.own[id]--; const v = DUST[c.ex ? "ex" : c.lv]; P.dust += v; scheduleSave(); chrome(); toast("+" + v + " shards"); detail(id); }
 function earn(coins, gems) { P.coins = (P.coins || 0) + (coins || 0); P.gems = (P.gems || 0) + (gems || 0); }
-/* event tickets from fights: one per win, capped per day */
-function eventWin() { econInit(); if (P.ev.winDay !== dayNo()) { P.ev.winDay = dayNo(); P.ev.wins = 0; } if (P.ev.wins < ECON.evWinDay) { P.ev.wins++; P.ev.tickets += ECON.evWin; } }
-
-/* ----- the cycling shops ----- */
-const TEMPLATES = [
-  { id: "dtok", t: "3 pack tokens", cost: { coins: 800 }, give: { tickets: 3 }, limit: 1 }, { id: "dshard", t: "60 shards", cost: { coins: 150 }, give: { dust: 60 }, limit: 3 },
-  { id: "dmedal", t: "20 medals", cost: { coins: 300 }, give: { medals: 20 }, limit: 2 }, { id: "dgem", t: "5 gems", cost: { coins: 800 }, give: { gems: 5 }, limit: 1 },
-  { id: "drare", t: "A random Rare card", cost: { coins: 600 }, give: { card: 3 }, limit: 1 }, { id: "dunc", t: "A random Uncommon card", cost: { coins: 150 }, give: { card: 2 }, limit: 2 },
-  { id: "devt", t: "2 event tickets", cost: { coins: 1200 }, give: { evt: 2 }, limit: 1 },
-];
-function dailyOffers() { let s = dayNo() * 2654435761 % 4294967296; const rnd = () => (s = (s * 1664525 + 1013904223) % 4294967296) / 4294967296, a = TEMPLATES.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a.slice(0, 4); }
-function weeklyOffers() {
-  const fac = FAC_ORDER[(weekNo() + 3) % 8], F = FAC[fac];
-  return [{ id: "wpr", t: "Pick a " + F + " Rare", cost: { medals: 120 }, give: { pick: { r: 3, fac } }, limit: 1 }, { id: "wpe", t: "Pick a " + F + " Epic", cost: { medals: 450 }, give: { pick: { r: 4, fac } }, limit: 1 },
-    { id: "wtok", t: "10 pack tokens", cost: { coins: 2600 }, give: { tickets: 10 }, limit: 1 }, { id: "wgem", t: "25 gems", cost: { coins: 4000 }, give: { gems: 25 }, limit: 1 }];
+/* the Exchange: leftover event Tokens turn into Gems or Coins */
+function exchangeTokens(kind, all) {
+  econInit(); if (!(P.tokens >= 1)) return toast("You have no Tokens to convert.");
+  const n = all ? P.tokens : 1, g = kind === "gems"; P.tokens -= n; if (g) P.gems += n * ECON.tokGems; else P.coins += n * ECON.tokCoins;
+  scheduleSave(); chrome(); toast("+" + (g ? n * ECON.tokGems + " gems" : n * ECON.tokCoins + " coins")); show("summon");
 }
-function eventOffers() {
-  const p = poolByKey("event"), E = EL[p.el][0];
-  const ex = evOf(p.el), leg = ex.find(c => c.lv === 5), epi = ex.find(c => c.lv === 4);
-  return [{ id: "eepic", t: epi.name + " (" + E + " Epic, event exclusive)", cost: { evm: 200 }, give: { card: epi.id }, limit: 1 }, { id: "eleg", t: leg.name + " (" + E + " Legendary, event exclusive)", cost: { evm: 700 }, give: { card: leg.id }, limit: 1 },
-    { id: "egem", t: "30 gems", cost: { evm: 100 }, give: { gems: 30 }, limit: 2 }, { id: "etok", t: "5 pack tokens", cost: { evm: 60 }, give: { tickets: 5 }, limit: 3 }, { id: "eshard", t: "100 shards", cost: { evm: 40 }, give: { dust: 100 }, limit: 3 }];
-}
-const RES = { coins: ["coin", "coins"], gems: ["gem", "gems"], medals: ["medal", "medals"], evm: ["medal", "event medals"] };
-const have = r => (r === "evm" ? P.ev.medals : P[r]), spend = (r, n) => { if (r === "evm") P.ev.medals -= n; else P[r] -= n; };
-const priceChip = o => Object.entries(o.cost).map(([r, n]) => `${ic(RES[r][0], "")}${n}`).join(" ");
-async function buyOffer(id) {
-  econInit(); const all = dailyOffers().concat(weeklyOffers(), eventOffers()), o = all.find(x => x.id === id); if (!o) return;
-  if ((P.shop.b[id] || 0) >= o.limit) return toast("Sold out until the shop refreshes.");
-  for (const [r, n] of Object.entries(o.cost)) if (have(r) < n) return toast("Not enough " + RES[r][1] + ".");
-  if (o.give.pick) return pickSheet(o);
-  if (!(await uiConfirm({ title: "Buy this?", body: `<b>${esc(o.t)}</b><br>for ${priceChip(o)}`, ok: "Buy" }))) return;
-  for (const [r, n] of Object.entries(o.cost)) if (have(r) < n) return toast("Not enough " + RES[r][1] + ".");
-  for (const [r, n] of Object.entries(o.cost)) spend(r, n);
-  P.shop.b[id] = (P.shop.b[id] || 0) + 1; const g = o.give; let msg = o.t;
-  if (g.tickets) P.tickets += g.tickets; if (g.dust) P.dust += g.dust; if (g.gems) P.gems += g.gems; if (g.medals) P.medals += g.medals; if (g.evt) P.ev.tickets += g.evt;
-  if (g.card) { const l = POOL.filter(c => !c.ex && c.lv === g.card), c = typeof g.card === "string" ? BY[g.card] : l[Math.floor(Math.random() * l.length)], r = addCard(c.id); msg = c.name + (r.isNew ? " (new!)" : r.dup ? " (a duplicate: +" + r.dust + " shards)" : ""); }
-  scheduleSave(); chrome(); toast("Got " + msg); show("summon");
-}
-/* choose-your-card purchases (the Exchange and the pick offers) */
-function pickSheet(o) {
-  const g = o.give.pick, list = POOL.filter(c => (g.r === 6 ? c.ex : !c.ex && c.lv === g.r) && (!g.fac || facOf(c) === g.fac) && (!g.el || (S1[c.id] || [])[0] === g.el)).sort((a, b) => a.name.localeCompare(b.name));
-  openSheet(`<h2 class="fat">CHOOSE A CARD</h2><p class="note" style="text-align:center">${esc(o.t)} for ${priceChip(o)}. You get one copy of the card you tap.</p><div class="grid" style="max-height:52dvh;overflow:auto;padding:4px 2px">${list.map(c => cardHtml(c, { count: P.own[c.id] || 0, attr: `data-act="pickGo" data-o="${o.id}" data-id="${c.id}"` })).join("") || '<p class="note">Nothing to choose from.</p>'}</div><div class="row c" style="margin-top:12px"><button class="btn dark" data-act="closeModal">Cancel</button></div>`);
-}
-function pickGo(oid, cid) {
-  const o = dailyOffers().concat(weeklyOffers(), eventOffers(), exchangeOffers()).find(x => x.id === oid); if (!o || !BY[cid]) return;
-  if (o.limit && (P.shop.b[oid] || 0) >= o.limit) return toast("Sold out until the shop refreshes.");
-  for (const [r, n] of Object.entries(o.cost)) if (have(r) < n) return toast("Not enough " + RES[r][1] + ".");
-  for (const [r, n] of Object.entries(o.cost)) spend(r, n); if (o.limit) P.shop.b[oid] = (P.shop.b[oid] || 0) + 1;
-  const r = addCard(cid); scheduleSave(); chrome(); closeModal(); toast(BY[cid].name + (r.isNew ? " joins your collection" : " (a duplicate: +" + (r.dust || 0) + " shards)")); show("summon");
-}
-function exchangeOffers() { return [3, 4, 5, 6].map(r => ({ id: "x" + r, t: "Any " + RNAME[r], cost: { medals: ECON.exchange[r] }, give: { pick: { r } }, limit: 0 })); }
-function evLogin() { econInit(); if (P.ev.loginDay === dayNo()) return; P.ev.loginDay = dayNo(); P.ev.tickets += ECON.evLogin; scheduleSave(); toast("+" + ECON.evLogin + " event tickets"); show("summon"); }
+function buyIap() { toast("Purchases are not open yet."); }
 
 /* ----- the Shop tab ----- */
 function setProgress2() {
@@ -4502,39 +4444,32 @@ function setProgress2() {
 }
 function setProgress() {
   const rows = [1, 2, 3, 4, 5, 6].map(r => { const all = POOL.filter(c => rarOf(c) === r), n = all.filter(c => (P.own[c.id] || 0) > 0).length; return { r, n, t: all.length }; }), have = rows.reduce((a, x) => a + x.n, 0), evHave = EVCARDS.filter(c => (P.own[c.id] || 0) > 0).length;
-  return `<div class="panel"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><b class="fat" style="font-size:13px">SET 1</b><span class="note">${have} / ${POOL.length} cards</span></div><div class="bar" style="margin:6px 0 10px"><i style="width:${100 * have / POOL.length}%"></i></div><div class="setrows">${rows.map(x => `<div><span class="rtag r${x.r}">${RNAME[x.r]}</span><b>${x.n}/${x.t}</b></div>`).join("")}</div><p class="note" style="margin:10px 0 0;text-align:center">Event exclusives: <b>${evHave} / ${EVCARDS.length}</b></p></div>`;
+  return `<div class="panel"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><b class="fat" style="font-size:13px">SET 1</b><span class="note">${have} / ${POOL.length} cards</span></div><div class="bar" style="margin:6px 0 10px"><i style="width:${100 * have / POOL.length}%"></i></div><div class="setrows">${rows.map(x => `<div><span class="rtag r${x.r}">${RNAME[x.r]}</span><b>${x.n}/${x.t}</b></div>`).join("")}</div><p class="note" style="margin:10px 0 0;text-align:center">Festival exclusives: <b>${evHave} / ${EVCARDS.length}</b></p></div>`;
 }
 function bannerHtml(p) {
   const st = poolState(p), plan1 = payPlan(p, 1), planN = payPlan(p, ECON.multi), left = Math.max(0, p.pity - st.pity);
   const feat = p.featured ? `<div class="bfeat">${p.featured.map(id => `<button data-act="detail" data-id="${id}"><img alt="" src="${artSrc(BY[id], true)}"><small>${esc(BY[id].name.split(",")[0])}</small></button>`).join("")}</div>` : "";
-  const ev = p.event ? `<div class="bev"><span>${ic("ticket", "")}${P.ev.tickets} event tickets</span><span>${ic("medal", "")}${P.ev.medals} event medals</span><button class="btn sm ${P.ev.loginDay === dayNo() ? "" : "yellow"}" data-act="evLogin" ${P.ev.loginDay === dayNo() ? "disabled" : ""}>${P.ev.loginDay === dayNo() ? "Claimed" : "Claim +" + ECON.evLogin}</button></div>` : "";
+  const ev = "";
   const btn = (n, plan) => `<button class="btn ${plan.ok ? "yellow" : ""}" data-act="summon" data-k="${p.key}" data-n="${n}" ${plan.ok ? "" : "disabled"}><b class="sb">Summon ×${n}</b><small class="sp">${planLabel(plan) || "—"}</small></button>`;
   return `<div class="bnc" style="${p.tone ? "--bt:" + p.tone : ""}"><div class="bnh"><div class="bpk">${packHtml("mini", p.key)}</div><div class="bnt"><b class="fat">${esc(p.name)}</b><small>${esc(p.sub)}</small><span class="ends">${p.ends ? "Ends in " + leftTxt(p.ends) : "Always on"}</span></div></div>${feat}${ev}` +
     `<div class="pity"><small><span>LEGENDARY OR BETTER WITHIN</span><span>${left} summon${left === 1 ? "" : "s"}</span></small><div class="bar"><i style="width:${Math.min(100, 100 * st.pity / p.pity)}%"></i></div></div>` +
     `<div class="sumbtns">${btn(1, plan1)}${btn(ECON.multi, planN)}</div><button class="odds-link" data-act="odds" data-k="${p.key}">Odds</button></div>`;
 }
-function offerList(offers, sub) {
-  return `<div class="list">${offers.map(o => { const used = P.shop.b[o.id] || 0, out = o.limit && used >= o.limit, can = Object.entries(o.cost).every(([r, n]) => have(r) >= n); return `<div class="panel item"><div class="t"><b>${esc(o.t)}</b><small>${o.limit ? `${o.limit - used} of ${o.limit} left` : "Always available"}</small>${!can && Object.keys(o.cost).length === 1 ? (([r, n]) => `<div class="bar" style="margin-top:6px"><i style="width:${Math.min(100, 100 * have(r) / n)}%"></i></div>`)(Object.entries(o.cost)[0]) : ""}</div><button class="btn sm ${can && !out ? "yellow" : ""}" data-act="buyOffer" data-id="${o.id}" ${out ? "disabled" : ""}><span class="cp">${priceChip(o)}</span></button></div>`; }).join("")}</div>`;
-}
 function viewSummon(v) {
-  econInit(); const pools = activePools(); if (!pools.find(p => p.key === SEL)) SEL = "std"; const p = pools.find(x => x.key === SEL), fi = freeInfo(), rec = (P.recent || []).slice(0, 10);
-  let h = `<div class="econ five"><span class="ec c">${ic("coin", "")}<b>${P.coins}</b><small>Coins</small></span><span class="ec g">${ic("gem", "")}<b>${P.gems}</b><small>Gems</small></span><span class="ec s">${ic("shard", "")}<b>${P.dust}</b><small>Shards</small></span><span class="ec t">${ic("ticket", "")}<b>${P.tickets}</b><small>Tokens</small></span><span class="ec m">${ic("medal", "")}<b>${P.medals}</b><small>Medals</small></span></div>` +
-    `<div class="seg">${[["summon", "Summon"], ["exch", "Exchange"], ["shops", "Shops"]].map(([k, n]) => `<button class="${SV === k ? "on" : ""}" data-act="svtab" data-k="${k}">${n}</button>`).join("")}</div>`;
+  econInit(); const pools = activePools(); if (!pools.find(p => p.key === SEL)) SEL = "std"; const fi = freeInfo(), rec = (P.recent || []).slice(0, 10);
+  let h = `<div class="econ" style="grid-template-columns:repeat(3,1fr)"><span class="ec c">${ic("coin", "")}<b>${P.coins}</b><small>Coins</small></span><span class="ec g">${ic("gem", "")}<b>${P.gems}</b><small>Gems</small></span><span class="ec t">${ic("ticket", "")}<b>${P.tokens || 0}</b><small>Tokens</small></span></div>` +
+    `<div class="seg">${[["summon", "Summon"], ["shop", "Shop"], ["exch", "Exchange"]].map(([k, n]) => `<button class="${SV === k ? "on" : ""}" data-act="svtab" data-k="${k}">${n}</button>`).join("")}</div>`;
   if (SV === "summon") {
-    h += POOL_GROUPS.map(([g, title]) => { const list = pools.filter(x => x.group === g); return list.length ? `<span class="ribbon ${g === "event" ? "gold" : ""}">${title}</span><div class="bnrow">${list.map(bannerHtml).join("")}</div>` : ""; }).join("") +
-      `<p class="note" style="text-align:center;margin:10px 0 0">Free Standard packs: <b>${fi.n}/${PACK.freeMax}</b>${fi.n < PACK.freeMax ? " · the next in " + fmtT(fi.next) : ""}. Every summon pays medals by rarity.</p>` +
-      `<div class="panel" style="margin-top:12px"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><div><b class="fat" style="font-size:12px">${BUNDLE.n} PACK TOKENS</b><br><small class="note">Saves ${BUNDLE.n * ECON.std - BUNDLE.coins} coins. Tokens pay for Standard summons.</small></div><button class="btn sm yellow" data-act="buyBundle" ${P.coins >= BUNDLE.coins ? "" : "disabled"}><span class="cp">${ic("coin", "")}${BUNDLE.coins}</span> Buy</button></div></div>` +
+    h += POOL_GROUPS.map(([g, title]) => { const list = pools.filter(x => x.group === g); return list.length ? `<span class="ribbon ${g === "rot" ? "gold" : ""}">${title}</span><div class="bnrow">${list.map(bannerHtml).join("")}</div>` : ""; }).join("") +
+      `<p class="note" style="text-align:center;margin:10px 0 0">Free Standard packs: <b>${fi.n}/${PACK.freeMax}</b>${fi.n < PACK.freeMax ? " · the next in " + fmtT(fi.next) : ""}. A Standard summon costs ${ECON.std} coins; every other summon costs Gems.</p>` +
       `<span class="ribbon">COLLECTION</span>${setProgress()}${setProgress2()}` + (rec.length ? `<span class="ribbon green">RECENT PULLS</span><div class="recent">${rec.map(id => BY[id] ? cardHtml(BY[id], { attr: `data-act="detail" data-id="${id}"` }) : "").join("")}</div>` : "");
-  } else if (SV === "exch") {
-    h += `<span class="ribbon">MEDAL EXCHANGE</span><p class="note" style="text-align:center;margin:0 0 10px">Every summon pays medals (Common ${ECON.medal[1]}, Uncommon ${ECON.medal[2]}, Rare ${ECON.medal[3]}, Epic ${ECON.medal[4]}, Legendary ${ECON.medal[5]}, Secret ${ECON.medal[6]} per card). Spend them here on the exact card you want. Medals never expire.</p>` + offerList(exchangeOffers());
+    h += `<span class="ribbon">EARNING</span><div class="panel"><ul class="earn"><li><b>Coins</b> from every fight (wins pay more, campaign first clears pay most), the daily login and the daily missions.</li><li><b>Gems</b> from clearing a campaign region, climbing a ranked tier, finishing the daily list and every 5th level. Or buy them in the Shop.</li><li><b>Tokens</b> only from events. There are none running right now.</li></ul></div>`;
+  } else if (SV === "shop") {
+    h += `<span class="ribbon gold">GEMS AND COINS</span><p class="note" style="text-align:center;margin:0 0 10px">Gems buy summons in every pool except Standard. Each pack also comes with Coins.</p><div class="list">${IAP.map(o => `<div class="panel item"><div class="t"><b>${ic("gem")} ${o.gems} Gems <span style="color:var(--yellow)">+ ${o.bonus} bonus</span></b><small>+ ${ic("coin")} ${o.coins.toLocaleString()} Coins</small></div><button class="btn sm yellow" data-act="iap" data-id="${o.id}">${o.usd}</button></div>`).join("")}</div><p class="note" style="text-align:center;margin:12px 0 0">Purchases are not open yet. Nothing here charges you.</p>`;
   } else {
-    const dl = dailyOffers(), wk = weeklyOffers(), ev = eventOffers();
-    h += `<div class="seg sm">${[["daily", "Daily"], ["weekly", "Weekly"], ["event", "Event"]].map(([k, n]) => `<button class="${SHSUB === k ? "on" : ""}" data-act="shsub" data-k="${k}">${n}</button>`).join("")}</div>`;
-    if (SHSUB === "daily") h += `<p class="note" style="text-align:center;margin:10px 0">New offers in ${leftTxt(dayLeft())} (12:00 AM EST)</p>` + offerList(dl);
-    else if (SHSUB === "weekly") h += `<p class="note" style="text-align:center;margin:10px 0">Themed to this week's faction. Refreshes in ${leftTxt(weekLeft())} (Monday 12:00 AM EST)</p>` + offerList(wk);
-    else h += `<p class="note" style="text-align:center;margin:10px 0">${esc(poolByKey("event").name)}. Spends event medals, which are earned from Event summons and vanish in ${leftTxt(weekLeft())}.</p><div class="econ"><span class="ec t">${ic("ticket", "")}<b>${P.ev.tickets}</b><small>Event tickets</small></span><span class="ec s">${ic("medal", "")}<b>${P.ev.medals}</b><small>Event medals</small></span></div>` + offerList(ev);
+    const t = P.tokens || 0, row = (kind, title, rate) => `<div class="panel item"><div class="t"><b>${title}</b><small>${rate}</small></div><div class="row" style="gap:6px;flex-wrap:nowrap"><button class="btn sm ${t >= 1 ? "yellow" : ""}" data-act="tokx" data-k="${kind}" data-all="0" ${t >= 1 ? "" : "disabled"}>1</button><button class="btn sm ${t >= 1 ? "yellow" : ""}" data-act="tokx" data-k="${kind}" data-all="1" ${t >= 1 ? "" : "disabled"}>All${t >= 1 ? " (" + t + ")" : ""}</button></div></div>`;
+    h += `<span class="ribbon">TOKEN EXCHANGE</span><p class="note" style="text-align:center;margin:0 0 10px">Tokens come only from events. Whatever you have left over turns into Gems or Coins here.</p><div class="list">${row("gems", "Tokens → Gems", "1 Token = " + ECON.tokGems + " Gems")}${row("coins", "Tokens → Coins", "1 Token = " + ECON.tokCoins + " Coins")}</div>`;
   }
-  h += `<span class="ribbon">EARNING</span><div class="panel"><ul class="earn"><li><b>Coins</b> from every fight (wins pay more, campaign first clears pay most) and the daily login.</li><li><b>Gems</b> from clearing a campaign region, climbing a ranked tier, finishing the daily list and every 5th level.</li><li><b>Medals</b> from every summon; the Exchange turns them into the exact card you want.</li><li><b>Shards</b> from spare copies, for crafting a missing card.</li></ul></div><div class="row c" style="margin-top:12px"><button class="btn sm dark" data-act="tiltToggle">Foil tilt: ${TILT.on ? "On" : "Off"}</button></div>`;
   v.innerHTML = h;
 }
 function oddsModal(key = "std") {
@@ -4544,8 +4479,8 @@ function oddsModal(key = "std") {
   let extra = "";
   if (p.featured) extra = ` Featured: ${p.featured.map(id => BY[id].name).join(" and ")}. When a card of a featured card's rarity is drawn, it is the featured card half the time. If the first Legendary or better you draw is not the featured Legendary, the next one is guaranteed to be.`;
   if (p.bias) extra = ` ${p.biasName} cards count four times in every rarity, and the hit card is always a ${p.biasName} card when its rarity has one.`;
-  if (p.exclusive) extra += " The two featured cards are event exclusives: they are in no other pool and cannot be crafted or exchanged. This festival returns every eight weeks.";
-  const price = Object.entries(p.cost).map(([r, n]) => n + " " + (r === "evt" ? "event ticket" : r)).join(" or ");
+  if (p.exclusive) extra += " The two featured cards are Festival exclusives: they are in no other pool. This festival returns every eight weeks.";
+  const price = Object.entries(p.cost).map(([r, n]) => n + " " + r).join(" or ");
   openSheet(`<h2 class="fat">${esc(p.name)} ODDS</h2><p class="note">Five cards per summon. Chance per card:</p><table class="odds">${rows}</table><table class="odds" style="margin-top:8px">${[1, 2, 3, 4, 5].map(r => `<tr><td><span class="rtag r${r}">${RNAME[r].toUpperCase()}</span> ${cnt(r)} cards</td><td></td></tr>`).join("")}<tr><td><span class="rtag r6">SECRET RARE</span> ${ex} cards</td><td></td></tr></table><p class="note">Within a rarity every card is equally likely.${extra} Secret Rares only come from summons. Variants are cosmetic only and never stronger: any card can come out Holographic (${VARIANTS.holo.chance * 100}%), Alternate Art (${VARIANTS.alt.chance * 100}%) or Secret (${VARIANTS.secret.chance * 100}%), whatever the pool. If ${p.pity - 1} summons in a row hold no Legendary or better, the next one's last card is one (a Secret Rare 1 time in 5). The counter belongs to this pool${p.ends ? " and resets when it ends" : ""}. Price: ${price}; ten summons cost nine.</p><div class="row c"><button class="btn dark" data-act="closeModal">Close</button></div>`);
 }
 
@@ -4625,7 +4560,7 @@ function settingsSheet() {
     `<span class="ribbon">DISPLAY</span><div class="panel">${tg("sMot", !(pf.motion === "off" || UI.mq.matches), "Animations", "Menu and card movement")}${tg("sVfx", pf.vfx !== false, "Battle effects", "Flashes, sparks and rings")}${tg("sShake", pf.shake !== false, "Screen shake")}${tg("sHap", pf.haptics !== false, "Vibration")}${UI.mq.matches ? '<p class="note" style="margin:8px 0 0">Your phone asks apps to reduce motion, so animations stay off.</p>' : ""}</div>` +
     `<span class="ribbon">CARDS AND PACKS</span><div class="panel">${tg("sTilt", TILT.on, "Card tilt", tiltNote)}${tg("sPack", pf.packQuick === true, "Quick pack opening", "Skip the tear and the flips, and go straight to your cards")}</div>` +
     `<span class="ribbon">ACCOUNT AND DATA</span><div class="panel"><p class="note" style="margin:0 0 8px">${ACC ? "Signed in as <b style=\"color:var(--yellow)\">" + esc(ACC.name) + "</b>. Your progress is saved to your account." : "Playing as a guest. Progress is only on this phone."}</p>${ACC ? `<p class="note" style="margin:0 0 4px">Which save wins when you sign in: <b>${srcDev ? "this phone" : "your online save"}</b>.</p><div class="row"><button class="btn sm dark" data-me="${srcDev ? "srconl" : "srcdev"}">${srcDev ? "Use my online save" : "Use this phone instead…"}</button></div>` : ""}<div class="row" style="gap:8px;margin-top:8px">${ACC ? `<button class="btn sm dark" data-me="blocked">Blocked (${blockedList().length})</button>` : ""}${ACC ? '<button class="btn sm dark" data-ac="logout">Sign out</button>' : '<button class="btn sm yellow" data-ac="up">Create account</button>'}<button class="btn sm red" data-me="del">${ACC ? "Delete account" : "Erase my progress"}</button></div></div>` +
-    `<span class="ribbon">HELP</span><div class="row c" style="gap:8px"><button class="btn sm" data-ck="rules">How to play</button><button class="btn sm" data-me="tut">Replay the tutorial</button></div>` +
+    `<span class="ribbon">HELP</span><div class="row c" style="gap:8px"><button class="btn sm" data-ck="rules">How to play</button><button class="btn sm" data-me="tut">Replay the tutorial</button><button class="btn sm" data-ck="triad">Classic Triad</button></div>` +
     `<p class="note" style="text-align:center;margin:12px 0 0;opacity:.6;font-size:11px">Version ${typeof VER !== "undefined" ? VER : ""}</p>` +
     `<div class="row c" style="margin-top:10px"><button class="btn sm dark" data-me="profile">Back</button></div>`);
 }
@@ -4680,12 +4615,12 @@ function fillDeck(style) {
 
 /* ---------- daily: claim everything that is ready ---------- */
 function claimAll() {
-  rollover(); let n = 0, coins = 0, tk = 0, dust = 0;
-  if (!P.login) { P.login = true; P.tickets += ECON.login.tickets; earn(ECON.login.coins, 0); coins += ECON.login.coins; tk += ECON.login.tickets; n++; }
-  for (const m of missions()) if (m.have >= m.need && !P.mis.claimed[m.id]) { P.mis.claimed[m.id] = 1; n++; if (m.tk) { P.tickets += m.tk; tk += m.tk; } else if (m.coins) { P.coins += m.coins; coins += m.coins; } else { P.dust += m.dust; dust += m.dust; } }
+  rollover(); let n = 0, coins = 0;
+  if (!P.login) { P.login = true; earn(ECON.login.coins, 0); coins += ECON.login.coins; n++; }
+  for (const m of missions()) if (m.have >= m.need && !P.mis.claimed[m.id]) { P.mis.claimed[m.id] = 1; n++; P.coins += m.coins; coins += m.coins; }
   if (!n) return toast("Nothing to claim yet.");
-  let bonus = ""; if (missions().every(x => P.mis.claimed[x.id]) && !P.mis.bonus) { P.mis.bonus = 1; P.tickets += ECON.allFour.tickets; earn(0, ECON.allFour.gems); bonus = " + " + ECON.allFour.gems + " gems"; }
-  scheduleSave(); chrome(); uiFx("ok"); sfx("coin"); toast("Claimed " + [coins && coins + " coins", tk && tk + " token" + (tk > 1 ? "s" : ""), dust && dust + " shards"].filter(Boolean).join(", ") + bonus); show("daily");
+  let bonus = ""; if (missions().every(x => P.mis.claimed[x.id]) && !P.mis.bonus) { P.mis.bonus = 1; earn(0, ECON.allFour.gems); bonus = " + " + ECON.allFour.gems + " gems"; }
+  scheduleSave(); chrome(); uiFx("ok"); sfx("coin"); toast("Claimed " + coins + " coins" + bonus); show("daily");
 }
 const claimCount = () => (P.login ? 0 : 1) + missions().filter(m => m.have >= m.need && !P.mis.claimed[m.id]).length;
 
@@ -4734,9 +4669,9 @@ function emoteGot(i) {
 const favIco = id => `<button class="sico l ${P.fav && P.fav[id] ? "on" : ""}" data-me="fav" data-id="${id}" aria-label="Favourite">${P.fav && P.fav[id] ? "★" : "☆"}</button>`;
 const favBtn = id => `<button class="btn sm ${P.fav && P.fav[id] ? "yellow" : "dark"}" data-me="fav" data-id="${id}">${P.fav && P.fav[id] ? "★ Favourite" : "☆ Favourite"}</button>`;
 function whereTxt(c, n) {
-  if (c.ev) return "Where to get it: the Event Summon or the Event shop.";
+  if (c.ev) return "Where to get it: the Element Festival.";
   if (c.ex) return "Where to get it: summon packs only.";
-  return "Where to get it: any summon" + (n < 3 ? ", or craft it for " + CRAFT[c.lv] + " shards." : ".");
+  return "Where to get it: any summon.";
 }
 function deckCover(d) { const id = d.cover && BY[d.cover] ? d.cover : d.cards.find(x => BY[x]); return id ? `<img class="dcov" alt="" src="${artSrc(BY[id])}">` : ""; }
 
@@ -5004,11 +4939,11 @@ function openSheet(h) { const m = $("#modal"); m.hidden = false; delete m.datase
 function lockSheet() { $("#modal").dataset.lock = "1"; }
 function detail(id) {
   seenInit(); if (P.own[id] > 0 && !P.seen[id]) { P.seen[id] = 1; scheduleSave(); chrome(); }
-  const c = BY[id], n = P.own[id] || 0, cost = c.ex ? 0 : CRAFT[c.lv], k = arCard(c), rr = rarOf(c);
+  const c = BY[id], n = P.own[id] || 0, k = arCard(c), rr = rarOf(c);
   openSheet(`${n ? favIco(id) : ""}<button class="sico r" data-act="closeModal" aria-label="Close">✕</button><div style="width:min(66%,248px);margin:2px auto 12px">${cardHtml(c, { miss: !n, tilt: true })}</div><div class="row" style="align-items:flex-start;flex-wrap:nowrap;gap:14px"><div style="min-width:0;flex:1"><h2 class="fat" style="text-align:left;font-size:18px;margin:2px 0 8px;line-height:1.15">${esc(c.name)}</h2><div class="row" style="gap:8px"><span class="rtag r${rr}">${RNAME[rr]}</span><span class="elchip el-${k.el}">${elIco(k.el)}${EL[k.el][0]}</span></div><p class="note" style="margin:8px 0 0;line-height:1.5">${esc(FAC[k.fac] || k.fac)}<br>Targets: ${TGT_NAME[k.tm]}<br>Strike ${+(k.atk * AR.ATKX * AR.STRIKE).toFixed(1)} every ${+(AR.IV / k.spd).toFixed(1)} s<br>Owned ${n} / 3<br>${whereTxt(c, n)}</p></div></div>` +
     `${varsOwned(id).length ? `<div class="row c" style="margin:6px 0 0"><span class="note">Variant</span>${["std"].concat(VAR_ORDER.filter(x => varsOwned(id).includes(x))).map(x => `<button class="btn sm ${(selVariant(id) || "std") === x ? "yellow" : "dark"}" data-act="setvar" data-id="${id}" data-v="${x}">${x === "std" ? "Standard" : VARIANTS[x].name}</button>`).join("")}</div>` : ""}<div class="cstat"><div class="a"><b>${Math.round(k.atk * AR.ATKX)}</b><small>Attack</small></div><div class="h"><b>${hpOf(k)}</b><small>Health</small></div><div class="s"><b>${k.spd.toFixed(2)}</b><small>Speed</small></div><div class="c"><b>${k.cost}</b><small>Cost</small></div></div>` +
     `${chainStrip(id)}<div class="skillbox"><em>Passive · ${esc(passName(k))}</em>${passText(k.passive)}</div><div class="skillbox"><em>Skill · ${esc(actName(k))} · ${k.acost} energy${abilBase(k) && abilBase(k) !== actName(k) ? " · " + esc(abilBase(k)) : ""}</em>${actText(k.active)}</div>` +
-    `<div class="row c" style="margin-top:14px">${c.ev ? '<span class="note">Only its Event Summon or Event shop gives this card.</span>' : c.ex ? '<span class="note">Only a pack gives this card.</span>' : `<button class="btn yellow sm" data-act="craft" data-id="${id}" ${P.dust < cost || n >= 3 ? "disabled" : ""}>Craft · ${cost} ${ic("shard")}</button>`}${n > 1 ? `<button class="btn sm" data-act="sell" data-id="${id}">Sell 1 · ${ECON.sell[rr]} ${ic("coin")}</button><button class="btn sm" data-act="breakc" data-id="${id}">Break 1 · ${DUST[c.ex ? "ex" : c.lv]} ${ic("shard")}</button>` : ""}</div>`);
+    `<div class="row c" style="margin-top:14px">${c.ev ? '<span class="note">Only the Element Festival gives this card.</span>' : c.ex ? '<span class="note">Only a pack gives this card.</span>' : ""}${n > 1 ? `<button class="btn sm" data-act="sell" data-id="${id}">Sell 1 · ${ECON.sell[rr]} ${ic("coin")}</button>` : ""}</div>`);
 }
 let DE = null;
 function editDeck(i) { DE = { i, name: P.decks[i].name, cards: P.decks[i].cards.slice() }; deckSheet(); }
@@ -5022,18 +4957,18 @@ function deckSheet() {
 
 /* ===== daily: login ticket and missions ===== */
 function missions() {
-  const m = P.mis, d = dayNo(), W = [{ id: "win", t: "Win a match", have: m.win, need: 1, coins: 50 }, { id: "win2", t: "Win 2 matches", have: m.win, need: 2, coins: 60 }, { id: "cap", t: "Win 3 matches", have: m.win, need: 3, dust: 15 }],
-    L = [{ id: "play", t: "Play 3 matches", have: m.play, need: 3, dust: 10 }, { id: "play2", t: "Play 2 matches", have: m.play, need: 2, coins: 40 }, { id: "play5", t: "Play 5 matches", have: m.play, need: 5, dust: 20 }],
-    S = [{ id: "sum", t: "Open a pack", have: m.sum, need: 1, dust: 10 }, { id: "sum3", t: "Open 3 packs", have: m.sum, need: 3, dust: 20 }];
+  const m = P.mis, d = dayNo(), W = [{ id: "win", t: "Win a match", have: m.win, need: 1, coins: 80 }, { id: "win2", t: "Win 2 matches", have: m.win, need: 2, coins: 100 }, { id: "cap", t: "Win 3 matches", have: m.win, need: 3, coins: 120 }],
+    L = [{ id: "play", t: "Play 3 matches", have: m.play, need: 3, coins: 60 }, { id: "play2", t: "Play 2 matches", have: m.play, need: 2, coins: 50 }, { id: "play5", t: "Play 5 matches", have: m.play, need: 5, coins: 100 }],
+    S = [{ id: "sum", t: "Open a pack", have: m.sum, need: 1, coins: 60 }, { id: "sum3", t: "Open 3 packs", have: m.sum, need: 3, coins: 100 }];
   return [W[d % 3], W[(d + 1) % 3], L[d % 3], S[d % 2]];
 }
 function viewDaily(v) {
   rollover(); const ms = missions(), all = ms.every(m => P.mis.claimed[m.id]);
   const nClaim = claimCount();
-  v.innerHTML = `<span class="ribbon">DAILY</span>${nClaim > 1 ? `<div class="row c" style="margin:0 0 10px"><button class="btn yellow" data-me="claimall">Claim all (${nClaim})</button></div>` : ""}<div class="list"><div class="panel item"><div class="t"><b>Daily ticket</b><small>${ECON.login.coins} ${ic("coin")} for dropping in</small></div><button class="btn sm yellow" data-act="login" ${P.login ? "disabled" : ""}>${P.login ? "Claimed" : "Claim"}</button></div>` +
-    ms.map(m => `<div class="panel item"><div class="t"><b>${m.t}</b><small>${Math.min(m.have, m.need)} / ${m.need} · reward ${m.tk ? m.tk + " " + ic("ticket") : m.coins ? m.coins + " " + ic("coin") : m.dust + " " + ic("shard")}</small><div class="bar" style="margin-top:5px"><i style="width:${Math.min(100, 100 * m.have / m.need)}%"></i></div></div><button class="btn sm ${m.have >= m.need && !P.mis.claimed[m.id] ? "yellow" : ""}" data-act="claimM" data-id="${m.id}" ${m.have >= m.need && !P.mis.claimed[m.id] ? "" : "disabled"}>${P.mis.claimed[m.id] ? "Done" : "Claim"}</button></div>`).join("") +
+  v.innerHTML = `<span class="ribbon">DAILY</span>${nClaim > 1 ? `<div class="row c" style="margin:0 0 10px"><button class="btn yellow" data-me="claimall">Claim all (${nClaim})</button></div>` : ""}<div class="list"><div class="panel item"><div class="t"><b>Daily login</b><small>${ECON.login.coins} ${ic("coin")} for dropping in</small></div><button class="btn sm yellow" data-act="login" ${P.login ? "disabled" : ""}>${P.login ? "Claimed" : "Claim"}</button></div>` +
+    ms.map(m => `<div class="panel item"><div class="t"><b>${m.t}</b><small>${Math.min(m.have, m.need)} / ${m.need} · reward ${m.coins} ${ic("coin")}</small><div class="bar" style="margin-top:5px"><i style="width:${Math.min(100, 100 * m.have / m.need)}%"></i></div></div><button class="btn sm ${m.have >= m.need && !P.mis.claimed[m.id] ? "yellow" : ""}" data-act="claimM" data-id="${m.id}" ${m.have >= m.need && !P.mis.claimed[m.id] ? "" : "disabled"}>${P.mis.claimed[m.id] ? "Done" : "Claim"}</button></div>`).join("") +
     `<div class="panel item"><div class="t"><b>All four</b><small>${ECON.allFour.gems} ${ic("gem")} bonus</small></div><span class="tag ${all ? "ok" : ""}">${all ? "EARNED" : "FINISH THE LIST"}</span></div></div>` +
-    `<span class="ribbon green">YOU</span><div class="panel"><div class="row"><input type="text" id="pname" maxlength="14" value="${esc(P.name || "")}" placeholder="${esc(myName || "Your name")}" style="flex:1"><button class="btn sm" data-act="saveName">Save name</button></div><p class="note" style="margin:0 0 8px;opacity:.65;font-size:11px">${displayInfo()}</p><div id="profAcc" style="margin-top:10px">${accProfileHtml()}</div><div class="row" style="margin-top:10px;gap:8px"><button class="btn sm yellow" data-me="profile">Profile</button><button class="btn sm dark" data-me="settings">Settings</button></div><p class="note" style="margin:10px 0 0">Matches played ${P.plays} · won ${P.wins} · cards ${ownedList().length}/${C.length} · summons ${P.pulls} · campaign ${Object.keys(P.cleared).length}/16</p></div>` + soundPanel();
+    ``;
 }
 
 /* ===== sound: effects are synthesized (nothing to download); music is whatever songs you add from your own phone ===== */
@@ -5504,19 +5439,15 @@ document.addEventListener("click", async e => {
     case "summon": return summon(d.k || "std", +d.n || 1);
     case "pool": SEL = d.k; return show("summon");
     case "svtab": SV = d.k; return show("summon");
-    case "shsub": SHSUB = d.k; return show("summon");
-    case "buyOffer": return buyOffer(d.id);
-    case "pickGo": return pickGo(d.o, d.id);
-    case "evLogin": return evLogin();
     case "setvar": return setVar(d.id, d.v);
     case "avatar": return avatarSheet();
     case "avpick": { AV.pick = d.id; document.querySelectorAll("#avlist .avc").forEach(b => b.classList.toggle("on", b.dataset.id === AV.pick)); $("#avprev").innerHTML = avPreview(); return uiFx("tap"); }
     case "avuse": { P.avatar = AV.pick || null; scheduleSave(); chrome(); closeModal(); uiFx("ok"); return toast(AV.pick ? BY[AV.pick].name + " is now your portrait" : "Your portrait follows your best card"); }
     case "setav": P.avatar = d.id || null; scheduleSave(); chrome(); closeModal(); return toast(d.id ? BY[d.id].name + " is now your portrait" : "Your portrait follows your best card");
     case "openPack": return summon(SEL, 1);
-    case "buyBundle": return buyBundle();
+    case "iap": return buyIap(d.id);
+    case "tokx": return exchangeTokens(d.k, d.all === "1");
     case "sell": return sellCopy(d.id);
-    case "breakc": return breakCopy(d.id);
     case "packTear": return packTear();
     case "packNext": return packNext();
     case "packSkip": return packSkip();
@@ -5525,7 +5456,6 @@ document.addEventListener("click", async e => {
     case "odds": return oddsModal(d.k || "std");
     case "closeModal": return closeModal();
     case "detail": return detail(d.id);
-    case "craft": { const c = BY[d.id], cost = CRAFT[c.lv]; if (c.ev || c.ex) return; if (P.dust >= cost && (P.own[c.id] || 0) < 3) { P.dust -= cost; addCard(c.id); scheduleSave(); chrome(); toast(c.name + " crafted"); detail(c.id); if ($("#coll")) fillColl(); } return; }
     case "newDeck": { P.decks.push({ name: "Deck " + (P.decks.length + 1), cards: [] }); scheduleSave(); return editDeck(P.decks.length - 1); }
     case "editDeck": return editDeck(+d.i);
     case "deckRemove": DE.cards.splice(+d.k, 1); return deckSheet();
@@ -5533,8 +5463,8 @@ document.addEventListener("click", async e => {
     case "deckAuto": { DE.cards = bestDeckIds(deckCap()); return deckSheet(); }
     case "deckSave": { P.decks[DE.i] = { name: (DE.name || "Deck").trim() || "Deck", cards: DE.cards.slice() }; P.deck = DE.i; scheduleSave(); closeModal(); toast("Deck saved"); return show("cards"); }
     case "deckDel": { P.decks.splice(DE.i, 1); P.deck = Math.min(P.deck, P.decks.length - 1); scheduleSave(); closeModal(); return show("cards"); }
-    case "login": P.login = true; P.tickets += ECON.login.tickets; earn(ECON.login.coins, 0); scheduleSave(); chrome(); toast("+" + ECON.login.coins + " coins" + (ECON.login.tickets ? ", +" + ECON.login.tickets + " token" : "")); return show("daily");
-    case "claimM": { const m = missions().find(x => x.id === d.id); if (m && m.have >= m.need && !P.mis.claimed[m.id]) { P.mis.claimed[m.id] = 1; if (m.tk) P.tickets += m.tk; else if (m.coins) P.coins += m.coins; else P.dust += m.dust; if (missions().every(x => P.mis.claimed[x.id])) { P.tickets += ECON.allFour.tickets; earn(0, ECON.allFour.gems); chrome(); toast("All four done: +" + ECON.allFour.gems + " gems" + (ECON.allFour.tickets ? ", +" + ECON.allFour.tickets + " token" : "")); } scheduleSave(); } return show("daily"); }
+    case "login": P.login = true; earn(ECON.login.coins, 0); scheduleSave(); chrome(); toast("+" + ECON.login.coins + " coins"); return show("daily");
+    case "claimM": { const m = missions().find(x => x.id === d.id); if (m && m.have >= m.need && !P.mis.claimed[m.id]) { P.mis.claimed[m.id] = 1; P.coins += m.coins; if (missions().every(x => P.mis.claimed[x.id]) && !P.mis.bonus) { P.mis.bonus = 1; earn(0, ECON.allFour.gems); toast("All four done: +" + ECON.allFour.gems + " gems"); } scheduleSave(); chrome(); } return show("daily"); }
     case "muteAll": { const on = !(AU.sfx || AU.bgm); AU.sfx = on; AU.bgm = on; auSave(); if (on) { sfx("tap"); musicStart(); } else musicStop(); chrome(); if (tab === "daily") show("daily"); return; }
     case "sfxT": AU.sfx = !AU.sfx; auSave(); sfx("tap"); chrome(); return show("daily");
     case "ambT": AU.amb = !AU.amb; auSave(); ambFor(AU.mode || "menu"); chrome(); return show("daily");
