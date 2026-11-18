@@ -1923,7 +1923,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.12.06-d";
+const VER = "2026.12.06-e";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -3424,7 +3424,7 @@ function ckResultPlain() {
   const w = G.winner, win = w === ME, draw = w === -1, tut = G.mode && G.mode.tut; sfx(win ? "win" : draw ? "draw" : "lose");
   openSheet(`<div class="res ${win ? "win" : draw ? "draw" : "lose"}"><b class="rtitle">${win ? "VICTORY" : draw ? "DRAW" : "DEFEAT"}</b><small class="rsub">${G.arena ? "Match time " + arClock(G.time) : ""}</small>` +
     `<div class="rcores"><div class="me"><small>YOU</small><b>${Math.max(0, Math.ceil(G.s[ME].core))}</b></div><i>CORE</i><div class="foe"><small>${esc(((G.arena && AM && AM.opp) || "FOE").toString().toUpperCase().slice(0, 9))}</small><b>${Math.max(0, Math.ceil(G.s[1 - ME].core))}</b></div></div>` +
-    `<p class="rnote">${tut ? "Tutorial complete. Real fights earn rewards." : "This fight was not verified by the server (no connection, or a direct link between two phones), so it earns no rewards."}</p></div><div class="row c" style="margin-top:14px"><button class="btn dark" data-ck="leave">Back</button></div>`);
+    `<p class="rnote">${tut ? "Tutorial complete. Real fights earn rewards." : "This fight was not verified by the server (no connection, or a direct link between two phones), so it earns no rewards."}</p></div><div class="row c" style="margin-top:14px"><button class="btn dark" data-ck="leave">Continue</button></div>`);
   lockSheet();
 }
 function ckResult() {
@@ -3449,7 +3449,7 @@ function ckResult() {
   openSheet(`<div class="res ${win ? "win" : draw ? "draw" : "lose"}"><b class="rtitle">${win ? "VICTORY" : draw ? "DRAW" : "DEFEAT"}</b><small class="rsub">${G.arena ? "Match time " + arClock(G.time) : "Round " + Math.min(G.round, CK.MAXR)}</small>` +
     `<div class="rcores"><div class="me"><small>YOU</small><b>${Math.max(0, Math.ceil(G.s[ME].core))}</b></div><i>CORE</i><div class="foe"><small>${esc(((G.arena && AM && AM.opp) || "FOE").toString().toUpperCase().slice(0, 9))}</small><b>${Math.max(0, Math.ceil(G.s[1 - ME].core))}</b></div></div>` +
     `<div class="rrow">${coins ? chip("g", ic("coin", ""), "+" + coins, "coins") : ""}${gems ? chip("p", ic("gem", ""), "+" + gems, "gems") : ""}${dust ? chip("s", ic("shard", ""), "+" + dust, "shards") : ""}${packs ? chip("p", ic("ticket", ""), "+" + packs, packs > 1 ? "packs" : "pack") : ""}${xp ? chip("x", ic("xp", ""), "+" + xp, "xp") : ""}</div>` +
-    `${extra ? `<p class="rnote">${esc(extra)}</p>` : ""}${ups.length ? `<p class="rnote up">${ups.map(esc).join("<br>")}</p>` : ""}${xpBar}</div><div class="row c" style="margin-top:14px">${again}<button class="btn dark" data-ck="leave">Back</button></div>`);
+    `${extra ? `<p class="rnote">${esc(extra)}</p>` : ""}${ups.length ? `<p class="rnote up">${ups.map(esc).join("<br>")}</p>` : ""}${xpBar}</div><div class="row c" style="margin-top:14px">${again}<button class="btn dark" data-ck="leave">Continue</button></div>`);
   lockSheet(); resAnim(xp, xpPct, lv0); if (promo && typeof promoFx === "function") promoFx(promo);
 }
 /* the rewards count up one after another and the experience bar fills (a level-up fills it, flashes, and carries on) */
@@ -3580,7 +3580,7 @@ function arLaunch(A, mode, opp, me, net, level) {
   ME = me; AM = { A, me, net, speed: 1, auto: false, sel: null, mode: null, last: 0, acc: 0, sig: "", done: false, sfxAt: 0, maxCore: [A.s[0].core, A.s[1].core], opp, aiTick: -1, stall: 0 };
   G = { arena: true, over: false, phase: "arena", online: !!net, mode, level: level || 0, winner: null, round: 1, time: 0, s: [{ core: A.s[0].core }, { core: A.s[1].core }], speed: 1 };
   if (!A.replay) { A.rec = []; A.tw = [A.s[0].core, A.s[1].core, A.s[0].eMul || 0, A.s[1].eMul || 0, A.s[0].energy, A.s[1].energy]; }
-  $("#ck").hidden = false; closeModal(); musicMode("match"); if (typeof ambArena === "function") ambArena(A); if (typeof BG !== "undefined") BG.speed = 1; arBuild(); arIntroStart(); if (typeof introTip === "function") introTip(); AM.raf = requestAnimationFrame(arLoop);
+  $("#ck").hidden = false; closeModal(); musicMode("match"); if (typeof ambArena === "function") { ambArena(A); if (typeof ambDuck === "function") ambDuck(1, .2); if (typeof jinglePreload === "function") jinglePreload(); } if (typeof BG !== "undefined") BG.speed = 1; arBuild(); arIntroStart(); if (typeof introTip === "function") introTip(); AM.raf = requestAnimationFrame(arLoop);
   if (net) { $("#arspeed").style.display = "none"; AM.ka = setInterval(arNetPulse, 1000); }
 }
 /* ----- online: deterministic lockstep. Both phones run the same fight; only commands (with the tick they apply on) and heartbeats cross the wire. ----- */
@@ -3878,7 +3878,8 @@ function arFinale() {
   const A = AM.A, me = AM.me, w = A.winner, ck = $("#ck"), lose = w === -1 ? null : (w === me ? 1 : 0), el = lose != null ? $("#core" + lose) : null; ck.classList.add("finale");
   if (el && uiMotion()) { const p = fxPos(el); fxFlash(p, "#ffffff", 240, 560); fxRing(p, "#ffffff", 170, 760); fxSparks(p, "#ffd9a0", 24, 96, 760); fxShake($("#arena"), 9, 460); }
   sfx("charge"); uiHaptic("heavy");
-  setTimeout(() => sfx(w === -1 ? "tap" : w === me ? "victory" : "defeat"), 900);
+  if (typeof bgStop === "function") bgStop();   // the fight music goes quiet; the ambience stays
+  setTimeout(() => { if (w === -1) sfx("tap"); else if (typeof jingle === "function") jingle(w === me ? "victory" : "defeat"); else sfx(w === me ? "victory" : "defeat"); }, 900);
   setTimeout(() => { if (AM) arBanner(w === -1 ? "DRAW" : w === me ? "VICTORY" : "DEFEAT", "", w === -1 ? "draw" : w === me ? "win" : "lose", 1500); }, uiMotion() ? 700 : 0);
   setTimeout(arFinish, uiMotion() ? 2500 : 600);
 }
@@ -5235,7 +5236,7 @@ const BEDS = {
 };
 
 /* ----- the ambience manager: one bed at a time, crossfaded, on its own volume ----- */
-const AMB = { on: false, id: null, bus: null, nodes: [], ev: [], timer: 0 };
+const AMB = { on: false, id: null, bus: null, nodes: [], ev: [], timer: 0, duck: 1 };
 function ambTick() {
   const c = AU.ctx; if (!c || !AMB.on) return; const now = c.currentTime;
   for (const e of AMB.ev) { if (e.next === undefined) e.next = now + R_(.3, e.max); while (e.next < now + .5) { try { e.fn(c, Math.max(e.next, now), AMB.bus); } catch (_) {} e.next += R_(e.min, e.max); } }
@@ -5247,10 +5248,11 @@ function ambStop() {
 }
 function ambSet(id) {
   if (!id || !AU.amb || !BEDS[id]) { ambStop(); return; } const c = auCtx(); if (!c) return; if (AMB.on && AMB.id === id) return; ambStop();
-  const bus = c.createGain(); bus.gain.setValueAtTime(0, c.currentTime); bus.gain.linearRampToValueAtTime(AU.av * 1.4, c.currentTime + 1.6); bus.connect(AU.out);
+  const bus = c.createGain(); bus.gain.setValueAtTime(0, c.currentTime); bus.gain.linearRampToValueAtTime(AU.av * 1.4 * AMB.duck, c.currentTime + 1.6); bus.connect(AU.out);
   AMB.bus = bus; AMB.id = id; AMB.nodes = []; AMB.ev = BEDS[id](c, bus, AMB.nodes).map(([min, max, fn]) => ({ min, max, fn })); AMB.on = true; AMB.timer = setInterval(ambTick, 250); ambTick();
 }
-function ambVol() { if (AMB.bus && AU.ctx) AMB.bus.gain.setTargetAtTime(AU.av * 1.4, AU.ctx.currentTime, .1); }
+function ambVol() { if (AMB.bus && AU.ctx) AMB.bus.gain.setTargetAtTime(AU.av * 1.4 * AMB.duck, AU.ctx.currentTime, .1); }
+function ambDuck(level, secs = .8) { AMB.duck = level; if (AMB.bus && AU.ctx) { const g = AMB.bus.gain, t = AU.ctx.currentTime; g.cancelScheduledValues(t); g.setValueAtTime(g.value, t); } if (AMB.bus && AU.ctx) AMB.bus.gain.setTargetAtTime(AU.av * 1.4 * level, AU.ctx.currentTime, secs / 3); }
 function ambFor(m) { if (!AU.amb) return ambStop(); if (m === "summon") ambSet("summon"); else if (m === "menu" || m === "collection") ambSet("menu"); else ambStop(); }
 /* the arena takes the most common element across both decks */
 function arenaElement(A) {
@@ -5384,6 +5386,26 @@ document.addEventListener("click", e => {
   if (kind === "amb") { if (rest === "stop") ambFor(AU.mode || "menu"); else { AU.amb = true; ambSet(rest); } return; }
   if (rest.indexOf(":") >= 0 || LAB_SFX.some(x => x[0] === b.dataset.lab)) { const [n, a] = b.dataset.lab.slice(4).split(":"); sfx(n, n === "impact" ? (a === "crit" ? { d: 40 } : a === "react" ? { d: 20, react: true } : { d: 10 }) : n === "reveal" ? +a : a); }
 });
+
+/* ===== match-end jingles: victory and defeat (3 to 5 s) =====
+   The fight's music fades out, the jingle plays once, and the arena ambience (wind, environment) carries on underneath and afterwards.
+   The result screen does not wait for the jingle and never closes by itself: the player presses Continue. A draw has no jingle. */
+const JINGLES = { victory: { url: "audio/victory.mp3", norm: 1.19 }, defeat: { url: "audio/defeat.mp3", norm: .85 } };
+const JG = {};
+async function jingleLoad(kind) {
+  if (JG[kind]) return JG[kind]; const def = JINGLES[kind], c = auCtx(); if (!def || !c) return null;
+  const j = JG[kind] = { kind, def, el: null, g: null, ready: false };
+  try { const el = new Audio(); el.preload = "auto"; el.src = await thBlob(def.url); const g = c.createGain(); g.gain.value = 0; c.createMediaElementSource(el).connect(g); g.connect(AU.out); j.el = el; j.g = g; j.ready = true; el.onended = () => { ambDuck(1, 1.2); }; }
+  catch (_) { delete JG[kind]; return null; }
+  return j;
+}
+function jinglePreload() { if (AU.sfx) { jingleLoad("victory"); jingleLoad("defeat"); } }
+async function jingle(kind) {
+  if (!AU.sfx) return false; const c = auCtx(), j = await jingleLoad(kind);
+  if (!j || !c) { sfx(kind); return false; }   // no file (offline on a first visit): the synthesized stinger instead
+  ambDuck(.45, .5); j.g.gain.cancelScheduledValues(c.currentTime); j.g.gain.setValueAtTime(AU.sv * .7 * j.def.norm, c.currentTime); try { j.el.currentTime = 0; } catch (_) {}
+  const p = j.el.play(); if (p && p.catch) p.catch(() => { ambDuck(1, .5); sfx(kind); }); return true;
+}
 
 document.addEventListener("visibilitychange", () => { if (!AU.ctx) return; if (document.hidden) { AU.ctx.suspend(); if (AU.el) AU.el.pause(); } else { AU.ctx.resume(); if (AU.el && AU.bgm && usingMine()) AU.el.play().catch(() => {}); } });
 /* a check that runs the three songs through an offline mixer and reports how loud they are (the page's own test hook) */
