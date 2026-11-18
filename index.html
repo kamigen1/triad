@@ -1989,7 +1989,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.12.08-d";
+const VER = "2026.12.09-a";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -2269,7 +2269,9 @@ function ckCard(c) {
   const pool = rar <= 2 ? LOW_P : rar === 3 ? MID_P : HIGH_P, passive = pool[Math.floor(r() * pool.length)];
   let aid; const roll = r();
   if (roll < .26) aid = "strike"; else if (roll < .5) aid = "mark"; else { const u = UTIL_BY[c.grp] || ["mend", "empower", "ward", "volley"]; aid = r() < .6 ? u[Math.floor(r() * u.length)] : ["mend", "empower", "ward", "overgrow", "volley", "disrupt"][Math.floor(r() * 6)]; }
-  return (KC[c.id] = setKit(c, { id: c.id, name: c.name, cost, atk, hp, el, tribe: c.grp, rar, passive, active: aid, acost: ACT[aid].c }));
+  const kit = setKit(c, { id: c.id, name: c.name, cost, atk, hp, el, tribe: c.grp, rar, passive, active: aid, acost: ACT[aid].c });
+  if (typeof migrateActive === "function" && !ABIL[kit.active]) { kit.active = migrateActive(kit.active, kit.el, rar, c.id); kit.acost = (ABIL[kit.active] || {}).c || kit.acost; }   // a card with no authored kit rolled an old skill id (volley, strike, mend ...): turn it into the current ability, or its skill would silently do nothing
+  return (KC[c.id] = kit);
 }
 /* names: a character may have its own (SKN, set1.js); every other card keeps the plain generic one */
 const SKN = {};
@@ -2799,7 +2801,7 @@ const ABIL = {};
 const ELK8 = ["fire", "water", "wind", "earth", "lightning", "ice", "light", "dark"];
 /* ----- damage: eight elements and a neutral line. Tier IV also hits every other enemy. ----- */
 const DMGN = { fire: ["Cinder", "Blaze", "Inferno", "Sunfall"], water: ["Ripple", "Torrent", "Maelstrom", "Deluge"], wind: ["Gust", "Cutter", "Cyclone", "Tempest"], earth: ["Rockfall", "Tremor", "Landslide", "Worldbreak"], lightning: ["Spark", "Bolt", "Stormcall", "Heavenstrike"], ice: ["Chill", "Frostbite", "Glaciate", "Absolute Zero"], light: ["Glint", "Radiance", "Judgment", "Daybreak"], dark: ["Shade", "Gloom", "Eclipse", "Oblivion"], none: ["Strike", "Cleave", "Rend", "Obliterate"] };
-const DMG_C = [3, 4, 6, 8], DMG_M = [1.0, 1.6, 2.3, 2.0], DMG_AOE = [0, 0, 0, 1.2];
+const DMG_C = [2, 3, 4, 8], DMG_M = [1.0, 1.6, 2.3, 2.0], DMG_AOE = [0, 0, 0, 1.2];
 const RIDER = {   // what an element adds at each tier (null = nothing)
   fire: { burn: [null, [.4, 5], [.7, 6], [1, 7]] }, water: { slow: [null, [.2, 4], [.3, 5], [.4, 6]] }, wind: { split: [null, .3, .5, .4] }, earth: { stag: [null, .8, 1.6, 2.4] }, lightning: { chain: [null, .5, .6, .7] },
   ice: { freeze: [null, .8, 1.5, 2.2] }, light: { purge: [null, 1, 1, 1], heal: [null, null, .25, .4] }, dark: { drain: [null, .3, .45, .6], weak: [null, null, null, [2, 6]] }, none: { pierce: [null, .3, .6, .6], exec: [null, null, null, .5] },
@@ -2811,30 +2813,31 @@ for (const el of ELK8.concat("none")) for (let t = 0; t < 4; t++) {
 }
 /* ----- support, status and unique families: [family, kind, tier names, tier parameters] ----- */
 const SUPDEF = [
-  ["heal", "heal", ["Salve", "Mend", "Renewal", "Miracle"], [{ c: 2, t: "ally", v: 2 }, { c: 4, t: "ally", v: 4.2 }, { c: 6, t: "none", v: 2 }, { c: 8, t: "none", v: 4, cleanse: 1 }]],
-  ["shield", "shield", ["Guard", "Ward", "Bulwark", "Sanctuary"], [{ c: 2, t: "ally", v: 2.25 }, { c: 4, t: "ally", v: 4.5 }, { c: 6, t: "none", v: 1.9 }, { c: 8, t: "none", v: 3.75 }]],
-  ["buff", "buff", ["Focus", "Empower", "Frenzy", "Ascension"], [{ c: 2, t: "ally", v: 4.2, T: 8 }, { c: 3, t: "ally", v: 6.7, T: 8 }, { c: 5, t: "ally", v: 10.5, T: 8 }, { c: 6, t: "none", v: 4.2, T: 8 }]],
-  ["haste", "haste", ["Quicken", "Haste", "Overdrive", "Timeslip"], [{ c: 2, t: "ally", T: 5 }, { c: 3, t: "ally", T: 10 }, { c: 6, t: "none", T: 6 }, { c: 8, t: "none", T: 10, reset: 1 }]],
-  ["weaken", "weaken", ["Sap", "Weaken", "Cripple", "Ruin"], [{ c: 2, t: "enemy", v: 2, T: 8 }, { c: 3, t: "enemy", v: 3.4, T: 8 }, { c: 6, t: "none", v: 2, T: 8 }, { c: 8, t: "none", v: 3.4, T: 8, vuln: .25 }]],
-  ["vuln", "vuln", ["Expose", "Unmask", "Shatter"], [{ c: 2, t: "enemy", m: .24, T: 8 }, { c: 4, t: "enemy", m: .38, T: 8 }, { c: 6, t: "none", m: .29, T: 8 }]],
-  ["slow", "slow", ["Drag", "Mire", "Stasis"], [{ c: 2, t: "enemy", m: .3, T: 6 }, { c: 3, t: "enemy", m: .45, T: 8 }, { c: 6, t: "none", m: .5, T: 6 }]],
-  ["stun", "stun", ["Stagger", "Stun", "Paralyze"], [{ c: 2, t: "enemy", T: 1.4 }, { c: 3, t: "enemy", T: 2.8 }, { c: 7, t: "none", T: 1.8 }]],
-  ["poison", "poison", ["Venom", "Toxin", "Plague"], [{ c: 2, t: "enemy", d: .35, T: 6 }, { c: 4, t: "enemy", d: .6, T: 7 }, { c: 7, t: "none", d: .5, T: 7 }]],
-  ["silence", "silence", ["Hush", "Mute", "Void Seal"], [{ c: 2, t: "enemy", T: 3 }, { c: 3, t: "enemy", T: 5 }, { c: 6, t: "none", T: 4 }]],
-  ["regen", "regen", ["Bloom", "Spring", "Eden"], [{ c: 2, t: "ally", d: .32, T: 6 }, { c: 4, t: "ally", d: .53, T: 7 }, { c: 6, t: "none", d: .4, T: 7 }]],
-  ["grow", "grow", ["Sharpen", "Vitality", "Overgrow"], [{ c: 4, t: "ally", a: 3.4, h: 0 }, { c: 4, t: "ally", a: 0, h: 4 }, { c: 6, t: "ally", a: 1.7, h: 1.7 }]],
-  ["strip", "strip", ["Dispel", "Purge"], [{ c: 1, t: "enemy" }, { c: 4, t: "none" }]],
-  ["cleanse", "cleanse", ["Cleanse", "Absolve"], [{ c: 2, t: "ally", v: 1.3 }, { c: 4, t: "none", v: 1.3 }]],
-  ["pact", "pact", ["Pact", "Blood Pact"], [{ c: 3, t: "ally", v: 8.5, T: 8, cost: .1, cr: 1 }, { c: 4, t: "ally", v: 12, T: 8, cost: .15, cr: 1 }]],
-  ["fate", "fate", ["Fate Swap", "Fate Twist", "Fate Snare"], [{ c: 5, t: "enemy" }, { c: 6, t: "enemy", stun: 1.5 }, { c: 7, t: "enemy", cheap: 1, stun: 2 }]],
-  ["trade", "trade", ["Barter", "Exchange", "Hijack"], [{ c: 5, t: "enemy" }, { c: 6, t: "enemy", weakest: 1 }, { c: 8, t: "enemy", weakest: 1, heal: .3, stun: 2 }]],
-  ["siphon", "siphon", ["Siphon", "Deep Well", "Void Tap"], [{ c: 2, t: "none", e: 1.5 }, { c: 3, t: "none", e: 2.5 }, { c: 4, t: "none", e: 4 }]],
-  ["raise", "raise", ["Raise", "Revival", "Resurrection"], [{ c: 5, t: "slot", v: .35 }, { c: 6, t: "slot", v: .55 }, { c: 8, t: "slot", v: .8, shield: 1 }]],
-  ["overclock", "overclock", ["Overclock", "Supercharge"], [{ c: 4, t: "none", T: 3 }, { c: 6, t: "none", T: 5, e: 1 }]],
+  ["heal", "heal", ["Salve", "Mend", "Renewal", "Miracle"], [{ c: 1, t: "ally", v: 2 }, { c: 3, t: "ally", v: 4.2 }, { c: 5, t: "none", v: 2 }, { c: 8, t: "none", v: 4, cleanse: 1 }]],
+  ["shield", "shield", ["Guard", "Ward", "Bulwark", "Sanctuary"], [{ c: 1, t: "ally", v: 2.25 }, { c: 3, t: "ally", v: 4.5 }, { c: 5, t: "none", v: 1.9 }, { c: 7, t: "none", v: 3.75 }]],
+  ["buff", "buff", ["Focus", "Empower", "Frenzy", "Ascension"], [{ c: 1, t: "ally", v: 4.2, T: 8 }, { c: 2, t: "ally", v: 6.7, T: 8 }, { c: 4, t: "ally", v: 10.5, T: 8 }, { c: 5, t: "none", v: 4.2, T: 8 }]],
+  ["haste", "haste", ["Quicken", "Haste", "Overdrive", "Timeslip"], [{ c: 1, t: "ally", T: 5 }, { c: 2, t: "ally", T: 10 }, { c: 4, t: "none", T: 6 }, { c: 7, t: "none", T: 10, reset: 1 }]],
+  ["weaken", "weaken", ["Sap", "Weaken", "Cripple", "Ruin"], [{ c: 1, t: "enemy", v: 2, T: 8 }, { c: 2, t: "enemy", v: 3.4, T: 8 }, { c: 4, t: "none", v: 2, T: 8 }, { c: 7, t: "none", v: 3.4, T: 8, vuln: .25 }]],
+  ["vuln", "vuln", ["Expose", "Unmask", "Shatter"], [{ c: 1, t: "enemy", m: .24, T: 8 }, { c: 3, t: "enemy", m: .38, T: 8 }, { c: 5, t: "none", m: .29, T: 8 }]],
+  ["slow", "slow", ["Drag", "Mire", "Stasis"], [{ c: 1, t: "enemy", m: .3, T: 6 }, { c: 2, t: "enemy", m: .45, T: 8 }, { c: 4, t: "none", m: .5, T: 6 }]],
+  ["stun", "stun", ["Stagger", "Stun", "Paralyze"], [{ c: 1, t: "enemy", T: 1.4 }, { c: 2, t: "enemy", T: 2.8 }, { c: 5, t: "none", T: 1.8 }]],
+  ["poison", "poison", ["Venom", "Toxin", "Plague"], [{ c: 1, t: "enemy", d: .35, T: 6 }, { c: 3, t: "enemy", d: .6, T: 7 }, { c: 5, t: "none", d: .5, T: 7 }]],
+  ["silence", "silence", ["Hush", "Mute", "Void Seal"], [{ c: 1, t: "enemy", T: 3 }, { c: 2, t: "enemy", T: 5 }, { c: 4, t: "none", T: 4 }]],
+  ["regen", "regen", ["Bloom", "Spring", "Eden"], [{ c: 1, t: "ally", d: .32, T: 6 }, { c: 3, t: "ally", d: .53, T: 7 }, { c: 5, t: "none", d: .4, T: 7 }]],
+  ["grow", "grow", ["Sharpen", "Vitality", "Overgrow"], [{ c: 3, t: "ally", a: 3.4, h: 0 }, { c: 3, t: "ally", a: 0, h: 4 }, { c: 5, t: "ally", a: 1.7, h: 1.7 }]],
+  ["strip", "strip", ["Dispel", "Purge"], [{ c: 1, t: "enemy" }, { c: 3, t: "none" }]],
+  ["cleanse", "cleanse", ["Cleanse", "Absolve"], [{ c: 1, t: "ally", v: 1.3 }, { c: 3, t: "none", v: 1.3 }]],
+  ["pact", "pact", ["Pact", "Blood Pact"], [{ c: 2, t: "ally", v: 8.5, T: 8, cost: .1, cr: 1 }, { c: 3, t: "ally", v: 12, T: 8, cost: .15, cr: 1 }]],
+  ["fate", "fate", ["Fate Swap", "Fate Twist", "Fate Snare"], [{ c: 4, t: "enemy" }, { c: 5, t: "enemy", stun: 1.5 }, { c: 6, t: "enemy", cheap: 1, stun: 2 }]],
+  ["trade", "trade", ["Barter", "Exchange", "Hijack"], [{ c: 4, t: "enemy" }, { c: 5, t: "enemy", weakest: 1 }, { c: 6, t: "enemy", weakest: 1, heal: .3, stun: 2 }]],
+  ["siphon", "siphon", ["Siphon", "Deep Well", "Void Tap"], [{ c: 1, t: "none", e: 1.5 }, { c: 2, t: "none", e: 2.5 }, { c: 3, t: "none", e: 4 }]],
+  ["raise", "raise", ["Raise", "Revival", "Resurrection"], [{ c: 4, t: "slot", v: .35 }, { c: 5, t: "slot", v: .55 }, { c: 6, t: "slot", v: .8, shield: 1 }]],
+  ["tempo", "tempo", ["Meditate", "Channel", "Wellspring"], [{ c: 1, t: "none", m: .5, T: 8 }, { c: 2, t: "none", m: .75, T: 10 }, { c: 3, t: "none", m: 1, T: 12 }]],
+  ["overclock", "overclock", ["Overclock", "Supercharge"], [{ c: 3, t: "none", T: 3 }, { c: 5, t: "none", T: 5, e: 1 }]],
 ];
 for (const [fam, k, names, tiers] of SUPDEF) tiers.forEach((o, t) => { const id = fam + (t + 1); ABIL[id] = Object.assign({ id, fam, tier: t + 1, n: names[t], k }, o); });
 for (const el of ELK8) ABIL["mark_" + el] = { id: "mark_" + el, fam: "mark", tier: 1, n: "mark", k: "mark", el, c: 1, t: "enemy", noTier: 1 };
-const FAMN = { hit: "Neutral", heal: "Healing", shield: "Shielding", buff: "Attack boost", haste: "Haste", weaken: "Weaken", vuln: "Expose", slow: "Slow", stun: "Stun", poison: "Poison", silence: "Silence", regen: "Regeneration", grow: "Growth", strip: "Dispel", cleanse: "Cleansing", pact: "Pact", fate: "Fate", trade: "Trade Places", siphon: "Siphon", raise: "Raise", overclock: "Overclock", mark: "Mark" };
+const FAMN = { hit: "Neutral", heal: "Healing", shield: "Shielding", buff: "Attack boost", haste: "Haste", weaken: "Weaken", vuln: "Expose", slow: "Slow", stun: "Stun", poison: "Poison", silence: "Silence", regen: "Regeneration", grow: "Growth", strip: "Dispel", cleanse: "Cleansing", pact: "Pact", fate: "Fate", trade: "Trade Places", siphon: "Siphon", raise: "Raise", overclock: "Overclock", tempo: "Energy flow", mark: "Mark" };
 for (const el of ELK8) FAMN[el] = el[0].toUpperCase() + el.slice(1);
 /* the item card (skill card) id of an ability: the old ids are kept for the abilities that were already cards, so saved decks keep working */
 const ITEMOLD = { heal1: "sk_mend", heal2: "sk_mend2", heal3: "sk_massheal", shield1: "sk_ward", shield2: "sk_aegis", shield3: "sk_massward", cleanse1: "sk_cleanse", buff2: "sk_empower", buff3: "sk_frenzy", buff4: "sk_rally", haste2: "sk_gale", grow1: "sk_sharpen", grow2: "sk_vitality", grow3: "sk_overgrow", stun2: "sk_freeze", stun3: "sk_massfreeze", weaken2: "sk_weaken", weaken3: "sk_massweaken", strip1: "sk_disrupt", strip2: "sk_massdisrupt" };
@@ -2918,6 +2921,7 @@ function arAbil(A, s, src, ab, ti, E) {
       const g = S.grave.pop(); if (!g || S.lane[ti]) return; const u = arUnit(A, g); u.hp = Math.max(1, u.max * ab.v); if (ab.shield) u.shield = u.max * .25; u.cd = AR.IV / u.spd; S.lane[ti] = u;
       arLog(A, u.name + " rises again", s, "swap"); arEv(A, { t: "enter", s, i: ti }); return;
     }
+    case "tempo": { const m = ab.m * E; S.eb = { m: Math.max(S.eb && S.eb.t > 0 ? S.eb.m : 0, m), t: ab.T }; arLog(A, "Energy flows " + Math.round(m * 100) + "% faster for " + ab.T + " s", s, "skill"); return; }
     case "overclock": for (const u of allies()) { u.skcd = 0; u.hasteT = Math.max(u.hasteT, ab.T); } if (ab.e) S.energy = Math.min(AR.EMAX, S.energy + ab.e); arLog(A, "Skills are ready again", s, "skill"); return;
   }
 }
@@ -2948,6 +2952,7 @@ function abilText(ab) {
     case "trade": return `${ab.weakest ? "Your weakest card" : "This card"} and an enemy card change sides${ab.heal ? "; the one you take is healed " + pc(ab.heal) : ""}${ab.stun ? "; the one you give is stunned " + ab.stun + " s" : ""}.`;
     case "siphon": return `Steal ${ab.e} energy from the enemy.`;
     case "raise": return `Bring back your latest fallen card in an empty lane with ${pc(ab.v)} health${ab.shield ? " and a ward" : ""}.`;
+    case "tempo": return `Your energy fills ${pc(ab.m)} faster for ${ab.T} s.`;
     case "overclock": return `Every card of yours gets its skill ready and strikes ${AR.SK.gale}x as fast for ${ab.T} s${ab.e ? ", and you gain " + ab.e + " energy" : ""}.`;
   }
   return "";
@@ -2989,6 +2994,7 @@ function abilCands(A, s, u, ab, E) {
     case "trade": { const mine = al.slice().sort((p, q) => p.u.max - q.u.max)[0]; if (!mine) break; const give = ab.weakest || !u ? mine.u : u; for (const f of fo) push(f.i, ((f.u.atk * f.u.hp) - (give.atk * give.hp)) / 800 * 1.3 + (ab.heal ? 5 : 0)); break; }
     case "siphon": { const e = Math.min(F.energy, ab.e * E); push(0, e * 5 + (S.energy + e > AR.EMAX ? -3 : 0)); break; }
     case "raise": { const g = S.grave && S.grave[S.grave.length - 1]; if (!g) break; const k = ckCard(BY[g.cid || g]), slot = S.lane.findIndex(x => !x); if (slot < 0) break; push(slot, (k.atk * AR.ATKX * k.hp * Hh) / 800 * ab.v * 1.6 + 6); break; }
+    case "tempo": { const e = ab.m * E * ab.T / AR.ERATE, room = AR.EMAX - S.energy; push(0, room < 2 ? 0 : Math.min(e, room + 2) * 4); break; }
     case "overclock": { const v = al.reduce((a, x) => a + (x.u.skcd > 0 ? x.u.acost * 1.2 : 0), 0) + al.length * hit(s, al[0] ? al[0].u : {}) * ab.T / 6; push(0, v + (ab.e || 0) * 4); break; }
   }
   return out;
@@ -3015,7 +3021,7 @@ migrateKits();
 for (const [id, ab] of Object.entries(ABIL)) ACT[id] = { n: ab.n, c: ab.c, t: ab.t === "slot" ? "none" : ab.t, d: "" };
 
 /* ===== SKILL CARDS (combat v3) =====
-   A skill card lives in the same 12-card deck as the creatures. Skill cards NEVER deal damage: they heal, shield, buff, debuff and apply status effects; all damage comes from creatures (their attacks, passives and own skills). It is drawn into the hand like any card (4 energy), played on a target for its own energy cost, and then it is GONE: another has to be drawn.
+   A skill card lives in the same 12-card deck as the creatures. Skill cards NEVER deal damage: they heal, shield, buff, debuff and apply status effects; all damage comes from creatures (their attacks, passives and own skills). It is drawn into the hand like any card (3 energy), played on a target for its own energy cost, and then it is GONE: another has to be drawn.
    A deck can hold 5 to 12 creatures and up to 7 skill cards, with up to 2 copies of the same skill card. Drawing several of the same card is allowed (four heals on one card is a real, risky plan).
    v1 set: every player has every skill card (a spell book); making them collectible is a later economy decision. All numbers are first drafts for balance.
    v = strength in the same stat points the creature skills use (health effects are multiplied by AR.HPX, attack effects by AR.ATKX), T = seconds, c = energy cost, t = target: ally, enemy or none (the whole side). */
@@ -3023,8 +3029,8 @@ for (const [id, ab] of Object.entries(ABIL)) ACT[id] = { n: ab.n, c: ab.c, t: ab
 const SKC = {};
 for (const ab of Object.values(ABIL)) { if (ab.cr || ab.k === "dmg") continue; SKC[itemId(ab.id)] = { n: abilFull(ab), c: ab.c, t: ab.t, ab: ab.id, fx: ab.fam, el: ab.el || null, tier: ab.tier || 1 }; }
 const SKC_IDS = Object.keys(SKC), isSkill = id => !!SKC[id], SK_MAX = 7, SK_COPIES = 2, SK_CREATURES_MIN = 5;
-const SK_GLYPH = { heal: "💚", shield: "🛡", buff: "⚔", haste: "💨", weaken: "⬇", vuln: "🎯", slow: "🐌", stun: "💫", poison: "☠", silence: "🤫", regen: "🌿", grow: "🌱", strip: "🌀", cleanse: "✨", fate: "🔀", trade: "⇄", siphon: "🔋", raise: "🕊", overclock: "⚡", mark: "◎" };
-const SK_TONE = { heal: "#6FBF98", shield: "#7FA6D6", buff: "#D9A05A", haste: "#8FD0DE", weaken: "#B5707A", vuln: "#C98A7A", slow: "#8FA8C8", stun: "#C7B56F", poison: "#8FBF6A", silence: "#9A9AB0", regen: "#7FC9A0", grow: "#86A86A", strip: "#A892BA", cleanse: "#E3D8A8", fate: "#B98AD0", trade: "#D08AB0", siphon: "#6FC0D0", raise: "#E8D8A0", overclock: "#E0B060", mark: "#C9B07A" };
+const SK_GLYPH = { heal: "💚", shield: "🛡", buff: "⚔", haste: "💨", weaken: "⬇", vuln: "🎯", slow: "🐌", stun: "💫", poison: "☠", silence: "🤫", regen: "🌿", grow: "🌱", strip: "🌀", cleanse: "✨", fate: "🔀", trade: "⇄", siphon: "🔋", raise: "🕊", overclock: "⚡", tempo: "🔆", mark: "◎" };
+const SK_TONE = { heal: "#6FBF98", shield: "#7FA6D6", buff: "#D9A05A", haste: "#8FD0DE", weaken: "#B5707A", vuln: "#C98A7A", slow: "#8FA8C8", stun: "#C7B56F", poison: "#8FBF6A", silence: "#9A9AB0", regen: "#7FC9A0", grow: "#86A86A", strip: "#A892BA", cleanse: "#E3D8A8", fate: "#B98AD0", trade: "#D08AB0", siphon: "#6FC0D0", raise: "#E8D8A0", overclock: "#E0B060", tempo: "#F0D070", mark: "#C9B07A" };
 /* what an item card does, in words */
 const skText = id => abilText(ABIL[SKC[id].ab]);
 const skTone = id => SKC[id].el ? (EL[SKC[id].el][2] || "#C9B07A") : SK_TONE[SKC[id].fx] || "#8DA2B8", skGlyph = id => SKC[id].el ? EL[SKC[id].el][1] : SK_GLYPH[SKC[id].fx] || "✦";
@@ -3068,14 +3074,14 @@ const campBoss = (k, ch) => { if (k % 6 !== 5) return { core: 0, eMul: 0 }; cons
    compute the identical fight. Everything marked [placeholder] in AR is a tuning number, not design. */
 const AR = {
   DT: .1, MATCH: 180, LAST: 60,      // tick length, match length, the closing stretch with doubled energy (seconds)
-  DECKN: 12, START: 5, HAND: 3, DRAW_E: 4, AI_RES: [6, 6, 0],   // a deck is 12 cards: 5 random ones start on the field, the rest are drawn into a hand of up to 3 for 4 energy each
+  DECKN: 12, START: 5, HAND: 3, DRAW_E: 3, AI_RES: [6, 6, 0],   // a deck is 12 cards: 5 random ones start on the field, the rest are drawn into a hand of up to 3 for 3 energy each
   E0: 5, EMAX: 10, ERATE: 2.4,       // starting energy, cap, seconds per energy (halved: energy is scarce, so each skill is a decision)
-  SWAP_E: 2, SWAP_CD: 8,             // bringing a reserve in: energy, and the wait before that slot can swap again
+  SWAP_E: 0, SWAP_CD: 8,             // bringing a reserve in is free (energy 0); only the wait before that slot can swap again
   IV: 6, STRIKE: .5, ATKX: 8,      // seconds between basic strikes at speed 1.0, the share of ATK a strike deals, and the factor from a card's base attack to its fight attack (slower, bigger hits)
   FOCUS_SUPPORT: 16, AI_EVERY: [10, 10, 5], AI_SLIP: [.4, .2, 0], EASY_FOCUS: .2, AI_TH: 3,   // AI: HP value of a healer/buffer when picking a focus target; ticks between its decisions and the share of ready skills it fumbles, by level
   MARK_T: 8, CORE: 40, HPX: 8, SKILL_CD: 4, GROW_T: 8, SURGE_AT: 60, SURGE_T: 10, INPUT_DELAY: 3, RETARGET: 1,
 };
-/* skill energy costs run from 1 (a small utility) to 8 (the extreme area hit), averaging about 3 across the roster; the stronger the effect, the more it costs */
+/* skill energy costs run from 1 (a small utility) to 8 (an extreme AREA hit or area heal; single-target moves stay at 6 or less), averaging about 2.5 across the roster; the stronger the effect, the more it costs */
 const ACOST = { disrupt: 1, mark: 1, mend: 2, cleanse: 2, ward: 2, empower: 3, gale: 3, freeze: 3, pact: 3, strike: 4, arc: 5, overgrow: 6, volley: 8 };
 /* skill strengths in 'stat points' (HP-type ones are multiplied by HPX): the numbers the balance sweep tunes */
 /* passive strengths (same idea) */
@@ -3196,7 +3202,7 @@ function arRun(A, c) {
   else if (c.k === "swap") {
     const u = S.bench[c.b]; if (!u || u.skill || S.energy < AR.SWAP_E || S.swapcd[c.l] > 0) return; S.energy -= AR.SWAP_E; S.swapcd[c.l] = AR.SWAP_CD;
     S.bench[c.b] = S.lane[c.l]; S.lane[c.l] = u; u.cd = AR.IV / u.spd; u.lock = null; arLog(A, u.name + " is brought in", c.s, "swap"); arEv(A, { t: "enter", s: c.s, i: c.l });
-  } else if (c.k === "draw") {   // pay 4 energy: the next card of the pile joins the hand
+  } else if (c.k === "draw") {   // pay DRAW_E energy: the next card of the pile joins the hand
     if (!S.pile || !S.pile.length || S.energy < AR.DRAW_E) return; const hi = S.bench.findIndex(b => !b); if (hi < 0) return;
     S.energy -= AR.DRAW_E; const id = S.pile.shift(), u = isSkill(id) ? arSkillCard(A, id) : arUnit(A, id); S.bench[hi] = u; arLog(A, (u.skill ? "A skill card" : u.name) + " is drawn", c.s, "swap"); arEv(A, { t: "draw", s: c.s, i: hi });
   } else if (c.k === "play") {   // an item card from the hand: pay its cost, apply it, and it is gone
@@ -3220,7 +3226,8 @@ function arStep(A) {
   const due = A.q.filter(c => c.at <= A.tick).sort((p, q) => p.at - q.at || p.s - q.s || p.n - q.n); if (due.length) { A.q = A.q.filter(c => c.at > A.tick); for (const c of due) arRun(A, c); }
   A.tick++; A.t = A.tick * AR.DT; const dt = AR.DT;
   for (let s = 0; s < 2; s++) {
-    const S = A.s[s]; S.energy = Math.min(AR.EMAX, S.energy + dt / AR.ERATE * (A.t > AR.MATCH - AR.LAST ? 2 : 1) * (S.eMul || 1) * (1 + AR.PS.battery * S.lane.filter(u => u && u.passive === "battery").length));
+    const S = A.s[s]; S.energy = Math.min(AR.EMAX, S.energy + dt / AR.ERATE * (A.t > AR.MATCH - AR.LAST ? 2 : 1) * (S.eMul || 1) * (1 + (S.eb && S.eb.t > 0 ? S.eb.m : 0)) * (1 + AR.PS.battery * S.lane.filter(u => u && u.passive === "battery").length));
+    if (S.eb && S.eb.t > 0) S.eb.t = Math.max(0, S.eb.t - dt);
     for (let i = 0; i < 5; i++) if (S.swapcd[i] > 0) S.swapcd[i] = Math.max(0, S.swapcd[i] - dt);
     for (const { u, i } of arLive(A, s)) {
       u.cd -= dt * (u.slowT > 0 ? 1 - u.slow : 1); if (u.skcd > 0) u.skcd -= dt; if (u.frozen > 0) u.frozen -= dt; if (u.tmpT > 0) u.tmpT -= dt; if (u.hasteT > 0) u.hasteT -= dt; if (u.mark && (u.mark.t -= dt) <= 0) u.mark = null;
@@ -3488,7 +3495,7 @@ function deckSheet2() {
   const slot = k => { const id = D.cards[k]; return `<div class="kslot ${D.sel === k ? "on" : ""} ${D.flash === k ? "swapflash" : ""}" data-ck="dslot" data-k="${k}">${id && (BY[id] || isSkill(id)) ? kcardMini(id) : '<div class="ku mini empty"><span>+</span></div>'}</div>`; };
   const selId = D.cards[D.sel];
   openSheet(`<button class="sheetx keep" data-ck="dx" aria-label="Close">✕</button><h2 class="fat">DECK</h2><div class="row" style="margin:0 0 6px;flex-wrap:nowrap"><input type="text" id="ckname" maxlength="14" value="${esc(D.name)}" style="flex:1"><button class="btn sm dark" data-ck="deckDel" ${P.cd.length <= 1 ? "disabled" : ""}>Delete</button></div>` +
-    `<p class="note" style="margin:0 0 6px">12 CARDS. Each fight starts with 5 of them at random on the field; draw the rest for 4 energy. Hold a card and drag it to move it.</p><div class="kd6">${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(slot).join("")}</div>` +
+    `<p class="note" style="margin:0 0 6px">12 CARDS. Each fight starts with 5 of them at random on the field; draw the rest for 3 energy. Hold a card and drag it to move it.</p><div class="kd6">${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(slot).join("")}</div>` +
     `<div class="row" style="margin:6px 0 0;gap:6px;flex-wrap:wrap"><small class="note" style="margin:0">Sort deck</small>${[["cost", "Cost"], ["rar", "Rarity"], ["el", "Element"], ["type", "Type"], ["name", "Name"]].map(([k, n]) => `<button class="btn sm dark" data-ck="dsortdeck" data-s="${k}">${n}</button>`).join("")}</div>` +
     `<div class="selbar"><span>Editing <b>${esc(SLOT_NAME(D.sel))}</b>${selId && (BY[selId] || isSkill(selId)) ? ": " + esc(isSkill(selId) ? SKC[selId].n : BY[selId].name) : ": empty"}</span>${selId ? '<button class="btn sm dark" data-ck="dremove">Remove</button>' : ""}</div>` +
     `<div class="row" style="margin:6px 0 0;gap:6px"><button class="btn sm dark" data-ck="dundo" ${D.undo.length ? "" : "disabled"}>↶ Undo</button><button class="btn sm dark" data-me="fill" ${D.cards.filter(Boolean).length >= 12 ? "disabled" : ""}>Fill empty</button><button class="btn sm dark" data-me="copycode">Copy code</button><button class="btn sm dark" data-me="cover" ${selId && BY[selId] ? "" : "disabled"}>Set as cover</button><button class="btn sm dark" data-ck="dclear" ${D.cards.some(Boolean) ? "" : "disabled"}>Clear deck</button></div>` +
@@ -5370,7 +5377,7 @@ const TUT = [
   { hold: true, at: ["#mana0"], h: "Energy", b: "Energy fills over time, up to 10. Skills, swaps and draws all spend it, so spend it well." },
   { hold: false, at: ["#arl0", "#arl1"], h: "Pick a target", b: "Tap one of your creatures, then tap an enemy. Your creature will focus that enemy until it falls.", done: A => A.s[AM.me].lane.some(u => u && u.lock != null) },
   { hold: false, at: ["#arl0"], h: "Use a skill", b: "Tap one of your creatures again and press its skill button once the energy is there. Skills hit harder than normal strikes.", done: () => AM.tut.cmds.use },
-  { hold: false, at: ["#ardraw"], h: "Draw a card", b: "Your hand starts empty. Press Draw (4 energy) to pull the next card from your deck.", done: () => AM.tut.cmds.draw },
+  { hold: false, at: ["#ardraw"], h: "Draw a card", b: "Your hand starts empty. Press Draw (3 energy) to pull the next card from your deck.", done: () => AM.tut.cmds.draw },
   { hold: false, at: ["#arb0", "#arl0"], h: "Play your card", b: "Tap the card in your hand. A creature: tap one of your lanes to swap it in. A skill card: tap its target, or press Play. Skill cards heal, shield or weaken, and are gone after one use.", done: () => AM.tut.cmds.swap || AM.tut.cmds.play },
   { hold: true, at: null, h: "Coins", b: "Winning fights, the daily login and the daily missions earn Coins. A Standard summon costs 500 Coins, and you get a free pack every day." },
   { hold: true, at: null, h: "Gems", b: "Gems buy every other summon: Premium, Set 2, the weekly rotating pools and the banners. Earn a few from campaign regions, ranked tiers and the daily list, or buy more in the Shop on the Packs tab." },
