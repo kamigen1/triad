@@ -266,6 +266,23 @@ table.odds { width: 100%; border-collapse: collapse; } table.odds td { padding: 
 .slots { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; margin: 8px 0; }
 .slots .card, .slots .empty { width: 100%; aspect-ratio: 5 / 7; }
 .slots .empty { border: 3px dashed #ffffff44; border-radius: 10px; background: #0003; }
+.dk { padding: 10px 10px 12px; margin-bottom: 10px; cursor: pointer; }
+.dkh { position: relative; text-align: center; margin-bottom: 8px; min-height: 22px; display: flex; align-items: center; justify-content: center; }
+.dkh b { font-size: 15px; padding: 0 74px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+.dkh .tag { position: absolute; right: 0; top: 50%; transform: translateY(-50%); }
+.dstrip { display: flex; gap: 6px; overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: none; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
+.dstrip::-webkit-scrollbar { display: none; }
+.dstrip > .card, .dstrip > .ku { flex: 0 0 calc((100% - 36px) / 6.5); width: calc((100% - 36px) / 6.5); scroll-snap-align: start; }
+.cbar { display: flex; gap: 8px; align-items: center; margin: 4px 0 8px; }
+.cbar input { flex: 1; min-width: 0; height: 44px; }
+.fbtn { position: relative; width: 44px; height: 44px; flex: none; padding: 0; border-radius: 12px; border: 0; background: rgba(38, 54, 74, .8); color: #e8ecf0; display: grid; place-items: center; }
+.fbtn svg { width: 22px; height: 22px; } .fbtn .dot { position: absolute; top: 7px; right: 7px; width: 9px; height: 9px; border-radius: 50%; background: #e3bf66; }
+.ckind { margin: 0 0 10px; }
+#coll { grid-template-columns: repeat(4, 1fr); gap: 10px 8px; align-items: start; }
+#coll .card, #coll .ku { width: 100%; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 4px; }
+.chip { border: 0; border-radius: 999px; padding: 7px 12px; background: rgba(38, 54, 74, .8); color: #cfd8e3; font: 700 13px var(--body); }
+.chip.on { background: #e3bf66; color: #1a1408; }
 .filters { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 9px; }
 .filters select, .filters input { flex: 1 1 100px; }
 .setsub { display: block; font-size: 11px; opacity: .6; font-weight: 400; margin-top: 2px; max-width: 210px; line-height: 1.25; }
@@ -1396,6 +1413,7 @@ input[type=password] { background: #05150d; color: #fff; border: 3px solid #000;
   <symbol id="i-summon" viewBox="0 0 24 24"><circle fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" cx="12" cy="12" r="8"/><circle fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" cx="12" cy="12" r="3.2"/><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3"/></symbol>
   <symbol id="i-spade" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C9 8 4 10 4 15a4.2 4.2 0 0 0 7 3c0 2-.8 3.2-2 4h6c-1.2-.8-2-2-2-4a4.2 4.2 0 0 0 7-3c0-5-5-7-8-13z"/></symbol>
   <symbol id="i-swords" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M4 4l10 10M20 4L10 14M4 20l3-3M20 20l-3-3M9 15l-3 3M15 15l3 3"/><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M4 4h4M4 4v4M20 4h-4M20 4v4"/></symbol>
+  <symbol id="i-filter" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M4 6h8M18 6h2M4 12h2M12 12h8M4 18h9M19 18h1"/><circle fill="none" stroke="currentColor" stroke-width="1.8" cx="15" cy="6" r="2.3"/><circle fill="none" stroke="currentColor" stroke-width="1.8" cx="9" cy="12" r="2.3"/><circle fill="none" stroke="currentColor" stroke-width="1.8" cx="16" cy="18" r="2.3"/></symbol>
   <symbol id="i-gear" viewBox="0 0 24 24"><circle fill="none" stroke="currentColor" stroke-width="1.7" cx="12" cy="12" r="3"/><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
   <symbol id="i-daily" viewBox="0 0 24 24"><rect fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" x="4" y="5" width="16" height="15" rx="3"/><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M4 10h16M9 3v4M15 3v4M9 15l2.2 2.2L15.5 13"/></symbol>
   <symbol id="i-vs" viewBox="0 0 24 24"><circle fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" cx="8.5" cy="9" r="3.2"/><circle fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" cx="16.5" cy="9" r="3.2"/><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M2.5 20c0-3.6 2.6-5.6 6-5.6s6 2 6 5.6M12 15.2c1-.5 2.3-.8 4.5-.8 3.4 0 5 2 5 5.6"/></symbol>
@@ -1736,7 +1754,7 @@ function nextStage() { for (let ci = 0; ci < 4; ci++) for (let si = 0; si < 4; s
 function viewPlay(v) {
   const ns = nextStage(), d = P.decks[P.deck], fan = (deckOk(d) ? d.cards : STARTER).slice(0, 3).map(id => cardHtml(BY[id])).join(""), cleared = Object.keys(P.cleared).length;
   let h = `<div class="hero"><div class="badge"><small>${ns ? esc(CAMPAIGN[ns[0]].name).toUpperCase() : "CAMPAIGN"}</small><b class="fat">${ns ? esc(CAMPAIGN[ns[0]].stages[ns[1]][0]) : "All cleared!"}</b><i class="fat">${cleared}/16</i></div><div class="fan">${fan}</div><div class="playwrap"><button class="btn yellow big" data-act="${ns ? "stage" : "quick"}" ${ns ? `data-c="${ns[0]}" data-s="${ns[1]}"` : 'data-t="3"'}>${ns ? "BATTLE" : "PLAY"}</button></div></div>`;
-  h += `<div class="row" style="margin:10px 0 0"><span class="note">Deck</span>${deckSelect()}<button class="btn sm dark" data-act="tab" data-k="cards">Edit</button></div>${deckOk(d) ? `<p class="note" style="margin:6px 0 0">Deck cost ${deckCost(d)} of ${deckCap()}. The cap grows with your level and each chapter you clear.</p>` : `<p class="note" style="margin:6px 0 0;color:#ff9aa4">${esc(deckWhy(d))}</p>`}`;
+  h += `<div class="row" style="margin:10px 0 0"><span class="note">Deck</span>${deckSelect()}<button class="btn sm dark" data-act="editDeck" data-i="${P.deck}">Edit</button></div>${deckOk(d) ? `<p class="note" style="margin:6px 0 0">Deck cost ${deckCost(d)} of ${deckCap()}. The cap grows with your level and each chapter you clear.</p>` : `<p class="note" style="margin:6px 0 0;color:#ff9aa4">${esc(deckWhy(d))}</p>`}`;
   h += `<span class="ribbon green">QUICK MATCH</span><div class="row c">${TIERS.map((t, i) => `<button class="btn sm ${i === 3 ? "red" : ""}" data-act="quick" data-t="${i}">${t}</button>`).join("")}</div><p class="note" style="text-align:center;margin:6px 0 0">Quick matches pay XP only.</p>`;
   CAMPAIGN.forEach((ch, ci) => {
     h += `<span class="ribbon">${esc(ch.name).toUpperCase()}</span><div class="nodes">`;
@@ -1746,6 +1764,7 @@ function viewPlay(v) {
     });
     h += "</div>";
   });
+  h += `<span class="ribbon">CLASSIC DECKS</span><div class="list">${P.decks.map((d, i) => `<button class="panel item" data-act="editDeck" data-i="${i}"><div class="t"><b>${esc(d.name)}</b><small>${d.cards.map(id => esc(BY[id] ? BY[id].name : "?")).join(", ") || "empty"}</small></div><span class="tag ${i === P.deck ? "gold" : ""}">${i === P.deck ? "ACTIVE" : deckOk(d) ? "READY" : "INCOMPLETE"} · ${deckCost(d)}/${deckCap()}</span></button>`).join("")}</div><div class="row c" style="margin-top:8px"><button class="btn sm dark" data-act="newDeck" ${P.decks.length >= 10 ? "disabled" : ""}>New classic deck</button></div>`;
   v.innerHTML = h;
 }
 /* A foe's hand is built to a deck cost, so every stage asks for about the same strength from you: cheap stages early, near the cap at the bosses. Bosses take the strongest cards of each rarity. */
@@ -1924,7 +1943,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.12.06-h";
+const VER = "2026.12.06-i";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -4325,7 +4344,10 @@ const ECON = {
   tokGems: 10, tokCoins: 800,                                // one Token converts to this many Gems or Coins
 };
 /* the Shop: real-money packages of Gems (with a bonus) and Coins. Not connected to a payment provider yet, so the buttons say so. */
-const IAP = [{ id: "g5", usd: "$5", gems: 500, bonus: 40, coins: 5000 }, { id: "g10", usd: "$10", gems: 1200, bonus: 200, coins: 15000 }];
+const IAP = [   // placeholder ladder: the $5 and $10 rows are the ones you gave; the rest follow their curve (more bonus and more Coins per dollar as the price rises)
+  { id: "g1", usd: "$0.99", gems: 100, bonus: 0, coins: 1000 }, { id: "g5", usd: "$4.99", gems: 500, bonus: 40, coins: 5000 }, { id: "g10", usd: "$9.99", gems: 1200, bonus: 200, coins: 15000 },
+  { id: "g20", usd: "$19.99", gems: 2500, bonus: 500, coins: 35000 }, { id: "g50", usd: "$49.99", gems: 6500, bonus: 1500, coins: 100000 }, { id: "g100", usd: "$99.99", gems: 13500, bonus: 4000, coins: 220000 }, { id: "g200", usd: "$199.99", gems: 28000, bonus: 10000, coins: 500000 },
+];
 const PREM_SLOTS = [[[1, 60], [2, 40]], [[1, 50], [2, 50]], [[2, 70], [3, 30]], [[3, 70], [4, 30]], [[3, 35], [4, 40], [5, 20], ["ex", 5]]];
 const FAC_ORDER = ["H", "C", "D", "A", "M", "U", "B", "V"], FAC_TONE = { C: "#ffe08a", D: "#ff5a6e", A: "#d9a45a", M: "#9fb4d4", U: "#6fe0a0", B: "#ffb066", H: "#6fb4ff", V: "#b98aff" };
 const EL_TONE = { fire: "#ff6a3a", water: "#3aa0ff", wind: "#4fe0a4", earth: "#c9a05a", lightning: "#ffe03a", ice: "#9fe6ff", light: "#fff0b0", dark: "#b074ff" };
@@ -4430,9 +4452,9 @@ function summon(key, n = 1) {
 function sellCopy(id) { const c = BY[id], n = P.own[id] || 0; if (n < 2) return toast("Keep at least one copy."); P.own[id]--; const v = ECON.sell[rarOf(c)]; P.coins += v; scheduleSave(); chrome(); toast("+" + v + " coins"); detail(id); }
 function earn(coins, gems) { P.coins = (P.coins || 0) + (coins || 0); P.gems = (P.gems || 0) + (gems || 0); }
 /* the Exchange: leftover event Tokens turn into Gems or Coins */
-function exchangeTokens(kind, all) {
+function exchangeTokens(kind, amt) {
   econInit(); if (!(P.tokens >= 1)) return toast("You have no Tokens to convert.");
-  const n = all ? P.tokens : 1, g = kind === "gems"; P.tokens -= n; if (g) P.gems += n * ECON.tokGems; else P.coins += n * ECON.tokCoins;
+  const n = amt === "all" ? P.tokens : Math.min(P.tokens, +amt || 1), g = kind === "gems"; P.tokens -= n; if (g) P.gems += n * ECON.tokGems; else P.coins += n * ECON.tokCoins;
   scheduleSave(); chrome(); toast("+" + (g ? n * ECON.tokGems + " gems" : n * ECON.tokCoins + " coins")); show("summon");
 }
 function buyIap() { toast("Purchases are not open yet."); }
@@ -4465,9 +4487,9 @@ function viewSummon(v) {
       `<span class="ribbon">COLLECTION</span>${setProgress()}${setProgress2()}` + (rec.length ? `<span class="ribbon green">RECENT PULLS</span><div class="recent">${rec.map(id => BY[id] ? cardHtml(BY[id], { attr: `data-act="detail" data-id="${id}"` }) : "").join("")}</div>` : "");
     h += `<span class="ribbon">EARNING</span><div class="panel"><ul class="earn"><li><b>Coins</b> from every fight (wins pay more, campaign first clears pay most), the daily login and the daily missions.</li><li><b>Gems</b> from clearing a campaign region, climbing a ranked tier, finishing the daily list and every 5th level. Or buy them in the Shop.</li><li><b>Tokens</b> only from events. There are none running right now.</li></ul></div>`;
   } else if (SV === "shop") {
-    h += `<span class="ribbon gold">GEMS AND COINS</span><p class="note" style="text-align:center;margin:0 0 10px">Gems buy summons in every pool except Standard. Each pack also comes with Coins.</p><div class="list">${IAP.map(o => `<div class="panel item"><div class="t"><b>${ic("gem")} ${o.gems} Gems <span style="color:var(--yellow)">+ ${o.bonus} bonus</span></b><small>+ ${ic("coin")} ${o.coins.toLocaleString()} Coins</small></div><button class="btn sm yellow" data-act="iap" data-id="${o.id}">${o.usd}</button></div>`).join("")}</div><p class="note" style="text-align:center;margin:12px 0 0">Purchases are not open yet. Nothing here charges you.</p>`;
+    h += `<span class="ribbon gold">GEMS AND COINS</span><p class="note" style="text-align:center;margin:0 0 10px">Gems buy summons in every pool except Standard. Each pack also comes with Coins.</p><div class="list">${IAP.map(o => `<div class="panel item"><div class="t"><b>${ic("gem")} ${o.gems.toLocaleString()} Gems <span style="color:var(--yellow)">${o.bonus ? "+ " + o.bonus.toLocaleString() + " bonus" : "no bonus"}</span></b><small>+ ${ic("coin")} ${o.coins.toLocaleString()} Coins · ${(o.gems + o.bonus).toLocaleString()} Gems in all</small></div><button class="btn sm yellow" data-act="iap" data-id="${o.id}">${o.usd}</button></div>`).join("")}</div><p class="note" style="text-align:center;margin:12px 0 0">Purchases are not open yet. Nothing here charges you.</p>`;
   } else {
-    const t = P.tokens || 0, row = (kind, title, rate) => `<div class="panel item"><div class="t"><b>${title}</b><small>${rate}</small></div><div class="row" style="gap:6px;flex-wrap:nowrap"><button class="btn sm ${t >= 1 ? "yellow" : ""}" data-act="tokx" data-k="${kind}" data-all="0" ${t >= 1 ? "" : "disabled"}>1</button><button class="btn sm ${t >= 1 ? "yellow" : ""}" data-act="tokx" data-k="${kind}" data-all="1" ${t >= 1 ? "" : "disabled"}>All${t >= 1 ? " (" + t + ")" : ""}</button></div></div>`;
+    const t = P.tokens || 0, row = (kind, title, rate) => `<div class="panel item" style="flex-wrap:wrap"><div class="t"><b>${title}</b><small>${rate}</small></div><div class="row" style="gap:6px;flex-wrap:wrap;justify-content:flex-end">${[1, 10, 100].map(n => `<button class="btn sm ${t >= n ? "yellow" : ""}" data-act="tokx" data-k="${kind}" data-n="${n}" ${t >= n ? "" : "disabled"}>${n}</button>`).join("")}<button class="btn sm ${t >= 1 ? "yellow" : ""}" data-act="tokx" data-k="${kind}" data-n="all" ${t >= 1 ? "" : "disabled"}>All${t >= 1 ? " (" + t + ")" : ""}</button></div></div>`;
     h += `<span class="ribbon">TOKEN EXCHANGE</span><p class="note" style="text-align:center;margin:0 0 10px">Tokens come only from events. Whatever you have left over turns into Gems or Coins here.</p><div class="list">${row("gems", "Tokens → Gems", "1 Token = " + ECON.tokGems + " Gems")}${row("coins", "Tokens → Coins", "1 Token = " + ECON.tokCoins + " Coins")}</div>`;
   }
   v.innerHTML = h;
@@ -4853,7 +4875,7 @@ document.addEventListener("click", async e => {
 
 /* ===== tutorial.js: the guided first fight. A real solo match against a slowed-down trainer, with a coach card and a spotlight that walk the player through
    the controls. Steps that only explain pause the fight; steps that ask for an action let it run and wait for the player to do it (they can skip any step).
-   It uses the player's own deck, so what they learn is what they will play. Nothing here pays currency; finishing it just sets P.tut. ===== */
+   It uses the player's own deck, so what they learn is what they will play. Nothing here pays currency; finishing it just sets P.tut. The last steps before the fight explain Coins, Gems and Tokens. ===== */
 const TUT = [
   { hold: true, at: null, h: "Welcome to the arena", b: "Your creatures fight on their own. Your job is to steer the fight. This takes about a minute." },
   { hold: true, at: ["#arl0"], h: "Your five creatures", b: "These are your front line. Each one strikes by itself. The cards across the table are the trainer's." },
@@ -4862,6 +4884,9 @@ const TUT = [
   { hold: false, at: ["#arl0"], h: "Use a skill", b: "Tap one of your creatures again and press its skill button once the energy is there. Skills hit harder than normal strikes.", done: () => AM.tut.cmds.use },
   { hold: false, at: ["#ardraw"], h: "Draw a card", b: "Your hand starts empty. Press Draw (4 energy) to pull the next card from your deck.", done: () => AM.tut.cmds.draw },
   { hold: false, at: ["#arb0", "#arl0"], h: "Play your card", b: "Tap the card in your hand. A creature: tap one of your lanes to swap it in. A skill card: tap its target, or press Play. Skill cards heal, shield or weaken, and are gone after one use.", done: () => AM.tut.cmds.swap || AM.tut.cmds.play },
+  { hold: true, at: null, h: "Coins", b: "Winning fights, the daily login and the daily missions earn Coins. A Standard summon costs 500 Coins, and you get a free pack every day." },
+  { hold: true, at: null, h: "Gems", b: "Gems buy every other summon: Premium, Set 2, the weekly rotating pools and the banners. Earn a few from campaign regions, ranked tiers and the daily list, or buy more in the Shop on the Packs tab." },
+  { hold: true, at: null, h: "Tokens", b: "Tokens are only for events, which are coming later. Any Tokens you have left over turn into Gems or Coins in the Exchange, next to the Shop on the Packs tab." },
   { hold: true, at: ["#core1"], h: "Break their core", b: "Bring the trainer's core to zero before the 3 minutes run out. The last minute doubles your energy. Good luck!" },
 ];
 
@@ -4912,15 +4937,18 @@ document.addEventListener("click", e => {
 
 
 /* ===== cards: collection, detail, decks ===== */
-let F = { q: "", own: "own", lv: 0, grp: "all", el: "all", sort: "rar" };
+let F = { q: "", own: "own", lv: 0, grp: "all", el: "all", sort: "rar", kind: "char", ssort: "name", sel: "all" };
 function viewCards(v) {
-  ckInit(); const have = ownedList().filter(c => S1[c.id]).length;
-  v.innerHTML = `<span class="ribbon">DECKS</span><div class="list">${P.cd.map((d, i) => { const ok = !ckDeckOk(d.cards); return `<button class="panel item" data-ck="deckOpen" data-i="${i}" style="${i === P.cdi ? "border-color:var(--line)" : ""}">${deckCover(d)}<div class="t"><b>${esc(d.name)}</b><small>${d.cards.map(id => esc(BY[id] ? BY[id].name : "?")).join(", ") || "empty"}</small></div><span class="tag ${i === P.cdi ? "gold" : ok ? "ok" : ""}">${i === P.cdi ? "ACTIVE" : ok ? "READY" : "INCOMPLETE"}</span></button>`; }).join("")}</div><div class="row c" style="margin-top:10px"><button class="btn sm yellow" data-ck="deckNew" ${P.cd.length >= 8 ? "disabled" : ""}>New deck</button><button class="btn sm dark" data-me="import" ${P.cd.length >= 8 ? "disabled" : ""}>Import code</button></div>` +
-    `<details class="panel" style="margin-top:12px"><summary class="note" style="cursor:pointer">Classic Triad decks (the old 5-card mode)</summary><div class="list" style="margin-top:8px">${P.decks.map((d, i) => `<button class="panel item" data-act="editDeck" data-i="${i}"><div class="t"><b>${esc(d.name)}</b><small>${d.cards.map(id => esc(BY[id] ? BY[id].name : "?")).join(", ") || "empty"}</small></div><span class="tag ${i === P.deck ? "gold" : ""}">${i === P.deck ? "ACTIVE" : deckOk(d) ? "READY" : "INCOMPLETE"} · ${deckCost(d)}/${deckCap()}</span></button>`).join("")}</div><div class="row c" style="margin-top:8px"><button class="btn sm dark" data-act="newDeck" ${P.decks.length >= 10 ? "disabled" : ""}>New classic deck</button></div></details>` +
-    `<details class="panel" style="margin-top:12px"><summary class="note" style="cursor:pointer">Skill cards (${SKC_IDS.length}) · every player has them all</summary><div class="spellbook">${SKC_IDS.map(id => `<div class="spell">${skTile(id)}<div><b>${esc(SKC[id].n)} <small>${SKC[id].c} energy</small></b><p>${esc(skText(id))}</p></div></div>`).join("")}</div></details>` +
-    `<span class="ribbon">SET 1 · ${have}/${POOL.length} · SET 2 · ${ownedList().filter(c => c.set2).length}/${POOL2.length}</span><div class="filters"><input type="search" id="fq" placeholder="Search" value="${esc(F.q)}"><select id="fown" data-act="filt"><option value="own" ${F.own === "own" ? "selected" : ""}>My cards</option><option value="all" ${F.own === "all" ? "selected" : ""}>Show unowned too</option><option value="miss" ${F.own === "miss" ? "selected" : ""}>Only missing</option><option value="ex" ${F.own === "ex" ? "selected" : ""}>Secret Rare</option><option value="fav" ${F.own === "fav" ? "selected" : ""}>Favourites</option></select><select id="flv" data-act="filt"><option value="0">Any rarity</option>${[1, 2, 3, 4, 5].map(l => `<option value="${l}" ${F.lv === l ? "selected" : ""}>${RNAME[l]}</option>`).join("")}</select><select id="fel" data-act="filt"><option value="all">Any element</option>${ELKEYS.map(e => `<option value="${e}" ${F.el === e ? "selected" : ""}>${EL[e][1]} ${EL[e][0]}</option>`).join("")}</select><select id="fsort" data-act="filt">${[["rar", "Sort: rarity"], ["new", "Sort: newest"], ["cost", "Sort: cost"], ["atk", "Sort: attack"], ["hp", "Sort: health"], ["name", "Sort: name"], ["cnt", "Sort: copies"], ["fav", "Sort: favourites"]].map(([v, n]) => `<option value="${v}" ${F.sort === v ? "selected" : ""}>${n}</option>`).join("")}</select><select id="fgrp" data-act="filt">${Object.entries(GROUPS).map(([k, n]) => `<option value="${k}" ${F.grp === k ? "selected" : ""}>${n}</option>`).join("")}</select></div><div class="grid" id="coll"></div>`;
+  ckInit(); seenInit(); const have = ownedList().filter(c => S1[c.id]).length;
+  const deckPanel = (d, i) => { const ok = !ckDeckOk(d.cards), st = i === P.cdi ? "ACTIVE" : ok ? "READY" : "INCOMPLETE";
+    return `<div class="panel dk" data-ck="deckOpen" data-i="${i}" style="${i === P.cdi ? "border-color:var(--line)" : ""}"><div class="dkh"><b class="fat">${esc(d.name)}</b><span class="tag ${i === P.cdi ? "gold" : ok ? "ok" : ""}">${st}</span></div><div class="dstrip">${d.cards.map(id => (isSkill(id) ? skTile(id) : BY[id] ? cardHtml(BY[id]) : "")).join("") || '<p class="note" style="margin:6px auto">Empty deck</p>'}</div></div>`; };
+  v.innerHTML = `<span class="ribbon">DECKS</span>${P.cd.map(deckPanel).join("")}<div class="row c" style="margin-top:10px"><button class="btn sm yellow" data-ck="deckNew" ${P.cd.length >= 8 ? "disabled" : ""}>New deck</button><button class="btn sm dark" data-me="import" ${P.cd.length >= 8 ? "disabled" : ""}>Import code</button></div>` +
+    `<span class="ribbon">COLLECTION · SET 1 ${have}/${POOL.length} · SET 2 ${ownedList().filter(c => c.set2).length}/${POOL2.length}</span>` +
+    `<div class="cbar"><input type="search" id="fq" placeholder="${F.kind === "skill" ? "Search skill cards" : "Search cards"}" value="${esc(F.q)}"><button class="fbtn" data-act="filtOpen" aria-label="Sort and filter">${ic("filter", "")}${filtN() ? '<i class="dot"></i>' : ""}</button></div>` +
+    `<div class="seg ckind"><button class="${F.kind !== "skill" ? "on" : ""}" data-act="ckind" data-k="char">Character cards</button><button class="${F.kind === "skill" ? "on" : ""}" data-act="ckind" data-k="skill">Skill cards</button></div><div class="grid" id="coll"></div>`;
   fillColl(); const q = $("#fq"); q.oninput = () => { F.q = q.value; fillColl(); };
 }
+const filtN = () => F.kind === "skill" ? (F.sel !== "all" ? 1 : 0) + (F.ssort !== "name" ? 1 : 0) : (F.own !== "own" ? 1 : 0) + (F.lv ? 1 : 0) + (F.grp !== "all" ? 1 : 0) + (F.el !== "all" ? 1 : 0) + (F.sort !== "rar" ? 1 : 0);
 /* cards the player has not looked at yet are marked NEW; the first time this runs, everything already owned counts as seen */
 function seenInit() { if (!P.seen) { P.seen = {}; for (const id in P.own) if (P.own[id] > 0) P.seen[id] = 1; scheduleSave(); } }
 const newCount = () => { if (!P || !P.seen) return 0; return Object.keys(P.own).filter(id => P.own[id] > 0 && !P.seen[id]).length; };
@@ -4930,9 +4958,35 @@ function collSort() {
   return ({ fav: (a, b) => fv(b) - fv(a) || rar(a, b), rar, name: (a, b) => a.name.localeCompare(b.name), cost: (a, b) => k(a).cost - k(b).cost || rar(a, b), atk: (a, b) => k(b).atk - k(a).atk || rar(a, b), hp: (a, b) => hpOf(k(b)) - hpOf(k(a)) || rar(a, b), cnt: (a, b) => (P.own[b.id] || 0) - (P.own[a.id] || 0) || rar(a, b), new: (a, b) => seen(b) - seen(a) || (P.recent || []).indexOf(a.id) - (P.recent || []).indexOf(b.id) || rar(a, b) })[F.sort] || rar;
 }
 function fillColl() {
-  const q = F.q.toLowerCase(), list = C.filter(c => (inSet(c.id) || P.own[c.id] > 0) && (!q || c.name.toLowerCase().includes(q)) && (F.lv === 0 || c.lv === F.lv) && (F.grp === "all" || c.grp === F.grp) && (F.el === "all" || arCard(c).el === F.el) && (F.own === "all" || (F.own === "own" ? (P.own[c.id] || 0) > 0 : F.own === "miss" ? !(P.own[c.id] > 0) : F.own === "fav" ? !!(P.fav && P.fav[c.id]) : c.ex)))
-    .sort(collSort());
-  seenInit(); $("#coll").innerHTML = list.map(c => { const h = cardHtml(c, { count: P.own[c.id] || 0, miss: !(P.own[c.id] > 0), attr: `data-act="detail" data-id="${c.id}"` }); let h2 = h; if (P.own[c.id] > 0 && !P.seen[c.id]) h2 = h2.replace('<i class="crn"></i>', '<i class="crn"></i><i class="newtag">NEW</i>'); if (P.fav && P.fav[c.id]) h2 = h2.replace('<i class="crn"></i>', '<i class="crn"></i><i class="favtag">★</i>'); return h2; }).join("") || `<p class="note">${F.own === "own" ? "No cards match. Try another filter, or open packs to find more." : "No cards match."}</p>`;
+  seenInit(); const box = $("#coll"); if (!box) return; const q = F.q.toLowerCase();
+  if (F.kind === "skill") {
+    const so = { name: (a, b) => SKC[a].n.localeCompare(SKC[b].n), cost: (a, b) => SKC[a].c - SKC[b].c || SKC[a].n.localeCompare(SKC[b].n), tier: (a, b) => (SKC[b].tier || 1) - (SKC[a].tier || 1) || SKC[a].n.localeCompare(SKC[b].n) }[F.ssort] || (() => 0);
+    const list = SKC_IDS.filter(id => (!q || SKC[id].n.toLowerCase().includes(q)) && (F.sel === "all" || SKC[id].el === F.sel)).sort(so);
+    box.innerHTML = list.map(id => skTile(id).replace('<div class="ku mini skillcard', `<div data-act="skdetail" data-id="${id}" class="ku mini skillcard`)).join("") || '<p class="note">No skill cards match.</p>';
+    return;
+  }
+  const fv = c => (P.fav && P.fav[c.id] ? 1 : 0), base = collSort();
+  const list = C.filter(c => (inSet(c.id) || P.own[c.id] > 0) && (!q || c.name.toLowerCase().includes(q)) && (F.lv === 0 || c.lv === F.lv) && (F.grp === "all" || c.grp === F.grp) && (F.el === "all" || arCard(c).el === F.el) && (F.own === "all" || (F.own === "own" ? (P.own[c.id] || 0) > 0 : F.own === "miss" ? !(P.own[c.id] > 0) : F.own === "fav" ? !!(P.fav && P.fav[c.id]) : c.ex)))
+    .sort((a, b) => fv(b) - fv(a) || base(a, b));
+  box.innerHTML = list.map(c => { const h = cardHtml(c, { count: P.own[c.id] || 0, miss: !(P.own[c.id] > 0), attr: `data-act="detail" data-id="${c.id}"` }); let h2 = h; if (P.own[c.id] > 0 && !P.seen[c.id]) h2 = h2.replace('<i class="crn"></i>', '<i class="crn"></i><i class="newtag">NEW</i>'); if (P.fav && P.fav[c.id]) h2 = h2.replace('<i class="crn"></i>', '<i class="crn"></i><i class="favtag">★</i>'); return h2; }).join("") || `<p class="note">${F.own === "own" ? "No cards match. Try another filter, or open packs to find more." : "No cards match."}</p>`;
+}
+/* the sort and filter sheet: one tap on a chip changes the list behind it (favourites always stay on top) */
+function filterSheet() {
+  const chip = (f, v, label, on) => `<button class="chip ${on ? "on" : ""}" data-act="fset" data-f="${f}" data-v="${v}">${label}</button>`, sec = (t, body) => `<span class="ribbon">${t}</span><div class="chips">${body}</div>`;
+  let b;
+  if (F.kind === "skill") {
+    b = sec("SORT BY", [["name", "Name"], ["cost", "Energy cost"], ["tier", "Tier"]].map(([v, n]) => chip("ssort", v, n, F.ssort === v)).join("")) + sec("ELEMENT", chip("sel", "all", "Any", F.sel === "all") + ELKEYS.map(e => chip("sel", e, EL[e][1] + " " + EL[e][0], F.sel === e)).join(""));
+  } else {
+    b = sec("SORT BY", [["rar", "Rarity"], ["new", "Newest"], ["cost", "Cost"], ["atk", "Attack"], ["hp", "Health"], ["name", "Name"], ["cnt", "Copies"]].map(([v, n]) => chip("sort", v, n, F.sort === v)).join("")) +
+      sec("SHOW", [["own", "My cards"], ["all", "Unowned too"], ["miss", "Only missing"], ["ex", "Secret Rare"], ["fav", "Favourites"]].map(([v, n]) => chip("own", v, n, F.own === v)).join("")) +
+      sec("RARITY", chip("lv", 0, "Any", F.lv === 0) + [1, 2, 3, 4, 5].map(l => chip("lv", l, RNAME[l], F.lv === l)).join("")) +
+      sec("ELEMENT", chip("el", "all", "Any", F.el === "all") + ELKEYS.map(e => chip("el", e, EL[e][1] + " " + EL[e][0], F.el === e)).join("")) +
+      sec("RACE", Object.entries(GROUPS).map(([k, n]) => chip("grp", k, n, F.grp === k)).join(""));
+  }
+  openSheet(`<h2 class="fat">Sort &amp; filter</h2>${b}<p class="note" style="text-align:center;margin:10px 0 0">Favourites always come first.</p><div class="row c" style="margin-top:12px"><button class="btn sm dark" data-act="freset">Reset</button><button class="btn yellow" data-act="closeModal">Done</button></div>`);
+}
+function skillSheet(id) {
+  const k = SKC[id]; openSheet(`<button class="sico r" data-act="closeModal" aria-label="Close">✕</button><div style="width:min(46%,170px);margin:6px auto 10px">${skTile(id)}</div><h2 class="fat" style="text-align:center;margin:0">${esc(k.n)}</h2><p class="note" style="text-align:center;margin:4px 0 8px">${k.c} energy · ${k.t === "ally" ? "one of your cards" : k.t === "enemy" ? "one enemy card" : k.t === "slot" ? "an empty lane" : "a whole side"}</p><div class="rules"><p>${esc(skText(id))}</p></div><p class="note" style="text-align:center;margin:10px 0 0">Every player has every skill card. Put up to ${SK_MAX} in a deck, ${SK_COPIES} copies of each.</p>`);
 }
 function openSheet(h) { const m = $("#modal"); m.hidden = false; delete m.dataset.lock; m.innerHTML = `<div class="sheet">${h}</div>`; }
 /* a sheet that must be answered with its own buttons (a result, a choice, a waiting screen): tapping outside it does nothing */
@@ -5439,6 +5493,11 @@ document.addEventListener("click", async e => {
     case "summon": return summon(d.k || "std", +d.n || 1);
     case "pool": SEL = d.k; return show("summon");
     case "svtab": SV = d.k; return show("summon");
+    case "ckind": F.kind = d.k; F.q = ""; return show("cards");
+    case "filtOpen": return filterSheet();
+    case "fset": { const f = d.f, v = ["lv"].includes(f) ? +d.v : d.v; F[f] = v; document.querySelectorAll(`#modal .chip[data-f="${f}"]`).forEach(b => b.classList.toggle("on", b.dataset.v === String(v))); fillColl(); const fb = document.querySelector(".fbtn"); if (fb) fb.innerHTML = ic("filter", "") + (filtN() ? '<i class="dot"></i>' : ""); return; }
+    case "freset": F = Object.assign(F, { own: "own", lv: 0, grp: "all", el: "all", sort: "rar", ssort: "name", sel: "all" }); return show("cards"), filterSheet();
+    case "skdetail": return skillSheet(d.id);
     case "setvar": return setVar(d.id, d.v);
     case "avatar": return avatarSheet();
     case "avpick": { AV.pick = d.id; document.querySelectorAll("#avlist .avc").forEach(b => b.classList.toggle("on", b.dataset.id === AV.pick)); $("#avprev").innerHTML = avPreview(); return uiFx("tap"); }
@@ -5446,7 +5505,7 @@ document.addEventListener("click", async e => {
     case "setav": P.avatar = d.id || null; scheduleSave(); chrome(); closeModal(); return toast(d.id ? BY[d.id].name + " is now your portrait" : "Your portrait follows your best card");
     case "openPack": return summon(SEL, 1);
     case "iap": return buyIap(d.id);
-    case "tokx": return exchangeTokens(d.k, d.all === "1");
+    case "tokx": return exchangeTokens(d.k, d.n);
     case "sell": return sellCopy(d.id);
     case "packTear": return packTear();
     case "packNext": return packNext();
@@ -5483,7 +5542,6 @@ document.addEventListener("click", async e => {
 document.addEventListener("change", async e => {
   if (e.target.id === "songs") { let n = 0; for (const f of e.target.files) { try { await IDB.add(f.name, f); n++; } catch (_) { toast("Could not save " + f.name); } } await bgmLoad(); if (n) { toast(n + " song" + (n > 1 ? "s" : "") + " added"); musicStop(); musicStart(); } return show("daily"); }
   if (e.target.id === "deckSel") { P.deck = +e.target.value; scheduleSave(); }
-  if (e.target.dataset.act === "filt") { F.own = $("#fown").value; F.lv = +$("#flv").value; F.grp = $("#fgrp").value; F.el = $("#fel").value; F.sort = $("#fsort").value; fillColl(); }
 });
 function closeModal() {
   const m = $("#modal"); m.hidden = true; m.innerHTML = ""; delete m.dataset.lock;

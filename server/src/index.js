@@ -168,7 +168,7 @@ const freshCredit = () => Object.fromEntries(Object.entries(RATE).map(([k, r]) =
 function guardProfile(old, nw, dtSec, credit0) {
   const bad = (why) => ({ why });
   if (!nw || typeof nw !== "object" || typeof nw.own !== "object" || nw.own === null || Array.isArray(nw.own)) return bad("bad shape");
-  const lim = { coins: 1e6, gems: 5000, tokens: 1e5, lv: 100, xp: 1e5, plays: 1e6, wins: 1e6, pulls: 1e6 };
+  const lim = { coins: 1e8, gems: 1e6, tokens: 1e5, lv: 100, xp: 1e5, plays: 1e6, wins: 1e6, pulls: 1e6 };
   for (const k in lim) if (nw[k] !== undefined && !posInt(nw[k], lim[k])) return bad(k + " out of range");
   for (const [id, n] of Object.entries(nw.own)) if (!(id in CARDS) || !Number.isInteger(n) || n < 0 || n > 3) return bad("unknown card or count " + id);
   const rk = nw.rank; if (rk && (!posInt(rk.pts, 4000) || !posInt(rk.w, 1e6) || !posInt(rk.l, 1e6))) return bad("rank out of range");
