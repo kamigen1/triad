@@ -227,6 +227,9 @@ async function verifyIdToken(provider, token, aud) {
   return pay;
 }
 
+const REC_ABC = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+const normRec = c => String(c || "").toUpperCase().replace(/[^A-Z2-9]/g, "");
+function makeRecCode() { const r = crypto.getRandomValues(new Uint8Array(12)); let o = ""; for (let i = 0; i < 12; i++) o += REC_ABC[r[i] % 32] + (i % 4 === 3 && i < 11 ? "-" : ""); return o; }
 async function hashPw(pw, salt) {
   const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(pw), "PBKDF2", false, ["deriveBits"]);
   return hex(await crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", salt: new TextEncoder().encode(salt), iterations: 100000 }, key, 256));
@@ -250,7 +253,8 @@ export class Hub {
       CREATE TABLE IF NOT EXISTS errs (at INTEGER, v TEXT, msg TEXT, ua TEXT);
       CREATE TABLE IF NOT EXISTS pend (mid TEXT PRIMARY KEY, lname TEXT, at INTEGER, j TEXT);
       CREATE TABLE IF NOT EXISTS vt (lname TEXT PRIMARY KEY, j TEXT);
-      CREATE TABLE IF NOT EXISTS reports (frm TEXT, about TEXT, at INTEGER, why TEXT);`);
+      CREATE TABLE IF NOT EXISTS reports (frm TEXT, about TEXT, at INTEGER, why TEXT);
+      CREATE TABLE IF NOT EXISTS recov (lname TEXT PRIMARY KEY, h TEXT, at INTEGER);`);
   }
   one(q, ...a) { const r = [...this.sql.exec(q, ...a)]; return r[0] || null; }
   all(q, ...a) { return [...this.sql.exec(q, ...a)]; }
@@ -299,9 +303,30 @@ export class Hub {
       const s = this.one("SELECT lname FROM sessions WHERE th=?", await sha(String(b.token || ""))); if (!s) return json({ ok: false, auth: true, err: "Please sign in again." }, 401);
       const a = this.one("SELECT * FROM accounts WHERE lname=?", s.lname), l = s.lname;
       if (a && a.pw !== "!") { if (!b.pass) return json({ ok: false, needPass: true }); if (a.pw !== await hashPw(String(b.pass), a.salt)) return json({ ok: false, err: "Wrong password." }); }
-      for (const q of ["DELETE FROM sessions WHERE lname=?", "DELETE FROM profiles WHERE lname=?", "DELETE FROM pbak WHERE lname=?", "DELETE FROM credit WHERE lname=?", "DELETE FROM flags WHERE lname=?", "DELETE FROM oauth WHERE lname=?", "DELETE FROM pend WHERE lname=?", "DELETE FROM vt WHERE lname=?", "DELETE FROM accounts WHERE lname=?"]) this.sql.exec(q, l);
+      for (const q of ["DELETE FROM sessions WHERE lname=?", "DELETE FROM profiles WHERE lname=?", "DELETE FROM pbak WHERE lname=?", "DELETE FROM credit WHERE lname=?", "DELETE FROM flags WHERE lname=?", "DELETE FROM oauth WHERE lname=?", "DELETE FROM pend WHERE lname=?", "DELETE FROM vt WHERE lname=?", "DELETE FROM recov WHERE lname=?", "DELETE FROM accounts WHERE lname=?"]) this.sql.exec(q, l);
       for (const q of ["DELETE FROM friends WHERE a=? OR b=?", "DELETE FROM reqs WHERE frm=? OR too=?", "DELETE FROM invites WHERE frm=? OR too=?", "DELETE FROM blocks WHERE a=? OR b=?"]) this.sql.exec(q, l, l);
       return json({ ok: true });
+    }
+    /* RECOVERY CODE: no email is kept. A signed-in player can make a code (shown once, only its hash is stored); with the name and that code a forgotten password is reset. */
+    if (p === "/auth/recovery") {
+      if (this.limited(req.headers.get("cf-connecting-ip") || "x")) return json({ ok: false, err: "Too many tries. Wait a minute." }, 429);
+      const s = this.one("SELECT lname FROM sessions WHERE th=?", await sha(String(b.token || ""))); if (!s) return json({ ok: false, auth: true, err: "Please sign in again." }, 401);
+      const code = makeRecCode(); this.sql.exec("INSERT OR REPLACE INTO recov VALUES (?,?,?)", s.lname, await sha("rc:" + normRec(code)), Date.now());
+      return json({ ok: true, code });
+    }
+    if (p === "/auth/recover") {
+      if (this.limited(req.headers.get("cf-connecting-ip") || "x")) return json({ ok: false, err: "Too many tries. Wait a minute." }, 429);
+      const name = String(b.name || "").trim(), pw = String(b.pass || ""), lname = name.toLowerCase();
+      if (!NAME_RE.test(name)) return json({ ok: false, err: "Names are 3 to 14 letters, numbers or underscores." });
+      if (pw.length < 6 || pw.length > 64) return json({ ok: false, err: "Passwords are 6 to 64 characters." });
+      if (this.rate("rcv:" + lname, 5)) return json({ ok: false, err: "Too many tries for that name. Wait a minute." }, 429);
+      const row = this.one("SELECT h FROM recov WHERE lname=?", lname), bad = { ok: false, err: "That name and recovery code do not match." };
+      if (!row || row.h !== await sha("rc:" + normRec(b.code))) return json(bad);
+      const salt = hex(crypto.getRandomValues(new Uint8Array(16)));
+      this.sql.exec("UPDATE accounts SET salt=?, pw=? WHERE lname=?", salt, await hashPw(pw, salt), lname);
+      this.sql.exec("DELETE FROM sessions WHERE lname=?", lname);   // every other phone is signed out
+      const code = makeRecCode(); this.sql.exec("INSERT OR REPLACE INTO recov VALUES (?,?,?)", lname, await sha("rc:" + normRec(code)), Date.now());   // a used code is replaced
+      return json({ ok: true, name: this.nameOf(lname), token: await this.newToken(lname), code });
     }
     if (p === "/auth/rename") {   // change the account's name: 3 to 14 letters, numbers or underscores, and never one that is taken (any capitalisation)
       if (this.limited(req.headers.get("cf-connecting-ip") || "x")) return json({ ok: false, err: "Too many tries. Wait a minute." }, 429);
@@ -310,7 +335,7 @@ export class Hub {
       const old = s.lname, nl = nm.toLowerCase();
       if (nl !== old) {
         if (this.one("SELECT 1 AS x FROM accounts WHERE lname=?", nl)) return json({ ok: false, taken: true, err: "That name is already taken." });
-        for (const t of ["accounts", "sessions", "profiles", "pbak", "credit", "flags", "oauth", "pend", "vt"]) this.sql.exec(`UPDATE ${t} SET lname=? WHERE lname=?`, nl, old);
+        for (const t of ["accounts", "sessions", "profiles", "pbak", "credit", "flags", "oauth", "pend", "vt", "recov"]) this.sql.exec(`UPDATE ${t} SET lname=? WHERE lname=?`, nl, old);
         for (const [t, c] of [["friends", "a"], ["friends", "b"], ["reqs", "frm"], ["reqs", "too"], ["invites", "frm"], ["invites", "too"], ["blocks", "a"], ["blocks", "b"], ["reports", "frm"], ["reports", "about"]]) this.sql.exec(`UPDATE ${t} SET ${c}=? WHERE ${c}=?`, nl, old);
       }
       this.sql.exec("UPDATE accounts SET name=? WHERE lname=?", nm, nl); return json({ ok: true, name: nm });

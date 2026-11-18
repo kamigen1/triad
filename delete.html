@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Triad Summons: Delete your account</title>
+<style>
+:root { color-scheme: dark; } body { margin: 0; background: #0a1220; color: #e8e4d6; font: 16px/1.6 system-ui, sans-serif; }
+main { max-width: 520px; margin: 0 auto; padding: 24px 18px 60px; } h1 { font-size: 26px; color: #e3bf66; margin: 0 0 8px; } p { color: #cfcab9; } a { color: #8fc2ff; }
+input { width: 100%; box-sizing: border-box; padding: 12px; margin: 6px 0; border-radius: 10px; border: 1px solid #2b3a52; background: #101b2e; color: #fff; font: inherit; }
+button { padding: 12px 18px; border-radius: 999px; border: 0; background: #c0392b; color: #fff; font: 700 15px system-ui; margin-top: 8px; } #msg { min-height: 1.5em; color: #ff9aa4; } #msg.ok { color: #8fe0a0; }
+.box { background: #101b2e; border: 1px solid #22304a; border-radius: 14px; padding: 14px 16px; margin: 14px 0; }
+</style></head><body><main>
+<h1>Delete your account</h1>
+<p>This permanently deletes your Triad Summons account, saved game, friends and recovery code. It cannot be undone. You can also do this inside the game: <b>Settings → Account and data → Delete account</b>.</p>
+<div class="box"><b>With a name and password</b>
+<input id="n" placeholder="Account name" autocapitalize="off" autocomplete="username"><input id="p" type="password" placeholder="Password" autocomplete="current-password">
+<button id="go">Delete my account</button></div>
+<div class="box" id="gbox" hidden><b>With Google</b><p style="margin:4px 0">If you signed in with Google, sign in again here to confirm it is you.</p><div id="gBtn"></div></div>
+<p id="msg"></p>
+<p><a href="privacy.html">Privacy policy</a></p>
+<script>
+const SRV = "https://triad.chancyrod.workers.dev", msg = (t, ok) => { const m = document.getElementById("msg"); m.textContent = t; m.className = ok ? "ok" : ""; };
+async function call(path, body) { try { return await (await fetch(SRV + path, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) })).json(); } catch (_) { return { ok: false, err: "Could not reach the server." }; } }
+async function wipe(token, pass) {
+  if (!confirm("Delete this account forever? This cannot be undone.")) return;
+  const d = await call("/auth/delete", { token, pass }); if (d.ok) { msg("Your account has been deleted.", true); document.querySelectorAll(".box").forEach(b => b.hidden = true); } else msg(d.err || "Could not delete the account.");
+}
+document.getElementById("go").onclick = async () => {
+  const name = document.getElementById("n").value.trim(), pass = document.getElementById("p").value; if (!name || !pass) return msg("Type your name and password.");
+  const r = await call("/auth/login", { name, pass }); if (!r.ok) return msg(r.err || "Wrong name or password."); await wipe(r.token, pass);
+};
+(async () => {
+  try {
+    const c = await (await fetch(SRV + "/auth/config")).json(); if (!c.google) return;
+    const s = document.createElement("script"); s.src = "https://accounts.google.com/gsi/client"; s.onload = () => {
+      google.accounts.id.initialize({ client_id: c.google, callback: async r => { const o = await call("/auth/oauth", { provider: "google", idToken: r.credential }); if (o.needName) return msg("No game account is linked to this Google account."); if (!o.ok) return msg(o.err || "Sign-in failed."); await wipe(o.token); } });
+      google.accounts.id.renderButton(document.getElementById("gBtn"), { theme: "filled_black", size: "large", text: "signin_with" }); document.getElementById("gbox").hidden = false;
+    }; document.head.appendChild(s);
+  } catch (_) {}
+})();
+</script></main></body></html>

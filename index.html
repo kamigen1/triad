@@ -1989,7 +1989,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.12.10-a";
+const VER = "2026.12.10-c";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -5201,7 +5201,7 @@ function accSheet(mode) {
     `<div class="row" style="margin-top:8px"><input type="password" id="acPass" maxlength="64" autocomplete="${up ? "new-password" : "current-password"}" placeholder="Password (6 or more)" style="flex:1"></div>` +
     `<p class="note" id="acErr" style="color:var(--red);text-align:center;min-height:1.3em;margin:8px 0 0"></p>` +
     `<div class="row c" style="margin-top:6px"><button class="btn yellow" data-ac="submit" data-m="${up ? "up" : "in"}">${up ? "Create account" : "Sign in"}</button></div></div>` +
-    `<div id="acOauth"></div><div class="row c" style="margin-top:10px"><button class="btn sm dark" data-ac="${up ? "in" : "up"}">${up ? "I already have an account" : "Create a new account"}</button>${GATE ? "" : '<button class="btn sm dark" data-act="closeModal">Close</button>'}</div>`);
+    `<div id="acOauth"></div><div class="row c" style="margin-top:10px"><button class="btn sm dark" data-ac="${up ? "in" : "up"}">${up ? "I already have an account" : "Create a new account"}</button>${up ? "" : '<button class="btn sm dark" data-ac="forgot">Forgot password?</button>'}${GATE ? "" : '<button class="btn sm dark" data-act="closeModal">Close</button>'}</div>`);
   accOauthButtons();
 }
 async function accSubmit(mode) {
@@ -5214,6 +5214,33 @@ async function accSubmit(mode) {
   ACC = { name: r.name, token: r.token }; accSave(); HUBSTOP = false;
   if (P) { P.name = r.name; P.named = true; scheduleSave(); }
   gateHide(); closeModal(); toast(mode === "up" ? "Account created. Welcome, " + r.name + "!" : "Signed in as " + r.name); hubConnect(); chrome(); show(tab); cloudSync();
+  if (mode === "up") setTimeout(recOffer, 900);
+}
+/* ----- recovery code: optional, no email. Shown once; with the name it resets a forgotten password. ----- */
+function recOffer() { if (!ACC) return; openSheet(`<h2 class="fat">SAVE A RECOVERY CODE?</h2><p class="note" style="text-align:center;margin:0 0 10px">If you ever forget your password, a recovery code lets you set a new one. It takes ten seconds and you can skip it. You can make one later in Settings.</p><div class="row c" style="flex-direction:column;gap:8px"><button class="btn yellow" data-ac="recMake">Make my code</button><button class="btn dark" data-act="closeModal">Not now</button></div>`); }
+async function recMake() {
+  const r = await accCall("/auth/recovery", { token: ACC && ACC.token }); if (!r.ok) return toast(r.err || "Could not make a code right now.");
+  recShow(r.code, "Write it down or take a screenshot. It is shown only once, and making a new one cancels this one.");
+}
+function recShow(code, note) { openSheet(`<h2 class="fat">YOUR RECOVERY CODE</h2><div class="panel" style="text-align:center"><div id="recCode" style="font:800 24px var(--body);letter-spacing:.08em;color:var(--yellow);user-select:all;padding:10px 0">${esc(code)}</div><p class="note" style="margin:6px 0 0">${esc(note)}</p></div><div class="row c" style="margin-top:10px;gap:8px"><button class="btn sm yellow" data-ac="recCopy" data-n="${esc(code)}">Copy</button><button class="btn sm dark" data-act="closeModal">I saved it</button></div>`); }
+function recForgot() {
+  accRender(`<h2 class="fat">RESET PASSWORD</h2><p class="note" style="text-align:center;margin:0 0 10px">Type your name, your recovery code and a new password.</p><div class="panel">` +
+    `<div class="row"><input type="text" id="rcName" maxlength="14" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Name" style="flex:1"></div>` +
+    `<div class="row" style="margin-top:8px"><input type="text" id="rcCode" maxlength="20" autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="Recovery code (XXXX-XXXX-XXXX)" style="flex:1"></div>` +
+    `<div class="row" style="margin-top:8px"><input type="password" id="rcPass" maxlength="64" autocomplete="new-password" placeholder="New password (6 or more)" style="flex:1"></div>` +
+    `<p class="note" id="rcErr" style="color:var(--red);text-align:center;min-height:1.3em;margin:8px 0 0"></p><div class="row c"><button class="btn yellow" data-ac="recGo">Reset and sign in</button></div></div>` +
+    `<div class="row c" style="margin-top:10px"><button class="btn sm dark" data-ac="in">Back</button></div>`);
+}
+async function recGo() {
+  const name = ($("#rcName").value || "").trim(), code = $("#rcCode").value || "", pass = $("#rcPass").value || "", err = $("#rcErr"), btn = document.querySelector("[data-ac='recGo']");
+  if (!/^[A-Za-z0-9_]{3,14}$/.test(name)) { err.textContent = "Names are 3 to 14 letters, numbers or underscores."; return; }
+  if (pass.length < 6) { err.textContent = "Passwords are 6 or more characters."; return; }
+  err.textContent = ""; btn.disabled = true;
+  const r = await accCall("/auth/recover", { name, code, pass });
+  if (!r.ok) { err.textContent = r.err || "Something went wrong."; btn.disabled = false; return; }
+  ACC = { name: r.name, token: r.token }; accSave(); HUBSTOP = false; if (P) { P.name = r.name; P.named = true; scheduleSave(); }
+  gateHide(); closeModal(); toast("Password reset. Welcome back, " + r.name + "!"); hubConnect(); chrome(); show(tab); cloudSync();
+  setTimeout(() => recShow(r.code, "Your old code was used up, so here is a new one. Save it."), 900);
 }
 async function accLogout() {
   if (P && P.us && CLOUD.on) { toast("Saving…"); await cloudPushNow(); if (P.us && !confirm("Your latest progress could not be saved online yet. Sign out anyway and lose it?")) return; }
@@ -5367,6 +5394,10 @@ document.addEventListener("click", e => {
     case "useLocal": closeModal(); srcSet("device"); return void useDevice(CLOUD.pendingRev);
     case "oauthName": return OAUTH_PENDING && accOauth(OAUTH_PENDING.provider, OAUTH_PENDING.idToken, ($("#acName").value || "").trim());
     case "logout": return accLogout();
+    case "forgot": return recForgot();
+    case "recGo": return recGo();
+    case "recMake": return recMake();
+    case "recCopy": try { navigator.clipboard.writeText(n); toast("Copied."); } catch (_) { toast("Select the code and copy it."); } return;
     case "reconnect": HUBSTOP = false; HUBRETRY = 0; return hubConnect();
     case "fAdd": { const v = ($("#frName").value || "").trim(); if (!v) return; if (v.toLowerCase() === (ACC && ACC.name.toLowerCase())) return toast("That is you."); if (hubSend({ t: "friend_add", name: v })) $("#frName").value = ""; return; }
     case "fAccept": return void hubSend({ t: "friend_accept", name: n });
@@ -5728,7 +5759,7 @@ function settingsSheet() {
     `<span class="ribbon">SOUND</span><div class="panel">${tg("sMute", allOff, "Mute all sound")}${tg("sBgm", AU.bgm, "Music")}${sl("mvol", AU.mv)}${tg("sSfx", AU.sfx, "Sound effects")}${sl("svol", AU.sv)}<div class="row"><button class="btn sm dark" data-act="soundLab">Sound test</button></div></div>` +
     `<span class="ribbon">DISPLAY</span><div class="panel">${tg("sMot", !(pf.motion === "off" || UI.mq.matches), "Animations", "Menu and card movement")}${tg("sVfx", pf.vfx !== false, "Battle effects", "Flashes, sparks and rings")}${tg("sShake", pf.shake !== false, "Screen shake")}${tg("sHap", pf.haptics !== false, "Vibration")}${UI.mq.matches ? '<p class="note" style="margin:8px 0 0">Your phone asks apps to reduce motion, so animations stay off.</p>' : ""}</div>` +
     `<span class="ribbon">CARDS AND PACKS</span><div class="panel">${tg("sTilt", TILT.on, "Card tilt", tiltNote)}${tg("sPack", pf.packQuick === true, "Quick pack opening", "Skip the tear and the flips, and go straight to your cards")}</div>` +
-    `<span class="ribbon">ACCOUNT AND DATA</span><div class="panel"><div class="row setrow"><span>Display name<small class="setsub">${esc(playerName())}</small></span><button class="btn sm dark" data-act="nameEdit">Rename</button></div><p class="note" style="margin:0 0 8px">${ACC ? "Signed in as <b style=\"color:var(--yellow)\">" + esc(ACC.name) + "</b>. Your progress is saved to your account." : "Playing as a guest. Progress is only on this phone."}</p>${ACC ? `<p class="note" style="margin:0 0 4px">Which save wins when you sign in: <b>${srcDev ? "this phone" : "your online save"}</b>.</p><div class="row"><button class="btn sm dark" data-me="${srcDev ? "srconl" : "srcdev"}">${srcDev ? "Use my online save" : "Use this phone instead…"}</button></div>` : ""}<div class="row" style="gap:8px;margin-top:8px">${ACC ? `<button class="btn sm dark" data-me="blocked">Blocked (${blockedList().length})</button>` : ""}${ACC ? '<button class="btn sm dark" data-ac="logout">Sign out</button>' : '<button class="btn sm yellow" data-ac="up">Create account</button>'}<button class="btn sm red" data-me="del">${ACC ? "Delete account" : "Erase my progress"}</button></div></div>` +
+    `<span class="ribbon">ACCOUNT AND DATA</span><div class="panel"><div class="row setrow"><span>Display name<small class="setsub">${esc(playerName())}</small></span><button class="btn sm dark" data-act="nameEdit">Rename</button></div>${ACC ? '<div class="row setrow"><span>Recovery code<small class="setsub">Resets a forgotten password. Shown once.</small></span><button class="btn sm dark" data-ac="recMake">Make one</button></div>' : ""}<p class="note" style="margin:0 0 8px">${ACC ? "Signed in as <b style=\"color:var(--yellow)\">" + esc(ACC.name) + "</b>. Your progress is saved to your account." : "Playing as a guest. Progress is only on this phone."}</p>${ACC ? `<p class="note" style="margin:0 0 4px">Which save wins when you sign in: <b>${srcDev ? "this phone" : "your online save"}</b>.</p><div class="row"><button class="btn sm dark" data-me="${srcDev ? "srconl" : "srcdev"}">${srcDev ? "Use my online save" : "Use this phone instead…"}</button></div>` : ""}<div class="row" style="gap:8px;margin-top:8px">${ACC ? `<button class="btn sm dark" data-me="blocked">Blocked (${blockedList().length})</button>` : ""}${ACC ? '<button class="btn sm dark" data-ac="logout">Sign out</button>' : '<button class="btn sm yellow" data-ac="up">Create account</button>'}<button class="btn sm red" data-me="del">${ACC ? "Delete account" : "Erase my progress"}</button></div></div>` +
     `<span class="ribbon">HELP</span><div class="row c" style="gap:8px"><button class="btn sm" data-ck="rules">How to play</button><button class="btn sm" data-me="tut">Replay the tutorial</button><button class="btn sm" data-ck="triad">Classic Triad</button></div>` +
     `<p class="note" style="text-align:center;margin:12px 0 0;opacity:.6;font-size:11px">Version ${typeof VER !== "undefined" ? VER : ""}</p>` +
     `<div class="row c" style="margin-top:10px"><button class="btn sm dark" data-me="profile">Back</button></div>`);
