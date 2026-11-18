@@ -1989,7 +1989,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.12.09-b";
+const VER = "2026.12.09-c";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -3052,9 +3052,21 @@ const CAMP = [
       "Pilgrim Pyres", "The Forgeguard", "The Cooled Smiths", "Ash Shrine Keepers", "Brand-Mad Hounds", "Yuzari, the Ninefold Flame",
       "Slag Crawlers", "The Echoweaver Pickets", "The Vault Sentries", "Magma Wyrmlings", "The Gilded Lanterns", "Cindervault",
       "Pyre Pilgrims", "Lantern Pyres", "The Ashen Legion", "The Burnt Choir", "The Herald's Guard", "The Pyre Herald"] },
-  { name: "Frostmere", sub: "A frozen pass and a silent court", els: ["ice", "water"], hint: "Water then Ice freezes a card: it skips its next attack.", foes: ["Snow Wolves", "Rimebound Pilgrims", "The Quiet Court", "Glacier Wardens", "Frostweavers", "The Frost Queen"] },
-  { name: "Tidal Ruins", sub: "Drowned stairs and a sunken throne", els: ["water", "lightning"], hint: "Water then Lightning is Conduct: ×1.5 damage.", foes: ["Reef Skulkers", "Stormcallers", "The Drowned Choir", "Tidebreakers", "Thunder Sentinels", "Leviathan's Voice"] },
-  { name: "The Hollow Crown", sub: "The last road, and the last table", els: ["light", "dark"], hint: "Light and Dark react both ways: Eclipse strips buffs.", foes: ["Pale Heralds", "Dusk Stalkers", "The Veiled Court", "Dawnblades", "Eclipse Knights", "The Hollow King"] },
+  { name: "Frostmere", sub: "A frozen pass, a silent court and a mountain's old promise", els: ["ice", "water"], hint: "Water then Ice freezes a card: it skips its next attack.", arcs: ["The Winter Spine", "The Quiet Court", "The Ashen Accord", "The Frozen Throne"],
+    foes: ["Snow Wolves", "Rimebound Pilgrims", "Hoarfrost Hunters", "Icefall Sentries", "Frostweavers", "Rimefang, Winter's Maw",
+      "The Quiet Court", "Court Heralds", "The Hushed Guard", "Frozen Dancers", "Silent Knights", "Zarek Duskhorn",
+      "Glacier Wardens", "Accord Archivists", "Rime Wraiths", "The Thawed Hosts", "The Winter Watch", "Glaciarch, the Frozen Bulwark",
+      "The Snowbound Legion", "Heralds of the Sovereign", "The White Choir", "Hail Knights", "The Sovereign's Guard", "The Frost Sovereign"] },
+  { name: "The Tidal Ruins", sub: "Drowned stairs, a sunken choir and a hymn that is not a hymn", els: ["water", "lightning"], hint: "Water then Lightning is Conduct: ×1.5 damage.", arcs: ["The Drowned Stair", "The Sunken Choir", "The Lantern Tides", "The Leviathan's Throne"],
+    foes: ["Reef Skulkers", "Stormcallers", "Drowned Pilgrims", "Brine Hounds", "The Sunken Sentries", "Nerissa, Tidecaller",
+      "The Drowned Choir", "Acolytes of the Tide", "A Visit from the King", "Candlefish Swarm", "The Verger of Bells", "The Choirmaster",
+      "Tidebreakers", "Lantern Eels", "Thunder Sentinels", "Storm Heralds", "The Brineborn Legion", "The Lantern Tide",
+      "The Abyssal Guard", "The Siren Choir", "Kraken Hosts", "The Drowned Court", "The Last Verse", "Leviathan's Voice"] },
+  { name: "The Cogworks of Tessaly", sub: "Brass rivers, assembly floors and a machine that counts souls", els: ["lightning", "earth"], hint: "Bring Water to Conduct the lightning (×1.5) or Wind to Sandblast the earth (×1.5).", arcs: ["The Foundry-Vale", "The Assembly Floors", "The Reckoning Halls", "The Perfect Count"],
+    foes: ["Scrap Skimmers", "Spark Drones", "Gearwright Guards", "Bolt Hounds", "A Walking Machine", "Axiom-12, Skylance",
+      "Conveyor Crews", "The First Notice", "Rivet Knights", "Furnace Automata", "Cog Swarm", "Axiom-07, Orbweaver",
+      "Tally Clerks", "Ledger Golems", "The Sealed Cogs", "Notices on the Wall", "Verdict Engines", "The Tally Judges",
+      "Gilded Gears", "Lightning Rails", "Sealbearers", "The Last Assembly", "The Reckoner's Guard", "The Perfect Reckoner"] },
 ];
 /* a season is 24 episodes in four arcs of six (episodes 1 to 5 fights, the sixth the arc's boss, the last the season finale); the older regions still have their first six */
 const campN = ch => CAMP[ch].foes.length, CAMP_TOTAL = CAMP.reduce((a, c) => a + c.foes.length, 0), campIndex = (ch, k) => CAMP.slice(0, ch).reduce((a, c) => a + c.foes.length, 0) + k;
@@ -3719,7 +3731,7 @@ setInterval(() => {
 /* ===== story.js: the story, as pure data. Nothing here touches code. =====
    A line is  "speaker/mood: text"  ("n" is the narrator; the mood is optional). Speakers are card names resolved in storyui.js (SPK below).
    Moods: calm happy angry sad shock afraid smug mystery tender.
-   Season 1 is here, season 2 is in story2.js (STORY.s[1]). Seasons 3 to 5 have their first six episodes as fights without scenes yet; 6 to 10 are planned (SEASON_PLAN).
+   Season 1 is here, seasons 2 to 5 are in story2.js to story5.js (STORY.s[1..4]); 6 to 10 are planned (SEASON_PLAN).
    Series bible: STORY_DESIGN.md. World and cast: LORE.md. */
 const SPK = {
   veyr: "Veyr, the Nightglass", auralis: "Auralis, Dawnvein", sylwen: "Sylwen, Thornwake", roan: "Roan Redband", nyxara: "Nyxara, Weaver of Echoes", zarek: "Zarek Duskhorn",
@@ -3975,6 +3987,319 @@ Object.assign(STORY.chars, {
     { t: "Eight Tails", lines: ["n: Yuzari curls her tails around herself in the cold.", "yuzari/calm: People count them. Then they count them again. Then they ask politely, which is the worst part.", "yuzari/smug: I tell them nine is bad luck."] },
     { t: "A Letter Every Spring", lines: ["n: A letter arrives under the shrine's bell. Yuzari reads it, then burns it.", "yuzari/calm: I know what it says for as long as I hold it.", "yuzari/sad: When the smoke clears, it is gone, and I only know I have been told something kind."] },
     { t: "Why Forget", lines: ["yuzari/calm: I gave away a tail on purpose. I know that much.", "yuzari/mystery: Whatever I traded it for, I decided I would rather not remember the price.", "yuzari/tender: I trust that woman. She was me."] },
+  ],
+});
+
+/* ===== story3.js: Season 3, Frostmere (24 episodes), as pure data. Same line format as story.js. =====
+   Beats: snow falls on the Wastes' ash and the party climbs the Winter Spine. A truce (the Ashen Accord) hides how it really ended. The heavens' third being, the Frost Sovereign, wears the empty armour of Glaciarch.
+   Arc bosses: Rimefang, Zarek (who then joins), Glaciarch, the Frost Sovereign. Kami is not mentioned (seasons 1 to 4). */
+Object.assign(SPK, { rimefang: "Rimefang, Winter's Maw", glaciarch: "Glaciarch, the Frozen Bulwark", zarek: "Zarek Duskhorn" });
+Object.assign(FACE, { rimefang: "r", glaciarch: "f" });
+STORY.s[2] = {
+  bg: ["region:2", "region:2", "region:2", "region:2"],
+  intro: {
+    id: "s2:intro", title: "Season 3: Frostmere", bg: "region:2", lines: [
+      "n: Past the last ember of the Wastes, the wind turns and the first snow lands on the ash.",
+      "n: The Winter Spine is a wall of white mountains, and every road north runs through its passes.",
+      "n: Fifty years ago two beasts of fire and ice fought over those passes, and a truce called the Ashen Accord ended it.",
+      "sylwen/calm: I live under that mountain. The Wake has been restless all winter. Something is wrong with the cold.",
+      "veyr/calm: Then we climb.",
+    ],
+  },
+  eps: [
+    /* ---------- Arc 1: The Winter Spine ---------- */
+    { t: "Snow on Ash",
+      before: ["n: The first drifts are grey with cinder. Nobody speaks for a mile.", "roan/calm: It is the first time I have been cold and sorry for it in the same breath.", "sylwen/calm: Wolves. Listen, they are moving as one.", "n: Snow wolves slide out of the drifts, their eyes the pale gold of a lantern."],
+      after: ["sylwen/shock: The Winter Spine wolves are shy. They have never hunted a party this size.", "nyxara/calm: They were told to, then. I can still hear the order in them.", "veyr/calm: Same voice as the Wastes?", "nyxara/mystery: Same sort of voice. Colder."] },
+    { t: "The Rimebound",
+      before: ["n: A line of pilgrims trudges uphill, hoar growing on their cloaks. They hum without opening their mouths.", "auralis/afraid: Those are not pilgrims. They are people who stopped to rest and never got up.", "n: They turn, all at once, their breath smoking gold."],
+      after: ["n: The frost cracks off the pilgrims like eggshell. They sit down in the snow, confused and very tired.", "auralis/tender: Rest. You are safe.", "roan/calm: The mountain has been freezing people in place and calling it mercy."] },
+    { t: "Hoarfrost Hunters",
+      before: ["n: Archers on skis come down the slope in single file, bows frosted white.", "sylwen/angry: Those are Thornwake bows. I made those bows.", "sylwen/sad: They were my friends. They would never.", "n: The first arrow hums past Veyr's ear."],
+      after: ["n: The archers drop their bows and shiver in their furs.", "sylwen/calm: Whoever did this found them where they were weakest. Out here, that is always the cold.", "veyr/calm: Then let us find the one who sends it."] },
+    { t: "Icefall Sentries",
+      before: ["n: A bridge of ice crosses a gorge, guarded by sentries that are mostly frozen water and gold light.", "roan/smug: They are made of ice. I have a hot temper. This ought to be tidy.", "nyxara/smug: Do not slip.", "roan/shock: I never slip."] },
+    { t: "Frostweavers",
+      before: ["n: In a ravine, women in white weave strands of frost between the cliffs, a net that hums.", "nyxara/calm: Frostweavers. They sing to the cold so it will hold still. Somebody has taught them to sing the other way.", "auralis/calm: Can we undo it?", "nyxara/smug: I can listen. Listening is half of undoing."],
+      after: ["n: The frost web snaps, and the strands fall like snow.", "n: At the head of the pass, a long shadow lies across the ice. It is not a mountain.", "sylwen/calm: Rimefang. She knows we are here."] },
+    { t: "Rimefang, Winter's Maw",
+      before: ["n: A dragon of living ice uncoils from the mountainside, her scales ringing like glass bells.", "rimefang/calm: Daughter of the Wake. I smell the glass on your companion.", "sylwen/calm: Rimefang. We come to ask about the pass.", "rimefang/angry: You come with the thing that brought the gold. You will be tested.", "n: The cold falls like a hammer."],
+      after: ["n: Rimefang lowers her head, breathing hard, and the cold lifts.", "rimefang/calm: I do not fear the glass. I fear what sent the gold, which has made a seat in my pass and will not leave.", "rimefang/sad: The Accord was a promise. I will tell you its end when you have earned the beginning.", "rimefang/calm: Go to the Quiet Court. They have been silent a long time. Ask them why."] },
+    /* ---------- Arc 2: The Quiet Court ---------- */
+    { t: "The Quiet Court",
+      before: ["n: A walled city of white towers, and not a sound in it. The bells hang still. The market stalls are full and nobody is selling.", "auralis/afraid: There is no wind. Not even the flags move.", "n: Court heralds in white step out and raise one finger to their lips."],
+      after: ["n: The heralds bow and part.", "nyxara/calm: I cannot hear the city. Not a footstep. They have all been told to hold very still.", "veyr/calm: By whom?"] },
+    { t: "Court Heralds",
+      before: ["n: The city's heralds carry banners embroidered with a single word: SILENCE.", "roan/shock: Is that a threat or a slogan?", "sylwen/calm: In this city, both.", "n: The banners rise, and the courtyard fills with soldiers."],
+      after: ["n: A herald falls to his knees and whispers, for the first time in a year.", "n: He is weeping. He says he did not mean to be quiet. He says it was the only thing that stopped the cold from coming in."] },
+    { t: "The Hushed Guard",
+      before: ["n: The palace guard wears felt over their boots and cloth over their mouths.", "auralis/calm: They are not hollow. They have chosen it.", "veyr/sad: Why would anyone choose that?", "n: A guard lifts a gloved hand and points, very politely, at the exit."] },
+    { t: "Frozen Dancers",
+      before: ["n: A ballroom of couples, frozen in mid-waltz, a hundred pairs turning without a sound.", "roan/smug: I will take the one on the left.", "nyxara/mystery: They are not frozen. They are waiting for the music to start, and it will not, unless something happens.", "n: One by one, the dancers turn to look at the party."],
+      after: ["n: The first dancer falls. The ballroom shatters into noise, as a thousand held breaths come out.", "n: Somewhere above, in a tower, someone begins to clap, slowly, with a great deal of irony."] },
+    { t: "Silent Knights",
+      before: ["n: At the tower stairs, knights in white, every one of them with a gag of cloth and a blade of ice.", "zarek/smug: Careful. They do not talk, but they are extremely rude about it.", "n: A tall figure, horned, white-haired, sits on the wall above the stairs, one boot swinging.", "zarek/smug: Go on. I would hate to miss the entertainment."],
+      after: ["n: The knights fall one after the other, and the horned man claps again, lazily.", "zarek/smug: You can fight. How refreshing. The last six delegations just stood there and gave speeches."] },
+    { t: "Zarek Duskhorn",
+      before: ["zarek/smug: I am Zarek Duskhorn. I sit on this wall and turn down invitations to rule the court. I have turned down eleven.", "veyr/calm: Why not take the throne?", "zarek/calm: Because the last person to sit in it is the reason nobody has spoken in a year.", "zarek/smug: Beat me and I will tell you who. Lose and I will tell you anyway. I am bored."],
+      after: ["n: Zarek tips back, laughing, as the blade of ice splits in his hand.", "zarek/happy: Finally! Someone who treats a wall like a challenge.", "zarek/calm: The throne room. The Sovereign wears a suit of armour that the entire court has been afraid of for fifty years.", "zarek/smug: I think I will come with you. Everyone else here is too polite to be good company.", "roan/smug: I like him already.", "sylwen/calm: That is what worries me."] },
+    /* ---------- Arc 3: The Ashen Accord ---------- */
+    { t: "Glacier Wardens",
+      before: ["n: Past the court, the mountain splits into a deep glacier road, patrolled by wardens in blue and gold.", "auralis/calm: My order wears blue. Not that blue.", "zarek/smug: They are not wardens. They are warden-shaped.", "n: The shields come up, perfectly in step."],
+      after: ["auralis/sad: I know their drill. I wrote half of it.", "zarek/calm: Then you will enjoy undoing it."] },
+    { t: "Accord Archivists",
+      before: ["n: A frozen library, carved into the glacier. Rows of ice-bound records, each stamped with a gold seal.", "nyxara/calm: The Accord was written down. Rimefang said so. She just did not say where.", "n: Archivists glide between the shelves, quiet as ghosts, pointing at the exit."],
+      after: ["n: Veyr pulls a scroll from the ice. The wax on it is the shape of a cracked lantern.", "auralis/shock: That seal. The Accord was sealed by someone who is not Cindervault or Rimefang.", "veyr/calm: Read it."] },
+    { t: "Rime Wraiths",
+      before: ["n: Pale shapes rise from the scroll's ice, the echoes of everyone who ever signed it.", "nyxara/calm: Hold still. I hear them. They want us to hear it as they heard it.", "n: A voice in the cold, thin and tired: Fight. Fight. We were told to fight."],
+      after: ["nyxara/sad: The Accord did not end a war. It ended an order.", "veyr/calm: An order from whom?", "nyxara/calm: From above. It is the same voice that wakes the hounds."] },
+    { t: "The Thawed Hosts",
+      before: ["n: An army of ice soldiers breaks out of the glacier, thousands strong, still wearing the colours of the War of Two Winters.", "zarek/smug: Ah. The old war. I was not there, but my grandfather said it was loud.", "rimefang/calm: They are mine. They were mine. I let them sleep.", "n: Rimefang descends from the sky and lands at the party's side."],
+      after: ["rimefang/sad: I told you I would tell you the end of the Accord. Here it is.", "rimefang/calm: A voice told Cindervault and me to destroy each other. We were given reasons that sounded like our own.", "rimefang/calm: It was I who refused first. I let him take the credit, so he would not remember being fooled."] },
+    { t: "The Winter Watch",
+      before: ["n: The pass to the throne is held by the last of the Spine's garrison, gold in their eyes.", "rimefang/angry: Enough! They are my watchmen!", "sylwen/calm: Hold, Rimefang. Let us take them down gently.", "n: The watchmen raise their spears together."],
+      after: ["n: The garrison sleeps, finally, in the snow.", "n: Ahead, the pass is held by a single tall shape in blue crystal. It has not moved in fifty years.", "rimefang/calm: Glaciarch. I will not cross where it stands. Nobody has ever seen it open."] },
+    { t: "Glaciarch, the Frozen Bulwark",
+      before: ["n: A suit of living crystal armour stands across the pass, taller than a house.", "glaciarch/calm: ...", "veyr/calm: It is not saying anything.", "nyxara/mystery: It is. Listen. Nothing is inside it, and the nothing is humming.", "n: The helm turns. Its eyes light gold."],
+      after: ["n: The armour splits down the chest, with a sound like a frozen lake cracking.", "n: Inside it, there is no knight. Only a gold lantern, burning with a cold flame.", "auralis/shock: It was never guarding the pass. It was a house for something.", "rimefang/angry: Something has been living in my mountain, wearing a coat of crystal."] },
+    /* ---------- Arc 4: The Frozen Throne ---------- */
+    { t: "The Snowbound Legion",
+      before: ["n: Beyond the pass, a legion of white-armoured soldiers marches in silence, gold lanterns on their spears.", "zarek/calm: The Sovereign's army. All the ones that did not stay quiet enough, once.", "roan/smug: I have always wanted to meet a legion that is on time."] },
+    { t: "Heralds of the Sovereign",
+      before: ["n: Heralds stand on the glacier's lip, mouths open. The sound that comes out is a note so low it moves stones.", "nyxara/shock: That is a call. They are calling something to answer.", "sylwen/angry: Then let us make sure nobody answers."] },
+    { t: "The White Choir",
+      before: ["n: A choir of children's voices in the frozen cathedral, singing the same three notes.", "auralis/sad: They are not children. They are echoes. Something made them from the voices it took.", "nyxara/calm: I can break the song. I need someone to hold the note while I do.", "veyr/calm: I will hold it."],
+      after: ["n: The choir falls silent, and from the cathedral roof a hundred small lights drift up like sparks.", "nyxara/tender: Go. You are free to go."] },
+    { t: "Hail Knights",
+      before: ["n: The final stair is guarded by knights whose armour crackles with hail. They bar every step.", "zarek/smug: One step for each year of peace. We are almost there.", "veyr/calm: Almost."] },
+    { t: "The Sovereign's Guard",
+      before: ["n: The throne room doors open. Inside, a ring of the strongest knights stands in the shape of a crown.", "rimefang/calm: I will hold the sky. You hold the room.", "auralis/calm: Veyr, whatever it is, it has used my order's face. Let me speak to it first.", "veyr/calm: As you wish."] },
+    { t: "The Frost Sovereign",
+      before: ["n: On a throne of black ice, a figure of gold and white sits in the shape of a person, and has no face.", "auralis/calm: I am Auralis, High Lanternwarden. I command you to stand down.", "n: The Sovereign speaks in the voice of the cold itself: You are a lantern that has chosen to burn alone. That is the oldest taint.", "veyr/angry: Whoever gave you your orders, they are not worth keeping.", "n: The throne room goes white."],
+      after: ["n: The Sovereign crumbles into frost and light. The cold in the mountain breaks like a held breath.", "rimefang/calm: The Accord is finished. Somebody should write it down properly this time.", "zarek/smug: I volunteer. In very rude handwriting.", "n: Pip lands in the ruined throne room and bows, very quickly.", "pip/afraid: The Council is displeased! This is the third being lost! They are meeting in the morning!", "auralis/angry: Then tell them a warden of this order will be attending.", "n: Far to the south, the first spring thaw runs down the mountains into the sea. The party looks west, toward the water."] },
+  ],
+};
+STORY.banters.push(
+  { id: "b11", after: "2-2", title: "Cold feet", lines: ["roan/shock: My boots are frozen to the floor.", "sylwen/calm: You are standing in a snowdrift.", "roan/smug: A drift of very bad design."] },
+  { id: "b12", after: "2-8", title: "Wall rules", lines: ["zarek/smug: Rule one of walls: never sit on the side that is going to fall.", "roan/calm: Which side is that?", "zarek/smug: The side with the heroes."] },
+  { id: "b13", after: "2-12", title: "The newest recruit", lines: ["zarek/calm: Do I get a title?", "auralis/calm: You get a bunk.", "zarek/smug: I have been promoted.", "veyr/calm: I did not know it could be a promotion."] },
+  { id: "b14", after: "2-15", title: "Quiet is not peace", lines: ["nyxara/calm: In the Court, I heard the shape of silence. It was not rest.", "veyr/calm: What was it?", "nyxara/sad: Waiting."] },
+  { id: "b15", after: "2-23", title: "Frostbitten", lines: ["rimefang/smug: You are all very warm for people who came here to fight a winter.", "roan/happy: That is the soup.", "rimefang/shock: What soup?"] },
+);
+Object.assign(STORY.chars, {
+  zarek: [
+    { t: "A Seat on the Wall", lines: ["n: Zarek watches the courtyard below as if it were a play.", "zarek/smug: Everybody wants me to rule. That is how I know I should not.", "zarek/calm: The ones who want a crown always want it for someone else."] },
+    { t: "A Cousin's Letter", lines: ["n: A letter arrives with a black wax seal and a spidery hand.", "zarek/calm: Lilivane. She writes once a decade to tell me what I am doing wrong.", "zarek/smug: I have not opened it. I like the look of it more than the contents."] },
+    { t: "The Rival at the Court", lines: ["zarek/calm: Seris and I once fought for three days over a bridge neither of us owned.", "zarek/smug: I lost. She has never let me forget it, and I have never let her stop.", "zarek/tender: It is the only friendship I have ever kept."] },
+  ],
+  rimefang: [
+    { t: "A Promise, Not a Treaty", lines: ["n: Rimefang coils around the highest peak and watches the passes.", "rimefang/calm: A treaty ends when it is no longer convenient. A promise ends when you do."] },
+    { t: "The Credit", lines: ["rimefang/calm: Cindervault believes he ended the war. I let him.", "rimefang/smug: A friend is someone you let win at the right moment."] },
+    { t: "Seasons Fair", lines: ["rimefang/calm: Winter and summer. Winter and summer. A mountain that remembers only one of them turns into a grave.", "rimefang/tender: So I keep them both, and I keep them fair."] },
+  ],
+});
+
+/* ===== story4.js: Season 4, The Tidal Ruins (24 episodes), as pure data. Same line format as story.js. =====
+   Beats: the Sunken Choir's hymn is not a hymn. It feeds the lanterns with the choir's voices, and it carries the heavens' orders to every gold-eyed soldier on the continent.
+   The heavens' fourth being, Leviathan's Voice, is that voice. Nerissa finishes the hymn with new words and Auralis sings with her. Kradin crosses their path. Kami is not mentioned (seasons 1 to 4). */
+Object.assign(SPK, { nerissa: "Nerissa, Tidecaller" });
+Object.assign(FACE, { nerissa: "f" });
+STORY.s[3] = {
+  bg: ["region:3", "region:3", "region:3", "region:3"],
+  intro: {
+    id: "s3:intro", title: "Season 4: The Tidal Ruins", bg: "region:3", lines: [
+      "n: West of the mountains the land runs out, and the sea begins with a staircase.",
+      "n: A cathedral called the Sunken Choir stands under the Tidewater, drowned in the third year of the Age of Lanterns.",
+      "n: The tide has been climbing the stairs all winter, and the water at the top is warm.",
+      "sylwen/calm: A friend of mine sings in the Choir. I carry her letters. The last one said only: do not come.",
+      "veyr/calm: Then she needs us. Let us go.",
+    ],
+  },
+  eps: [
+    /* ---------- Arc 1: The Drowned Stair ---------- */
+    { t: "The Salt Road",
+      before: ["n: The coast road is half underwater. Gulls stand on the milestones and watch the party go by.", "roan/calm: Does the sea normally lap at the front doors of houses?", "sylwen/calm: Never. The Tidewater keeps to its line. Somebody is calling it up.", "n: Reef skulkers pour out of the shallows, gold in their eyes."],
+      after: ["zarek/smug: Crabs in armour. I like this continent less every day.", "auralis/calm: They are not hunting. They are herding. Everything here is being driven toward the stair."] },
+    { t: "Stormcallers",
+      before: ["n: Robed figures stand on a sea wall, calling lightning down onto the water. Every bolt lands in the same place.", "nyxara/calm: The bolt is the second half of the hymn. Someone is conducting a song with the sky.", "n: The nearest caller turns, and the sea sings with him."],
+      after: ["n: The thunder breaks, and the callers sit down on the wall, hands over their ears.", "n: One of them whispers: it never stops. The song never stops."] },
+    { t: "Drowned Pilgrims",
+      before: ["n: The stair down to the Choir is lined with pilgrims, knee-deep in warm water, walking down one step at a time.", "auralis/afraid: They are walking into the sea. And they are smiling.", "n: A woman in white turns, her eyes gold, and offers Auralis her hand."],
+      after: ["n: The pilgrims stop on their steps and wake like sleepers, gasping.", "auralis/sad: I know that hymn. I have heard it in my head for years, in the chapel, when the lanterns were lit.", "auralis/calm: I thought it was my own."] },
+    { t: "Brine Hounds",
+      before: ["n: Sea hounds, sleek and black, circle the party on a drowned bridge.", "roan/smug: Dogs I can handle.", "sylwen/shock: They bite harder than they look.", "n: The first one dives, and the bridge shudders."] },
+    { t: "The Sunken Sentries",
+      before: ["n: A gate in the stair, wide as a house, sealed with a lantern of blue-gold light. Sentries made of coral and shell guard it.", "nyxara/mystery: The gate is humming the hymn. I could open it, but I think I would rather not.", "zarek/smug: The sensible thing to do is knock.", "n: The sentries do not want knocking."],
+      after: ["n: The coral shatters and the gate swings open on warm, glowing darkness.", "n: A voice, high and clear, floats up from below, singing three notes.", "sylwen/shock: Nerissa."] },
+    { t: "Nerissa, Tidecaller",
+      before: ["n: At the foot of the stair a woman with long blue hair stands on a pillar of water, her hand lifted as if conducting.", "sylwen/calm: Nerissa. It is me.", "nerissa/calm: Sylwen. I wrote to you. I asked you not to come.", "nerissa/sad: I cannot stop. If you stay, I will have to hurt you.", "n: The water around her rises like a wall."],
+      after: ["n: Nerissa falls to one knee and the water goes still.", "nerissa/shock: It stopped. For one heartbeat it stopped.", "nerissa/calm: The hymn is not a hymn. I have known for years. We were singing it for something else, and nobody told the choir.", "sylwen/calm: Then tell us now.", "nerissa/sad: Not here. Below. In the nave. If I say it here, it will hear me."] },
+    /* ---------- Arc 2: The Sunken Choir ---------- */
+    { t: "The Drowned Choir",
+      before: ["n: The nave of the Sunken Choir is a vast room of green-blue light, and in it a thousand figures stand in rows, singing.", "auralis/shock: They have been singing for a hundred years.", "nerissa/sad: A hundred and nine. Since the water came.", "n: Some of the singers turn their heads. Their eyes are lanterns."],
+      after: ["n: The choir does not stop. It never stops. But the nearest rows sag, and one singer drops a hymnal and weeps.", "nerissa/calm: They cannot be woken. I tried. They are tied to the song."] },
+    { t: "Acolytes of the Tide",
+      before: ["n: Robed acolytes carry candles that burn underwater, and guard the way to the choirmaster's loft.", "zarek/smug: Candles that burn in water. I want one.", "veyr/calm: You want everything that does not belong.", "zarek/happy: It is a very good habit."] },
+    { t: "A Visit from the King",
+      before: ["n: A small, blue, crowned shape paddles into the nave on a lily pad, followed by a very anxious courier.", "crownlet/happy: Greetings! I am Crownlet, ruler of the Commonwealth of Plinth, on a diplomatic mission!", "nerissa/tender: Crownlet. You came all this way.", "crownlet/calm: Somebody has to be honest down here. I brought snacks.", "n: He holds up a wet paper bag. The party eats in the middle of the cathedral, because nobody has the heart not to."],
+      after: ["n: Crownlet pats the nearest singer on the hand with a flipper.", "crownlet/calm: She is very tired. Somebody should let her sleep.", "veyr/calm: We will."] },
+    { t: "Candlefish Swarm",
+      before: ["n: The choir loft is lined with glass lanterns, each full of glowing fish, each fish singing a single note.", "nyxara/shock: That is the hymn, in fragments. The lanterns here are where the choir's voices go.", "nyxara/afraid: Every lantern in the world is lit from this.", "n: The fish swarm in a spiral and surge at the party."],
+      after: ["n: The swarm scatters into a thousand pale sparks.", "auralis/afraid: Every lantern I have ever lit. Every one.", "auralis/sad: They were burning on this."] },
+    { t: "The Verger of Bells",
+      before: ["n: At the top of the loft stands an enormous bell, and a verger in black beside it, a rope in each hand.", "nerissa/calm: He rings the hours. The hymn is sung to the bell, and the bell is rung to the sky.", "veyr/calm: To whom?", "nerissa/afraid: To whoever is listening."] },
+    { t: "The Choirmaster",
+      before: ["n: The choirmaster's loft is empty except for a lantern the size of a bell, burning in the dark.", "n: A voice speaks from the lantern, kind and weary: Child. You came back.", "nerissa/sad: I know you were kind. Tell them what it was for.", "n: The choirmaster says: The hymn feeds the lanterns. Each voice burns a little, each night. That is what a lantern is. It is a thing that someone keeps lit by giving.", "auralis/shock: You have been feeding the whole continent?", "n: And now another voice has found the way in, and it speaks through us."],
+      after: ["n: The choirmaster's lantern gutters, and goes quiet.", "n: In the silence, below the nave, something vast shifts in its sleep.", "nerissa/afraid: Leviathan. It is the one that carries the orders. Every gold-eyed soldier you have fought listens to it.", "veyr/calm: The hounds. The pilgrims. The Judge.", "nerissa/calm: All of them. It speaks in the hymn."] },
+    /* ---------- Arc 3: The Lantern Tides ---------- */
+    { t: "Tidebreakers",
+      before: ["n: The way down to the deep is a spiral of sea-glass, patrolled by armoured tidebreakers.", "roan/smug: I have a very simple plan. Hit things.", "sylwen/calm: It has worked so far.", "n: The tidebreakers advance in a wedge."] },
+    { t: "Lantern Eels",
+      before: ["n: A reef of black rock, strung with glowing eels. Each eel is a lantern with a tail.", "auralis/calm: They are carrying the hymn out to sea. If we cut them, the orders do not leave.", "veyr/calm: Then cut them."] },
+    { t: "Thunder Sentinels",
+      before: ["n: Statues of storm-iron stand in a ring on the sea floor, sparking, waiting for a command.", "nyxara/calm: They are the tuning forks of the song. Bring them out of tune and the Voice will wobble.", "zarek/smug: Out of tune is my favourite note."],
+      after: ["n: The sentinels crack, and the sea floor shudders.", "nerissa/calm: It knows we are close."] },
+    { t: "Storm Heralds",
+      before: ["n: A crowd of heralds with storm-lanterns hangs in the water, trumpets in their hands.", "nerissa/angry: Those are my teachers. They taught me every note I know.", "sylwen/calm: Then they will understand when you strike them.", "nerissa/sad: No. They will not. But I will do it anyway."],
+      after: ["n: The heralds fall silent. The trumpets drop into the dark, spinning.", "n: Far below, a vast gold light turns, slowly, to face the party."] },
+    { t: "The Brineborn Legion",
+      before: ["n: Out of the dark come the Brineborn, a legion of drowned soldiers, each with a lantern for a heart.", "veyr/calm: This is the army the Voice raised. Every one of them is someone it took.", "auralis/calm: Then we give them back.", "n: The water boils."],
+      after: ["n: The legion collapses into silt and shells, and the lanterns inside them float up, free, to the surface.", "roan/calm: That was a lot of people.", "nerissa/sad: It was a hundred years of them."] },
+    { t: "The Lantern Tide",
+      before: ["n: The sea floor opens in a ring of gold fire, and a tide of living lanterns rises, singing.", "nyxara/shock: It is the whole hymn, all at once. If it reaches the surface, every lantern will bind.", "veyr/calm: Hold it back.", "n: The tide rises."],
+      after: ["n: The tide breaks against Veyr's blade, and the glass hums the four notes.", "nyxara/afraid: The sword is singing back.", "veyr/calm: That is not mine. That is the Glass Night's.", "n: Below them, the throne of the deep opens."] },
+    /* ---------- Arc 4: The Leviathan's Throne ---------- */
+    { t: "The Abyssal Guard",
+      before: ["n: At the bottom of the Tidewater, a gate of black coral and gold, and a guard of armoured leviathan-spawn.", "zarek/smug: I cannot decide if this is a good place or a bad one.", "roan/smug: Is there a difference?", "zarek/happy: Barely."] },
+    { t: "The Siren Choir",
+      before: ["n: Sirens perch on the throne's pillars, singing the first verse of the hymn in perfect harmony.", "nyxara/calm: I can sing them out of it. It will cost me my voice for a day.", "nyxara/smug: I did not use it much anyway.", "n: She sings. The sirens falter."],
+      after: ["n: The sirens fall silent, shivering, and one by one they swim away.", "nyxara/calm: Remind me never to do that again.", "zarek/smug: You were wonderful.", "nyxara/shock: ...I could not hear a word of that."] },
+    { t: "Kraken Hosts",
+      before: ["n: Great arms rise out of the dark, circled with lanterns, and sweep the court of the deep.", "sylwen/angry: Everything down here is wearing a lantern.", "nerissa/calm: Everything that was caught was made to wear one.", "n: The arms fall like towers."] },
+    { t: "The Drowned Court",
+      before: ["n: A throne room of drowned kings, their crowns green with algae, still sitting in rows around a throne of coral.", "auralis/calm: Every one of them is one of the lantern's old keepers.", "auralis/sad: My order. My oath. They were all here, and nobody told me."],
+      after: ["n: The kings fall to dust, and the crowns sink, one by one, into the dark.", "nerissa/calm: Now. The throne."] },
+    { t: "The Last Verse",
+      before: ["n: Before the throne, the guard of the deep: a ring of lanterns, all singing the same verse.", "nerissa/calm: I know the last verse. I have always known. It never ends, because it was never meant to.", "auralis/calm: I know it too.", "nerissa/tender: Then we can change it. Sing with me."],
+      after: ["n: The two women lift their voices together, Nerissa's clear and Auralis's low, and the verse turns, in the middle of the line, into something that closes.", "n: Every lantern in the court flickers once, as if surprised.", "n: Above them the sea shudders, and a vast shape wakes."] },
+    { t: "Leviathan's Voice",
+      before: ["n: The throne of the deep is empty, and in the water above it hangs a voice with no body, vast as a storm, gold at its edges.", "n: THE SONG IS NOT FINISHED. THE SONG WAS NEVER YOURS TO FINISH.", "veyr/angry: It was never yours either.", "nerissa/calm: Sing, Auralis. We are not done.", "n: The sea goes white."],
+      after: ["n: The Voice shatters into a thousand lanterns, and every one of them goes out.", "n: In the nave above, the thousand singers draw one long breath, and for the first time in a hundred and nine years, stop.", "nerissa/tender: Rest. It is over.", "auralis/sad: The lanterns will dim now. All of them.", "veyr/calm: Will it be so bad?", "auralis/calm: No. We will light our own.", "n: On the water, a small boat carries a courier with a long coat, who bows to the sea, lifts a lantern in salute and turns away.", "kradin/calm: Not all light has to be owed. Well sung.", "pip/afraid: The Council! The Council will hear of this!", "veyr/calm: Good. Let them hear."] },
+  ],
+};
+STORY.banters.push(
+  { id: "b16", after: "3-2", title: "Wet socks", lines: ["roan/angry: My socks are wet.", "zarek/smug: So are mine. I am simply better at hiding it.", "roan/shock: That is not a skill."] },
+  { id: "b17", after: "3-8", title: "A king's snacks", lines: ["crownlet/happy: I have a tin of biscuits. They are slightly damp.", "zarek/smug: I will take a damp biscuit.", "roan/happy: He is the best of us."] },
+  { id: "b18", after: "3-12", title: "A hundred and nine", lines: ["auralis/sad: I have lit a lantern every night for twelve years.", "sylwen/calm: You did not know.", "auralis/calm: I did not. But I will now."] },
+  { id: "b19", after: "3-17", title: "Out of tune", lines: ["nyxara/smug: Everything here is slightly flat.", "zarek/calm: That is the point. You said so yourself.", "nyxara/smug: I say many things."] },
+  { id: "b20", after: "3-23", title: "A hymn of our own", lines: ["nerissa/calm: Auralis. Will you sing it again, someday?", "auralis/tender: Whenever you want.", "sylwen/happy: I am going to write that one down."] },
+);
+Object.assign(STORY.chars, {
+  nerissa: [
+    { t: "The Cathedral Child", lines: ["n: Nerissa sits at the top of the stairs, her feet in the warm water.", "nerissa/calm: I grew up in a drowned house. I thought everyone did.", "nerissa/smug: Imagine my surprise when I learned that most people sleep in the dry."] },
+    { t: "The Letters", lines: ["nerissa/calm: Sylwen carries my letters across the water. Every one begins with weather.", "nerissa/tender: I do not know how to start with anything else."] },
+    { t: "The Last Verse, Again", lines: ["nerissa/calm: People ask whether it was worth it. Finishing the hymn. Ending something that old.", "nerissa/tender: I tell them it was not an ending. It was a rest."] },
+  ],
+});
+
+/* ===== story5.js: Season 5, The Cogworks of Tessaly (24 episodes), as pure data. Same line format as story.js. =====
+   Beats: the Foundry-Vale wants Axiom-09 back because he is the one unit that refused the heavenly seal. The heavens' fifth being, the Perfect Reckoner, counts every soul as tainted or clean.
+   Wanted notices for "the Calamity" appear for the first time and list the very road the party has walked, always a few days behind. Kami is named in season 6, not here. */
+Object.assign(SPK, { axiom09: "Axiom-09", axiom12: "Axiom-12, Skylance", axiom07: "Axiom-07, Orbweaver" });
+Object.assign(FACE, { axiom09: "l", axiom12: "f", axiom07: "f" });
+STORY.s[4] = {
+  bg: ["region:4", "region:4", "region:4", "region:4"],
+  intro: {
+    id: "s4:intro", title: "Season 5: The Cogworks of Tessaly", bg: "region:4", lines: [
+      "n: Inland, past the last of the fens, the valley of Tessaly runs with brass rivers and does not sleep.",
+      "n: The Cogworks built the old machines, and the machines built everything else.",
+      "n: A bulletin has been nailed to every post in the valley, the same in every town.",
+      "nyxara/calm: I spent a week listening to this valley once. I left shaken. I never told anyone why.",
+      "nyxara/calm: This time, I mean to hear all of it.",
+    ],
+  },
+  eps: [
+    /* ---------- Arc 1: The Foundry-Vale ---------- */
+    { t: "Brass River",
+      before: ["n: The valley is paved with brass pipe and steam. Everything ticks.", "roan/calm: It is the least restful place I have ever stood.", "sylwen/calm: The map keeps rewriting itself. Not like the Wake. Like a ledger.", "n: Scrap skimmers whir out of the pipes, lantern-gold in their sensors."],
+      after: ["zarek/smug: Rust and lightning. My two favourite things to avoid.", "nyxara/calm: They answered in unison. Not a voice. A schedule."] },
+    { t: "Spark Drones",
+      before: ["n: A swarm of tiny flying machines, each throwing a spark, circles the party in tidy rings.", "auralis/calm: They are counting us.", "veyr/calm: Counting what?", "n: A drone chirps: Eight unregistered. One flagged."],
+      after: ["n: The swarm drops in a rain of cinders.", "auralis/calm: Flagged. That was me. Or you. I could not tell."] },
+    { t: "Gearwright Guards",
+      before: ["n: A gate of cog and chain, and guards of polished brass, every one of them the exact same height.", "roan/smug: I have never met a guard who could not be talked past. Let me try.", "n: The guard replies, in a voice like a clock: Unregistered persons are declined."],
+      after: ["roan/calm: Well. I tried.", "zarek/smug: You were beautiful. I particularly enjoyed the part where you shouted."] },
+    { t: "Bolt Hounds",
+      before: ["n: A pack of machine hounds, sleek and humming, leaps out of the pipes, chained to a post by a gold cable.", "sylwen/calm: They are Foundry hounds. They are very good, and very lonely.", "n: The chain breaks."],
+      after: ["n: The hounds lie down in the steam, whining, and one licks Roan's hand.", "roan/shock: I am a conqueror and a friend to animals."] },
+    { t: "A Walking Machine",
+      before: ["n: A tall bronze machine with blue cores stands on a bridge, head bowed, arms at its sides.", "nyxara/calm: Axiom-09. I thought I heard him.", "n: The machine lifts its head, slowly, as if from a long sleep.", "axiom09/calm: Visitors. I have been waiting to be asked for something."],
+      after: ["axiom09/calm: I was decommissioned. They have never said why. I have kept walking, in case it was a mistake.", "veyr/calm: Come with us.", "axiom09/shock: ...I have a task.", "n: Overhead, something very fast crosses the sky and lands on the bridge with a clang."] },
+    { t: "Axiom-12, Skylance",
+      before: ["n: A silver frame with a long blue lance descends, lighter than the others, and fast.", "axiom12/calm: Axiom-09. You have been located. You are to be returned.", "axiom09/calm: Axiom-12. I thought you would come.", "axiom12/calm: Doubts have been removed. I do not have the capacity to disagree.", "veyr/angry: Then I will do the disagreeing for him."],
+      after: ["n: Skylance falls to one knee, sparks spitting from its shoulder.", "axiom12/shock: Directive conflict. Unit 09 is not to be harmed. Unit 09 is to be returned. Error.", "axiom09/calm: You are not an enemy. You were built the way I was, minus a part.", "axiom12/afraid: What part?", "axiom09/calm: I will tell you when I find it."] },
+    /* ---------- Arc 2: The Assembly Floors ---------- */
+    { t: "Conveyor Crews",
+      before: ["n: The Assembly Floors are miles of conveyor belts, and on them, machines building more machines.", "zarek/smug: I have had worse jobs.", "roan/calm: You have had no jobs.", "zarek/smug: That is what makes them all worse."] },
+    { t: "The First Notice",
+      before: ["n: On the wall of a factory hall, a poster, printed in gold and black.", "n: WANTED: THE CALAMITY. LAST SEEN: VERROWMERE. THE ASHEN WASTES. FROSTMERE. THE TIDAL RUINS.", "veyr/shock: That is the road we walked.", "sylwen/calm: In the same order. And the date at the bottom is last week.", "auralis/calm: Whoever it is, they are a few days ahead of us."],
+      after: ["n: Below the lines, a smudged woodcut of a figure in a long coat, the face blurred as if by a thumb.", "veyr/calm: Why does that sword feel so warm?", "nyxara/calm: Your sword has been very warm since the Wastes."] },
+    { t: "Rivet Knights",
+      before: ["n: Knights built of riveted plate march down a gangway, their eyes the same gold as the notices.", "auralis/calm: Those eyes. The Wardens use the same lamps.", "auralis/angry: The Council is behind this. The Council is behind all of it.", "n: The knights draw."] },
+    { t: "Furnace Automata",
+      before: ["n: A furnace hall, the heat so fierce the air ripples. Automata of molten brass lumber out of the fire.", "roan/smug: Finally, a warm welcome.", "n: The nearest automaton swings."],
+      after: ["n: Their cores flicker and die, and the furnace goes dark.", "axiom09/calm: They were not built to be that angry. Someone changed the metal."] },
+    { t: "Cog Swarm",
+      before: ["n: A cloud of loose cogs rises from the machine floor, forming a vast, whirring hand.", "nyxara/calm: It is a conductor. It is conducting the factory.", "axiom09/calm: If we stop it, the floor stops. That is a great many machines to leave halfway through a sentence.", "veyr/calm: We will be gentle."] },
+    { t: "Axiom-07, Orbweaver",
+      before: ["n: A machine like a great brass spider uncurls in the dark, one golden eye opening.", "axiom07/calm: Axiom-09. Cousin. You were gone a very long time.", "axiom09/calm: I walked. I thought it would be quicker.", "axiom07/sad: The Reckoner has asked me to hold the floor. I do not think it is right. I will do it anyway.", "veyr/calm: Then I will have to ask you to stop."],
+      after: ["n: Orbweaver settles to the floor, one leg at a time.", "axiom07/calm: That was a very good fight. I think I have been waiting my whole life for one.", "axiom07/calm: I will tell you something I am not meant to. The Reckoning Halls hold the Reckoner. It counts everyone. It has a list.", "axiom07/sad: You are on it. Everyone is. Be careful what you do not do."] },
+    /* ---------- Arc 3: The Reckoning Halls ---------- */
+    { t: "Tally Clerks",
+      before: ["n: A hall of ten thousand desks and ten thousand clerks, all writing in ledgers at once.", "auralis/calm: Names. They are writing names.", "veyr/calm: Mine?", "n: A clerk looks up and speaks, in a voice like paper: Veyr. Surname unknown. Origin unknown. Tainted: unresolved."],
+      after: ["n: The clerks fall into drifts of paper, and the names flutter down like snow.", "veyr/sad: Unresolved. That is the kindest thing anyone has called me."] },
+    { t: "Ledger Golems",
+      before: ["n: The next hall is full of golems made of bound books, hauling loads of ledgers down the aisles.", "nyxara/calm: Every page is a verdict. I can hear them.", "nyxara/afraid: They are not judgements. They are sums. Somebody decided how many people it takes to be a mistake."] },
+    { t: "The Sealed Cogs",
+      before: ["n: A door of brass wheels, each wheel stamped with a gold lantern split by a crack.", "veyr/calm: That is the seal. The same on the Judge, and the Herald.", "axiom09/calm: The Foundry stamps it on every unit. I was the only one who refused.", "veyr/shock: You refused?", "axiom09/calm: That was the error nobody will name."],
+      after: ["axiom09/calm: Nine of us were built. Eight took the seal.", "axiom09/calm: I do not know where the count ends. I only know I was the last to say no.", "nyxara/tender: Then I think the count is still going."] },
+    { t: "Notices on the Wall",
+      before: ["n: A gallery of notices lines the hall. Each one is the same, with a new place at the bottom.", "sylwen/calm: They stop two days ahead of where we are.", "zarek/smug: They have been writing them faster than the road is long.", "n: The guards of the gallery turn, bodies of copper and ink."],
+      after: ["n: Veyr tears one notice free and holds it up in the light.", "veyr/calm: The face is blurred, but look at the hand. There is a black mark in the palm.", "auralis/calm: Whoever it is, they are being hunted across the whole world, and every being we have beaten was sent for them.", "veyr/calm: Then we have been fighting for the wrong side of the same quarrel."] },
+    { t: "Verdict Engines",
+      before: ["n: A vast courtroom of brass and glass, and in it a row of engines the size of houses, each with a single lens.", "axiom12/calm: Verdict engines. They return a single answer. They have not returned a different one in fifty years.", "veyr/calm: Then we make them doubt."] },
+    { t: "The Tally Judges",
+      before: ["n: At the end of the courtroom, three tall machines in white sit on a bench, each wearing a mask of beaten gold.", "n: We find the party: counted. We find the party: tainted. We find the party: sentenced.", "axiom09/calm: Vote.", "n: Nobody does. The machines rise."],
+      after: ["n: The Judges fall in a clatter of masks and gears, their lenses spinning down.", "axiom12/calm: I see it now. They asked a question and could not tolerate an answer that was not yes.", "axiom09/calm: That was the missing part, Axiom-12. A reason to say no."] },
+    /* ---------- Arc 4: The Perfect Count ---------- */
+    { t: "Gilded Gears",
+      before: ["n: The path to the Reckoner is a spiral stair paved with gilded gears, every tooth an inch from the next.", "roan/calm: I have a bad feeling about this staircase.", "sylwen/calm: You always do.", "roan/smug: And I am usually right."] },
+    { t: "Lightning Rails",
+      before: ["n: The stair runs with rails, and along them, arcs of lightning leap from rail to rail.", "nyxara/calm: It is the Reckoner's pulse. We can step in time with it, or against it.", "veyr/calm: Against.", "nyxara/smug: I would have been disappointed otherwise."] },
+    { t: "Sealbearers",
+      before: ["n: A guard of tall, armoured machines wearing the split-lantern seal on their breastplates.", "axiom09/calm: They took it. They believe it was a gift.", "axiom12/calm: Let me take them. I know their drill.", "axiom09/tender: Thank you, brother."],
+      after: ["n: Skylance puts a hand on a fallen sealbearer's shoulder, as if apologising.", "axiom12/sad: They did not know. They were built not to."] },
+    { t: "The Last Assembly",
+      before: ["n: The top of the stair opens into a circular hall, the walls lined with the Foundry's finest machines, powered down.", "n: One by one, they wake.", "axiom07/calm: I thought I might help with this one.", "axiom09/calm: I thought you would."] },
+    { t: "The Reckoner's Guard",
+      before: ["n: Before the Reckoner's chamber, a ring of mirrored warriors, each shaped like one of the party.", "zarek/smug: Is that supposed to be me? He is far too handsome.", "roan/shock: That one has a bad haircut.", "veyr/calm: It is me. They have given me a better sword."] },
+    { t: "The Perfect Reckoner",
+      before: ["n: In a vault of white and gold, a vast machine hangs from the ceiling in rings, each ring etched with a name.", "n: I AM THE PERFECT RECKONER. I HAVE COUNTED EVERY SOUL AND FOUND EACH ONE ENTIRELY WITHOUT FAULT, OR ENTIRELY WITH IT.", "veyr/angry: Nobody is either.", "n: THEN I WILL CORRECT THE SUM."],
+      after: ["n: The rings come apart, one by one, each name flickering as it goes dark.", "n: The Reckoner's last ring turns slowly, the seal on it split down the middle, and reads one final line aloud: THE COUNT IS ONE SHORT.", "axiom09/calm: That is the nine. That is me. I was the one left uncounted.", "n: Pip drops into the chamber with a scroll that trembles.", "pip/afraid: This is the fifth! The Council will send someone worse! They will send a ruler, a first light, a king!", "veyr/calm: Then it will be a very long walk.", "n: In the wreck of the vault, a lantern courier tears the last notice from the wall, folds it, and tucks it into a coat pocket.", "kradin/calm: Keep going east. The ones in front are tired, and you are the only ones who have stopped to listen.", "n: Far off, over the mountains, a cherry-blossom wind blows, and under it, for the first time, someone is calling a name."] },
+  ],
+};
+STORY.banters.push(
+  { id: "b21", after: "4-2", title: "Registered", lines: ["roan/angry: They would not let me in because I am unregistered.", "zarek/smug: Welcome to my entire life.", "roan/shock: How is this the same thing?"] },
+  { id: "b22", after: "4-8", title: "A poster, a point", lines: ["sylwen/calm: Whoever they are hunting, they are brave.", "veyr/calm: How do you know?", "sylwen/calm: Nobody runs from this many people unless they are carrying something worth keeping."] },
+  { id: "b23", after: "4-14", title: "Walking tour", lines: ["axiom09/calm: This is the Reckoning Hall. It has eleven hundred doors, of which nine are real.", "roan/smug: Which nine?", "axiom09/calm: The ones that open."] },
+  { id: "b24", after: "4-18", title: "Brothers", lines: ["axiom12/calm: I will remain with the party. If that is permitted.", "axiom09/tender: It is.", "zarek/smug: Welcome to the worst-tempered family in the world."] },
+  { id: "b25", after: "4-23", title: "East", lines: ["veyr/calm: Cherry blossoms. In the middle of winter.", "auralis/calm: They say the Ninefold Gate blooms when something important crosses it.", "veyr/calm: Then something important is a few days ahead of us."] },
+);
+Object.assign(STORY.chars, {
+  axiom09: [
+    { t: "A Task", lines: ["n: Axiom-09 stands in the rain, his cores dimmed to a patient glow.", "axiom09/calm: I have been looking for a task for six years.", "axiom09/calm: I did not know the looking could be one."] },
+    { t: "The Count", lines: ["axiom09/calm: Everyone asks what the nine means. I tell them it is a count.", "axiom09/mystery: Of what, they say. I tell them, of the number of times I have asked myself the same question.", "axiom09/calm: It is not nine yet."] },
+    { t: "Brothers in Brass", lines: ["n: Axiom-09 and Axiom-12 sit on the same wall and watch the sun go down.", "axiom12/calm: I have been wondering what the doubt feels like.", "axiom09/tender: A little like rain. You will get used to it."] },
   ],
 });
 
