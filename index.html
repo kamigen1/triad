@@ -1958,7 +1958,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.12.07-b";
+const VER = "2026.12.07-c";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -3745,9 +3745,11 @@ function arWin(msg) {
 /* ----- portraits: the player's chosen card stands in for "you"; the opponent's is its best card ----- */
 let OPP_AV = null;
 const bestCard = ids => ids.filter(id => BY[id]).sort((p, q) => rarOf(BY[q]) - rarOf(BY[p]) || BY[q].i - BY[p].i)[0];
+/* a side's whole deck, not just the cards dealt out first, so a portrait never changes from one fight to the next */
+const arDeckIds = (A, s, mode) => { const S = A.s[s], dealt = S.lane.concat(S.bench).filter(Boolean).map(u => u.cid).concat(S.pile || []); const full = mode && mode.deck && mode.deck.length && s === 1 ? mode.deck : dealt; return full.filter(id => !isSkill(id)); };
 function arAvatars(A, me) {
-  const mine = P.avatar && BY[P.avatar] && P.own[P.avatar] > 0 ? P.avatar : bestCard(A.s[me].lane.concat(A.s[me].bench).filter(Boolean).map(u => u.cid));
-  const foeIds = A.s[1 - me].lane.concat(A.s[1 - me].bench).filter(Boolean).map(u => u.cid), foe = A.mode.kind === "online" && OPP_AV && BY[OPP_AV] ? OPP_AV : bestCard(foeIds);
+  const mine = P.avatar && BY[P.avatar] && P.own[P.avatar] > 0 ? P.avatar : bestCard(arDeckIds(A, me, A.mode));
+  const foe = A.mode.kind === "online" && OPP_AV && BY[OPP_AV] ? OPP_AV : bestCard(arDeckIds(A, 1 - me, A.mode));
   return [mine, foe];
 }
 const AR_THEMES = ["verdant", "ashen", "frost", "tidal", "crown"], themeOf = m => (m.kind === "camp" ? AR_THEMES[m.ch] || "court" : m.kind === "ranked" ? "crown" : "court");
