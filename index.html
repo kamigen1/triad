@@ -1923,7 +1923,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.12.06-e";
+const VER = "2026.12.06-f";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -5269,9 +5269,13 @@ function ambArena(A) { if (!AU.amb) return; ambSet(arenaElement(A)); }
 const THEME_FILES = { menu: { url: "audio/main.mp3", norm: .96, end: 149.7 }, collection: { url: "audio/collection.mp3", norm: .89, end: 197.7 }, summon: { url: "audio/summon.mp3", norm: 1, end: 199 } };
 const MODE_THEME = { menu: "menu", collection: "collection", summon: "summon" };
 const modeForTab = k => (k === "summon" ? "summon" : k === "cards" ? "collection" : "menu");
-const TH = { on: false, id: null, want: null, master: null, voices: {}, pos: {}, timer: 0, duck: 1, XF: 6, FADE: 2.2, K: .5 };
+const TH = { on: false, id: null, want: null, master: null, voices: {}, loading: null, timer: 0, duck: 1, XF: 6, FADE: 2.2, K: .5, run: false, acc: 0, last: 0, hidden: false };
+/* the shared clock: seconds of music that have "happened" since the first theme started, paused whenever the themes are (an arena fight, a hidden tab) */
+const thNow = () => TH.acc + (TH.run ? (performance.now() - TH.last) / 1000 : 0);
+function thClock(run) { if (run === TH.run) return; if (run) { TH.last = performance.now(); TH.run = true; } else { TH.acc = thNow(); TH.run = false; } }
+const thPeriod = v => v.def.end - TH.XF;   // one lap: the next lap starts XF seconds before the end, overlapping it
 const xfCurve = (up) => { const n = 48, a = new Float32Array(n); for (let i = 0; i < n; i++) { const x = i / (n - 1); a[i] = up ? Math.sin(x * Math.PI / 2) : Math.cos(x * Math.PI / 2); } return a; };
-function thRamp(g, c, t, d, up, peak = 1) { try { g.gain.cancelScheduledValues(t); const cur = g.gain.value; if (up) { const a = xfCurve(true).map(v => v * peak); g.gain.setValueCurveAtTime(a, t, d); } else { const a = xfCurve(false).map(v => v * Math.max(cur, .0001)); g.gain.setValueCurveAtTime(a, t, d); } } catch (_) { g.gain.setValueAtTime(up ? peak : 0, t + d); } }
+function thRamp(g, c, t, d, up, peak = 1) { try { g.gain.cancelScheduledValues(t); const cur = g.gain.value; g.gain.setValueCurveAtTime(xfCurve(up).map(v => v * (up ? peak : Math.max(cur, .0001))), t, d); } catch (_) { g.gain.setValueAtTime(up ? peak : 0, t + d); } }
 function thMaster(c) { if (!TH.master) { TH.master = c.createGain(); TH.master.gain.value = AU.mv * TH.K * TH.duck; TH.master.connect(AU.out); } return TH.master; }
 function thVol(secs = .1) { if (TH.master && AU.ctx) TH.master.gain.setTargetAtTime(AU.mv * TH.K * TH.duck, AU.ctx.currentTime, secs); }
 function thDuck(level, secs = 1.2) { TH.duck = level; thVol(secs / 3); }
@@ -5281,38 +5285,53 @@ async function thBlob(url) {
 }
 async function thVoice(id) {
   if (TH.voices[id]) return TH.voices[id]; const def = THEME_FILES[id], c = auCtx(); if (!def || !c) return null;
-  const v = { id, def, els: [], gains: [], cur: 0, active: false }; TH.voices[id] = v;
-  try { const blob = await thBlob(def.url); for (let i = 0; i < 2; i++) { const el = new Audio(); el.preload = "auto"; el.loop = false; el.src = blob; const g = c.createGain(); g.gain.value = 0; const src = c.createMediaElementSource(el); src.connect(g); g.connect(thMaster(c)); g.gain.value = 0; v.els.push(el); v.gains.push(g); } }
-  catch (_) { delete TH.voices[id]; return null; }
-  return v;
+  try {
+    const blob = await thBlob(def.url), v = { id, def, els: [], gains: [], cur: 0, lap: -1, playing: false, out: c.createGain() }; v.out.gain.value = 0; v.out.connect(thMaster(c));
+    for (let i = 0; i < 2; i++) { const el = new Audio(); el.preload = "auto"; el.loop = false; el.src = blob; const g = c.createGain(); g.gain.value = 0; c.createMediaElementSource(el).connect(g); g.connect(v.out); v.els.push(el); v.gains.push(g); }
+    return TH.voices[id] = v;
+  } catch (_) { return null; }
 }
-function thPlay(v) {   // start (or carry on) this song and fade it in
-  const c = AU.ctx, e = v.els[v.cur], g = v.gains[v.cur], p = TH.pos[v.id] || 0; v.active = true;
-  try { e.currentTime = p > 1 && p < v.def.end - TH.XF - 1 ? p : 0; } catch (_) {}
-  g.gain.cancelScheduledValues(c.currentTime); g.gain.setValueAtTime(0, c.currentTime); const pr = e.play(); if (pr && pr.catch) pr.catch(() => { v.active = false; TH.on = false; });
-  thRamp(g, c, c.currentTime + .02, TH.FADE, true, v.def.norm);
+function thLoadAll() { return TH.loading || (TH.loading = Promise.all(Object.keys(THEME_FILES).map(thVoice)).finally(() => { TH.loading = null; })); }
+function thStartVoice(v) {   // play this song from where the shared clock says it should be
+  const c = AU.ctx, P = thPeriod(v), t = thNow(), lap = Math.floor(t / P), pos = t - lap * P, e = v.els[v.cur], g = v.gains[v.cur], o = v.cur ^ 1;
+  v.lap = lap; v.playing = true; try { v.els[o].pause(); } catch (_) {} v.gains[o].gain.cancelScheduledValues(c.currentTime); v.gains[o].gain.setValueAtTime(0, c.currentTime);
+  g.gain.cancelScheduledValues(c.currentTime); g.gain.setValueAtTime(v.def.norm, c.currentTime); try { e.currentTime = pos; } catch (_) {}
+  const pr = e.play(); if (pr && pr.catch) pr.catch(() => { v.playing = false; });
 }
-function thFadeOut(v, secs = TH.FADE) {
-  if (!v || !v.active) return; v.active = false; const c = AU.ctx; v.els.forEach((e, i) => { if (!e.paused) { if (i === v.cur) TH.pos[v.id] = e.currentTime; thRamp(v.gains[i], c, c.currentTime + .02, secs, false); setTimeout(() => { try { if (!v.active || v.cur !== i) e.pause(); } catch (_) {} }, secs * 1000 + 200); } });
-}
+function thPauseAll() { for (const v of Object.values(TH.voices)) { v.playing = false; v.els.forEach(e => { try { e.pause(); } catch (_) {} }); } thClock(false); }
 async function thSet(id) {
-  if (!id) { TH.want = null; const old = TH.voices[TH.id]; TH.on = false; TH.id = null; thFadeOut(old, 1.6); return true; }
-  TH.want = id; if (TH.on && TH.id === id) return true; const c = auCtx(); if (!c) return false;
-  const v = await thVoice(id); if (TH.want !== id) return true; if (!v) { TH.want = null; return false; }
-  const old = TH.voices[TH.id]; if (old && old !== v) thFadeOut(old); TH.id = id; TH.on = true; thPlay(v); if (!TH.timer) TH.timer = setInterval(thTick, 250); return true;
+  if (!id) { TH.want = null; thSuspend(1.6); return true; }
+  TH.want = id; const c = auCtx(); if (!c) return false; await thLoadAll(); if (TH.want !== id) return true;
+  const v = TH.voices[id]; if (!v) { TH.want = null; return false; }
+  thClock(true); for (const w of Object.values(TH.voices)) if (!w.playing || w.els[w.cur].paused) thStartVoice(w);   // all the songs play together, each at its place on the clock
+  const old = TH.voices[TH.id], t = c.currentTime + .02;
+  if (TH.id !== id || v.out.gain.value < .5) { if (old && old !== v) thRamp(old.out, c, t, TH.FADE, false); thRamp(v.out, c, t, TH.FADE, true, 1); TH.id = id; }
+  TH.on = true; if (!TH.timer) TH.timer = setInterval(thTick, 250); return true;
 }
-function thTick() {   // the lap crossfade: near the end of a song, start the other element from the top and fade between them
-  const v = TH.voices[TH.id], c = AU.ctx; if (!v || !v.active || !c) return; const e = v.els[v.cur]; if (e.paused) return;
-  if (e.currentTime >= v.def.end - TH.XF) { const n = v.cur ^ 1, ne = v.els[n]; try { ne.currentTime = 0; } catch (_) {} const pr = ne.play(); if (pr && pr.catch) pr.catch(() => {}); thRamp(v.gains[n], c, c.currentTime + .02, TH.XF - .3, true, v.def.norm); thRamp(v.gains[v.cur], c, c.currentTime + .02, TH.XF - .3, false); const old = v.cur; v.cur = n; setTimeout(() => { try { if (v.cur !== old) v.els[old].pause(); } catch (_) {} }, TH.XF * 1000); }
+function thTick() {   // the lap crossfade of every song, driven by the clock so a muted song stays exactly where it belongs
+  const c = AU.ctx; if (!c || !TH.run) return; const t = thNow();
+  for (const v of Object.values(TH.voices)) {
+    if (!v.playing) continue; const P = thPeriod(v), lap = Math.floor(t / P); if (lap === v.lap) continue; v.lap = lap;
+    const n = v.cur ^ 1, ne = v.els[n], old = v.cur; try { ne.currentTime = Math.max(0, t - lap * P); } catch (_) {} const pr = ne.play(); if (pr && pr.catch) pr.catch(() => {});
+    thRamp(v.gains[n], c, c.currentTime + .02, TH.XF - .3, true, v.def.norm); thRamp(v.gains[old], c, c.currentTime + .02, TH.XF - .3, false); v.cur = n;
+    setTimeout(() => { try { if (v.cur !== old) v.els[old].pause(); } catch (_) {} }, TH.XF * 1000);
+  }
 }
-function thStop() { TH.want = null; const old = TH.voices[TH.id]; TH.on = false; TH.id = null; thFadeOut(old, .5); }
+function thSuspend(secs = 1.6) {   // leave the themed pages (an arena fight): fade out, then pause every song and stop the clock
+  const v = TH.voices[TH.id], c = AU.ctx; TH.on = false; TH.id = null; if (v && c) thRamp(v.out, c, c.currentTime + .02, secs, false);
+  setTimeout(() => { if (!TH.want && !TH.on) thPauseAll(); }, secs * 1000 + 100);
+}
+function thStop() { TH.want = null; thSuspend(.5); }
+document.addEventListener("visibilitychange", () => {   // a hidden tab pauses the songs and the clock; coming back they carry on from the same place
+  if (document.hidden) { if (TH.run) { TH.hidden = true; thPauseAll(); } } else if (TH.hidden) { TH.hidden = false; if (TH.want && AU.bgm) { thClock(true); for (const w of Object.values(TH.voices)) thStartVoice(w); } }
+});
 async function musicApply() {
   const id = MODE_THEME[AU.mode]; if (id) { bgStop(); const ok = await thSet(id); if (!ok && AU.bgm && !usingMine() && auCtx()) bgSet(AU.mode || "menu"); } else { thSet(null); if (auCtx()) bgSet(AU.mode || "menu"); }
 }
 musicStart = function () { if (!AU.bgm) return; if (usingMine()) { bgStop(); thStop(); bgmStart(); return; } bgmStop(); musicApply(); };
 musicStop = function () { bgmStop(); bgStop(); thStop(); };
 musicMode = function (m) { AU.mode = m; ambFor(m); if (AU.bgm && !usingMine() && (BG.on || TH.on || TH.want)) musicApply(); };
-document.addEventListener("pointerdown", () => { if (AU.ctx && AU.ctx.state === "suspended") AU.ctx.resume(); if (!AMB.on && AU.amb && AU.mode !== "match") ambFor(AU.mode || "menu"); if (AU.bgm && !usingMine() && MODE_THEME[AU.mode] && !(TH.on && TH.voices[TH.id] && TH.voices[TH.id].els[TH.voices[TH.id].cur].paused === false)) musicApply(); });
+document.addEventListener("pointerdown", () => { if (AU.ctx && AU.ctx.state === "suspended") AU.ctx.resume(); if (!AMB.on && AU.amb && AU.mode !== "match") ambFor(AU.mode || "menu"); if (AU.bgm && !usingMine() && MODE_THEME[AU.mode]) { const v = TH.voices[TH.id]; if (!v || !v.playing || v.els[v.cur].paused) musicApply(); } });
 
 /* ----- effects ----- */
 const EL_LAUNCH = {
