@@ -304,6 +304,36 @@ table.odds { width: 100%; border-collapse: collapse; } table.odds td { padding: 
 #ck[style*="--arena"] #arena.a2arena::before, #ck[style*="--arena"] #arena.a2arena::after { display: none; }
 #ck[style*="--arena"] { background: linear-gradient(rgba(5, 10, 18, .5), rgba(5, 10, 18, .2) 38%, rgba(5, 10, 18, .52)), var(--arena) 50% 50% / cover no-repeat, #0b1420; }
 .sheet > h2 { padding: 0 34px; }
+/* the scene player */
+#story { position: fixed; inset: 0; overflow: hidden; z-index: 400; display: flex; flex-direction: column; justify-content: flex-end; background: #05080d; animation: stin .25s ease-out; } #story.out { opacity: 0; transition: opacity .2s; }
+@keyframes stin { from { opacity: 0; } }
+.st-bg { position: absolute; inset: 0; background: center / cover no-repeat; transform: scale(1.06); animation: stpan 26s ease-in-out infinite alternate; } @keyframes stpan { to { transform: scale(1.15) translateX(-1.5%); } }
+.st-shade { position: absolute; inset: 0; background: linear-gradient(rgba(4, 8, 14, .55), rgba(4, 8, 14, .08) 35%, rgba(4, 8, 14, .5) 62%, rgba(4, 8, 14, .9)); }
+.st-top { position: absolute; left: 0; right: 0; top: 0; display: flex; justify-content: space-between; align-items: center; padding: max(10px, env(safe-area-inset-top)) 12px 6px; z-index: 5; }
+.st-title { font: 700 12px var(--body); letter-spacing: .08em; color: #e8ecf0cc; text-transform: uppercase; max-width: 44%; }
+.st-btns { display: flex; gap: 6px; } .st-btns button { border: 0; border-radius: 999px; padding: 7px 11px; background: rgba(14, 22, 32, .72); color: #fff; font: 700 12px var(--body); } .st-btns button.on { background: #e3bf66; color: #1a1408; }
+.st-stage { position: relative; flex: 1; min-height: 0; z-index: 2; }
+.st-p { position: absolute; bottom: -6px; width: 70%; aspect-ratio: .78; opacity: 0; filter: brightness(.45) saturate(.7); transform: scale(.95); transition: transform .35s, filter .35s, opacity .35s; }
+.st-p:not(:empty) { opacity: 1; } .st-p.l { left: -12%; } .st-p.r { right: -12%; } .st-p.on { filter: none; transform: scale(1.02); z-index: 3; }
+.st-p img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 20px; -webkit-mask-image: linear-gradient(to top, transparent 0, #000 22%), linear-gradient(to right, transparent 0, #000 16%, #000 84%, transparent 100%); -webkit-mask-composite: source-in; mask-image: linear-gradient(to top, transparent 0, #000 22%), linear-gradient(to right, transparent 0, #000 16%, #000 84%, transparent 100%); mask-composite: intersect; }
+.st-mood { position: absolute; top: 8%; right: 18%; font-style: normal; font-size: 30px; filter: drop-shadow(0 2px 3px #000); opacity: 0; } .st-p.on .st-mood:not(:empty) { opacity: 1; animation: moodpop .5s ease-out; } @keyframes moodpop { from { transform: scale(.2); opacity: 0; } }
+.st-p.m-angry.on img { animation: stshake .35s 2; filter: saturate(1.4) hue-rotate(-12deg) drop-shadow(0 0 14px #ff3a3a88); }
+.st-p.m-happy.on { animation: stbounce .5s ease-out; }
+.st-p.m-sad.on img { filter: saturate(.55) brightness(.85) hue-rotate(15deg); transform: translateY(6px); transition: transform .8s; }
+.st-p.m-shock.on { animation: stjump .35s ease-out; } .st-p.m-shock.on img { filter: brightness(1.25); }
+.st-p.m-afraid.on img { animation: sttremble .12s infinite; filter: saturate(.6) brightness(.9); }
+.st-p.m-smug.on { transform: scale(1.02) rotate(1.5deg); }
+.st-p.m-mystery.on img { filter: hue-rotate(35deg) saturate(1.2) drop-shadow(0 0 16px #b074ff99); }
+.st-p.m-tender.on img { filter: sepia(.25) saturate(1.2) brightness(1.06) drop-shadow(0 0 14px #ffd0a066); }
+@keyframes stshake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+@keyframes stbounce { 40% { transform: translateY(-12px) scale(1.02); } } @keyframes stjump { 40% { transform: translateY(-20px) scale(1.05); } } @keyframes sttremble { 0% { transform: translate(-1px, 0); } 50% { transform: translate(1px, 1px); } 100% { transform: translate(0, -1px); } }
+.st-box { position: relative; z-index: 6; margin: 0 10px max(12px, env(safe-area-inset-bottom)); padding: 20px 16px 14px; min-height: 140px; border-radius: 18px; background: rgba(10, 16, 26, .87); box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .14), 0 10px 30px #000a; backdrop-filter: blur(6px); }
+.st-name { position: absolute; left: 14px; top: -14px; padding: 4px 14px; border-radius: 999px; background: var(--nc, #e3bf66); color: #10161f; font: 800 13px var(--body); letter-spacing: .04em; }
+.st-text { font: 500 16px/1.5 var(--body); color: #f1f4f8; min-height: 72px; } .st-box.nar .st-text { font-style: italic; color: #cdd6e2; }
+.st-next { position: absolute; right: 14px; bottom: 8px; font-style: normal; color: #e3bf66; animation: stnext 1s ease-in-out infinite; } @keyframes stnext { 50% { transform: translateY(3px); opacity: .5; } }
+.st-log { position: absolute; inset: 56px 12px 190px; z-index: 8; overflow-y: auto; padding: 14px; border-radius: 16px; background: rgba(8, 12, 20, .93); } .st-log p { margin: 0 0 10px; font: 500 14px/1.45 var(--body); color: #dde4ee; } .st-log b { color: #e3bf66; margin-right: 6px; }
+.st-card { position: absolute; inset: 0; z-index: 9; display: grid; place-items: center; background: rgba(4, 8, 14, .84); text-align: center; padding: 30px; transition: opacity .4s; } .st-card.out { opacity: 0; } .st-card b { font-size: 24px; line-height: 1.25; color: #f3efe4; letter-spacing: .04em; }
+.arcn { margin: 8px 12px 0; font: 700 11px var(--body); letter-spacing: .1em; text-transform: uppercase; opacity: .7; }
 .mute svg { width: 20px; height: 20px; color: #e8ecf0; }
 .mute { flex: none; width: 36px; height: 36px; border-radius: 50%; border: 3px solid #000; background: linear-gradient(#34413a, #151d19); box-shadow: inset 0 2px 0 #ffffff44, 0 3px 0 #000; font-size: 16px; line-height: 1; padding: 0; }
 .rng { flex: 1; min-width: 0; accent-color: var(--yellow); height: 28px; }
@@ -1958,7 +1988,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.12.07-d";
+const VER = "2026.12.08-a";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -3005,26 +3035,32 @@ function skTile(id, cls) {
 
 /* ===== rules.js: match rules shared by the app and the server (the server re-runs every fight from these). Pure functions: no screen, no saved game, no Math.random. ===== */
 const CAMP = [
-  { name: "Verdant Reach", sub: "Meadows, roads and the first bandits", els: ["earth", "wind"], hint: "Wind then Earth is Sandblast: ×1.5 damage.", foes: ["Roadside Scouts", "Cactus Raiders", "The Hollow Patrol", "Gale Riders", "Stone Wardens", "Chief Brogan"] },
+  { name: "The Shattered Reach", sub: "Meadows, a living forest and a city of black glass", els: ["earth", "wind"], hint: "Wind then Earth is Sandblast: ×1.5 damage.", arcs: ["The Waking Road", "The Thornwake", "The Lantern Roads", "The Glass Ruins"],
+    foes: ["Roadside Scouts", "Cactus Raiders", "The Hollow Patrol", "Gale Riders", "Stone Wardens", "Chief Brogan",
+      "Thorn Hounds", "Briar Pilgrims", "The Mossbound Choir", "Greenhide Stalkers", "The Hesitant Wardens", "Old Bramble",
+      "Plinth Militia", "The Honour Guard", "Roan's Cairn Drill", "Cairn Sentries", "The Lantern Market", "High Lanternwarden Auralis",
+      "Glass Husks", "The Hollow Wardens", "Lanternbound Legion", "Orla, Lantern-Bearer", "The Last Wardens", "The Lantern Judge"] },
   { name: "Ashen Wastes", sub: "Cinder plains under a red sky", els: ["fire", "wind"], hint: "Fire then Wind splashes the lanes beside the target.", foes: ["Ember Hounds", "Cinder Marauders", "The Smoulder Guard", "Ash Dancers", "Furnace Knights", "Warlord Pyra"] },
   { name: "Frostmere", sub: "A frozen pass and a silent court", els: ["ice", "water"], hint: "Water then Ice freezes a card: it skips its next attack.", foes: ["Snow Wolves", "Rimebound Pilgrims", "The Quiet Court", "Glacier Wardens", "Frostweavers", "The Frost Queen"] },
   { name: "Tidal Ruins", sub: "Drowned stairs and a sunken throne", els: ["water", "lightning"], hint: "Water then Lightning is Conduct: ×1.5 damage.", foes: ["Reef Skulkers", "Stormcallers", "The Drowned Choir", "Tidebreakers", "Thunder Sentinels", "Leviathan's Voice"] },
   { name: "The Hollow Crown", sub: "The last road, and the last table", els: ["light", "dark"], hint: "Light and Dark react both ways: Eclipse strips buffs.", foes: ["Pale Heralds", "Dusk Stalkers", "The Veiled Court", "Dawnblades", "Eclipse Knights", "The Hollow King"] },
 ];
+/* a season is 24 episodes in four arcs of six (episodes 1 to 5 fights, the sixth the arc's boss, the last the season finale); the older regions still have their first six */
+const campN = ch => CAMP[ch].foes.length, CAMP_TOTAL = CAMP.reduce((a, c) => a + c.foes.length, 0), campIndex = (ch, k) => CAMP.slice(0, ch).reduce((a, c) => a + c.foes.length, 0) + k;
 function campDeck(ch, k) {
-  const r = rngOf("camp" + ch + "-" + k), cap = Math.min(6, 2 + Math.ceil(ch * .8) + (k >= 4 ? 1 : 0) + (k === 5 ? 1 : 0)), els = CAMP[ch].els;
+  const arc = Math.floor(k / 6), kk = k % 6, r = rngOf("camp" + ch + "-" + k), cap = Math.min(ch < 2 ? 5 : 6, 2 + Math.ceil(ch * .8) + [0, 1, 2, 2][Math.min(3, arc)] + (kk >= 4 ? 1 : 0) + (kk === 5 ? 1 : 0)), els = CAMP[ch].els;
   const pool = POOL.filter(c => rarOf(c) <= cap && (!c.ex || cap >= 6)).sort((a, b) => a.i - b.i), pick = [], n = {};
   const take = (list, cnt) => { const L = list.slice(); for (let t = 0; t < cnt && L.length; t++) { const c = L.splice(Math.floor(r() * L.length), 1)[0]; if ((n[c.id] || 0) >= (rarOf(c) >= 5 ? 1 : 2)) { t--; continue; } pick.push(c.id); n[c.id] = (n[c.id] || 0) + 1; } };
   take(pool.filter(c => ckCard(c).el === els[0]), 6); take(pool.filter(c => ckCard(c).el === els[1]), 4); take(pool, 1); while (pick.length < 12) take(pool, 1);
-  const deck = withSkills(pick.slice(0, 12), Math.min(2, ch), r); for (let i = deck.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [deck[i], deck[j]] = [deck[j], deck[i]]; } return deck;
+  const deck = withSkills(pick.slice(0, 12), Math.min(2, ch + (arc >= 2 ? 1 : 0)), r); for (let i = deck.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [deck[i], deck[j]] = [deck[j], deck[i]]; } return deck;
 }
-const campLevel = (ch, k) => Math.min(2, Math.floor((ch * 6 + k) / 9));
+const campLevel = (ch, k) => Math.min(2, Math.floor(campIndex(ch, k) / 9));
 const RANK_LV = 5, TIERS_R = [["Bronze", 0], ["Silver", 1000], ["Gold", 1300], ["Platinum", 1600], ["Diamond", 1900], ["Master", 2200]];
 const rankTier = pts => { let t = 0; TIERS_R.forEach(([n, v], i) => { if (pts >= v) t = i; }); return t; };
 const rankLevel = pts => (pts < 1100 ? 0 : pts < 1800 ? 1 : 2);
-const campMode = (ch, k) => ({ kind: "camp", ch, k, deck: campDeck(ch, k), core: k === 5 ? 15 : 0, energy: k === 5 ? 1 : 0 });
+const campMode = (ch, k) => ({ kind: "camp", ch, k, deck: campDeck(ch, k), core: campBoss(k, ch).core, energy: k % 6 === 5 ? 1 : 0 });
 /* what the server enforces for a solo fight: the opponent's level and the boss bonuses */
-const campBoss = k => (k === 5 ? { core: 15, eMul: 1.3 } : { core: 0, eMul: 0 });
+const campBoss = (k, ch) => { if (k % 6 !== 5) return { core: 0, eMul: 0 }; const n = CAMP[ch] ? CAMP[ch].foes.length : 6; return n > 6 && k === n - 1 ? { core: 25, eMul: 1.5 } : { core: 15, eMul: 1.3 }; };   // an arc's boss, or the stronger season finale
 
 /* ===== ARENA: the real-time, semi-automatic battle. Rules: GAME_RULES_v2.md =====
    A pure simulation: no DOM, no Math.random, fixed 0.1 s ticks, so two phones given the same decks and the same inputs on the same ticks
@@ -3334,7 +3370,7 @@ function kuHtml(u, s, i, kind, o = {}) {
 const kcardMini = (id, extra = "") => { if (isSkill(id)) return skTile(id, extra); const k = ckCard(BY[id]); return `<div class="ku mini el-${k.el} r${k.rar} ${extra}"><div class="kart"><img src="${artSrc(BY[id])}" alt=""></div><i class="kel">${elIco(k.el, "")}</i><b class="kcost">${k.cost}</b><div class="kname">${esc(kshort(k.name, 10))}</div><div class="kst"><b class="a">${Math.round(k.atk * AR.ATKX)}</b><b class="h">${hpOf(k)}</b></div></div>`; };
 
 /* ----- the campaign: five regions of six opponents ----- */
-const campOpen = (ch, k) => (ch === 0 && k === 0) || !!(P.camp && P.camp.cl[k === 0 ? (ch - 1) + "-5" : ch + "-" + (k - 1)]);
+const campOpen = (ch, k) => (ch === 0 && k === 0) || !!(P.camp && P.camp.cl[k === 0 ? (ch - 1) + "-" + (CAMP[ch - 1].foes.length - 1) : ch + "-" + (k - 1)]);
 
 /* ----- ranked: a ladder of points, unlocked at level 5 ----- */
 function rankInit() { if (!P.rank) P.rank = { pts: 800, w: 0, l: 0, tierBest: 0, day: "" }; }
@@ -3360,7 +3396,7 @@ function viewBattle(v) {
     `<div class="hm-slide" data-ck="deckEdit"><div class="dstrip">${d.cards.map(id => (isSkill(id) ? skTile(id) : BY[id] ? cardHtml(BY[id]) : "")).join("")}</div></div>` +
     `<div class="hm-tray">${go}${err ? `<p class="hm-err">${esc(err)}</p>` : ""}` +
     `<div class="hm-h"><b>Play</b><span>${rec.w} wins · ${rec.l} losses</span></div><div class="hm-dests">` +
-    dest("", `data-ck="camp" ${err ? "disabled" : ""}`, "region:" + (nx ? nx[0] : 0), "Campaign", `${campDone()} of 30 beaten`) +
+    dest("", `data-ck="camp" ${err ? "disabled" : ""}`, "region:" + (nx ? nx[0] : 0), "Campaign", `${campDone()} of ${CAMP_TOTAL} beaten`) +
     dest(unlocked ? "" : "lock", `data-ck="ranked" ${err || !unlocked ? "disabled" : ""}`, HM_ART.ranked, "Ranked", unlocked ? `${TIERS_R[tier][0]} · ${rk.pts} pts${nextT ? " · " + (nextT[1] - rk.pts) + " to " + nextT[0] : ""}` : `Unlocks at level ${RANK_LV}`) +
     dest("", `data-act="tab" data-k="versus"`, HM_ART.friend, "Play a friend", "Online challenge or room code") +
     dest("", `data-ck="practiceSheet" ${err ? "disabled" : ""}`, HM_ART.practice, "Practice", "Easy, Normal or Hard") + `</div>` +
@@ -3368,19 +3404,29 @@ function viewBattle(v) {
     `</div></section>`;
 }
 const campDone = () => Object.keys((P.camp && P.camp.cl) || {}).length;
+const CAMP_COL = ["#2fbf74", "#e8693a", "#5fb8ff", "#3fd0c9", "#b574ff"];
 function viewCamp(v) {
   if (!P.camp) P.camp = { cl: {} };
-  let h = `<div class="row" style="margin:6px 0 0"><button class="btn sm dark" data-ck="campBack">← Back</button><span class="note">${campDone()} / 30 beaten</span></div>`;
+  let h = `<div class="row" style="margin:6px 0 0"><button class="btn sm dark" data-ck="campBack">← Back</button><span class="note">${campDone()} / ${CAMP_TOTAL} beaten</span><button class="btn sm dark" data-ck="storyLog">Story log</button></div>`;
   CAMP.forEach((c, ch) => {
-    const open = campOpen(ch, 0); h += `<div class="region ${open ? "" : "lock"}" style="--rc:${["#2fbf74", "#e8693a", "#5fb8ff", "#3fd0c9", "#b574ff"][ch]}"><div class="rh">${regionImg(ch)}<div class="rht"><b class="fat">${esc(c.name)}</b><small>${open ? esc(c.sub) : "🔒 Beat the previous region's boss"}</small></div></div><div class="nodes six" style="margin:4px 10px 10px">`;
-    for (let k = 0; k < 6; k++) { const o = campOpen(ch, k), done = !!P.camp.cl[ch + "-" + k]; h += `<button class="node ${done ? "done" : ""} ${!o ? "lock" : ""} ${o && !done ? "next" : ""} ${k === 5 ? "boss" : ""}" ${o ? `data-ck="campStage" data-ch="${ch}" data-k="${k}"` : "disabled"}><span>${o ? (k === 5 ? "☠" : k + 1) : "🔒"}</span>${done ? "<small>✓</small>" : ""}</button>`; }
-    h += "</div></div>";
+    const n = c.foes.length, open = campOpen(ch, 0);
+    h += `<div class="region ${open ? "" : "lock"}" style="--rc:${CAMP_COL[ch] || "#b574ff"}"><div class="rh">${regionImg(ch)}<div class="rht"><b class="fat">Season ${ch + 1}: ${esc(c.name)}</b><small>${open ? esc(c.sub) : "🔒 Finish the previous season"}</small></div></div>`;
+    for (let a = 0; a * 6 < n; a++) {
+      h += `<div class="arcn">Arc ${a + 1}${c.arcs && c.arcs[a] ? " · " + esc(c.arcs[a]) : ""}</div><div class="nodes six" style="margin:4px 10px 10px">`;
+      for (let i = 0; i < 6 && a * 6 + i < n; i++) { const k = a * 6 + i, o = campOpen(ch, k), done = !!P.camp.cl[ch + "-" + k], boss = i === 5, fin = n > 6 && k === n - 1; h += `<button class="node ${done ? "done" : ""} ${!o ? "lock" : ""} ${o && !done ? "next" : ""} ${boss ? "boss" : ""}" ${o ? `data-ck="campStage" data-ch="${ch}" data-k="${k}"` : "disabled"}><span>${o ? (fin ? "♛" : boss ? "☠" : k + 1) : "🔒"}</span>${done ? "<small>✓</small>" : ""}</button>`; }
+      h += "</div>";
+    }
+    if (n <= 6) h += `<p class="note" style="text-align:center;margin:0 0 10px">More of this season is coming.</p>`;
+    h += "</div>";
   });
-  v.innerHTML = h + '<p class="note" style="text-align:center">Each region favours two elements. Learn their combos, then build against them.</p>';
+  SEASON_PLAN.slice(CAMP.length).forEach((nm, i) => { h += `<div class="region lock"><div class="rh"><div class="rht"><b class="fat">Season ${CAMP.length + i + 1}: ${esc(nm)}</b><small>Coming soon</small></div></div></div>`; });
+  v.innerHTML = h + '<p class="note" style="text-align:center">Each season favours two elements. Learn their combos, then build against them.</p>';
+  if (typeof storyIntroMaybe === "function") storyIntroMaybe();
 }
 function campSheet(ch, k) {
-  const c = CAMP[ch], deck = campDeck(ch, k), first = !(P.camp.cl[ch + "-" + k]), boss = k === 5;
-  openSheet(`<span class="ribbon">${esc(c.foes[k]).toUpperCase()}</span><p class="note" style="text-align:center;margin:0 0 8px">${esc(c.name)} · ${c.els.map(e => `<span class="elchip el-${e}">${elIco(e)}${EL[e][0]}</span>`).join(" + ")}${boss ? " · boss: +15 core, +1 energy" : ""}</p><p class="note" style="margin:0 0 4px;text-align:center">THEIR DECK: 12 cards incl. skill cards, 5 creatures start on the field</p><div class="kd6">${deck.map(id => kcardMini(id)).join("")}</div><p class="note" style="text-align:center;margin:10px 0 0">${esc(c.hint)}</p><p class="note" style="text-align:center;margin:4px 0 0">${first ? "First win: " + (boss ? "3 packs" : k % 2 ? "1 pack" : "30 dust") + " and 30 XP." : "Beaten. A win pays 10 dust."}</p><div class="row c" style="margin-top:12px"><button class="btn yellow big" data-ck="campGo" data-ch="${ch}" data-k="${k}">FIGHT</button><button class="btn dark" data-act="closeModal">Back</button></div>`);
+  const c = CAMP[ch], n = c.foes.length, deck = campDeck(ch, k), first = !(P.camp.cl[ch + "-" + k]), boss = k % 6 === 5, fin = k === n - 1, bb = campBoss(k, ch), ep = typeof storyEp === "function" ? storyEp(ch, k) : null;
+  const prize = fin ? `${ECON.campBoss} coins and ${ECON.region.gems} gems` : boss ? `${ECON.campBoss} coins` : `${ECON.campFirst} coins`;
+  openSheet(`<span class="ribbon">${esc(c.foes[k]).toUpperCase()}</span><p class="note" style="text-align:center;margin:0 0 8px">Season ${ch + 1} · Episode ${k + 1}${ep ? ": " + esc(ep.t) : ""}<br>${esc(c.name)} · ${c.els.map(e => `<span class="elchip el-${e}">${elIco(e)}${EL[e][0]}</span>`).join(" + ")}${boss ? ` · boss: +${bb.core} core, +1 energy` : ""}</p><p class="note" style="margin:0 0 4px;text-align:center">THEIR DECK: 12 cards incl. skill cards, 5 creatures start on the field</p><div class="kd6">${deck.map(id => kcardMini(id)).join("")}</div><p class="note" style="text-align:center;margin:10px 0 0">${esc(c.hint)}</p><p class="note" style="text-align:center;margin:4px 0 0">${first ? "First win: " + prize + " and 30 XP." : "Beaten. A win pays " + ECON.campRepeat + " coins."}</p><div class="row c" style="margin-top:12px"><button class="btn yellow big" data-ck="campGo" data-ch="${ch}" data-k="${k}">FIGHT</button>${ep ? `<button class="btn" data-ck="storyEp" data-ch="${ch}" data-k="${k}">Story</button>` : ""}<button class="btn dark" data-act="closeModal">Back</button></div>`);
 }
 function rulesSheet() {
   openSheet(`<h2 class="fat">HOW TO PLAY</h2><div class="rules"><p><b>The goal:</b> bring the enemy core from 40 to 0 before the 3:00 clock ends (then the higher core wins; if the cores are equal, the side with more card health left).</p><p><b>Your deck:</b> 12 cards: creatures and up to 7 skill cards. 5 creatures, picked at random, start on the field. The rest wait in your draw pile: spend 4 energy to draw one into your hand (up to 3). Bring a creature in for 2 energy, or play a skill card on a target for its energy cost: it is used up, and you must draw another.</p><p><b>Fighting:</b> your cards strike by themselves. Each picks a target by its own habit (shown on the card): Nearest, Weakest, Strongest, Opposite or Support-first. Tap one of your cards, then an enemy, to lock its target.</p><p><b>Energy:</b> one shared pool that refills over time (max 10). Basic strikes are free. Spend it on a card's <b>skill</b> (tap the card, press its skill button) or to <b>swap a backup in</b> (2 energy).</p><p><b>Elements:</b> a hit marks its target with the attacker's element for 6 seconds. Hit a marked card with a reacting element for a bonus: Water then Lightning (Conduct ×1.5), Ice then Fire (Melt ×1.5), Wind then Earth (Sandblast ×1.5), Water then Ice (Freeze), Fire then Wind (Blaze splash), Light and Dark (Eclipse).</p><p><b>Auto:</b> let the computer play your cards if you only want to watch.</p><p><b>Match levels:</b> cards grow during a match. Striking, using the skill, taking hits and winning kills fill a card's level bar; at level 2 it is stronger and faster, and at level 3 it unlocks an enhanced skill. It all resets for the next match.</p><p><b>The surge:</b> after one minute every card gains attack every 10 seconds, and in the last minute energy refills twice as fast.</p></div><div class="row c" style="margin-top:12px"><button class="btn yellow" data-act="closeModal">Got it</button></div>`);
@@ -3547,7 +3593,7 @@ function ckResult() {
   if (mode.kind === "practice") { P.ck.w += win ? 1 : 0; P.ck.l += win || draw ? 0 : 1; xp = win ? 25 + 10 * L : 10; coins = win ? ECON.pracWin + ECON.pracLv * L : ECON.loss; }
   else if (mode.kind === "camp") {
     const key = mode.ch + "-" + mode.k, first = !P.camp.cl[key]; xp = win ? 30 : 10;
-    if (win) { if (first) { P.camp.cl[key] = true; if (mode.k === 5) { extra = "Region cleared!"; coins = ECON.campBoss; gems = ECON.region.gems; } else coins = ECON.campFirst; } else coins = ECON.campRepeat; } else coins = ECON.loss;
+    if (win) { if (first) { P.camp.cl[key] = true; const cn = CAMP[mode.ch].foes.length, isBoss = mode.k % 6 === 5, isFin = mode.k === cn - 1; coins = isBoss ? ECON.campBoss : ECON.campFirst; if (isFin) { gems = ECON.region.gems; extra = cn > 6 ? "Season cleared!" : "Region cleared!"; } else if (isBoss) extra = "Arc cleared!"; } else coins = ECON.campRepeat; } else coins = ECON.loss;
   } else if (mode.kind === "ranked") {
     rankInit(); const rk = P.rank, opp = mode.opp, E = 1 / (1 + Math.pow(10, (opp - rk.pts) / 400)), S = win ? 1 : draw ? .5 : 0, before = rankTier(rk.pts), delta = Math.round(32 * (S - E)); rk.pts = Math.max(0, rk.pts + delta); win ? rk.w++ : draw ? 0 : rk.l++; const after = rankTier(rk.pts);
     extra = (delta >= 0 ? "+" : "") + delta + " points · " + TIERS_R[after][0] + " " + rk.pts; xp = win ? 40 : 15; coins = win ? ECON.rankWin : ECON.loss;
@@ -3593,7 +3639,7 @@ document.addEventListener("click", async e => {
     case "camp": BV = "camp"; return show("battle");
     case "campBack": BV = "home"; return show("battle");
     case "campStage": return campSheet(+d.ch, +d.k);
-    case "campGo": closeModal(); return ckStart(campLevel(+d.ch, +d.k), campMode(+d.ch, +d.k));
+    case "campGo": closeModal(); return typeof campBegin === "function" ? campBegin(+d.ch, +d.k) : ckStart(campLevel(+d.ch, +d.k), campMode(+d.ch, +d.k));
     case "ranked": if (P.lv < RANK_LV) return toast("Ranked unlocks at level " + RANK_LV + "."); return rankedFind();
     case "triad": closeModal(); return show("play");
     case "rematch": return ckRematch();
@@ -3657,6 +3703,249 @@ setInterval(() => {
   if (G.to[ME] >= TURN_MAX_OUT) { if (G.online && ONL) ONL.send({ k: "forfeit" }); return ckForfeit(ME, "Disqualified: ran out of time twice"); }
   toast("Out of time! Warning " + G.to[ME] + "/" + TURN_MAX_OUT + ". Play your next turn in time to clear it."); ckFight(true);
 }, 250);
+
+/* ===== story.js: the story, as pure data. Nothing here touches code. =====
+   A line is  "speaker/mood: text"  ("n" is the narrator; the mood is optional). Speakers are card names resolved in storyui.js (SPK below).
+   Moods: calm happy angry sad shock afraid smug mystery tender.
+   Season 1 is written. Seasons 2 to 5 have their first six episodes as fights without scenes yet; 6 to 10 are planned (SEASON_PLAN).
+   Series bible: STORY_DESIGN.md. World and cast: LORE.md. */
+const SPK = {
+  veyr: "Veyr, the Nightglass", auralis: "Auralis, Dawnvein", sylwen: "Sylwen, Thornwake", roan: "Roan Redband", nyxara: "Nyxara, Weaver of Echoes", zarek: "Zarek Duskhorn",
+  kradin: "Kradin, the Lantern Courier", crownlet: "Crownlet, the Unlikely King", cairnroot: "Cairnroot", bramble: "Bramblemaw", tumble: "Tumble, the Hedge Courier",
+  orla: "Orla, Lantern-Bearer", ysolde: "Ysolde, Crown-Warden", pip: "Pip, the Messenger Cherub", scout: "Sanctum Warden", brogan: "Bandit Lieutenant", hollow: "Hollow Warden", fenrick: "Fenrick Grayfur",
+};
+/* the ten seasons: five are playable now (their first episodes), five are planned. Names of the unwritten ones can still change. */
+const SEASON_PLAN = [
+  "The Shattered Reach", "The Ashen Wastes", "Frostmere", "The Tidal Ruins", "The Cogworks of Tessaly", "The Cherry Marches", "Cairn Hollow", "The Skyward Isles", "The Gilded Heavens' Marches", "The Hollow Crown",
+];
+const ARC_BG = ["region:0", "arena:forest", "arena:sky", "arena:void"];   // the painting behind each arc's scenes
+
+const STORY = {
+  intro: {   // shown the first time the Shattered Reach opens
+    id: "s0:intro", title: "Season 1: The Shattered Reach", bg: "region:0", lines: [
+      "n: Three years ago, in one night, the spires of Verrowmere turned to black glass.",
+      "n: The lanterns that keep the Reach safe have been dimming ever since, and nobody can say why.",
+      "n: In the ruins, a young swordsman woke up with no past and a sword cut from the same glass.",
+      "veyr/calm: I remember waking up. Nothing before it. That is a strange thing to carry.",
+      "veyr/calm: Somebody knows what happened here. I mean to find them.",
+    ],
+  },
+  eps: [
+    /* ---------- Arc 1: The Waking Road ---------- */
+    { t: "Glass Underfoot",
+      before: ["n: The road out of Verrowmere is paved with black glass for the first mile. After that it is only road.", "veyr/calm: Three years of waking up in these ruins. Time to ask somebody why.", "n: Scouts of the Lanternwardens step out of the tall grass.", "scout/angry: By order of the High Lanternwarden, you will come with us. Quietly.", "veyr/calm: I don't remember agreeing to anything."],
+      after: ["scout/afraid: His sword. That is the same glass as the ruins.", "veyr/shock: What did you say?", "n: The scouts are gone before he can ask again. Behind him the glass road hums, very softly."] },
+    { t: "A Message for Nobody",
+      before: ["sylwen/angry: Hands off the cart! That grain is for three villages!", "n: A courier cart, a handful of raiders, and a ranger in a green cloak standing in front of both.", "veyr/calm: You look like you could use a second sword.", "sylwen/smug: I could use a first one. Yours will do."],
+      after: ["sylwen/happy: Sylwen Thornwake. I run messages for the Thornwake. Who are you?", "veyr/calm: Veyr. That is all I have.", "n: On a far rooftop, a hooded figure watches them, shoulders a satchel, and is gone."] },
+    { t: "The Hollow Patrol",
+      before: ["n: A patrol marches down the road in perfect step. Every soldier carries a lantern, and every lantern burns the same hard gold.", "sylwen/afraid: Those aren't wardens. Wardens argue. These don't blink.", "hollow/mystery: Glass. Glass is noted. Glass is noted. Glass is noted."],
+      after: ["sylwen/shock: They walked past me like I was a fence post. They only wanted you.", "veyr/calm: Then I should be told why.", "n: The lanterns on the dead patrol flicker out, one by one, and the glass in his sword gives off a faint glow."] },
+    { t: "Gale Riders",
+      before: ["n: Riders on wind-beasts circle the party, shouting over the gusts.", "sylwen/angry: Bandits do not carry coin like that.", "n: One drops a coin. It is stamped with a tiny gold lantern.", "veyr/calm: Somebody is paying them to find me."],
+      after: ["sylwen/calm: That sigil is older than the wardens. I have only seen it in the Thornwake's oldest stories.", "veyr/calm: What do the stories say?", "sylwen/sad: That it marks something to be judged."] },
+    { t: "Stone Wardens",
+      before: ["n: A stone bridge, and four guards with a lantern-sealed gate.", "scout/angry: No glass crosses this bridge. Orders from the Judge.", "sylwen/shock: The what?", "veyr/calm: Somebody has been giving orders in a name I haven't heard."],
+      after: ["n: The seal on the gate cracks as Veyr's blade passes it. The lantern inside goes dark.", "sylwen/shock: Your sword just ate a warding lantern.", "veyr/calm: I didn't ask it to."] },
+    { t: "Chief Brogan",
+      before: ["brogan/smug: The Judge pays double for the boy with the glass sword. Double! I can retire!", "sylwen/angry: Who is the Judge, Brogan?", "brogan/afraid: Nobody knows. A voice in a lantern. It tells you where to stand."],
+      after: ["brogan/afraid: Take the Thornwake road. The Judge's lanterns are thick there. Don't say I said so.", "sylwen/calm: The Thornwake is my home. If lanterns are hanging in it, I am coming with you.", "veyr/calm: I would be glad of the company.", "n: A small, quiet party sets off toward the forest. Behind them, the road keeps humming."] },
+    /* ---------- Arc 2: The Thornwake ---------- */
+    { t: "A Forest That Grows Over Its Own Paths",
+      before: ["n: The Thornwake never lets you find the same path twice. Today it is worse than that.", "sylwen/afraid: The brambles are closing the trails. The Wake has never been this angry.", "n: Thorn hounds burst through the hedge."],
+      after: ["sylwen/calm: They were herding us. The forest is trying to keep us out of the middle.", "veyr/calm: Or keep something in."] },
+    { t: "Lanterns in the Branches",
+      before: ["n: Gold lanterns hang from every tree, each lit by no flame.", "sylwen/shock: Those are marks. A lantern on a branch means the house below is tainted.", "n: Villagers with glowing eyes shuffle out of the mist, carrying lanterns of their own."],
+      after: ["veyr/calm: They are not hurt. Just... switched off.", "sylwen/sad: Somebody is judging my neighbours one at a time."] },
+    { t: "The Mossbound Choir",
+      before: ["n: A village in a clearing. Every window is lit. Every voice is singing the same line.", "sylwen/sad: That is my village. That is my grandmother's voice.", "veyr/calm: We will bring her back."],
+      after: ["n: The song stops. Sylwen's grandmother blinks, confused, and takes the lantern out of her own hair.", "sylwen/happy: Grandmother. It's me.", "n: The old woman looks at Veyr's sword, and then, strangely, at the sky."] },
+    { t: "Greenhide Stalkers",
+      before: ["veyr/calm: We have walked this fork three times.", "sylwen/angry: The Wake is turning us around on purpose.", "n: Greenhide stalkers drop out of the canopy."],
+      after: ["n: On a stump at the fork sits a single lantern, with a folded note: 'Left. Then keep going.'", "sylwen/mystery: That is a courier's handwriting. I know every courier on the Reach. I don't know this one."] },
+    { t: "The Hesitant Wardens",
+      before: ["orla/calm: Stop. Please. I am Orla, Lantern-Bearer, and I do not want this fight.", "orla/sad: Auralis wants you alive. The golden voice in the lanterns wants something else, and it is louder.", "veyr/calm: Then step aside."],
+      after: ["orla/afraid: The Judge is not one of ours. It speaks through every lantern we light. We are not the ones giving the orders any more.", "orla/sad: Go. If I see you, I will have to look away."] },
+    { t: "Old Bramble",
+      before: ["n: At the heart of the Wake a great thicket moves, wrapped in gold light.", "sylwen/shock: The guardian of the Wake. It is under the Judge's lantern.", "bramble/angry: Glass. Glass. Hunt the glass."],
+      after: ["n: The golden light lifts off the thicket like a mist. The guardian wakes, blinking.", "bramble/sad: Something above looks for glass. It does not stop. Be careful, small blade.", "n: On a bough above, a lantern with a note: 'Plinth next. Bring a sense of humour.'"] },
+    /* ---------- Arc 3: The Lantern Roads ---------- */
+    { t: "The Commonwealth of Plinth",
+      before: ["n: Plinth Meadow: a hundred villages that have never had a ruler and never missed one.", "sylwen/happy: Free pies and no taxes. I have been waiting a year for this.", "n: A militia in mismatched armour blocks the road, trying very hard to look dangerous."],
+      after: ["veyr/calm: They were afraid. Not of us.", "sylwen/calm: Of whatever hangs lanterns on their gates at night."] },
+    { t: "The King of Nowhere",
+      before: ["crownlet/happy: Welcome to the Court of Plinth! I am the king. I am also the cook, the guard and the court jester.", "sylwen/shock: A slime in a crown.", "crownlet/calm: I accepted the job because nobody else wanted it. The lanterns, however, are a new problem."],
+      after: ["crownlet/calm: The golden voice asked me to hand over a stranger with a glass sword. I said I would think about it.", "crownlet/smug: I am still thinking. Have some soup."] },
+    { t: "First Light on the Cairns",
+      before: ["n: At dawn, on the old cairns above Plinth, a swordsman in a red headband is practising.", "roan/calm: I have never let anyone beat me here. You look like someone who might try.", "veyr/calm: I only want to cross the ridge.", "roan/smug: Then cross it quickly."],
+      after: ["roan/shock: Nobody has ever made me step back.", "roan/happy: Roan Redband. I think I will come along and see what else you can do."] },
+    { t: "The Cairn Roads",
+      before: ["n: The cairns line the ridge road, old stones piled by older hands.", "roan/calm: They do not usually hum.", "n: The cairns shake. Stone sentries rise from the piles."],
+      after: ["cairnroot/calm: Little glass. Little blade. I have felt you coming for three days.", "cairnroot/mystery: Something is wrong with the lanterns. Something wrong with the sky. Be quick."] },
+    { t: "The Lantern Market",
+      before: ["n: Every stall in the market has a lantern. Every lantern turns its light on the party at once.", "hollow/mystery: Glass has been found. Glass has been found.", "sylwen/afraid: It is looking through all of them.", "roan/angry: Then let's put the lights out."],
+      after: ["n: A voice, vast and patient, speaks from every flame: 'Glass. I will judge you.'", "veyr/angry: Then come and do it yourself.", "n: The lanterns die all at once. The market is quiet, and very dark."] },
+    { t: "Auralis",
+      before: ["auralis/calm: Veyr. I have wanted to meet you for a long time. I am sorry it is like this.", "veyr/calm: You are the High Lanternwarden. Your people have been hunting me.", "auralis/sad: My people were told to bring you alive. The Judge's creatures were not. I will stop you, so they cannot.", "roan/angry: She is lying!", "auralis/tender: I am only protecting what is left."],
+      after: ["auralis/shock: Your sword. It did not strike me. It is cut from the same glass that took Verrowmere, and it is afraid of me.", "auralis/sad: I did not send the Judge. Somebody above did.", "n: She steps back into the dark, lowering her lantern, and does not follow."] },
+    /* ---------- Arc 4: The Glass Ruins ---------- */
+    { t: "Return to Verrowmere",
+      before: ["n: The glass road hums louder with every step.", "veyr/calm: It knows I am coming back.", "sylwen/afraid: Those shapes in the glass. They look like people.", "n: Glass husks peel out of the spires."],
+      after: ["veyr/sad: People were standing here when the glass took the city. I am walking over them.", "roan/calm: Then we make it worth something.", "sylwen/tender: Veyr. You woke up in this. You didn't cause it."] },
+    { t: "The Spires That Remember",
+      before: ["n: The old spires shimmer with memory: crowds, lanterns, a flash of white.", "veyr/mystery: I have seen this. In a dream. A bright light. A voice calling a name I do not know.", "hollow/angry: Glass. Judge. Glass."],
+      after: ["roan/calm: You went quiet.", "veyr/calm: There was a man in the light. I could not see his face. He was not afraid of it.", "n: The glass of his sword flickers the way a lantern does just before it goes out."] },
+    { t: "Lanternbound Legion",
+      before: ["n: A legion in gold light fills the plaza. Every soldier is a lantern with a body.", "sylwen/angry: There must be a thousand.", "roan/smug: Then there is plenty to go around."],
+      after: ["n: Banners of the Lanternwardens appear at the plaza's edge. Real wardens, with real faces.", "auralis/calm: Veyr. The ones you fought were never mine. The others are. They are with you."] },
+    { t: "Orla's Lantern",
+      before: ["orla/afraid: I looked away on the road. I paid for it. The Judge is in my lantern now.", "auralis/sad: Orla, drop it.", "orla/angry: I cannot. The light is speaking through me.", "veyr/calm: Then we put it out together."],
+      after: ["n: The golden light bursts out of Orla's lantern and she falls, free.", "orla/sad: Thank you. Tell Auralis I was only trying to help.", "auralis/tender: I know, Orla. Rest."] },
+    { t: "The Last Wardens",
+      before: ["auralis/calm: I was wrong. I told myself I was protecting the lanterns. I was protecting a lie.", "auralis/calm: I will not stand aside again. Where you go, I go.", "veyr/shock: That is a lot of trust to give a stranger.", "auralis/tender: You do not feel like a stranger. I cannot explain it."],
+      after: ["roan/smug: A High Lanternwarden, a ranger, a swordsman and a boy with a magic sword. We should write songs.", "sylwen/happy: Nobody would believe them.", "n: Auralis smiles for the first time since Verrowmere. For a moment, it is not a warden's smile."] },
+    { t: "The Lantern Judge",
+      before: ["n: At the heart of the glass city, a figure of gold and white stands over a thousand lanterns.", "ysolde/calm: I am the Judge. I was made to find something. It is not you. You are only a lantern on the way to it.", "veyr/angry: Whoever made you, tell them I am coming.", "ysolde/mystery: You will not live to say it."],
+      after: ["n: The Judge falls to her knees, her gold light cooling like wax.", "ysolde/sad: I did not want to be this. I was only built to hunt.", "pip/afraid: Order from above! Judge, you are recalled. Immediately!", "n: A small winged messenger snatches the fading Judge in a burst of light, and both are gone.", "auralis/shock: That cherub came from the sky.", "n: On a broken spire a hooded courier sits with his legs dangling, a satchel at his side.", "kradin/calm: Well fought. I am only a courier, but I can say the road to the east is burning.", "veyr/calm: Who are you?", "kradin/mystery: Someone who gets there first. Mind the ash."] },
+  ],
+  banters: [   // 2 to 4 lines; each is read once for 500 coins. `after` is the stage that unlocks it.
+    { id: "b1", after: "0-2", title: "Roadside manners", lines: ["sylwen/smug: You talk like a man who has only ever read about talking.", "veyr/calm: I talk as much as I need to.", "sylwen/happy: That is exactly what I mean."] },
+    { id: "b2", after: "0-7", title: "The long way round", lines: ["sylwen/calm: In the Wake, the shortest path is the one that finds you.", "veyr/calm: That seems backwards.", "sylwen/smug: That is why the forest likes it."] },
+    { id: "b3", after: "0-13", title: "First rule of the cairns", lines: ["roan/smug: Never let someone else set the pace.", "sylwen/angry: You say that while walking behind me.", "roan/shock: I am following the pace. That is different."] },
+    { id: "b4", after: "0-19", title: "What the glass remembers", lines: ["veyr/calm: When I touch the walls, I hear a song.", "sylwen/calm: What does it sing?", "veyr/sad: One word. Over and over. I think it is a name."] },
+    { id: "b5", after: "0-23", title: "A warden's supper", lines: ["auralis/calm: I have not eaten at a fire in twelve years. Wardens eat at lamps.", "roan/happy: Then you are going to love this soup.", "auralis/tender: I think I will."] },
+  ],
+  chars: {   // character stories: three short episodes each, unlocked by owning the card. Reading all three pays the full-story bonus.
+    veyr: [
+      { t: "Glass", lines: ["n: Veyr runs a hand along the black blade as he does every dawn.", "veyr/calm: Three years. Not one dream I could keep.", "veyr/calm: But the blade is warm, always warm, as if it just left someone's hand.", "veyr/sad: I do not know whose."] },
+      { t: "The Same Dream", lines: ["n: Veyr dreams of a plaza of light.", "veyr/mystery: A crowd. A voice calling out. A man stepping forward, not afraid.", "veyr/calm: I wake the way I always do. Without his face.", "veyr/calm: But I know the way he stood. I will know him if I see him."] },
+      { t: "A Name for a Blade", lines: ["sylwen/happy: Every sword should have a name.", "veyr/calm: I never gave it one.", "sylwen/calm: Then wait. It will tell you.", "n: The blade hums, very softly, and Veyr smiles for the first time that day."] },
+    ],
+    sylwen: [
+      { t: "Messages Across Water", lines: ["n: Sylwen carries messages across the lakes for people who cannot cross them.", "sylwen/happy: Most are boring. 'Buy salt.' 'Come home.' 'I am sorry.'", "sylwen/calm: The sorry ones are the ones I read twice. People mean them most when they cannot say them out loud."] },
+      { t: "The Thornwake Remembers", lines: ["n: The Wake rearranges itself around her, as it always has.", "sylwen/calm: When I was small I got lost. The forest took me home with a path that was gone by morning.", "sylwen/tender: I think the forest and I have an understanding."] },
+      { t: "Home's Direction", lines: ["sylwen/calm: People ask where I am from. I tell them whichever way I am walking.", "veyr/calm: And now?", "sylwen/happy: Now it is wherever you are going. Somebody has to keep you from getting lost."] },
+    ],
+    roan: [
+      { t: "First Light on the Cairns", lines: ["n: Roan trains at dawn, every dawn, in the same worn spot on the cairns.", "roan/smug: The sun comes up whether I swing or not. I like to give it something to look at."] },
+      { t: "Never Beaten", lines: ["roan/calm: People think the point is never losing.", "roan/calm: It is not. It is that when you do lose, you know exactly what you were missing.", "roan/shock: Which is a thing I plan to find out the moment someone manages it."] },
+      { t: "A Rival's Gift", lines: ["n: Roan leaves a red headband on Veyr's pack.", "roan/smug: A spare. Tie it on before the next fight.", "veyr/calm: I am not sure it suits me.", "roan/happy: Nobody has ever said that and meant it. Wear it."] },
+    ],
+    auralis: [
+      { t: "A Lantern's Weight", lines: ["n: Every night, Auralis lights the last lantern in the chapel herself.", "auralis/calm: People think it is a small thing. It is the heaviest I carry.", "auralis/sad: Every flame is a promise that someone is watching over them."] },
+      { t: "The Warden's Oath", lines: ["auralis/calm: I swore to keep the lanterns burning. I did not swear to know why they burn.", "auralis/sad: That was my mistake. A sworn oath is a very good place to hide."] },
+      { t: "What She Does Not Say", lines: ["n: Auralis closes the old ledger and puts it back in the shelf.", "auralis/calm: There are things in the chapel records I have never read aloud.", "auralis/tender: One day I will. For now, I want to be someone who can still look him in the eye."] },
+    ],
+  },
+};
+
+/* ===== storyui.js: the scene player, the story log and the story rewards. The words themselves are in story.js. =====
+   A scene is dialogue over a painted background: the speaker's card art stands as a bust, a name plate in the speaker's element colour, typewriter text.
+   Every character has one painting, so mood is shown with tint, motion and a small icon, not new art.
+   Rewards (once each, saved in P.story): a banter 500 coins; a character story episode 500 coins; all three episodes of one character 20 gems.
+   Reading means reaching the last line: Skip jumps to the end and counts. Closing with the X does not. ===== */
+const MOODS = { calm: "", happy: "♪", angry: "💢", sad: "…", shock: "!", afraid: "💧", smug: "~", mystery: "?", tender: "♥" };
+const STORY_PAY = { banter: 500, char: 500, full: 20 };
+const storyEp = (ch, k) => (ch === 0 && STORY.eps[k]) || null;
+const spkCard = key => { const nm = SPK[key]; return nm ? (C.find(c => c.name === nm) || null) : null; };
+const storyState = () => (P.story = P.story || { read: {}, b: 0, c: 0, f: 0, full: {} });
+const storyRead = id => !!(P && P.story && P.story.read && P.story.read[id]);
+function parseLine(s) { const m = /^([a-z0-9_]+)(?:\/([a-z]+))?:\s*(.*)$/.exec(s); return m ? { who: m[1], mood: m[2] || "calm", text: m[3] } : { who: "n", mood: "calm", text: s }; }
+function storyBgUrl(bg) { const [g, k] = String(bg || "region:0").split(":"); return art2(g, k) || art2("region", 0); }
+const sceneEp = (ch, k, w) => { const ep = STORY.eps[k]; return { id: `e:${ch}-${k}:${w}`, kind: "ep", title: w === "b" ? `Episode ${k + 1}: ${ep.t}` : "", bg: ARC_BG[Math.floor(k / 6)] || "region:0", lines: w === "b" ? ep.before : ep.after }; };
+const sceneBanter = b => ({ id: "b:" + b.id, kind: "banter", title: b.title, bg: ARC_BG[Math.floor(+b.after.split("-")[1] / 6)] || "region:0", lines: b.lines });
+const sceneChar = (key, i) => { const e = STORY.chars[key][i]; return { id: `c:${key}:${i}`, kind: "char", key, i, title: e.t, bg: "region:0", lines: e.lines }; };
+const banterOpen = b => { const [ch, k] = b.after.split("-").map(Number); return !!(P.camp && P.camp.cl && P.camp.cl[ch + "-" + k]); };
+const storyCharKey = cardId => { const c = BY[cardId]; if (!c) return null; return Object.keys(STORY.chars).find(k => SPK[k] === c.name) || null; };
+const storyCharRead = key => STORY.chars[key].filter((_, i) => storyRead(`c:${key}:${i}`)).length;
+
+/* ----- rewards: only the first reading of a banter or a character episode pays ----- */
+function storyFinish(sc) {
+  const S = storyState(), first = !S.read[sc.id]; S.read[sc.id] = 1; let msg = "";
+  if (first && sc.kind === "banter") { P.coins += STORY_PAY.banter; S.b++; msg = "+" + STORY_PAY.banter + " coins"; }
+  else if (first && sc.kind === "char") {
+    P.coins += STORY_PAY.char; S.c++; msg = "+" + STORY_PAY.char + " coins";
+    if (storyCharRead(sc.key) === STORY.chars[sc.key].length && !S.full[sc.key]) { S.full[sc.key] = 1; S.f++; P.gems = (P.gems || 0) + STORY_PAY.full; msg += " and +" + STORY_PAY.full + " gems for the whole story"; }
+  }
+  scheduleSave(); chrome(); if (msg) { toast(msg); sfx("coin"); }
+}
+
+/* ----- the player ----- */
+function storyPlay(sc, done, cancel) {
+  if (!sc || !sc.lines || !sc.lines.length) { if (done) done(); return; }
+  const old = document.getElementById("story"); if (old) old.remove();
+  const lines = sc.lines.map(parseLine), el = document.createElement("div"); el.id = "story";
+  el.innerHTML = `<div class="st-bg" style="background-image:url(${storyBgUrl(sc.bg)})"></div><div class="st-shade"></div>` +
+    `<div class="st-top"><span class="st-title">${esc(sc.title || "")}</span><div class="st-btns"><button data-st="auto">Auto</button><button data-st="log">Log</button><button data-st="skip">Skip ▸▸</button><button data-st="x" aria-label="Close">✕</button></div></div>` +
+    `<div class="st-stage"><div class="st-p l"></div><div class="st-p r"></div></div><div class="st-box"><div class="st-name"></div><div class="st-text"></div><i class="st-next">▼</i></div><div class="st-log" hidden></div>`;
+  document.body.appendChild(el); if (typeof thDuck === "function") thDuck(.5, .6);
+  const S = { i: -1, typing: false, tm: 0, auto: false, at: 0, seen: [], slot: { l: null, r: null }, ended: false }, $s = q => el.querySelector(q), text = $s(".st-text"), name = $s(".st-name"), box = $s(".st-box");
+  const end = (ok) => { if (S.ended) return; S.ended = true; clearInterval(S.tm); clearTimeout(S.at); el.classList.add("out"); setTimeout(() => el.remove(), 200); if (typeof thDuck === "function") thDuck(1, 1); if (ok) { storyFinish(sc); if (done) setTimeout(done, 120); } else if (cancel) setTimeout(cancel, 120); };
+  const setSlot = (side, card) => { const p = $s(".st-p." + side); if (S.slot[side] === (card && card.id)) return p; S.slot[side] = card ? card.id : null; p.innerHTML = card ? `<img alt="" src="${artSrc(card, true)}"><i class="st-mood"></i>` : ""; return p; };
+  const next = () => {
+    clearTimeout(S.at); S.i++; if (S.i >= lines.length) return end(true);
+    const L = lines[S.i], card = L.who === "n" ? null : spkCard(L.who); S.seen.push(L);
+    const side = L.who === "veyr" ? "l" : "r"; if (card) setSlot(side, card);
+    el.querySelectorAll(".st-p").forEach(p => { p.classList.remove("on"); p.className = p.className.replace(/\bm-\w+\b/g, "").trim(); }); const act = card ? $s(".st-p." + side) : null;
+    if (act) { act.classList.add("on", "m-" + L.mood); const mi = act.querySelector(".st-mood"); if (mi) mi.textContent = MOODS[L.mood] || ""; }
+    const k = card ? arCard(card) : null; name.textContent = card ? card.name.split(",")[0] : ""; name.style.setProperty("--nc", k ? (EL[k.el] ? EL[k.el][2] : "#e3bf66") : "#aab4c2"); name.style.visibility = card ? "visible" : "hidden"; box.classList.toggle("nar", !card);
+    S.typing = true; text.textContent = ""; let n = 0; clearInterval(S.tm); S.tm = setInterval(() => { n += 1; text.textContent = L.text.slice(0, n); if (n >= L.text.length) { clearInterval(S.tm); S.typing = false; if (S.auto) S.at = setTimeout(next, 700 + L.text.length * 38); } }, 24);
+  };
+  const finishTyping = () => { clearInterval(S.tm); S.typing = false; text.textContent = lines[S.i].text; if (S.auto) S.at = setTimeout(next, 700 + lines[S.i].text.length * 38); };
+  el.addEventListener("click", e => {
+    const b = e.target.closest("[data-st]"); if (b) {
+      const a = b.dataset.st; if (a === "skip") return end(true); if (a === "x") return end(false);
+      if (a === "auto") { S.auto = !S.auto; b.classList.toggle("on", S.auto); if (S.auto && !S.typing) next(); return; }
+      if (a === "log") { const lg = $s(".st-log"); lg.hidden = !lg.hidden; lg.innerHTML = S.seen.map(L => { const c = L.who === "n" ? null : spkCard(L.who); return `<p><b>${c ? esc(c.name.split(",")[0]) : "·"}</b> ${esc(L.text)}</p>`; }).join(""); lg.scrollTop = lg.scrollHeight; return; }
+    }
+    if (!$s(".st-log").hidden) { $s(".st-log").hidden = true; return; }
+    sfx("tap"); if (S.typing) finishTyping(); else next();
+  });
+  if (sc.title && sc.kind !== "ep" || (sc.kind === "ep" && sc.title)) { const card = document.createElement("div"); card.className = "st-card"; card.innerHTML = `<b class="fat">${esc(sc.title)}</b>`; el.appendChild(card); sfx("level"); setTimeout(() => { card.classList.add("out"); setTimeout(() => card.remove(), 400); next(); }, 1500); } else next();
+}
+
+/* ----- campaign hooks: the opening of an episode and the scene after a win ----- */
+function campBegin(ch, k) {
+  const ep = storyEp(ch, k), go = () => ckStart(campLevel(ch, k), campMode(ch, k));
+  if (ep && ep.before && ep.before.length && !storyRead(`e:${ch}-${k}:b`)) return storyPlay(sceneEp(ch, k, "b"), go, () => show("battle"));
+  go();
+}
+function storyIntroMaybe() { if (!storyRead(STORY.intro.id)) setTimeout(() => { if (typeof BV !== "undefined" && BV === "camp" && !storyRead(STORY.intro.id) && !document.getElementById("story")) storyPlay(STORY.intro); }, 500); }
+{ const _leave = ckLeave; ckLeave = function () {
+  try { const m = G && G.mode; if (m && m.kind === "camp" && G.over && G.winner === ME) { const ep = storyEp(m.ch, m.k); if (ep && ep.after && ep.after.length && !storyRead(`e:${m.ch}-${m.k}:a`)) { storyPlay(sceneEp(m.ch, m.k, "a"), () => _leave(), () => _leave()); return; } } } catch (_) {}
+  return _leave();
+}; }
+
+/* ----- the story log: episodes, banters, characters ----- */
+let SLOGT = "ep";
+const storyNew = () => STORY.banters.filter(b => banterOpen(b) && !storyRead("b:" + b.id)).length + Object.keys(STORY.chars).filter(k => { const c = spkCard(k); return c && P.own[c.id] > 0; }).reduce((a, k) => a + STORY.chars[k].filter((_, i) => !storyRead(`c:${k}:${i}`)).length, 0);
+function storyLogSheet() {
+  let b = "";
+  if (SLOGT === "ep") {
+    const rows = STORY.eps.map((ep, k) => ({ ep, k, done: !!(P.camp && P.camp.cl && P.camp.cl["0-" + k]) })).filter(x => x.done || storyRead(`e:0-${x.k}:b`));
+    b = `<p class="note" style="text-align:center;margin:0 0 8px">Season 1: The Shattered Reach · ${rows.length} of ${STORY.eps.length} episodes seen. Tap an episode to watch its scenes again.</p><div class="list">${rows.map(x => `<button class="panel item" data-ck="storyEp" data-ch="0" data-k="${x.k}"><div class="t"><b>Episode ${x.k + 1}: ${esc(x.ep.t)}</b><small>${esc(CAMP[0].foes[x.k])}</small></div><span class="tag">WATCH</span></button>`).join("") || '<p class="note" style="text-align:center">Play the campaign to unlock scenes.</p>'}</div>`;
+  } else if (SLOGT === "ban") {
+    b = `<p class="note" style="text-align:center;margin:0 0 8px">Short scenes between the party. Reading one for the first time pays ${STORY_PAY.banter} coins.</p><div class="list">${STORY.banters.map(x => { const open = banterOpen(x), rd = storyRead("b:" + x.id); return `<button class="panel item ${open ? "" : "dim"}" ${open ? `data-ck="storyBanter" data-id="${x.id}"` : "disabled"}><div class="t"><b>${esc(open ? x.title : "Locked")}</b><small>${open ? (rd ? "Read" : "New · +" + STORY_PAY.banter + " coins") : "Beat episode " + (+x.after.split("-")[1] + 1)}</small></div><span class="tag ${rd ? "" : open ? "gold" : ""}">${rd ? "READ" : open ? "NEW" : "🔒"}</span></button>`; }).join("")}</div>`;
+  } else {
+    b = `<p class="note" style="text-align:center;margin:0 0 8px">Each character's story is three short episodes, unlocked by owning their card. Each episode pays ${STORY_PAY.char} coins the first time, and finishing all three pays ${STORY_PAY.full} gems.</p><div class="list">${Object.keys(STORY.chars).map(k => { const c = spkCard(k), own = c && P.own[c.id] > 0, n = storyCharRead(k), t = STORY.chars[k].length; return `<button class="panel item ${own ? "" : "dim"}" ${own ? `data-ck="storyChar" data-k="${k}"` : "disabled"}><div class="t"><b>${esc(c ? c.name : k)}</b><small>${own ? n + " of " + t + " read" + (n === t ? " · complete" : "") : "Own this card to unlock"}</small></div><span class="tag ${n === t && own ? "ok" : ""}">${own ? (n === t ? "DONE" : "OPEN") : "🔒"}</span></button>`; }).join("")}</div>`;
+  }
+  openSheet(`<h2 class="fat">Story log</h2><div class="seg" style="margin:0 0 8px">${[["ep", "Episodes"], ["ban", "Banters"], ["ch", "Characters"]].map(([k, n]) => `<button class="${SLOGT === k ? "on" : ""}" data-ck="storyTab" data-t="${k}">${n}</button>`).join("")}</div>${b}`);
+}
+function storyCharSheet(key) {
+  const c = spkCard(key), eps = STORY.chars[key];
+  openSheet(`<h2 class="fat">${esc(c ? c.name : key)}</h2><p class="note" style="text-align:center;margin:0 0 8px">${storyCharRead(key)} of ${eps.length} read</p><div class="list">${eps.map((e, i) => { const rd = storyRead(`c:${key}:${i}`); return `<button class="panel item" data-ck="storyCharEp" data-k="${key}" data-i="${i}"><div class="t"><b>Episode ${i + 1}: ${esc(e.t)}</b><small>${rd ? "Read" : "New · +" + STORY_PAY.char + " coins"}</small></div><span class="tag ${rd ? "" : "gold"}">${rd ? "READ" : "NEW"}</span></button>`; }).join("")}</div><div class="row c" style="margin-top:10px"><button class="btn sm dark" data-ck="storyTab" data-t="ch">Back</button></div>`);
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-ck]"); if (!b || !P) return; const a = b.dataset.ck, d = b.dataset;
+  if (a === "storyLog") { closeModal(); return storyLogSheet(); }
+  if (a === "storyTab") { SLOGT = d.t; return storyLogSheet(); }
+  if (a === "storyEp") { closeModal(); const ch = +d.ch, k = +d.k, e1 = storyEp(ch, k); if (!e1) return; return storyPlay(sceneEp(ch, k, "b"), () => storyPlay(sceneEp(ch, k, "a"))); }
+  if (a === "storyBanter") { const x = STORY.banters.find(q => q.id === d.id); if (x) { closeModal(); storyPlay(sceneBanter(x), () => storyLogSheet()); } return; }
+  if (a === "storyChar") { closeModal(); return storyCharSheet(d.k); }
+  if (a === "storyCharEp") { closeModal(); return storyPlay(sceneChar(d.k, +d.i), () => storyCharSheet(d.k)); }
+}, true);
+/* a character's card sheet gets a Story button when that character has a story */
+{ const _detail = detail; detail = function (id) { _detail(id); try { const key = storyCharKey(id); if (key && P.own[id] > 0) { const sh = document.querySelector("#modal .sheet"); if (sh) sh.insertAdjacentHTML("beforeend", `<div class="row c" style="margin-top:10px"><button class="btn sm yellow" data-ck="storyChar" data-k="${key}">Story · ${storyCharRead(key)}/${STORY.chars[key].length}</button></div>`); } } catch (_) {} }; }
 
 /* ===== ARENA screen: the real-time match board (engine: arena.js, rules: GAME_RULES_v2.md) =====
    The board is built once and updated in place every frame, so taps are never lost to a redraw. */
@@ -4696,7 +4985,7 @@ const ACH = [
   { id: "lv50", n: "Skyforged", t: "Reach level 50", ti: "Skyforged", r: 5, v: () => P.lv || 1, need: 50 },
   { id: "cmp", n: "Explorer", t: "Clear 8 campaign stages", ti: "Trailblazer", r: 2, v: nCamp, need: 8 },
   { id: "cmp20", n: "Far from home", t: "Clear 20 campaign stages", ti: "Realm Walker", r: 4, v: nCamp, need: 20 },
-  { id: "cmp30", n: "End of the road", t: "Clear every campaign stage", ti: "Crown of the Road", r: 6, v: nCamp, need: 30 },
+  { id: "cmp30", n: "End of the road", t: "Clear every campaign episode", ti: "Crown of the Road", r: 6, v: nCamp, need: CAMP_TOTAL },
   { id: "rk1", n: "Silver lining", t: "Reach Silver in Ranked", ti: "Silvershield", r: 2, v: () => ((P.rank && P.rank.tierBest) || 0), need: 1 },
   { id: "rk", n: "Climber", t: "Reach Gold in Ranked", ti: "Goldbound", r: 3, v: () => ((P.rank && P.rank.tierBest) || 0), need: 2 },
   { id: "rk3", n: "Above the clouds", t: "Reach Platinum in Ranked", ti: "Starlit Champion", r: 4, v: () => ((P.rank && P.rank.tierBest) || 0), need: 3 },

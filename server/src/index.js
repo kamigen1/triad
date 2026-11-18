@@ -193,7 +193,11 @@ function guardProfile(old, nw, dtSec, credit0) {
   const tierG = Math.max(0, g(nw.rank, "tierBest") - g(old.rank, "tierBest")), clG = Math.max(0, cleared(nw) - cleared(old)), lvP = Math.max(0, lvG);
   /* the one-time move to three currencies: the old pack tokens, shards and medals pay out as coins, and event tickets become Tokens */
   const moved = nw.econv >= 2 && !(old.econv >= 2), legacy = moved ? g(old, "tickets") * 500 + g(old, "dust") * 3 + g(old, "medals") + g(old.ev, "medals") : 0, legacyTok = moved ? g(old.ev, "tickets") : 0;
-  const coinsA = 500 * pG + 400 * lvP + sell + 1200 * Math.max(0, pullG) + legacy, gemsA = 12 * lvP + 25 * tierG + 25 * clG, tixA = legacyTok;
+  /* story rewards (500 coins a banter or a character episode, 20 gems for a character's whole story, each once): the phone reports how many it has claimed; the counters may only go up, only so far, and each claim pays only its own amount */
+  const sb = g(nw.story, "b"), sc = g(nw.story, "c"), sf = g(nw.story, "f"), ob = g(old.story, "b"), oc = g(old.story, "c"), of = g(old.story, "f");
+  if (sb < ob || sc < oc || sf < of) return bad("story counters went backwards"); if (sb > 150 || sc > 90 || sf > 30) return bad("story counters out of range");
+  const storyCoins = 500 * ((sb - ob) + (sc - oc)), storyGems = 20 * (sf - of);
+  const coinsA = 500 * pG + 400 * lvP + sell + 1200 * Math.max(0, pullG) + legacy + storyCoins, gemsA = 12 * lvP + 25 * tierG + 25 * clG + storyGems, tixA = legacyTok;
   const pullMax = Math.floor((g(old, "coins") + coinsA + cr.coins) / 500) + 3 + g(old, "gems") + gemsA + cr.gems;
   if (pullG > pullMax) return bad("summons above what could be paid for");
   if (!use("coins", g(nw, "coins") - g(old, "coins"), coinsA)) return bad("coins above budget");
@@ -349,10 +353,10 @@ export class Hub {
         const cur = this.one("SELECT data FROM profiles WHERE lname=?", s.lname); let o = {}; try { o = cur ? JSON.parse(cur.data) || {} : {}; } catch (_) {}
         if (kind === "practice") { level = [0, 1, 2].includes(m.level) ? m.level : 1; foe = SIM.ckAiDeck(level, typeof m.arch === "string" && SIM.ARCH[m.arch] ? m.arch : undefined); }
         else if (kind === "camp") {
-          const ch = m.ch, k = m.k; if (!Number.isInteger(ch) || !Number.isInteger(k) || ch < 0 || ch > 4 || k < 0 || k > 5) return json({ ok: false, err: "Unknown stage." });
+          const ch = m.ch, k = m.k; if (!Number.isInteger(ch) || !Number.isInteger(k) || ch < 0 || ch >= SIM.CAMP.length || k < 0 || k >= SIM.CAMP[ch].foes.length) return json({ ok: false, err: "Unknown stage." });
           const vt = this.vinit(s.lname), cl = Object.assign({}, (o.camp && o.camp.cl) || {}); for (const x of vt.keys) cl[x] = true;
-          if (!(ch === 0 && k === 0) && !cl[k === 0 ? (ch - 1) + "-5" : ch + "-" + (k - 1)]) return json({ ok: false, err: "That stage is still locked." });
-          level = SIM.campLevel(ch, k); foe = SIM.campDeck(ch, k); boss = SIM.campBoss(k); key = ch + "-" + k;
+          if (!(ch === 0 && k === 0) && !cl[k === 0 ? (ch - 1) + "-" + (SIM.CAMP[ch - 1].foes.length - 1) : ch + "-" + (k - 1)]) return json({ ok: false, err: "That stage is still locked." });
+          level = SIM.campLevel(ch, k); foe = SIM.campDeck(ch, k); boss = SIM.campBoss(k, ch); key = ch + "-" + k;
         } else if (kind === "ranked") { const pts = Number.isFinite(o.rank && o.rank.pts) ? o.rank.pts : 800; level = SIM.rankLevel(pts); foe = SIM.ckAiDeck(level); opp = Math.max(400, pts + Math.round((Math.random() * 2 - 1) * 120)); }
         else return json({ ok: false, err: "Unknown mode." });
         const mid = hex(crypto.getRandomValues(new Uint8Array(12))), seed = crypto.getRandomValues(new Uint32Array(1))[0] >>> 1;
