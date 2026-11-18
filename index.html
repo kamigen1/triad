@@ -1889,7 +1889,8 @@ async function pushRoom() {
 function newVsMatch(o) { return Object.assign({ kind: "vs", hints: true, captured: 0, done: false, sel: null, tier: 0, round: 0, state: Object.assign(freshState([], [], 0), { status: "wait" }) }, o); }
 async function vsCreate() {
   if (VSG === "clash") return srvOn() ? cknSrvCreate() : cknRoomCreate();
-  if (!db || !uid) return toast("Rooms work on the claude.ai version. Use Direct connect here.");
+  if (srvOn() && ACC) return netSrvCreate();
+  if (!db || !uid) return toast("Sign in to use room codes, or use Direct connect.");
   const d = P.decks[P.deck]; if (!deckOk(d)) return toast(deckWhy(P.decks[P.deck]));
   let code = ""; for (let i = 0; i < 4; i++) code += CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)];
   const created = Date.now();
@@ -1901,7 +1902,8 @@ async function vsCreate() {
 }
 async function vsJoin() {
   if (VSG === "clash") return srvOn() ? cknSrvJoin() : cknRoomJoin();
-  if (!db || !uid) return toast("Rooms work on the claude.ai version. Use Direct connect here.");
+  if (srvOn() && ACC) return netSrvJoin();
+  if (!db || !uid) return toast("Sign in to use room codes, or use Direct connect.");
   const code = ($("#vsCode").value || "").trim().toUpperCase(); if (code.length !== 4) return toast("Enter the 4-letter room code.");
   const d = P.decks[P.deck]; if (!deckOk(d)) return toast(deckWhy(P.decks[P.deck]));
   let snap; try { snap = await roomRef(code).get(); } catch (e) { return toast("Could not reach the room."); }
@@ -1946,7 +1948,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.12.06-l";
+const VER = "2026.12.06-m";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -2004,6 +2006,35 @@ function netGot(m) {
 }
 async function netSend(m) { try { NET.dc.send(JSON.stringify(m)); } catch (e) { toast("Connection lost."); } }
 function netClose() { try { NET.dc && NET.dc.close(); NET.pc && NET.pc.close(); } catch (_) {} NET = null; }
+/* Classic Triad over our online server: the same 4-letter room Clash uses, which passes each player's messages to the other. The Classic match is run by the two phones (it pays nothing), so the server only relays; the app version is still checked at sign-in. */
+function netSrvConnect(code) {
+  if (typeof ACC === "undefined" || !ACC) return toast("Sign in to play a friend on the server.");
+  const d = P.decks[P.deck]; if (!deckOk(d)) return toast(deckWhy(d));
+  let ws; try { ws = new WebSocket(SERVER_URL.replace(/\/$/, "") + "/room/" + code); } catch (_) { return toast("Could not reach the server."); }
+  const dc = { send: s => ws.send(s), close: () => { try { ws.close(); } catch (_) {} }, onclose: null }, me = { authed: false, peer: false, opened: false };
+  NET = { pc: null, dc, host: false, open: false, name: playerName(), deck: vsDeck().slice(), g: VSG, srv: true, code };
+  const mine = NET, tryOpen = () => { if (me.opened || !me.authed || !me.peer || NET !== mine) return; me.opened = true; mine.open = true; dc.send(JSON.stringify({ t: "hello", name: mine.name, deck: mine.deck, g: mine.g })); netMaybeStart(); };
+  ws.onopen = () => { try { ws.send(JSON.stringify({ t: "auth", token: ACC.token, ver: VER })); } catch (_) {} };
+  ws.onmessage = e => {
+    let m; try { m = JSON.parse(e.data); } catch (_) { return; } if (NET !== mine) return;
+    if (m.t === "hello" && typeof m.seat === "number" && !m.deck) { mine.host = m.seat === 0; return; }   // the server saying which seat we have
+    if (m.t === "authed") { me.authed = true; return tryOpen(); }
+    if (m.t === "denied") { toast(m.why || "The server refused the connection."); return closeModal(), netClose(); }
+    if (m.t === "peer") { me.peer = true; return tryOpen(); }
+    if (m.t === "full") { toast("That room is full."); return closeModal(), netClose(); }
+    if (m.t === "left") { if (M && M.net && !M.state.over) { toast("Your friend left."); return closeMatch(); } toast("Your friend left the room."); me.peer = false; me.opened = false; mine.open = false; mine.theirDeck = null; return; }
+    netGot(m);
+  };
+  ws.onerror = () => { if (!me.opened) toast("Could not reach the server."); };
+  ws.onclose = () => { if (M && M.net === mine && !M.state.over) toast("Connection lost."); };
+  return mine;
+}
+function netSrvCreate() {
+  let code = ""; for (let i = 0; i < 4; i++) code += CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)];
+  if (!netSrvConnect(code)) return;
+  openSheet(`<h2 class="fat">ROOM ${code}</h2><p class="note" style="text-align:center">Waiting for your friend. They enter this code on the Friends tab, with Classic Triad chosen, and press Join.</p><div class="row c" style="margin-top:12px"><button class="btn dark" data-act="netRoomCancel">Cancel</button></div>`); lockSheet();
+}
+function netSrvJoin() { const code = ($("#vsCode").value || "").trim().toUpperCase(); if (code.length !== 4) return toast("Enter the 4-letter room code."); netSrvConnect(code); }
 function codeBox(id, text) { return `<textarea id="${id}" rows="3" readonly>${esc(text)}</textarea><div class="row" style="margin-top:6px"><button class="btn sm yellow" data-act="copy" data-id="${id}">Copy</button>${navigator.share ? `<button class="btn sm" data-act="share" data-id="${id}">Share</button>` : ""}</div>`; }
 async function hostStart() {
   { const bad = vsDeckErr(); if (bad) return toast(bad); }
@@ -2029,11 +2060,11 @@ async function joinMake() {
   } catch (e) { toast(e.message || "That code did not work."); }
 }
 function viewVersus(v) {
-  const online = !!(db && uid) || (VSG === "clash" && srvOn()), clash = VSG === "clash"; if (clash) ckInit();
+  const online = !!(db && uid) || (srvOn() && (VSG === "clash" || !!ACC)), clash = VSG === "clash"; if (clash) ckInit();
   const picker = `<div class="row c" style="margin:4px 0 8px"><button class="btn sm ${clash ? "yellow" : "dark"}" data-act="vsGame" data-g="clash">Clash</button><button class="btn sm ${clash ? "dark" : "yellow"}" data-act="vsGame" data-g="triad">Classic Triad</button></div>`;
   const deckRow = clash ? `<div class="row" style="margin:14px 0 0"><span class="note">Deck</span><select data-ck="deckSel">${P.cd.map((x, i) => `<option value="${i}" ${i === P.cdi ? "selected" : ""}>${esc(x.name)}${ckDeckOk(x.cards) ? " ✕" : ""}</option>`).join("")}</select></div><p class="note" style="text-align:center">Friend matches play on our online server. They pay a few coins and XP, and your cards are never at risk.</p>` : `<div class="row" style="margin:14px 0 0"><span class="note">Deck</span>${deckSelect()}</div><p class="note" style="text-align:center">Classic Triad is a separate spin-off. Its matches pay no coins, XP, cards or mission progress, and nothing here changes your collection.</p>`;
   const oldWays = (clash && srvOn() ? "" : `<span class="ribbon">DIRECT CONNECT</span><div class="panel"><p class="note" style="margin:0 0 10px">Play a friend phone to phone, with no account and no server. You swap two short codes in any chat app. Works on shared Wi-Fi and usually on mobile data too.</p><div class="row c"><button class="btn yellow" data-act="hostStart">Host a match</button><button class="btn" data-act="joinSheet">Join a match</button></div></div>`) +
-    `<span class="ribbon green">ROOM CODE</span><div class="panel"><p class="note" style="margin:0 0 10px">${VSG === "clash" ? (srvOn() ? "A 4-letter room code on our online server. Both players just need the app and an account." : "Room codes need a connection to our online server. Check your connection and sign in.") : "Classic Triad does not run on our online server yet, so it has no room codes. Use Direct connect above to play a friend phone to phone."}</p><div class="row c"><button class="btn yellow" data-act="vsCreate" ${online ? "" : "disabled"}>Create room</button><input type="text" id="vsCode" maxlength="4" placeholder="CODE" style="width:90px;text-transform:uppercase;text-align:center" ${online ? "" : "disabled"}><button class="btn" data-act="vsJoin" ${online ? "" : "disabled"}>Join</button></div></div>`;
+    `<span class="ribbon green">ROOM CODE</span><div class="panel"><p class="note" style="margin:0 0 10px">${srvOn() ? (online ? "A 4-letter room code on our online server. Both players just need the app and an account." : "Sign in to use room codes on our online server.") : "Room codes need a connection to our online server."}${clash ? "" : " Classic Triad rooms pass messages between the two phones; the match itself pays nothing."}</p><div class="row c"><button class="btn yellow" data-act="vsCreate" ${online ? "" : "disabled"}>Create room</button><input type="text" id="vsCode" maxlength="4" placeholder="CODE" style="width:90px;text-transform:uppercase;text-align:center" ${online ? "" : "disabled"}><button class="btn" data-act="vsJoin" ${online ? "" : "disabled"}>Join</button></div></div>`;
   const friendsUi = clash && srvOn();
   v.innerHTML = picker + (friendsUi ? `<div id="vsAcc">${accPanelHtml()}</div><details class="panel" style="margin-top:12px"><summary class="note" style="cursor:pointer">Other ways to connect (room code, direct)</summary>${oldWays}</details>` : oldWays) +
     deckRow + `<p class="note" style="text-align:center;opacity:.7">App version ${VER}. Both players need the same version.</p>`;
@@ -4660,10 +4691,10 @@ function profileSheet() {
 function settingsSheet() {
   const pf = P.prefs = P.prefs || {}, tg = (id, on, lab, sub) => `<div class="row setrow"><span>${lab}${sub ? `<small class="setsub">${sub}</small>` : ""}</span><button class="btn sm ${on ? "yellow" : "dark"}" data-me="${id}" style="min-width:76px">${on ? "ON" : "OFF"}</button></div>`,
     sl = (id, v) => `<div class="row" style="flex-wrap:nowrap;margin:0 0 10px"><input id="${id}" class="rng" type="range" min="0" max="100" value="${Math.round(v * 100)}"></div>`,
-    allOff = !(AU.sfx || AU.bgm || AU.amb), tiltNote = TILT.perm === "denied" ? "Motion access was declined, so the foil follows your finger. Allow it in your phone's Safari settings." : "The foil shimmers as you tilt your phone.",
+    allOff = !(AU.sfx || AU.bgm), tiltNote = TILT.perm === "denied" ? "Motion access was declined, so the foil follows your finger. Allow it in your phone's Safari settings." : "The foil shimmers as you tilt your phone.",
     srcDev = typeof srcPref === "function" && srcPref() === "device";
   openSheet(`<h2 class="fat">Settings</h2>` +
-    `<span class="ribbon">SOUND</span><div class="panel">${tg("sMute", allOff, "Mute all sound")}${tg("sBgm", AU.bgm, "Music")}${sl("mvol", AU.mv)}${tg("sSfx", AU.sfx, "Sound effects")}${sl("svol", AU.sv)}${tg("sAmb", AU.amb, "Ambience", "Wind and environment sounds")}${sl("avol", AU.av)}<div class="row"><button class="btn sm dark" data-act="soundLab">Sound test</button></div></div>` +
+    `<span class="ribbon">SOUND</span><div class="panel">${tg("sMute", allOff, "Mute all sound")}${tg("sBgm", AU.bgm, "Music")}${sl("mvol", AU.mv)}${tg("sSfx", AU.sfx, "Sound effects")}${sl("svol", AU.sv)}<div class="row"><button class="btn sm dark" data-act="soundLab">Sound test</button></div></div>` +
     `<span class="ribbon">DISPLAY</span><div class="panel">${tg("sMot", !(pf.motion === "off" || UI.mq.matches), "Animations", "Menu and card movement")}${tg("sVfx", pf.vfx !== false, "Battle effects", "Flashes, sparks and rings")}${tg("sShake", pf.shake !== false, "Screen shake")}${tg("sHap", pf.haptics !== false, "Vibration")}${UI.mq.matches ? '<p class="note" style="margin:8px 0 0">Your phone asks apps to reduce motion, so animations stay off.</p>' : ""}</div>` +
     `<span class="ribbon">CARDS AND PACKS</span><div class="panel">${tg("sTilt", TILT.on, "Card tilt", tiltNote)}${tg("sPack", pf.packQuick === true, "Quick pack opening", "Skip the tear and the flips, and go straight to your cards")}</div>` +
     `<span class="ribbon">ACCOUNT AND DATA</span><div class="panel"><div class="row setrow"><span>Display name<small class="setsub">${esc(playerName())}</small></span><button class="btn sm dark" data-act="nameEdit">Rename</button></div><p class="note" style="margin:0 0 8px">${ACC ? "Signed in as <b style=\"color:var(--yellow)\">" + esc(ACC.name) + "</b>. Your progress is saved to your account." : "Playing as a guest. Progress is only on this phone."}</p>${ACC ? `<p class="note" style="margin:0 0 4px">Which save wins when you sign in: <b>${srcDev ? "this phone" : "your online save"}</b>.</p><div class="row"><button class="btn sm dark" data-me="${srcDev ? "srconl" : "srcdev"}">${srcDev ? "Use my online save" : "Use this phone instead…"}</button></div>` : ""}<div class="row" style="gap:8px;margin-top:8px">${ACC ? `<button class="btn sm dark" data-me="blocked">Blocked (${blockedList().length})</button>` : ""}${ACC ? '<button class="btn sm dark" data-ac="logout">Sign out</button>' : '<button class="btn sm yellow" data-ac="up">Create account</button>'}<button class="btn sm red" data-me="del">${ACC ? "Delete account" : "Erase my progress"}</button></div></div>` +
@@ -4942,7 +4973,7 @@ document.addEventListener("click", async e => {
     case "ach": uiFx("tap"); return achSheet();
     case "hist": uiFx("tap"); return lbSheet("h");
     case "title": P.title = P.title === t.t ? "" : t.t; scheduleSave(); uiFx("ok"); return achSheet();
-    case "sMute": { const on = AU.sfx || AU.bgm || AU.amb; AU.sfx = AU.bgm = AU.amb = !on; auSave(); if (AU.bgm) musicStart(); else musicStop(); ambFor(AU.mode || "menu"); chrome(); return settingsSheet(); }
+    case "sMute": { const on = AU.sfx || AU.bgm; AU.sfx = AU.bgm = !on; auSave(); if (AU.bgm) musicStart(); else musicStop(); ambFor(AU.mode || "menu"); chrome(); return settingsSheet(); }
     case "sVfx": P.prefs = P.prefs || {}; P.prefs.vfx = P.prefs.vfx === false; scheduleSave(); return settingsSheet();
     case "sShake": P.prefs = P.prefs || {}; P.prefs.shake = P.prefs.shake === false; scheduleSave(); return settingsSheet();
     case "sPack": P.prefs = P.prefs || {}; P.prefs.packQuick = !P.prefs.packQuick; scheduleSave(); return settingsSheet();
@@ -5141,8 +5172,8 @@ function viewDaily(v) {
 }
 
 /* ===== sound: effects are synthesized (nothing to download); music is whatever songs you add from your own phone ===== */
-const AU = { ctx: null, out: null, sfx: true, bgm: true, amb: true, av: .7, mine: true, mode: "menu", sv: .8, mv: .6, tracks: [], idx: -1, el: null, url: "" };
-try { const a = JSON.parse(localStorage.getItem("triad.audio") || "{}"); ["sfx", "bgm", "amb", "mine", "sv", "mv", "av"].forEach(k => { if (a[k] !== undefined) AU[k] = a[k]; }); } catch (_) {}
+const AU = { ctx: null, out: null, sfx: true, bgm: true, amb: false, av: .7, mine: true, mode: "menu", sv: .8, mv: .6, tracks: [], idx: -1, el: null, url: "" };
+try { const a = JSON.parse(localStorage.getItem("triad.audio") || "{}"); ["sfx", "bgm", "mine", "sv", "mv", "av"].forEach(k => { if (a[k] !== undefined) AU[k] = a[k]; }); } catch (_) {}
 const auSave = () => { try { localStorage.setItem("triad.audio", JSON.stringify({ sfx: AU.sfx, bgm: AU.bgm, amb: AU.amb, mine: AU.mine, sv: AU.sv, mv: AU.mv, av: AU.av })); } catch (_) {} };
 function auCtx() {
   if (!AU.ctx) { const K = window.AudioContext || window.webkitAudioContext; if (!K) return null; try { AU.ctx = new K(); AU.out = AU.ctx.createGain(); AU.out.connect(AU.ctx.destination); } catch (_) { return null; } }
@@ -5519,7 +5550,7 @@ function stats_(buf, id) { const d = buf.getChannelData(0); let pk = 0, sq = 0, 
 const LAB_SFX = [["cardSlide", "Card slide"], ["cardPlace", "Card place"], ["launch:fire", "Launch: fire"], ["launch:water", "Launch: water"], ["launch:wind", "Launch: wind"], ["launch:earth", "Launch: earth"], ["launch:lightning", "Launch: lightning"], ["launch:ice", "Launch: ice"], ["launch:light", "Launch: light"], ["launch:dark", "Launch: dark"], ["cast:fire", "Skill cast (fire)"], ["impact:", "Hit"], ["impact:crit", "Heavy hit"], ["impact:react", "Spell collision"], ["fall", "Card falls"], ["victory", "Victory"], ["defeat", "Defeat"], ["seal", "Pack seal tears"], ["gather", "Energy gathers"], ["whoosh", "Rising whoosh"], ["reveal:1", "Reveal: rarity 1"], ["reveal:2", "Reveal: rarity 2"], ["reveal:3", "Reveal: rarity 3"], ["reveal:4", "Reveal: rarity 4"], ["reveal:5", "Reveal: rarity 5"], ["reveal:6", "Reveal: rarity 6"]];
 function soundLab() {
   const amb = ["menu", "summon"].concat(ELS8), nm = { menu: "Main menu", summon: "Summoning page" };
-  openSheet(`<h2 class="fat">Sound test</h2><p class="note" style="text-align:center">Tap to hear each part of the game's sound. Ambience loops until you stop it.</p><span class="ribbon">AMBIENCE</span><div class="panel"><div class="row" style="gap:6px">${amb.map(a => `<button class="btn sm dark" data-lab="amb:${a}">${nm[a] || a[0].toUpperCase() + a.slice(1)}</button>`).join("")}<button class="btn sm yellow" data-lab="amb:stop">Back to the game</button></div></div><span class="ribbon">EFFECTS</span><div class="panel"><div class="row" style="gap:6px">${LAB_SFX.map(([k, n]) => `<button class="btn sm dark" data-lab="sfx:${k}">${n}</button>`).join("")}</div></div>`);
+  openSheet(`<h2 class="fat">Sound test</h2><p class="note" style="text-align:center">Tap to hear each effect.</p><span class="ribbon">EFFECTS</span><div class="panel"><div class="row" style="gap:6px">${LAB_SFX.map(([k, n]) => `<button class="btn sm dark" data-lab="sfx:${k}">${n}</button>`).join("")}</div></div>`);
 }
 document.addEventListener("click", e => {
   const b = e.target.closest("[data-lab]"); if (!b) return; const [kind, rest] = [b.dataset.lab.split(":")[0], b.dataset.lab.slice(b.dataset.lab.indexOf(":") + 1)];
@@ -5575,7 +5606,7 @@ function soundPanel() {
   const list = AU.tracks.map(t => `<div class="row" style="justify-content:space-between;flex-wrap:nowrap"><span class="note" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(t.name.replace(/\.[a-z0-9]+$/i, ""))}</span><button class="btn sm dark" data-act="songDel" data-id="${t.id}">✕</button></div>`).join("");
   return `<span class="ribbon">SOUND</span><div class="panel"><div class="row" style="flex-wrap:nowrap"><button class="btn sm ${AU.sfx ? "yellow" : "dark"}" data-act="sfxT" style="min-width:128px">Effects ${AU.sfx ? "ON" : "OFF"}</button><input id="svol" class="rng" type="range" min="0" max="100" value="${Math.round(AU.sv * 100)}"></div>` +
     `<div class="row" style="flex-wrap:nowrap;margin-top:10px"><button class="btn sm ${AU.bgm ? "yellow" : "dark"}" data-act="bgmT" style="min-width:128px">Music ${AU.bgm ? "ON" : "OFF"}</button><input id="mvol" class="rng" type="range" min="0" max="100" value="${Math.round(AU.mv * 100)}"></div>` +
-    `<div class="row" style="flex-wrap:nowrap;margin-top:10px"><button class="btn sm ${AU.amb ? "yellow" : "dark"}" data-act="ambT" style="min-width:128px">Ambience ${AU.amb ? "ON" : "OFF"}</button><input id="avol" class="rng" type="range" min="0" max="100" value="${Math.round(AU.av * 100)}"></div><div class="row" style="margin-top:8px"><button class="btn sm dark" data-act="soundLab">Sound test</button></div>` +
+    `<div class="row" style="margin-top:10px"><button class="btn sm dark" data-act="soundLab">Sound test</button></div>` +
     `<p class="note" style="margin:10px 0 0">${AU.tracks.length && AU.mine ? "Playing your songs." : "Playing the game's own music: a lobby groove, a match beat and a summon shimmer."} Add your own audio files (mp3, m4a or wav) and they play instead. They stay on this device and are never uploaded.</p><div style="margin-top:8px">${list}</div>${AU.tracks.length ? `<div class="row" style="margin:8px 0"><button class="btn sm ${AU.mine ? "yellow" : "dark"}" data-act="mineT">My songs ${AU.mine ? "ON" : "OFF"}</button></div>` : ""}<div class="row"><label class="btn sm" style="position:relative">Add songs<input id="songs" type="file" accept="audio/*" multiple style="position:absolute;inset:0;opacity:0;width:100%;height:100%"></label>${AU.tracks.length ? '<button class="btn sm red" data-act="songsClear">Remove all</button>' : ""}</div><p class="note" style="margin:8px 0 0">On iPhone the music volume follows the volume buttons.</p></div>`;
 }
 
@@ -5604,6 +5635,7 @@ document.addEventListener("click", async e => {
     case "again": { const m = M, o = { tier: m.tier, stage: m.stage }; closeMatch(); return startAi(o); }
     case "rematch": return rematch();
     case "take": return takeCard(d.id);
+    case "netRoomCancel": netClose(); return closeModal();
     case "vsGame": VSG = d.g; return show("versus");
     case "summon": return summon(d.k || "std", +d.n || 1);
     case "pool": SEL = d.k; return show("summon");
