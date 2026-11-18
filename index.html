@@ -153,8 +153,8 @@ textarea { width: 100%; resize: none; font: 700 11px/1.3 ui-monospace, Menlo, Co
 .card.r3 .win::before, .card.r4 .win::before, .card.r5 .win::before, .card.r6 .win::before { content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none; mix-blend-mode: screen; opacity: .8; animation: twinkle 2.6s steps(1) infinite; background-image: radial-gradient(circle, #fff 0 .5cqw, transparent .7cqw), radial-gradient(circle, #fff 0 .4cqw, transparent .6cqw), radial-gradient(circle, #fff 0 .6cqw, transparent .8cqw); background-size: 31cqw 27cqw, 23cqw 37cqw, 41cqw 33cqw; background-position: 4cqw 7cqw, 13cqw 19cqw, 26cqw 3cqw; }
 @keyframes twinkle { 50% { opacity: .15; } }
 .card.r6 .holo::after { content: ""; position: absolute; inset: 0; mix-blend-mode: overlay; background: repeating-conic-gradient(from 20deg at 50% 42%, #ffffff55 0 5deg, transparent 5deg 10deg); }
-.card.r6::before, .card.r5::before { content: ""; position: absolute; inset: 0; z-index: 4; pointer-events: none; background: linear-gradient(105deg, transparent 38%, #ffffff66 49%, transparent 60%); background-size: 280% 100%; animation: sheen 3.4s linear infinite; mix-blend-mode: overlay; }
-@keyframes sheen { from { background-position: 160% 0; } to { background-position: -110% 0; } }
+.card.r6::before, .card.r5::before { content: ""; position: absolute; inset: 0; z-index: 4; pointer-events: none; background: linear-gradient(105deg, transparent 38%, #ffffff66 49%, transparent 60%); background-size: 280% 100%; background-repeat: no-repeat; animation: sheen 3.4s linear infinite; mix-blend-mode: overlay; }
+@keyframes sheen { 0% { background-position: 160% 0; opacity: 0; } 12% { opacity: 1; } 88% { opacity: 1; } 100% { background-position: -110% 0; opacity: 0; } }
 .card .gems { position: absolute; left: 6.5cqw; top: 6.5cqw; display: flex; flex-direction: column; gap: 1.2cqw; z-index: 3; }
 .card .gems i { width: 4.2cqw; height: 4.2cqw; transform: rotate(45deg); background: linear-gradient(135deg, #fff, var(--c) 60%, var(--cd)); border: .6cqw solid #000; box-shadow: 0 0 1.6cqw var(--c); }
 .card .cnt { position: absolute; top: 5cqw; right: 6cqw; z-index: 4; background: #000d; color: var(--r5); border-radius: 999px; font: 700 9cqw var(--display); padding: .5cqw 3cqw; }
@@ -288,6 +288,12 @@ table.odds { width: 100%; border-collapse: collapse; } table.odds td { padding: 
 .filters select, .filters input { flex: 1 1 100px; }
 .setsub { display: block; font-size: 11px; opacity: .6; font-weight: 400; margin-top: 2px; max-width: 210px; line-height: 1.25; }
 .ttl { display: block; font-size: 10.5px; line-height: 1.15; color: var(--yellow, #e3bf66); letter-spacing: 0; margin: 1px 0 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sheet > .sheetx, .sheet > .sico.r, .sheet > .sico.l { position: sticky !important; top: 6px !important; right: auto !important; left: auto !important; z-index: 30; width: 38px; height: 38px; margin: -6px -4px -32px auto; border: 0; border-radius: 50%; background: rgba(14, 22, 32, .72); color: #fff; font: 700 19px/1 var(--body); display: grid; place-items: center; cursor: pointer; }
+.sheet > .sico.l { margin: -6px auto -32px -4px; }
+#modal[data-lock="1"] .sheet > .sheetx:not(.keep) { display: none; }
+.kslot.dragging { opacity: .3; } .kslot.dropto { outline: 2px solid #e3bf66; outline-offset: 1px; }
+.dragghost { position: fixed; z-index: 9999; pointer-events: none; transform: translate(-50%, -50%) scale(1.12); filter: drop-shadow(0 8px 12px #000a); }
+.hm-deckbar { flex-wrap: wrap; } .hm-deckbar select { flex: 1 1 100% !important; width: 100% !important; text-overflow: ellipsis; } .hm-deckbar .btn { flex: 1 1 0; }
 .mute svg { width: 20px; height: 20px; color: #e8ecf0; }
 .mute { flex: none; width: 36px; height: 36px; border-radius: 50%; border: 3px solid #000; background: linear-gradient(#34413a, #151d19); box-shadow: inset 0 2px 0 #ffffff44, 0 3px 0 #000; font-size: 16px; line-height: 1; padding: 0; }
 .rng { flex: 1; min-width: 0; accent-color: var(--yellow); height: 28px; }
@@ -314,8 +320,8 @@ table.odds { width: 100%; border-collapse: collapse; } table.odds td { padding: 
 .packw .emb { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; text-align: center; }
 .packw .emb svg { width: 36%; filter: drop-shadow(0 3px 0 #000a); } .packw .emb b { font-size: 24px; color: #fff; line-height: 1; } .packw .emb i { font-size: 16px; color: var(--yellow); font-style: normal; line-height: 1; letter-spacing: .06em; }
 .packw .emb small { font: 800 9px var(--body); color: #ffffffc0; letter-spacing: .14em; margin-top: 6px; } .packw .emb span { color: var(--yellow); font-size: 12px; letter-spacing: 2px; }
-.packw .sheen { position: absolute; inset: 0; mix-blend-mode: overlay; background: linear-gradient(115deg, transparent 28%, #ffffff77 46%, #ff9be0aa 50%, #9bf0ffaa 54%, transparent 68%); background-size: 320% 100%; background-position: calc(50% + var(--tx) * 90%) 0; animation: pksheen 5s linear infinite; }
-@keyframes pksheen { from { background-position-x: 160%; } to { background-position-x: -60%; } }
+.packw .sheen { position: absolute; inset: 0; mix-blend-mode: overlay; background: linear-gradient(115deg, transparent 28%, #ffffff77 46%, #ff9be0aa 50%, #9bf0ffaa 54%, transparent 68%); background-size: 320% 100%; background-repeat: no-repeat; background-position: calc(50% + var(--tx) * 90%) 0; animation: pksheen 5s linear infinite; }
+@keyframes pksheen { 0% { background-position-x: 160%; opacity: 0; } 12% { opacity: 1; } 88% { opacity: 1; } 100% { background-position-x: -60%; opacity: 0; } }
 .packw.mini { animation: pkfloat 3.4s ease-in-out infinite; } @keyframes pkfloat { 50% { transform: translateY(-6px) rotate(-1.5deg); } }
 .packw .pbot, .packw .ptop { position: absolute; inset: 0; border-radius: inherit; }
 .packw .pbot { clip-path: inset(48px 0 0 0); } .packw .ptop { clip-path: inset(0 0 calc(100% - 48px) 0); transform-origin: 0 100%; filter: drop-shadow(0 4px 0 #0008); }
@@ -1711,7 +1717,7 @@ function bestDeckIds(cap) {
 
 /* ===== chrome: top bar and the five-button bar ===== */
 let tab = "battle";
-const TABS = [["summon", "Packs", "summon"], ["cards", "Cards", "cards"], ["battle", "Battle", "swords"], ["daily", "Daily", "daily"], ["versus", "Versus", "vs"]];
+const TABS = [["summon", "Packs", "summon"], ["cards", "Cards", "cards"], ["battle", "Battle", "swords"], ["daily", "Missions", "daily"], ["versus", "Friends", "vs"]];
 const UIC = {};   // last shown coin and gem totals, so the pills count up or down
 function chrome() {
   if (!P) { $("#hud").innerHTML = ""; return; }
@@ -1850,23 +1856,18 @@ async function onCell(i) {
 /* ===== the end of a match: result, rewards, the card taken ===== */
 function endMatch() {
   if (!M || M.done) return; M.done = true; const st = M.state, me = M.me, a = scoreOf(st, me), b = scoreOf(st, 1 - me), win = a > b, draw = a === b;
-  const cap0 = deckCap(); rollover(); P.tplays = (P.tplays || 0) + 1; P.mis.play++; P.mis.cap += M.captured; if (win) { P.twins = (P.twins || 0) + 1; P.mis.win++; }   // the classic mode is not verified by the server, so it keeps its own counters
+  const cap0 = deckCap(); rollover(); P.tplays = (P.tplays || 0) + 1; if (win) P.twins = (P.twins || 0) + 1;   // Classic Triad is a spin-off: it keeps its own counters and pays nothing into the main game (no coins, XP, cards or mission progress)
   const tile = (i, n, t) => `<div class="rwi ${t}">${ic(i, "")}<b>×${n}</b></div>`, chips = []; let ups = [];
-  if (M.kind === "ai") {
-    if (win) {
-      let xp = 20 + 15 * M.tier; if (M.stage) { xp += 10; const k = stageKey(M.stage.c, M.stage.s); if (!P.cleared[k]) { P.cleared[k] = 1; const tk = CAMPAIGN[M.stage.c].tickets[M.stage.s] * 100; P.coins += tk; chips.push(tile("coin", tk, "p")); } }
-      ups = gainXp(xp); chips.unshift(tile("xp", xp, "b"));
-    } else { ups = gainXp(5); chips.push(tile("xp", 5, "b")); }
-  } else { const xp = win ? 25 : 10; ups = gainXp(xp); chips.push(tile("xp", xp, "b")); }
+  if (M.kind === "ai" && win && M.stage) { const k = stageKey(M.stage.c, M.stage.s); if (!P.cleared[k]) P.cleared[k] = 1; }   // Classic campaign progress (it only raises the Classic deck cap)
   if (deckCap() > cap0) ups.push("Deck cost cap is now " + deckCap());
   scheduleSave(); chrome();
   const oppDeck = M.kind === "ai" ? st.decks[1].map(i => C[i].id) : M.oppDeck || [];
   const claimKey = M.kind === "vs" ? M.room + ":" + (M.created || 0) + ":" + (M.round || 0) : null;
-  const canPick = win && oppDeck.length && !(claimKey && P.claims.includes(claimKey));
+  const canPick = false;   // Classic Triad no longer hands out cards
   M.claimKey = claimKey;
   setTimeout(() => {
-    if (!M) return; sfx(win ? "win" : draw ? "draw" : "lose"); if (ups.length) setTimeout(() => sfx("level"), 1100); const tail = `<div class="row c" style="margin-top:12px">${M.kind === "ai" ? '<button class="btn yellow" data-act="again">Again</button>' : (M.host ? '<button class="btn yellow" data-act="rematch">Rematch</button>' : "")}<button class="btn dark" data-act="leave">Done</button></div>`;
-    $("#match").insertAdjacentHTML("beforeend", `<div class="over" id="modal2"><div class="sheet"><span class="ribbon ${win ? "gold" : ""}" style="font-size:30px">${win ? "VICTORY!" : draw ? "DRAW" : "DEFEAT"}</span><p class="note" style="text-align:center;margin:0">${a} – ${b}${win ? "" : " · you keep every card"}</p><div class="rw">${chips.join("")}</div>${ups.length ? `<p class="note" style="text-align:center">${ups.map(esc).join(" · ")}</p>` : ""}${canPick ? `<div class="pickbox"><p style="text-align:center;margin:6px 0">Take a copy of one of their cards</p><div class="grid" style="grid-template-columns:repeat(5,1fr)">${oppDeck.map(id => cardHtml(BY[id], { triad: true, attr: `data-act="take" data-id="${id}"` })).join("")}</div></div>` : ""}${tail}</div></div>`);
+    if (!M) return; sfx(win ? "win" : draw ? "draw" : "lose"); const tail = `<div class="row c" style="margin-top:12px">${M.kind === "ai" ? '<button class="btn yellow" data-act="again">Again</button>' : (M.host ? '<button class="btn yellow" data-act="rematch">Rematch</button>' : "")}<button class="btn dark" data-act="leave">Done</button></div>`;
+    $("#match").insertAdjacentHTML("beforeend", `<div class="over" id="modal2"><div class="sheet"><span class="ribbon ${win ? "gold" : ""}" style="font-size:30px">${win ? "VICTORY!" : draw ? "DRAW" : "DEFEAT"}</span><p class="note" style="text-align:center;margin:0">${a} – ${b} · Classic Triad pays no rewards</p><div class="rw">${chips.join("")}</div>${ups.length ? `<p class="note" style="text-align:center">${ups.map(esc).join(" · ")}</p>` : ""}${canPick ? `<div class="pickbox"><p style="text-align:center;margin:6px 0">Take a copy of one of their cards</p><div class="grid" style="grid-template-columns:repeat(5,1fr)">${oppDeck.map(id => cardHtml(BY[id], { triad: true, attr: `data-act="take" data-id="${id}"` })).join("")}</div></div>` : ""}${tail}</div></div>`);
   }, 700);
 }
 function takeCard(id) {
@@ -1945,7 +1946,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.12.06-k";
+const VER = "2026.12.06-l";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -1995,7 +1996,7 @@ function netMaybeStart() {
 }
 function netGot(m) {
   if (m.t === "ck") return cknGot(m);
-  if (m.t === "hello") { if ((m.g || "triad") !== NET.g) { toast("You picked different games. Both players choose the same game on the Versus tab."); return; } NET.theirName = m.name || "Friend"; NET.theirDeck = m.deck; if (M && M.net) M.oppName = NET.theirName; netMaybeStart(); }
+  if (m.t === "hello") { if ((m.g || "triad") !== NET.g) { toast("You picked different games. Both players choose the same game on the Friends tab."); return; } NET.theirName = m.name || "Friend"; NET.theirDeck = m.deck; if (M && M.net) M.oppName = NET.theirName; netMaybeStart(); }
   else if (m.t === "state") {
     if (!M && NET && !NET.host && NET.theirDeck) { closeModal(); M = newVsMatch({ me: 1, host: false, net: NET, room: "direct", created: m.r.created, oppName: NET.theirName, oppDeck: NET.theirDeck.slice() }); openMatch(); }
     applyRemote(m.r);
@@ -2030,9 +2031,9 @@ async function joinMake() {
 function viewVersus(v) {
   const online = !!(db && uid) || (VSG === "clash" && srvOn()), clash = VSG === "clash"; if (clash) ckInit();
   const picker = `<div class="row c" style="margin:4px 0 8px"><button class="btn sm ${clash ? "yellow" : "dark"}" data-act="vsGame" data-g="clash">Clash</button><button class="btn sm ${clash ? "dark" : "yellow"}" data-act="vsGame" data-g="triad">Classic Triad</button></div>`;
-  const deckRow = clash ? `<div class="row" style="margin:14px 0 0"><span class="note">Deck</span><select data-ck="deckSel">${P.cd.map((x, i) => `<option value="${i}" ${i === P.cdi ? "selected" : ""}>${esc(x.name)}${ckDeckOk(x.cards) ? " ✕" : ""}</option>`).join("")}</select></div><p class="note" style="text-align:center">Friendly matches pay a little dust. Your cards are never at risk.</p>` : `<div class="row" style="margin:14px 0 0"><span class="note">Deck</span>${deckSelect()}</div><p class="note" style="text-align:center">The winner takes a copy of one of the loser's cards. Nobody loses a card.</p>`;
+  const deckRow = clash ? `<div class="row" style="margin:14px 0 0"><span class="note">Deck</span><select data-ck="deckSel">${P.cd.map((x, i) => `<option value="${i}" ${i === P.cdi ? "selected" : ""}>${esc(x.name)}${ckDeckOk(x.cards) ? " ✕" : ""}</option>`).join("")}</select></div><p class="note" style="text-align:center">Friend matches play on our online server. They pay a few coins and XP, and your cards are never at risk.</p>` : `<div class="row" style="margin:14px 0 0"><span class="note">Deck</span>${deckSelect()}</div><p class="note" style="text-align:center">Classic Triad is a separate spin-off. Its matches pay no coins, XP, cards or mission progress, and nothing here changes your collection.</p>`;
   const oldWays = (clash && srvOn() ? "" : `<span class="ribbon">DIRECT CONNECT</span><div class="panel"><p class="note" style="margin:0 0 10px">Play a friend phone to phone, with no account and no server. You swap two short codes in any chat app. Works on shared Wi-Fi and usually on mobile data too.</p><div class="row c"><button class="btn yellow" data-act="hostStart">Host a match</button><button class="btn" data-act="joinSheet">Join a match</button></div></div>`) +
-    `<span class="ribbon green">ROOM CODE</span><div class="panel"><p class="note" style="margin:0 0 10px">${online ? (VSG === "clash" && srvOn() ? "A 4-letter room code on our online server. Both players just need the app." : "A 4-letter room code. Both players need this page open on claude.ai with Contributor access.") : "Room codes only work on the claude.ai version of this page."}</p><div class="row c"><button class="btn yellow" data-act="vsCreate" ${online ? "" : "disabled"}>Create room</button><input type="text" id="vsCode" maxlength="4" placeholder="CODE" style="width:90px;text-transform:uppercase;text-align:center" ${online ? "" : "disabled"}><button class="btn" data-act="vsJoin" ${online ? "" : "disabled"}>Join</button></div></div>`;
+    `<span class="ribbon green">ROOM CODE</span><div class="panel"><p class="note" style="margin:0 0 10px">${VSG === "clash" ? (srvOn() ? "A 4-letter room code on our online server. Both players just need the app and an account." : "Room codes need a connection to our online server. Check your connection and sign in.") : "Classic Triad does not run on our online server yet, so it has no room codes. Use Direct connect above to play a friend phone to phone."}</p><div class="row c"><button class="btn yellow" data-act="vsCreate" ${online ? "" : "disabled"}>Create room</button><input type="text" id="vsCode" maxlength="4" placeholder="CODE" style="width:90px;text-transform:uppercase;text-align:center" ${online ? "" : "disabled"}><button class="btn" data-act="vsJoin" ${online ? "" : "disabled"}>Join</button></div></div>`;
   const friendsUi = clash && srvOn();
   v.innerHTML = picker + (friendsUi ? `<div id="vsAcc">${accPanelHtml()}</div><details class="panel" style="margin-top:12px"><summary class="note" style="cursor:pointer">Other ways to connect (room code, direct)</summary>${oldWays}</details>` : oldWays) +
     deckRow + `<p class="note" style="text-align:center;opacity:.7">App version ${VER}. Both players need the same version.</p>`;
@@ -3378,8 +3379,9 @@ function deckSheet2() {
   const nSkill = D.cards.filter(x => x && isSkill(x)).length;
   const slot = k => { const id = D.cards[k]; return `<div class="kslot ${D.sel === k ? "on" : ""} ${D.flash === k ? "swapflash" : ""}" data-ck="dslot" data-k="${k}">${id && (BY[id] || isSkill(id)) ? kcardMini(id) : '<div class="ku mini empty"><span>+</span></div>'}</div>`; };
   const selId = D.cards[D.sel];
-  openSheet(`<h2 class="fat">DECK</h2><div class="row" style="margin:0 0 6px;flex-wrap:nowrap"><input type="text" id="ckname" maxlength="14" value="${esc(D.name)}" style="flex:1"><button class="btn sm dark" data-ck="deckDel" ${P.cd.length <= 1 ? "disabled" : ""}>Delete</button></div>` +
-    `<p class="note" style="margin:0 0 6px">12 CARDS. Each fight starts with 5 of them at random on the field; draw the rest for 4 energy.</p><div class="kd6">${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(slot).join("")}</div>` +
+  openSheet(`<button class="sheetx keep" data-ck="dx" aria-label="Close">✕</button><h2 class="fat">DECK</h2><div class="row" style="margin:0 0 6px;flex-wrap:nowrap"><input type="text" id="ckname" maxlength="14" value="${esc(D.name)}" style="flex:1"><button class="btn sm dark" data-ck="deckDel" ${P.cd.length <= 1 ? "disabled" : ""}>Delete</button></div>` +
+    `<p class="note" style="margin:0 0 6px">12 CARDS. Each fight starts with 5 of them at random on the field; draw the rest for 4 energy. Hold a card and drag it to move it.</p><div class="kd6">${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(slot).join("")}</div>` +
+    `<div class="row" style="margin:6px 0 0;gap:6px;flex-wrap:wrap"><small class="note" style="margin:0">Sort deck</small>${[["cost", "Cost"], ["rar", "Rarity"], ["el", "Element"], ["type", "Type"], ["name", "Name"]].map(([k, n]) => `<button class="btn sm dark" data-ck="dsortdeck" data-s="${k}">${n}</button>`).join("")}</div>` +
     `<div class="selbar"><span>Editing <b>${esc(SLOT_NAME(D.sel))}</b>${selId && (BY[selId] || isSkill(selId)) ? ": " + esc(isSkill(selId) ? SKC[selId].n : BY[selId].name) : ": empty"}</span>${selId ? '<button class="btn sm dark" data-ck="dremove">Remove</button>' : ""}</div>` +
     `<div class="row" style="margin:6px 0 0;gap:6px"><button class="btn sm dark" data-ck="dundo" ${D.undo.length ? "" : "disabled"}>↶ Undo</button><button class="btn sm dark" data-me="fill" ${D.cards.filter(Boolean).length >= 12 ? "disabled" : ""}>Fill empty</button><button class="btn sm dark" data-me="copycode">Copy code</button><button class="btn sm dark" data-me="cover" ${selId && BY[selId] ? "" : "disabled"}>Set as cover</button><button class="btn sm dark" data-ck="dclear" ${D.cards.some(Boolean) ? "" : "disabled"}>Clear deck</button></div>` +
     styleLine(D.cards) + (err ? `<p class="note" style="color:#ff9aa4;margin:6px 0 0">${esc(err)}</p>` : '<p class="note" style="color:var(--ok);margin:6px 0 0">Ready to play.</p>') +
@@ -3389,6 +3391,31 @@ function deckSheet2() {
     `<div class="row c" style="margin-top:10px"><button class="btn yellow" data-ck="deckSave" ${deckDirty(D) ? "" : "disabled"}>${deckDirty(D) ? "Save deck" : "Saved"}</button><button class="btn dark" data-ck="dclose">Close</button></div>`);
   lockSheet(); const s2 = $("#modal .sheet"); if (s2) s2.scrollTop = st; const p2 = $("#modal .kpick"); if (p2) p2.scrollTop = pst; D.flash = -1;
 }
+/* the X at the top: nothing to save closes at once; otherwise save, discard or keep editing */
+async function deckX() {
+  const D = CKD; if (!D || !deckDirty(D)) { CKD = null; return closeModal(); }
+  const r = await uiChoice({ title: "Save this deck?", body: "You changed this deck. Save the changes, throw them away, or keep editing.", save: "Save", discard: "Discard", stay: "Keep editing" });
+  if (r === "save") { const b = document.querySelector('[data-ck="deckSave"]'); if (b && !b.disabled) b.click(); } else if (r === "discard") { CKD = null; closeModal(); }
+}
+function deckSortBy(D, kind) {
+  const ids = D.cards.filter(Boolean), nm = id => (isSkill(id) ? SKC[id].n : BY[id] ? BY[id].name : ""), rk = id => (isSkill(id) ? 0 : BY[id] ? rarOf(BY[id]) : 0), cs = id => (isSkill(id) ? SKC[id].c : (deckKit(id) || {}).cost || 0), el = id => (isSkill(id) ? 99 : Math.max(0, ELKEYS.indexOf(arCard(BY[id]).el)));
+  const by = { cost: (a, b) => cs(a) - cs(b) || nm(a).localeCompare(nm(b)), rar: (a, b) => rk(b) - rk(a) || nm(a).localeCompare(nm(b)), el: (a, b) => el(a) - el(b) || nm(a).localeCompare(nm(b)), type: (a, b) => (isSkill(a) ? 1 : 0) - (isSkill(b) ? 1 : 0) || nm(a).localeCompare(nm(b)), name: (a, b) => nm(a).localeCompare(nm(b)) }[kind];
+  if (!by) return; ids.sort(by); D.cards = ids.concat(Array(12 - ids.length).fill(""));
+}
+/* hold a card in the deck editor for a moment, then drag it onto another slot to swap them */
+(function deckDrag() {
+  let dr = null; const clean = () => { if (!dr) return; clearTimeout(dr.t); if (dr.ghost) dr.ghost.remove(); dr.slot.classList.remove("dragging"); document.querySelectorAll(".kslot.dropto").forEach(e => e.classList.remove("dropto")); dr = null; };
+  const lift = () => { if (!dr) return; dr.up = true; const r = dr.slot.getBoundingClientRect(), g = dr.slot.cloneNode(true); g.className = "dragghost"; g.style.width = r.width + "px"; g.style.height = r.height + "px"; document.body.appendChild(g); dr.ghost = g; dr.slot.classList.add("dragging"); g.style.left = dr.x + "px"; g.style.top = dr.y + "px"; if (navigator.vibrate) try { navigator.vibrate(8); } catch (_) {} };
+  document.addEventListener("pointerdown", e => { const s = e.target.closest && e.target.closest(".kd6 .kslot"); if (!s || !CKD) return; const k = +s.dataset.k; if (!CKD.cards[k]) return; clean(); dr = { k, slot: s, x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY, up: false, t: setTimeout(lift, 300) }; });
+  document.addEventListener("pointermove", e => { if (!dr) return; dr.x = e.clientX; dr.y = e.clientY; if (!dr.up) { if (Math.hypot(e.clientX - dr.sx, e.clientY - dr.sy) > 9) clean(); return; } dr.ghost.style.left = e.clientX + "px"; dr.ghost.style.top = e.clientY + "px"; const t = document.elementFromPoint(e.clientX, e.clientY), s = t && t.closest && t.closest(".kd6 .kslot"); document.querySelectorAll(".kslot.dropto").forEach(x => x.classList.remove("dropto")); if (s && s !== dr.slot) s.classList.add("dropto"); });
+  document.addEventListener("pointerup", e => {
+    if (!dr) return; if (!dr.up) return clean(); const t = document.elementFromPoint(e.clientX, e.clientY), s = t && t.closest && t.closest(".kd6 .kslot"), from = dr.k, to = s ? +s.dataset.k : -1; clean();
+    const stop = ev => { ev.stopPropagation(); ev.preventDefault(); }; document.addEventListener("click", stop, { capture: true, once: true }); setTimeout(() => document.removeEventListener("click", stop, true), 120);
+    if (to >= 0 && to !== from && CKD) { deckSnap(CKD); const a = CKD.cards[from]; CKD.cards[from] = CKD.cards[to] || ""; CKD.cards[to] = a; CKD.sel = to; CKD.cmp = null; CKD.flash = to; uiFx("tap"); deckSheet2(); }
+  });
+  document.addEventListener("pointercancel", () => clean());
+  document.addEventListener("touchmove", e => { if (dr && dr.up) e.preventDefault(); }, { passive: false });
+})();
 async function deckClose() { const D = CKD; if (D && deckDirty(D) && !(await uiConfirm({ title: "Discard changes?", body: "This deck has changes that are not saved.", ok: "Discard", cancel: "Keep editing", danger: true }))) return; CKD = null; closeModal(); }
 function deckSnap(D) { D.undo.push(D.cards.slice()); if (D.undo.length > 30) D.undo.shift(); }
 function deckUndo() { const D = CKD; if (!D || !D.undo.length) return; D.cards = D.undo.pop(); D.cmp = null; deckSheet2(); }
@@ -3520,6 +3547,8 @@ document.addEventListener("click", async e => {
     case "deckDel": { const D = CKD; return void uiConfirm({ title: "Delete this deck?", body: "<b>" + esc(P.cd[D.i].name) + "</b> will be removed. Your cards are not affected.", ok: "Delete", danger: true }).then(ok => { if (!ok || !CKD) return; P.cd.splice(CKD.i, 1); P.cdi = 0; scheduleSave(); CKD = null; closeModal(); show(tab); toast("Deck deleted"); }); }
     case "deckSave": { if (!uiOnce("deckSave")) return; const nm = $("#ckname"); P.cd[CKD.i].name = ((nm ? nm.value : CKD.name) || "").trim() || "Deck"; P.cd[CKD.i].cards = CKD.cards.slice(); if (CKD.cover) P.cd[CKD.i].cover = CKD.cover; scheduleSave(); CKD = null; closeModal(); show(tab); uiFx("ok"); return toast("Deck saved"); }
     case "dclose": return deckClose();
+    case "dx": return deckX();
+    case "dsortdeck": { const D = CKD; deckSnap(D); deckSortBy(D, d.s); D.cmp = null; uiFx("tap"); return deckSheet2(); }
     case "dslot": CKD.sel = +d.k; CKD.cmp = null; uiFx("tap"); return deckSheet2();
     case "dpick": { if (CKD.cards[CKD.sel] === d.id) { uiFx("err"); return toast("That card is already in this slot."); } CKD.cmp = d.id; uiFx("tap"); return deckSheet2(); }
     case "dcancel": CKD.cmp = null; uiFx("back"); return deckSheet2();
@@ -4313,6 +4342,17 @@ function uiCount(el, to, ms, pre) {
   if (from === to || !uiMotion()) { el.textContent = p + to; return; }
   const t0 = performance.now(), d = ms || 650; (function f(now) { const k = Math.min(1, (now - t0) / d), e = 1 - Math.pow(1 - k, 3); el.textContent = p + Math.round(from + (to - from) * e); if (k < 1) requestAnimationFrame(f); else el.textContent = p + to; })(t0);
 }
+/* save, discard or keep going: resolves "save", "discard" or "stay" */
+function uiChoice(o) {
+  return new Promise(res => {
+    const old = document.getElementById("dlg"); if (old) old.remove();
+    const d = document.createElement("div"); d.id = "dlg";
+    d.innerHTML = `<div class="dlgbox"><h3 class="fat">${esc(o.title || "Save your changes?")}</h3><p>${o.body || ""}</p><div class="row c" style="flex-wrap:wrap"><button class="btn yellow" data-d="save">${esc(o.save || "Save")}</button><button class="btn red" data-d="discard">${esc(o.discard || "Discard")}</button><button class="btn dark" data-d="stay">${esc(o.stay || "Keep editing")}</button></div></div>`;
+    const done = v => { if (d.dataset.done) return; d.dataset.done = "1"; d.classList.add("out"); setTimeout(() => d.remove(), uiMotion() ? 170 : 0); uiFx(v === "save" ? "ok" : "back"); res(v); };
+    d.addEventListener("click", e => { const b = e.target.closest("[data-d]"); if (b) done(b.dataset.d); });
+    document.body.appendChild(d);
+  });
+}
 function uiConfirm(o) {
   return new Promise(res => {
     const old = document.getElementById("dlg"); if (old) old.remove();
@@ -4548,7 +4588,7 @@ function histBody() {
 const historySheet = () => lbSheet("h");
 
 /* ---------- achievements: titles to show off, no currency ---------- */
-const nOwned = () => ownedList().length, nCamp = () => Object.keys((P.camp && P.camp.cl) || {}).length + Object.keys(P.cleared || {}).length;
+const nOwned = () => ownedList().length, nCamp = () => Object.keys((P.camp && P.camp.cl) || {}).length;   // the Clash campaign only: Classic Triad is a spin-off and does not count
 const nLeg = () => ownedList().filter(c => rarOf(c) >= 5 && !c.ex).length, nSecret = () => ownedList().filter(c => c.ex).length, nSet2 = () => ownedList().filter(c => c.set2).length,
   nVars = () => Object.values(P.vars || {}).reduce((a, l) => a + (Array.isArray(l) ? l.length : 0), 0), nFav = () => Object.keys(P.fav || {}).filter(k => P.fav[k]).length, nReady = () => (P.cd || []).filter(d => !ckDeckOk(d.cards)).length;
 /* n: name, t: what to do, ti: the title it unlocks (20 letters at most: the server keeps that much), r: how rare the title looks (1 to 6), v: the number that counts, need: how many */
@@ -5063,7 +5103,7 @@ function filterSheet() {
 function skillSheet(id) {
   const k = SKC[id]; openSheet(`<button class="sico r" data-act="closeModal" aria-label="Close">✕</button><div style="width:min(46%,170px);margin:6px auto 10px">${skTile(id)}</div><h2 class="fat" style="text-align:center;margin:0">${esc(k.n)}</h2><p class="note" style="text-align:center;margin:4px 0 8px">${k.c} energy · ${k.t === "ally" ? "one of your cards" : k.t === "enemy" ? "one enemy card" : k.t === "slot" ? "an empty lane" : "a whole side"}</p><div class="rules"><p>${esc(skText(id))}</p></div><p class="note" style="text-align:center;margin:10px 0 0">Every player has every skill card. Put up to ${SK_MAX} in a deck, ${SK_COPIES} copies of each.</p>`);
 }
-function openSheet(h) { const m = $("#modal"); m.hidden = false; delete m.dataset.lock; m.innerHTML = `<div class="sheet">${h}</div>`; }
+function openSheet(h) { const m = $("#modal"); m.hidden = false; delete m.dataset.lock; m.innerHTML = `<div class="sheet">${/class="(sico|sheetx)/.test(h) ? "" : '<button class="sheetx" data-act="closeModal" aria-label="Close">✕</button>'}${h}</div>`; }
 /* a sheet that must be answered with its own buttons (a result, a choice, a waiting screen): tapping outside it does nothing */
 function lockSheet() { $("#modal").dataset.lock = "1"; }
 function detail(id) {
@@ -5094,7 +5134,7 @@ function missions() {
 function viewDaily(v) {
   rollover(); const ms = missions(), all = ms.every(m => P.mis.claimed[m.id]);
   const nClaim = claimCount();
-  v.innerHTML = `<span class="ribbon">DAILY</span>${nClaim > 1 ? `<div class="row c" style="margin:0 0 10px"><button class="btn yellow" data-me="claimall">Claim all (${nClaim})</button></div>` : ""}<div class="list"><div class="panel item"><div class="t"><b>Daily login</b><small>${ECON.login.coins} ${ic("coin")} for dropping in</small></div><button class="btn sm yellow" data-act="login" ${P.login ? "disabled" : ""}>${P.login ? "Claimed" : "Claim"}</button></div>` +
+  v.innerHTML = `<span class="ribbon">MISSIONS</span>${nClaim > 1 ? `<div class="row c" style="margin:0 0 10px"><button class="btn yellow" data-me="claimall">Claim all (${nClaim})</button></div>` : ""}<div class="list"><div class="panel item"><div class="t"><b>Daily login</b><small>${ECON.login.coins} ${ic("coin")} for dropping in</small></div><button class="btn sm yellow" data-act="login" ${P.login ? "disabled" : ""}>${P.login ? "Claimed" : "Claim"}</button></div>` +
     ms.map(m => `<div class="panel item"><div class="t"><b>${m.t}</b><small>${Math.min(m.have, m.need)} / ${m.need} · reward ${m.coins} ${ic("coin")}</small><div class="bar" style="margin-top:5px"><i style="width:${Math.min(100, 100 * m.have / m.need)}%"></i></div></div><button class="btn sm ${m.have >= m.need && !P.mis.claimed[m.id] ? "yellow" : ""}" data-act="claimM" data-id="${m.id}" ${m.have >= m.need && !P.mis.claimed[m.id] ? "" : "disabled"}>${P.mis.claimed[m.id] ? "Done" : "Claim"}</button></div>`).join("") +
     `<div class="panel item"><div class="t"><b>All four</b><small>${ECON.allFour.gems} ${ic("gem")} bonus</small></div><span class="tag ${all ? "ok" : ""}">${all ? "EARNED" : "FINISH THE LIST"}</span></div></div>` +
     ``;
