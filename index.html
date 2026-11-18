@@ -1958,7 +1958,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.12.07-c";
+const VER = "2026.12.07-d";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -3069,9 +3069,10 @@ function arUnit(A, cid) {
 }
 function arNew(deck0, deck1, o = {}) {
   const A = { t: 0, tick: 0, uid: 0, seed: o.seed != null ? o.seed : 20261111, over: false, winner: null, ev: [], log: [], q: [], seq: [0, 0], ui: !!o.ui, level: o.level || [1, 1], mode: o.mode || {}, horizon: null, s: [] }; A.init = { d: [deck0.slice(), deck1.slice()], lv: A.level.slice(), seed: A.seed, mode: A.mode };
-  for (const deck of [deck0, deck1]) {
+  for (const [side, deck] of [deck0, deck1].entries()) {
     if (deck.length >= AR.DECKN) {   // v3: shuffle with the match's own seeded generator (both phones get the same order). 5 creatures go to the field; the other creatures and every skill card wait in the draw pile
-      const shuf = list => { const d = list.slice(); for (let i = d.length - 1; i > 0; i--) { const j = Math.floor(arRand(A) * (i + 1)); [d[i], d[j]] = [d[j], d[i]]; } return d; };
+      const fixed = side === 1 && A.mode && A.mode.kind === "camp";   // a story foe always starts with the same five cards and draws in the same order (its deck is already fixed per stage)
+      const shuf = list => { const d = list.slice(); if (fixed) return d; for (let i = d.length - 1; i > 0; i--) { const j = Math.floor(arRand(A) * (i + 1)); [d[i], d[j]] = [d[j], d[i]]; } return d; };
       const all = deck.slice(0, AR.DECKN), cr = shuf(all.filter(id => !isSkill(id))), sk = all.filter(id => isSkill(id));
       A.s.push({ core: AR.CORE, energy: AR.E0, lane: cr.slice(0, AR.START).map(c => arUnit(A, c)), bench: Array(AR.HAND).fill(null), pile: shuf(cr.slice(AR.START).concat(sk)), swapcd: [0, 0, 0, 0, 0], grave: [] });
     } else A.s.push({ core: AR.CORE, energy: AR.E0, lane: deck.slice(0, 5).map(c => arUnit(A, c)), bench: deck.slice(5, 8).map(c => arUnit(A, c)), pile: [], swapcd: [0, 0, 0, 0, 0], grave: [] });
