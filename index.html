@@ -268,6 +268,8 @@ table.odds { width: 100%; border-collapse: collapse; } table.odds td { padding: 
 .slots .empty { border: 3px dashed #ffffff44; border-radius: 10px; background: #0003; }
 .filters { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 9px; }
 .filters select, .filters input { flex: 1 1 100px; }
+.setsub { display: block; font-size: 11px; opacity: .6; font-weight: 400; margin-top: 2px; max-width: 210px; line-height: 1.25; }
+.mute svg { width: 20px; height: 20px; color: #e8ecf0; }
 .mute { flex: none; width: 36px; height: 36px; border-radius: 50%; border: 3px solid #000; background: linear-gradient(#34413a, #151d19); box-shadow: inset 0 2px 0 #ffffff44, 0 3px 0 #000; font-size: 16px; line-height: 1; padding: 0; }
 .rng { flex: 1; min-width: 0; accent-color: var(--yellow); height: 28px; }
 .bfield { position: relative; }
@@ -1394,6 +1396,7 @@ input[type=password] { background: #05150d; color: #fff; border: 3px solid #000;
   <symbol id="i-summon" viewBox="0 0 24 24"><circle fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" cx="12" cy="12" r="8"/><circle fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" cx="12" cy="12" r="3.2"/><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3"/></symbol>
   <symbol id="i-spade" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C9 8 4 10 4 15a4.2 4.2 0 0 0 7 3c0 2-.8 3.2-2 4h6c-1.2-.8-2-2-2-4a4.2 4.2 0 0 0 7-3c0-5-5-7-8-13z"/></symbol>
   <symbol id="i-swords" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M4 4l10 10M20 4L10 14M4 20l3-3M20 20l-3-3M9 15l-3 3M15 15l3 3"/><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M4 4h4M4 4v4M20 4h-4M20 4v4"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><circle fill="none" stroke="currentColor" stroke-width="1.7" cx="12" cy="12" r="3"/><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
   <symbol id="i-daily" viewBox="0 0 24 24"><rect fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" x="4" y="5" width="16" height="15" rx="3"/><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M4 10h16M9 3v4M15 3v4M9 15l2.2 2.2L15.5 13"/></symbol>
   <symbol id="i-vs" viewBox="0 0 24 24"><circle fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" cx="8.5" cy="9" r="3.2"/><circle fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" cx="16.5" cy="9" r="3.2"/><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M2.5 20c0-3.6 2.6-5.6 6-5.6s6 2 6 5.6M12 15.2c1-.5 2.3-.8 4.5-.8 3.4 0 5 2 5 5.6"/></symbol>
   <symbol id="i-atk" viewBox="0 0 24 24"><path fill="currentColor" d="M5 20 18 7l1-4 4-1-1 4-4 1L6 21z" transform="translate(-1 0)"/></symbol>
@@ -1696,7 +1699,7 @@ const UIC = {};   // last shown coin and gem totals, so the pills count up or do
 function chrome() {
   if (!P) { $("#hud").innerHTML = ""; return; }
   const pct = Math.floor(100 * P.xp / need(P.lv));
-  $("#hud").innerHTML = `<div class="hexw" data-act="avatar" data-frame="${P.frame && frameOk(P.frame) ? P.frame : ""}"><div class="hex">${P.avatar && BY[P.avatar] && P.own[P.avatar] > 0 ? `<img class="hexart" alt="" src="${artSrc(BY[P.avatar])}">` : "<span>♠</span>"}</div><b class="lvbadge">${P.lv}</b></div><div class="who" data-me="profile"><b class="fat">${esc(playerName())} ✎</b><div class="xp"><i style="width:${pct}%"></i><small>${P.xp} / ${need(P.lv)}${saveMode === "local" ? " · on this device" : ""}</small></div></div><div class="pills"><span class="pill c">${ic("coin", "")}<b data-n="coins">${P.coins == null ? 0 : P.coins}</b></span><span class="pill g">${ic("gem", "")}<b data-n="gems">${P.gems == null ? 0 : P.gems}</b></span></div><button class="mute" data-act="muteAll" aria-label="Sound">${AU.sfx || AU.bgm ? "🔊" : "🔇"}</button>`;
+  $("#hud").innerHTML = `<div class="hexw" data-act="avatar" data-frame="${P.frame && frameOk(P.frame) ? P.frame : ""}"><div class="hex">${P.avatar && BY[P.avatar] && P.own[P.avatar] > 0 ? `<img class="hexart" alt="" src="${artSrc(BY[P.avatar])}">` : "<span>♠</span>"}</div><b class="lvbadge">${P.lv}</b></div><div class="who" data-me="profile"><b class="fat">${esc(playerName())} ✎</b><div class="xp"><i style="width:${pct}%"></i><small>${P.xp} / ${need(P.lv)}${saveMode === "local" ? " · on this device" : ""}</small></div></div><div class="pills"><span class="pill c">${ic("coin", "")}<b data-n="coins">${P.coins == null ? 0 : P.coins}</b></span><span class="pill g">${ic("gem", "")}<b data-n="gems">${P.gems == null ? 0 : P.gems}</b></span></div><button class="mute" data-me="settings" aria-label="Settings">${ic("gear", "")}</button>`;
   for (const k of ["coins", "gems"]) { const el = document.querySelector('#hud [data-n="' + k + '"]'), v = P[k] == null ? 0 : P[k]; if (el) { const prev = UIC[k]; if (prev !== undefined && prev !== v) { el.dataset.v = prev; uiCount(el, v); uiPulse(el.parentNode, v > prev ? "gain" : "spend"); } else el.dataset.v = v; UIC[k] = v; } }
   if (typeof achCheck === "function") { achCheck(); seasonCheck(); }
   const claimable = !P.login || missions().some(m => m.have >= m.need && !P.mis.claimed[m.id]);
@@ -1923,7 +1926,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.12.06-f";
+const VER = "2026.12.06-g";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -2031,15 +2034,15 @@ const packTearHtml = (kind = "std") => `<div class="packw big k-${kind}" id="pw"
 
 /* ----- tilt: a device sensor when the browser allows it, else a slow sway; a finger or mouse on a card overrides it ----- */
 const TILT = { on: true, gyro: false, last: 0, x: 0, y: 0, tx: 0, ty: 0, bound: false };
-try { TILT.on = localStorage.getItem("triad.tilt") !== "0"; } catch (_) {}
+try { TILT.on = localStorage.getItem("triad.tilt") !== "0"; TILT.perm = localStorage.getItem("triad.tiltperm") || ""; } catch (_) {}
 function tiltListen() {
   if (TILT.bound) return; TILT.bound = true;
   window.addEventListener("deviceorientation", e => { if (e.gamma == null || e.beta == null) return; TILT.gyro = true; TILT.last = performance.now(); TILT.tx = Math.max(-1, Math.min(1, e.gamma / 28)); TILT.ty = Math.max(-1, Math.min(1, (e.beta - 55) / 28)); });
 }
-function tiltAsk() {   // must run inside a tap: iOS asks the player for motion access
-  if (!TILT.on) return; try {
-    if (typeof DeviceOrientationEvent !== "undefined" && typeof DeviceOrientationEvent.requestPermission === "function") DeviceOrientationEvent.requestPermission().then(r => { if (r === "granted") tiltListen(); }).catch(() => {});
-    else tiltListen();
+function tiltAsk(force) {   // must run inside a tap: iOS asks the player for motion access. Asked once per session, and a refusal is remembered (the foil then follows a finger or sways).
+  if (!TILT.on || TILT.asked || (TILT.perm === "denied" && !force)) return; TILT.asked = true; try {
+    if (typeof DeviceOrientationEvent !== "undefined" && typeof DeviceOrientationEvent.requestPermission === "function") DeviceOrientationEvent.requestPermission().then(r => { TILT.perm = r === "granted" ? "granted" : "denied"; try { localStorage.setItem("triad.tiltperm", TILT.perm); } catch (_) {} if (r === "granted") tiltListen(); }).catch(() => {});
+    else { TILT.perm = "granted"; tiltListen(); }
   } catch (_) {}
 }
 /* One loop moves every card in the open sheet. It runs on the display's own frame clock (60 or 120 Hz), eases with a time-based spring so the speed never depends on the frame rate, and moves only
@@ -2077,6 +2080,7 @@ function tiltBind() {
 /* ----- opening a pack: tear it, then flip the cards one at a time ----- */
 let PK = null;
 function packStage() {
+  if (PK && !PK.torn && P && P.prefs && P.prefs.packQuick) { PK.torn = true; PK.i = PK.res.length; sfx("whoosh"); return packSummary(); }
   const m = $("#modal"); m.hidden = false; m.dataset.lock = "1";   // a tap outside the pack must not close it mid-reveal
   if (!PK.torn) { m.innerHTML = `<div class="packfs"><div class="plbl">Swipe across the top of the pack</div>${packTearHtml(PK.kind)}<button class="btn sm dark" data-act="packTear" style="margin-top:14px">Tap to open</button></div>`; packTearBind(); return; }
   if (PK.i >= PK.res.length) return packSummary();
@@ -3759,15 +3763,16 @@ const FXMAX = 90, elColor = el => (EL[el] ? EL[el][2] : "#ffffff");
 function fxNew(cls, x, y, css) { const L = $("#arfx"); if (!L || L.childElementCount > FXMAX) return null; const d = document.createElement("div"); d.className = "fx " + cls; d._t = performance.now(); d.style.left = x + "px"; d.style.top = y + "px"; if (css) for (const k in css) d.style.setProperty(k, css[k]); L.appendChild(d); return d; }
 function fxGo(d, frames, dur, delay = 0, easing = "ease-out") { if (!d) return; const a = d.animate(frames, { duration: dur, delay, fill: "both", easing }); a.onfinish = () => d.remove(); }
 function fxPos(el) { const L = $("#arfx").getBoundingClientRect(), r = el.getBoundingClientRect(); return { x: r.left - L.left + r.width / 2, y: r.top - L.top + r.height / 2, w: r.width, h: r.height, l: r.left - L.left, t: r.top - L.top }; }
-function fxSparks(p, color, n = 10, dist = 38, dur = 460) { for (let i = 0; i < n; i++) { const a = Math.random() * 6.283, d = dist * (.5 + Math.random() * .7), e = fxNew("spark", p.x, p.y, { "--c": color }); fxGo(e, [{ transform: "translate(-50%,-50%) scale(1.2)", opacity: 1 }, { transform: `translate(calc(-50% + ${Math.cos(a) * d}px), calc(-50% + ${Math.sin(a) * d + 8}px)) scale(.2)`, opacity: 0 }], dur * (.7 + Math.random() * .6)); } }
-function fxRing(p, color, size = 70, dur = 520, delay = 0) { const e = fxNew("ring", p.x, p.y, { "--c": color, width: size + "px", height: size + "px" }); fxGo(e, [{ transform: "translate(-50%,-50%) scale(.2)", opacity: .95 }, { transform: "translate(-50%,-50%) scale(1.25)", opacity: 0 }], dur, delay); }
-function fxFlash(p, color, size = 80, dur = 260) { const e = fxNew("flash", p.x, p.y, { "--c": color, width: size + "px", height: size + "px" }); fxGo(e, [{ transform: "translate(-50%,-50%) scale(.5)", opacity: 1 }, { transform: "translate(-50%,-50%) scale(1.5)", opacity: 0 }], dur); }
-function fxSlash(p, color, ang = -35) { const e = fxNew("slash", p.x, p.y, { "--c": color }); fxGo(e, [{ transform: `translate(-50%,-50%) rotate(${ang}deg) scaleX(.1)`, opacity: 1 }, { transform: `translate(-50%,-50%) rotate(${ang}deg) scaleX(1.15)`, opacity: 1, offset: .35 }, { transform: `translate(-50%,-50%) rotate(${ang}deg) scaleX(1.2)`, opacity: 0 }], 300); }
-function fxBeam(a, b, color, dur = 380) { const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy), ang = Math.atan2(dy, dx) * 180 / Math.PI, e = fxNew("beam", a.x, a.y, { "--c": color, width: len + "px" }); fxGo(e, [{ transform: `translate(0,-50%) rotate(${ang}deg) scaleX(0)`, transformOrigin: "0 50%", opacity: 1 }, { transform: `translate(0,-50%) rotate(${ang}deg) scaleX(1)`, transformOrigin: "0 50%", opacity: 1, offset: .5 }, { transform: `translate(0,-50%) rotate(${ang}deg) scaleX(1)`, transformOrigin: "0 50%", opacity: 0 }], dur); const o = fxNew("orb", a.x, a.y, { "--c": color }); fxGo(o, [{ transform: "translate(-50%,-50%) scale(1)", left: a.x + "px", top: a.y + "px" }, { transform: "translate(-50%,-50%) scale(1.3)", left: b.x + "px", top: b.y + "px" }], dur * .6, 0, "ease-in"); }
-function fxPillar(p, color) { const e = fxNew("pillar", p.x, p.y, { "--c": color }); fxGo(e, [{ transform: "translate(-50%,-92%) scaleY(.1)", opacity: 0 }, { transform: "translate(-50%,-92%) scaleY(1)", opacity: 1, offset: .3 }, { transform: "translate(-50%,-92%) scaleY(1.1)", opacity: 0 }], 800); }
-function fxMotes(p, color, n = 7, rise = 46) { for (let i = 0; i < n; i++) { const e = fxNew("mote", p.x + (Math.random() - .5) * p.w * .8, p.y + p.h * .2, { "--c": color }); fxGo(e, [{ transform: "translate(-50%,-50%) scale(.6)", opacity: 0 }, { transform: `translate(-50%,calc(-50% - ${rise * .5}px)) scale(1)`, opacity: 1, offset: .3 }, { transform: `translate(-50%,calc(-50% - ${rise}px)) scale(.4)`, opacity: 0 }], 700 + Math.random() * 300, Math.random() * 220); } }
-function fxShake(el, px = 4, dur = 260) { if (!el) return; el.animate([{ transform: "translate(0,0)" }, { transform: `translate(${-px}px,${px / 2}px)` }, { transform: `translate(${px}px,${-px / 2}px)` }, { transform: `translate(${-px / 2}px,${px / 3}px)` }, { transform: "translate(0,0)" }], { duration: dur }); }
-function fxShatter(g, color) {
+const fxOn = () => !(typeof P !== "undefined" && P && P.prefs && P.prefs.vfx === false), shakeOn = () => !(typeof P !== "undefined" && P && P.prefs && P.prefs.shake === false);
+function fxSparks(p, color, n = 10, dist = 38, dur = 460) { if (!fxOn()) return; for (let i = 0; i < n; i++) { const a = Math.random() * 6.283, d = dist * (.5 + Math.random() * .7), e = fxNew("spark", p.x, p.y, { "--c": color }); fxGo(e, [{ transform: "translate(-50%,-50%) scale(1.2)", opacity: 1 }, { transform: `translate(calc(-50% + ${Math.cos(a) * d}px), calc(-50% + ${Math.sin(a) * d + 8}px)) scale(.2)`, opacity: 0 }], dur * (.7 + Math.random() * .6)); } }
+function fxRing(p, color, size = 70, dur = 520, delay = 0) { if (!fxOn()) return; const e = fxNew("ring", p.x, p.y, { "--c": color, width: size + "px", height: size + "px" }); fxGo(e, [{ transform: "translate(-50%,-50%) scale(.2)", opacity: .95 }, { transform: "translate(-50%,-50%) scale(1.25)", opacity: 0 }], dur, delay); }
+function fxFlash(p, color, size = 80, dur = 260) { if (!fxOn()) return; const e = fxNew("flash", p.x, p.y, { "--c": color, width: size + "px", height: size + "px" }); fxGo(e, [{ transform: "translate(-50%,-50%) scale(.5)", opacity: 1 }, { transform: "translate(-50%,-50%) scale(1.5)", opacity: 0 }], dur); }
+function fxSlash(p, color, ang = -35) { if (!fxOn()) return; const e = fxNew("slash", p.x, p.y, { "--c": color }); fxGo(e, [{ transform: `translate(-50%,-50%) rotate(${ang}deg) scaleX(.1)`, opacity: 1 }, { transform: `translate(-50%,-50%) rotate(${ang}deg) scaleX(1.15)`, opacity: 1, offset: .35 }, { transform: `translate(-50%,-50%) rotate(${ang}deg) scaleX(1.2)`, opacity: 0 }], 300); }
+function fxBeam(a, b, color, dur = 380) { if (!fxOn()) return; const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy), ang = Math.atan2(dy, dx) * 180 / Math.PI, e = fxNew("beam", a.x, a.y, { "--c": color, width: len + "px" }); fxGo(e, [{ transform: `translate(0,-50%) rotate(${ang}deg) scaleX(0)`, transformOrigin: "0 50%", opacity: 1 }, { transform: `translate(0,-50%) rotate(${ang}deg) scaleX(1)`, transformOrigin: "0 50%", opacity: 1, offset: .5 }, { transform: `translate(0,-50%) rotate(${ang}deg) scaleX(1)`, transformOrigin: "0 50%", opacity: 0 }], dur); const o = fxNew("orb", a.x, a.y, { "--c": color }); fxGo(o, [{ transform: "translate(-50%,-50%) scale(1)", left: a.x + "px", top: a.y + "px" }, { transform: "translate(-50%,-50%) scale(1.3)", left: b.x + "px", top: b.y + "px" }], dur * .6, 0, "ease-in"); }
+function fxPillar(p, color) { if (!fxOn()) return; const e = fxNew("pillar", p.x, p.y, { "--c": color }); fxGo(e, [{ transform: "translate(-50%,-92%) scaleY(.1)", opacity: 0 }, { transform: "translate(-50%,-92%) scaleY(1)", opacity: 1, offset: .3 }, { transform: "translate(-50%,-92%) scaleY(1.1)", opacity: 0 }], 800); }
+function fxMotes(p, color, n = 7, rise = 46) { if (!fxOn()) return; for (let i = 0; i < n; i++) { const e = fxNew("mote", p.x + (Math.random() - .5) * p.w * .8, p.y + p.h * .2, { "--c": color }); fxGo(e, [{ transform: "translate(-50%,-50%) scale(.6)", opacity: 0 }, { transform: `translate(-50%,calc(-50% - ${rise * .5}px)) scale(1)`, opacity: 1, offset: .3 }, { transform: `translate(-50%,calc(-50% - ${rise}px)) scale(.4)`, opacity: 0 }], 700 + Math.random() * 300, Math.random() * 220); } }
+function fxShake(el, px = 4, dur = 260) { if (!el || !shakeOn()) return; el.animate([{ transform: "translate(0,0)" }, { transform: `translate(${-px}px,${px / 2}px)` }, { transform: `translate(${px}px,${-px / 2}px)` }, { transform: `translate(${-px / 2}px,${px / 3}px)` }, { transform: "translate(0,0)" }], { duration: dur }); }
+function fxShatter(g, color) { if (!fxOn()) return;
   if (!g) return; const L = $("#arfx"); if (!L || L.childElementCount > FXMAX) return; const p = (() => { const gl = L.getBoundingClientRect(); return { l: g.l - gl.left, t: g.t - gl.top }; })();
   const d = document.createElement("div"); d._t = performance.now(); d.className = "fx ghost " + g.cls.replace(/\bslot\b/g, ""); d.style.left = g.l + "px"; d.style.top = g.t + "px"; d.style.width = g.w + "px"; d.style.height = g.h + "px"; d.innerHTML = g.html; L.appendChild(d);
   fxGo(d, [{ filter: "brightness(2.2) saturate(.6)", transform: "scale(1.04)", opacity: 1 }, { filter: "brightness(1.2) grayscale(.8)", transform: "scale(.96) rotate(-2deg)", opacity: .85, offset: .35 }, { filter: "brightness(.4) grayscale(1)", transform: "scale(.82) rotate(4deg) translateY(10px)", opacity: 0 }], 620);
@@ -4611,11 +4616,18 @@ function profileSheet() {
 
 /* ---------- settings ---------- */
 function settingsSheet() {
-  const pf = P.prefs = P.prefs || {}, tg = (id, on, lab) => `<div class="row setrow"><span>${lab}</span><button class="btn sm ${on ? "yellow" : "dark"}" data-me="${id}" style="min-width:76px">${on ? "ON" : "OFF"}</button></div>`;
-  openSheet(`<h2 class="fat">Settings</h2><div class="panel">${tg("sHap", pf.haptics !== false, "Vibration")}${tg("sMot", !(pf.motion === "off" || UI.mq.matches), "Animations")}${tg("sSfx", AU.sfx, "Sound effects")}<div class="row" style="flex-wrap:nowrap;margin:2px 0 10px"><input id="svol" class="rng" type="range" min="0" max="100" value="${Math.round(AU.sv * 100)}"></div>${tg("sBgm", AU.bgm, "Music")}<div class="row" style="flex-wrap:nowrap;margin:2px 0 0"><input id="mvol" class="rng" type="range" min="0" max="100" value="${Math.round(AU.mv * 100)}"></div>${tg("sAmb", AU.amb, "Ambience")}<div class="row" style="flex-wrap:nowrap;margin:2px 0 0"><input id="avol" class="rng" type="range" min="0" max="100" value="${Math.round(AU.av * 100)}"></div><div class="row" style="margin:10px 0 0"><button class="btn sm dark" data-act="soundLab">Sound test</button></div>${UI.mq.matches ? '<p class="note" style="margin:8px 0 0">Your phone asks apps to reduce motion, so animations stay off.</p>' : ""}</div>` +
+  const pf = P.prefs = P.prefs || {}, tg = (id, on, lab, sub) => `<div class="row setrow"><span>${lab}${sub ? `<small class="setsub">${sub}</small>` : ""}</span><button class="btn sm ${on ? "yellow" : "dark"}" data-me="${id}" style="min-width:76px">${on ? "ON" : "OFF"}</button></div>`,
+    sl = (id, v) => `<div class="row" style="flex-wrap:nowrap;margin:0 0 10px"><input id="${id}" class="rng" type="range" min="0" max="100" value="${Math.round(v * 100)}"></div>`,
+    allOff = !(AU.sfx || AU.bgm || AU.amb), tiltNote = TILT.perm === "denied" ? "Motion access was declined, so the foil follows your finger. Allow it in your phone's Safari settings." : "The foil shimmers as you tilt your phone.",
+    srcDev = typeof srcPref === "function" && srcPref() === "device";
+  openSheet(`<h2 class="fat">Settings</h2>` +
+    `<span class="ribbon">SOUND</span><div class="panel">${tg("sMute", allOff, "Mute all sound")}${tg("sBgm", AU.bgm, "Music")}${sl("mvol", AU.mv)}${tg("sSfx", AU.sfx, "Sound effects")}${sl("svol", AU.sv)}${tg("sAmb", AU.amb, "Ambience", "Wind and environment sounds")}${sl("avol", AU.av)}<div class="row"><button class="btn sm dark" data-act="soundLab">Sound test</button></div></div>` +
+    `<span class="ribbon">DISPLAY</span><div class="panel">${tg("sMot", !(pf.motion === "off" || UI.mq.matches), "Animations", "Menu and card movement")}${tg("sVfx", pf.vfx !== false, "Battle effects", "Flashes, sparks and rings")}${tg("sShake", pf.shake !== false, "Screen shake")}${tg("sHap", pf.haptics !== false, "Vibration")}${UI.mq.matches ? '<p class="note" style="margin:8px 0 0">Your phone asks apps to reduce motion, so animations stay off.</p>' : ""}</div>` +
+    `<span class="ribbon">CARDS AND PACKS</span><div class="panel">${tg("sTilt", TILT.on, "Card tilt", tiltNote)}${tg("sPack", pf.packQuick === true, "Quick pack opening", "Skip the tear and the flips, and go straight to your cards")}</div>` +
+    `<span class="ribbon">ACCOUNT AND DATA</span><div class="panel"><p class="note" style="margin:0 0 8px">${ACC ? "Signed in as <b style=\"color:var(--yellow)\">" + esc(ACC.name) + "</b>. Your progress is saved to your account." : "Playing as a guest. Progress is only on this phone."}</p>${ACC ? `<p class="note" style="margin:0 0 4px">Which save wins when you sign in: <b>${srcDev ? "this phone" : "your online save"}</b>.</p><div class="row"><button class="btn sm dark" data-me="${srcDev ? "srconl" : "srcdev"}">${srcDev ? "Use my online save" : "Use this phone instead…"}</button></div>` : ""}<div class="row" style="gap:8px;margin-top:8px">${ACC ? `<button class="btn sm dark" data-me="blocked">Blocked (${blockedList().length})</button>` : ""}${ACC ? '<button class="btn sm dark" data-ac="logout">Sign out</button>' : '<button class="btn sm yellow" data-ac="up">Create account</button>'}<button class="btn sm red" data-me="del">${ACC ? "Delete account" : "Erase my progress"}</button></div></div>` +
     `<span class="ribbon">HELP</span><div class="row c" style="gap:8px"><button class="btn sm" data-ck="rules">How to play</button><button class="btn sm" data-me="tut">Replay the tutorial</button></div>` +
-    `<span class="ribbon">ACCOUNT</span><div class="panel"><p class="note" style="margin:0 0 8px">${ACC ? "Signed in as <b style=\"color:var(--yellow)\">" + esc(ACC.name) + "</b>. Your progress is saved to your account." : "Playing as a guest. Progress is only on this phone."}</p><div class="row" style="gap:8px">${ACC ? `<button class="btn sm dark" data-me="blocked">Blocked (${blockedList().length})</button>` : ""}${ACC ? '<button class="btn sm dark" data-ac="logout">Sign out</button>' : '<button class="btn sm yellow" data-ac="up">Create account</button>'}<button class="btn sm red" data-me="del">${ACC ? "Delete account" : "Erase my progress"}</button></div>${ACC ? `<p class="note" style="margin:10px 0 4px">Which save wins when you sign in: <b>${srcPref() === "device" ? "this phone" : "your online save"}</b>.</p><button class="btn sm dark" data-me="${srcPref() === "device" ? "srconl" : "srcdev"}">${srcPref() === "device" ? "Use my online save" : "Use this phone instead…"}</button>` : ""}</div>` +
-    `<div class="row c" style="margin-top:12px"><button class="btn sm dark" data-me="profile">Back</button></div>`);
+    `<p class="note" style="text-align:center;margin:12px 0 0;opacity:.6;font-size:11px">Version ${typeof VER !== "undefined" ? VER : ""}</p>` +
+    `<div class="row c" style="margin-top:10px"><button class="btn sm dark" data-me="profile">Back</button></div>`);
 }
 async function deleteAccount() {
   const ok = await uiConfirm({ title: ACC ? "Delete your account?" : "Erase your progress?", body: ACC ? "This permanently deletes <b>" + esc(ACC.name) + "</b>, your saved game, friends and every card. It cannot be undone." : "This erases every card, coin and deck on this phone. It cannot be undone.", ok: ACC ? "Delete forever" : "Erase", danger: true });
@@ -4856,6 +4868,11 @@ document.addEventListener("click", async e => {
     case "ach": uiFx("tap"); return achSheet();
     case "hist": uiFx("tap"); return historySheet();
     case "title": P.title = P.title === t.t ? "" : t.t; scheduleSave(); uiFx("ok"); return achSheet();
+    case "sMute": { const on = AU.sfx || AU.bgm || AU.amb; AU.sfx = AU.bgm = AU.amb = !on; auSave(); if (AU.bgm) musicStart(); else musicStop(); ambFor(AU.mode || "menu"); chrome(); return settingsSheet(); }
+    case "sVfx": P.prefs = P.prefs || {}; P.prefs.vfx = P.prefs.vfx === false; scheduleSave(); return settingsSheet();
+    case "sShake": P.prefs = P.prefs || {}; P.prefs.shake = P.prefs.shake === false; scheduleSave(); return settingsSheet();
+    case "sPack": P.prefs = P.prefs || {}; P.prefs.packQuick = !P.prefs.packQuick; scheduleSave(); return settingsSheet();
+    case "sTilt": TILT.on = !TILT.on; try { localStorage.setItem("triad.tilt", TILT.on ? "1" : "0"); } catch (_) {} if (TILT.on) { TILT.asked = false; tiltAsk(true); } return settingsSheet();
     case "sHap": P.prefs = P.prefs || {}; P.prefs.haptics = P.prefs.haptics === false; scheduleSave(); uiHaptic("ok"); return settingsSheet();
     case "sMot": P.prefs = P.prefs || {}; P.prefs.motion = P.prefs.motion === "off" ? "on" : "off"; scheduleSave(); return settingsSheet();
     case "sSfx": AU.sfx = !AU.sfx; auSave(); sfx("tap"); chrome(); return settingsSheet();
@@ -5187,7 +5204,7 @@ function creak(c, t, bus) { const o = ambPan(c, bus, R_(-.5, .5)), f = R_(650, 9
 /* ----- the beds: (c, bus, nodes) => [[minSeconds, maxSeconds, (c, t, bus) => event], ...] ----- */
 const BEDS = {
   menu(c, bus, N) {   // a sanctuary: soft wind, a room, distant birds, small chimes
-    ambNoise(c, "pink", bus, N, { type: "bandpass", f: 520, q: .6, v: .15, lr: .07, ld: 220, gr: .05, gd: .05 });
+    ambNoise(c, "pink", bus, N, { type: "bandpass", f: 520, q: .6, v: .06, lr: .07, ld: 220, gr: .05, gd: .02 });
     ambNoise(c, "brown", bus, N, { type: "lowpass", f: 160, v: .07 });
     ambNoise(c, "white", bus, N, { type: "highpass", f: 6000, v: .005 });
     return [[5, 12, bird], [7, 16, chimeCascade]];
@@ -5195,7 +5212,7 @@ const BEDS = {
   summon(c, bus, N) {   // humming energy and crystal, under a drifting wind
     const lp = ambFilt(c, "lowpass", 320, bus); [[55, .035], [55.4, .028], [82.4, .014]].forEach(([f, v]) => ambOsc(c, "sine", f, v, lp, N, { gr: .13, gd: v * .25 }));
     ambOsc(c, "sine", 110, .01, bus, N, { gr: .5, gd: .008 });
-    ambNoise(c, "pink", bus, N, { type: "bandpass", f: 900, q: .7, v: .06, lr: .09, ld: 400 });
+    ambNoise(c, "pink", bus, N, { type: "bandpass", f: 900, q: .7, v: .025, lr: .09, ld: 400 });
     return [[6, 14, crystal]];
   },
   fire(c, bus, N) {
@@ -5209,7 +5226,7 @@ const BEDS = {
     return [[.4, 1.5, bubble]];
   },
   wind(c, bus, N) {
-    ambNoise(c, "pink", bus, N, { type: "bandpass", f: 700, q: .6, v: .17, lr: .1, ld: 300, gr: .06, gd: .05 });
+    ambNoise(c, "pink", bus, N, { type: "bandpass", f: 700, q: .6, v: .07, lr: .1, ld: 300, gr: .06, gd: .02 });
     return [[2, 6, (c2, t, b) => hiss(c2, t, .4, RAW_(ambPan(c2, b, R_(-.8, .8)), .03, { type: "highpass", f: 4000, a: .12 }))], [8, 16, (c2, t, b) => { const o = ambPan(c2, b, R_(-.7, .7)); tone(c2, 900, t, .9, RAW_(o, .018, { a: .2, to: 1400 })); tone(c2, 1400, t + .45, .6, RAW_(o, .014, { a: .15, to: 1000 })); }]];
   },
   earth(c, bus, N) {
@@ -5221,7 +5238,7 @@ const BEDS = {
     return [[11, 24, thunder], [1, 4, (c2, t, b) => { for (let i = 0; i < 1 + Math.floor(Math.random() * 3); i++) hiss(c2, t + i * R_(.01, .06), .01, RAW_(ambPan(c2, b, R_(-.7, .7)), .04, { type: "highpass", f: 4500, a: .001 })); }]];
   },
   ice(c, bus, N) {
-    ambNoise(c, "pink", bus, N, { type: "bandpass", f: 1100, q: 1, v: .1, lr: .08, ld: 350 });
+    ambNoise(c, "pink", bus, N, { type: "bandpass", f: 1100, q: 1, v: .045, lr: .08, ld: 350 });
     ambNoise(c, "white", bus, N, { type: "highpass", f: 5000, v: .008 });
     return [[5, 11, creak], [8, 15, (c2, t, b) => { const o = ambPan(c2, b, R_(-.6, .6)); tone(c2, R_(3000, 4500), t, .12, RAW_(o, .02)); tone(c2, R_(3000, 4500), t + .09, .1, RAW_(o, .016)); }]];
   },
