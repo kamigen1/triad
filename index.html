@@ -579,6 +579,20 @@ table.odds { width: 100%; border-collapse: collapse; } table.odds td { padding: 
 .tt-bg { background-position: 50% 22%; } .tt-shade { background: linear-gradient(#05080eb3 0, #05080e40 26%, #05080e00 45%, #05080e99 78%, #05080ee6 100%); }
 .tt-logo { top: 6%; } .tt-logo .logo { font-size: 54px; } .tt-logo .logo i { font-size: 38px; }
 
+/* the card shimmer: a few tiny soft glints that fade gently in and out and appear in a new place each time (no hard dots, no blinking) */
+html .card.r3 .win::before, html .card.r4 .win::before, html .card.r5 .win::before, html .card.r6 .win::before {
+  opacity: 0; animation: glintFade 4.2s ease-in-out infinite, glintShift 16.8s steps(1) infinite;
+  background-image: radial-gradient(circle, #fff 0, #fff8 .35cqw, transparent .95cqw), radial-gradient(circle, #fff 0, #fff7 .3cqw, transparent .85cqw), radial-gradient(circle, #fff 0, #fff8 .4cqw, transparent 1cqw);
+  background-size: 37cqw 41cqw, 29cqw 47cqw, 53cqw 39cqw; background-repeat: repeat;
+}
+@keyframes glintFade { 0%, 100% { opacity: 0; } 50% { opacity: .5; } }
+@keyframes glintShift {
+  0% { background-position: 5cqw 8cqw, 16cqw 22cqw, 30cqw 4cqw; } 25% { background-position: 21cqw 26cqw, 3cqw 9cqw, 12cqw 31cqw; }
+  50% { background-position: 11cqw 33cqw, 22cqw 15cqw, 39cqw 19cqw; } 75% { background-position: 28cqw 12cqw, 9cqw 34cqw, 3cqw 24cqw; }
+}
+html .card:nth-child(3n+2) .win::before { animation-delay: -1.4s, -5.6s; } html .card:nth-child(3n) .win::before { animation-delay: -2.8s, -11.2s; }
+@media (prefers-reduced-motion: reduce) { html .card .win::before { animation: none !important; opacity: .18 !important; } }
+
 /* ===== Clash ===== */
 #ck { position: fixed; inset: 0; z-index: 20; background: radial-gradient(ellipse at 50% 40%, #12583a 0%, var(--felt-d) 55%, var(--felt-dd) 100%); }
 #ck[hidden] { display: none; }
@@ -2185,7 +2199,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.12.19-b";
+const VER = "2026.12.19-c";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -3010,7 +3024,7 @@ const ORIG = {
   ff_ultimecia: ["Veyr, the Glass Unbound", "dark", "V"], x_hunt_wyvern: ["Veyr, Dawnglass", "light", "C"], dq_great_sabrecat: ["Roan, Redband Unleashed", "fire", "H"], dq_hargon: ["Zarek, Duskhorn Ascendant", "dark", "D"],
   ff_kefka: ["Auralis, Duskvein", "light", "C"], dq_baramos: ["Sylwen, Thornbloom", "wind", "H"], dq_orgodemir: ["Nyxara, Moonweaver", "dark", "D"],
   // the Kradin chain (3 forms of one character; CHAIN below links them)
-  ff_ahriman: ["Kradin, the Lantern Courier", "dark", "V"], ff_exdeath: ["Kradin the Shadowforged", "dark", "V"], w_apocalypse: ["Kradin the Blight Seer", "dark", "V"],
+  ff_ahriman: ["Kradin, the Dusk Messenger", "dark", "V"], ff_exdeath: ["Kradin the Shadowforged", "dark", "V"], w_apocalypse: ["Kradin the Blight Seer", "dark", "V"],
   // fourth wave (7): art cut from the sixth and seventh sheets
   zu: ["Stormspine, the Ridge Runner", "lightning", "B"], a_adamant: ["Halvard, the Adamant Lance", "earth", "H"], metal_slime: ["Mantisael, the Verdigris Reaper", "wind", "M"], dq_mimic: ["Hollowmoor Manor", "dark", "U"], bandit_chief: ["Brogmar, the Horned Warlord", "earth", "B"], black_mage: ["Orbis, the Unlidded", "dark", "V"], folk_priestess: ["Ilume, Skyveil Dancer", "light", "C"],
   // third wave (5): art cut from the fifth sheet
@@ -4342,7 +4356,7 @@ setInterval(() => {
    Series bible: STORY_DESIGN.md. World and cast: LORE.md. */
 const SPK = {
   veyr: "Veyr, the Nightglass", auralis: "Auralis, Dawnvein", sylwen: "Sylwen, Thornwake", roan: "Roan Redband", nyxara: "Nyxara, Weaver of Echoes", zarek: "Zarek Duskhorn",
-  kradin: "Kradin, the Lantern Courier", crownlet: "Crownlet, the Unlikely King", cairnroot: "Cairnroot", bramble: "Bramblemaw", tumble: "Tumble, the Hedge Courier",
+  kradin: "Kradin, the Dusk Messenger", crownlet: "Crownlet, the Unlikely King", cairnroot: "Cairnroot", bramble: "Bramblemaw", tumble: "Tumble, the Hedge Courier",
   orla: "Orla, Lantern-Bearer", ysolde: "Ysolde, Crown-Warden", pip: "Pip, the Messenger Cherub", scout: "Sanctum Warden", brogan: "Bandit Lieutenant", hollow: "Hollow Warden", fenrick: "Fenrick Grayfur",
 };
 /* people who speak but are not cards: a name plate and no portrait */
