@@ -385,6 +385,58 @@ table.odds { width: 100%; border-collapse: collapse; } table.odds td { padding: 
 .psum .wrap { position: relative; } .psum .card { width: 100%; } .psum .tg { position: absolute; left: 0; right: 0; bottom: -4px; text-align: center; font: 700 12px var(--display); color: var(--ok); -webkit-text-stroke: .14em #000; paint-order: stroke fill; z-index: 8; } .psum .tg.d { color: #ffb0b8; }
 .recent { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; } .recent .card { width: 100%; }
 @media (orientation: landscape) and (max-height: 540px) { .pc { width: min(30vh, 170px); } .packw.big { width: 150px; height: 236px; } .psum { grid-template-columns: repeat(5, 1fr); } .packfs { flex-direction: column; } }
+/* ===== packopen.css: the pack-opening scene (foil tear, card pile, 3D flip, rarity effects). Layout is absolute inside .pkx; everything animated is a transform or an opacity so the GPU does the work.
+   The six rarities use the page's own tokens: --r1 steel, --r2 emerald, --r3 sapphire, --r4 amethyst, --r5 gold, --r6 crimson. ===== */
+.packfs.pkx { --pw: min(58vw, 36vh, 230px); --cw: min(60vw, 38vh, 262px); position: absolute; inset: 0; display: block; padding: 0; overflow: hidden; touch-action: manipulation; cursor: pointer; background: radial-gradient(circle at 50% 46%, #1b2a55 0%, #070b18 74%); }
+.pkx > * { pointer-events: none; } .pkx > .packskip { pointer-events: auto; }
+.pk-aura, .pk-rays, .pk-flash, .pk-fx { position: absolute; pointer-events: none; }
+.pk-aura { inset: 0; background: radial-gradient(circle at 50% 46%, var(--ac, #fff) 0%, transparent 64%); opacity: 0; mix-blend-mode: screen; }
+.pk-rays { left: 50%; top: 46%; width: 150vmax; height: 150vmax; margin: -75vmax 0 0 -75vmax; background: repeating-conic-gradient(from 0deg, var(--ac, #fff) 0 4deg, transparent 4deg 14deg); -webkit-mask: radial-gradient(circle, #000 0, transparent 45%); mask: radial-gradient(circle, #000 0, transparent 45%); opacity: 0; display: none; animation: pkspin 22s linear infinite; mix-blend-mode: screen; will-change: transform; }
+@keyframes pkspin { to { transform: rotate(360deg); } }
+.pk-flash { inset: 0; opacity: 0; }
+.pk-fx { inset: 0; width: 100%; height: 100%; }
+.pk-stage { position: absolute; left: 50%; top: 46%; width: var(--pw); aspect-ratio: 220 / 346; transform: translate(-50%, -50%); }
+.pk-glow { position: absolute; left: -45%; right: -45%; top: -18%; height: 62%; background: radial-gradient(ellipse at 50% 70%, #fff3b8 0%, #ffcf5a88 28%, transparent 66%); opacity: 0; pointer-events: none; mix-blend-mode: screen; }
+.pk-hole { position: absolute; left: 0; top: 0; width: 100%; opacity: 0; background: linear-gradient(#0b0716 0%, #2a1f48 55%, #ffe9a0 100%); }
+.pk-stack, .pk-cards { position: absolute; left: 50%; top: 50%; width: 0; height: 0; perspective: 1100px; }
+.pk-cards { left: 50%; top: 46%; z-index: 6; }
+.pkl, .pkc { position: absolute; left: calc(var(--cw) / -2); top: calc(var(--cw) * -.7); width: var(--cw); aspect-ratio: 5 / 7; border-radius: 6.5% / 4.65%; }
+.pkl, .pkx .pback { background: linear-gradient(155deg, #3a58b0, #1a2a66 60%, #0a1233); box-shadow: 0 0 0 1px #000, inset 0 0 0 3px #e3bf66aa, 0 10px 22px #0009; display: grid; place-items: center; border-radius: 6.5% / 4.65%; }
+.pkl svg, .pkx .pback svg { width: 36%; color: var(--gold, #e3bf66); filter: drop-shadow(0 3px 0 #000a); }
+.pkc { transform-style: preserve-3d; will-change: transform; }
+.pkx .pback, .pkx .pface { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.pkx .pface { transform: rotateY(180deg); border-radius: 6.5% / 4.65%; } .pkx .pface .card { width: 100%; }
+.pkc.charge .pback { box-shadow: 0 0 0 2px var(--cc), 0 0 26px var(--cc), inset 0 0 20px var(--cc); animation: pkpulse .32s ease-in-out infinite alternate; }
+@keyframes pkpulse { to { filter: brightness(1.4); } }
+.pk-pack { position: absolute; inset: 0; will-change: transform; }
+.pk-pack.idle { animation: pkidle 2.6s ease-in-out infinite; } @keyframes pkidle { 50% { transform: translateY(-7px) rotate(-1deg); } }
+.pk-bodyw { position: absolute; inset: 0; filter: drop-shadow(0 14px 22px #000b); } .pk-body { position: absolute; inset: 0; }
+.pk-strip { position: absolute; left: 0; top: 0; width: 100%; perspective: 760px; }
+.pk-seg { position: absolute; top: 0; transform-style: preserve-3d; will-change: transform; }
+.pk-seg .sf, .pk-seg .sb { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.pk-seg .sf { overflow: hidden; } .pk-seg .sa { position: absolute; top: 0; } .pk-seg .sa .packw { position: absolute; left: 0; top: 0; box-shadow: none; border-radius: 0; }
+.pk-seg .sb { transform: rotateX(180deg); background: linear-gradient(115deg, #8d97ab 0%, #f4f7ff 22%, #aab3c7 46%, #e8edf9 62%, #7b859b 100%); }
+.pk-art { position: absolute; }
+.pk-pips { position: absolute; left: 0; right: 0; bottom: calc(env(safe-area-inset-bottom, 0px) + 12px); display: flex; gap: 6px; justify-content: center; }
+.pk-pips i { width: 8px; height: 8px; border-radius: 50%; background: #ffffff26; transition: background .25s, box-shadow .25s, transform .25s; }
+.pk-pips i.on { background: var(--pc, #fff); box-shadow: 0 0 8px var(--pc, #fff); transform: scale(1.25); }
+.pkx .pinfo { position: absolute; left: 0; right: 0; bottom: calc(env(safe-area-inset-bottom, 0px) + 54px); }
+.pkx .pinfo .tg { display: flex; flex-direction: column; align-items: center; font: 700 12px var(--display); letter-spacing: .1em; text-transform: uppercase; color: var(--ok, #6fe9a0); } .pkx .pinfo .tg.d { color: var(--gold-hi, #ffd25a); }
+.pkx .pinfo .tg em { font: 700 8px var(--display); letter-spacing: .22em; color: var(--muted); font-style: normal; margin-bottom: 2px; }
+.pkx .plbl { position: absolute; left: 0; right: 0; top: calc(env(safe-area-inset-top, 0px) + 18px); text-align: center; transition: opacity .3s; }
+.pkx .phint { position: absolute; left: 0; right: 0; bottom: calc(env(safe-area-inset-bottom, 0px) + 28px); text-align: center; transition: opacity .25s; }
+.pkx .pcount { left: 50%; transform: translateX(-50%); top: calc(env(safe-area-inset-top, 0px) + 44px); }
+/* the card's own holographic sweep and, for the rarest, a slow prismatic shimmer; both are translucent, so the art and the text stay readable */
+.pk-holo { position: absolute; inset: 0; border-radius: inherit; overflow: hidden; pointer-events: none; z-index: 20; }
+/* no blend modes inside the flipping card: a blend mode in a backface-hidden 3D face makes some browsers draw the wrong side */
+.pk-holo b { position: absolute; top: -12%; bottom: -12%; left: 0; width: 55%; opacity: 0; background: linear-gradient(105deg, transparent 0%, #ffffff00 18%, #ffffff66 42%, #ff8cec55 50%, #8ceeff55 58%, #ffffff00 82%, transparent 100%); }
+.pk-prism { position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 19; opacity: 0; background: repeating-linear-gradient(115deg, #ff4a5e33, #ffd05a33 9%, #55e0a033 18%, #5db4ff33 27%, #c394ff33 36%, #ff4a5e33 45%); background-size: 220% 100%; }
+.pface.prism .pk-prism { opacity: .7; animation: pkprism 3.6s linear infinite; } @keyframes pkprism { to { background-position: -220% 0; } }
+.pk-in .wrap { animation: pkwrapin .38s var(--d, 0ms) both cubic-bezier(.2, .9, .3, 1.1); } @keyframes pkwrapin { from { opacity: 0; transform: translateY(14px) scale(.92); } }
+@media (orientation: landscape) and (max-height: 540px) { .packfs.pkx { --pw: min(30vw, 40vh, 150px); --cw: min(26vw, 34vh, 170px); } .pkx .pinfo { bottom: calc(env(safe-area-inset-bottom, 0px) + 40px); } .pkx .phint { bottom: calc(env(safe-area-inset-bottom, 0px) + 18px); } }
+@media (prefers-reduced-motion: reduce) { .pk-rays, .pk-pack.idle, .pface.prism .pk-prism, .pkc.charge .pback { animation: none !important; } }
+/* the card inside the face has its own transform (the tilt) and its own compositor layers: they must be hidden from behind too, or the front shows, mirrored, while the card is still turning */
+.pkx .pface, .pkx .pface * { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
 
 /* ===== Clash ===== */
 #ck { position: fixed; inset: 0; z-index: 20; background: radial-gradient(ellipse at 50% 40%, #12583a 0%, var(--felt-d) 55%, var(--felt-dd) 100%); }
@@ -1989,7 +2041,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.12.13-a";
+const VER = "2026.12.13-b";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -2189,41 +2241,216 @@ function tiltBind() {
   requestAnimationFrame(tiltLoop);
 })();
 
-/* ----- opening a pack: tear it, then flip the cards one at a time ----- */
+/* ----- opening a pack (reworked 2026-12-13) -----
+   The scene is plain DOM + CSS 3D + the Web Animations API, with one small canvas for particles; no new libraries.
+   1. The foil: the top strip of the pack is cut into nine hinged segments along a jagged tear line (a new one every opening). They peel back from the middle outward, each curling up and over to show a silver back,
+      while light and sparks come out of the opening. The body of the pack is clipped to the same jagged line, so the two halves always match.
+   2. The cards rise out of the opening as a stack of backs (the stack sits behind the pack body, so they really come from inside), the pack drops away, the stack bounces into a staggered pile.
+   3. One tap per card: the active card slides off the pile, builds up (rarity-sized), flips with a real 3D turn (perspective, a lift in depth, a settle) and shows its face. The next tap sends it away and brings the next.
+      The final card of a pack is its best card, so it gets an extra build-up with a rising sound and rarity-colored energy around the back, without showing what it is.
+   Rarity: everything a tier does is one row of PKR, read from the card's real rarity (rarOf), so a tier is tuned in one place. Effects sit BEHIND the card or fade out before the face is visible; they never cover the art.
+   Never trapped: tapping during any animation finishes it at once; Skip goes straight to the summary; each opening has a run number, so a stale timer from an earlier opening can never touch a later one. */
 let PK = null;
+const PKR = {   // pause: build-up before the flip (s) · flip: turn time (s) · burst: particles at the flip · ring: shock rings · sweep: holo sweep passes · rays: light rays · flash: screen light · hold: seconds before a tap can move on
+  1: { pause: 0, flip: .42, burst: { n: 7, kind: "dust", spd: 70, life: .55, size: 2.4 }, ring: 0, sweep: 0, rays: 0, flash: 0, hold: 0 },
+  2: { pause: 0, flip: .46, burst: { n: 12, kind: "spark", spd: 120, life: .6, size: 2.2 }, ring: 0, sweep: .5, rays: 0, flash: 0, hold: 0 },
+  3: { pause: .26, flip: .5, burst: { n: 22, kind: "energy", spd: 150, life: .8, size: 3 }, ring: 1, sweep: .65, rays: .3, flash: .14, hold: 0 },
+  4: { pause: .46, flip: .56, burst: { n: 30, kind: "shard", spd: 190, life: 1, size: 4, up: 60 }, ring: 1, sweep: .85, rays: .55, flash: .26, hold: .2 },
+  5: { pause: .72, flip: .62, burst: { n: 46, kind: "star", spd: 240, life: 1.2, size: 4.5 }, ring: 2, sweep: 1, rays: .85, flash: .42, hold: .45 },
+  6: { pause: .9, flip: .76, burst: { n: 64, kind: "ember", spd: 270, life: 1.6, size: 3.4, g: 120 }, ring: 3, sweep: 1, rays: 1, flash: .7, hold: .6 },
+};
+const PKX = { run: 0, fast: false, anims: new Set(), waits: new Set(), cols: null };
+const PKDEAD = { dead: true };
+const pkRar = c => Math.max(1, Math.min(6, rarOf(c)));
+function pkCol(r) { if (!PKX.cols) { const cs = getComputedStyle(document.documentElement); PKX.cols = [1, 2, 3, 4, 5, 6].map(i => cs.getPropertyValue("--r" + i).trim() || "#ffffff"); PKX.cols.unshift("#ffffff"); } return PKX.cols[r] || "#ffffff"; }
+const pkFxOn = () => uiMotion() && !(P && P.prefs && P.prefs.vfx === false);
+const pkShakeOn = () => uiMotion() && !(P && P.prefs && P.prefs.shake === false);
+/* waits and animations that "tap to speed up" can finish at once */
+function pkWait(ms) { return new Promise(res => { if (PKX.fast || ms <= 0) return res(); const w = { res, id: setTimeout(() => { PKX.waits.delete(w); res(); }, ms) }; PKX.waits.add(w); }); }
+function pkLater(run, ms, fn) { const w = { res: () => {}, id: setTimeout(() => { PKX.waits.delete(w); if (PKX.run === run && !PKX.fast && PK) fn(); }, ms) }; PKX.waits.add(w); }
+function pkAnim(el, kf, o = {}) {
+  if (!el) return Promise.resolve(); const a = el.animate(kf, Object.assign({ fill: "both" }, o)); PKX.anims.add(a); if (PKX.fast) { try { a.finish(); } catch (_) {} }
+  const done = () => { PKX.anims.delete(a); }, pr = a.finished.then(done, done); pr.anim = a; return pr;
+}
+/* the turn's edge-on moment (half way): the back is hidden and the face shown by hand, because a browser may keep drawing a composited card from behind; at that instant the card is a sliver, so nobody sees the swap */
+function pkEdge(run, anim, fn) { const tick = () => { if (PKX.run !== run || !PK) return; let pr = 1; try { pr = anim.effect.getComputedTiming().progress; } catch (_) {} if (pr == null || pr >= .5 || anim.playState === "finished") return fn(); requestAnimationFrame(tick); }; tick(); }
+function pkFast() { PKX.fast = true; for (const a of [...PKX.anims]) { try { a.finish(); } catch (_) {} } for (const w of [...PKX.waits]) { clearTimeout(w.id); PKX.waits.delete(w); w.res(); } }
+function pkReset() { PKX.run++; PKX.fast = false; for (const a of PKX.anims) { try { a.cancel(); } catch (_) {} } PKX.anims.clear(); for (const w of PKX.waits) { clearTimeout(w.id); w.res(); } PKX.waits.clear(); fxStop(); }
+const pkAlive = run => { if (PKX.run !== run || !PK) throw PKDEAD; };
+
+/* ----- particles: one canvas, at most 150 live, drawn only while any are alive ----- */
+const FX = { cv: null, cx: null, ps: [], rings: [], raf: 0, last: 0, w: 0, h: 0, root: null };
+function fxStart(root) {
+  fxStop(); const cv = root.querySelector("#pkfx"); if (!cv || !cv.getContext) return; const dpr = Math.min(2, window.devicePixelRatio || 1), r = root.getBoundingClientRect();
+  FX.root = root; FX.cv = cv; FX.w = r.width; FX.h = r.height; cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr); FX.cx = cv.getContext("2d"); FX.cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+function fxStop() { if (FX.raf) cancelAnimationFrame(FX.raf); FX.raf = 0; FX.ps.length = 0; FX.rings.length = 0; FX.cv = FX.cx = FX.root = null; }
+function fxAt(el) { const a = el.getBoundingClientRect(), b = FX.root.getBoundingClientRect(); return { x: a.left - b.left + a.width / 2, y: a.top - b.top + a.height / 2, w: a.width, h: a.height }; }
+function fxBurst(x, y, o, col, col2) {
+  if (!FX.cx || !pkFxOn()) return; const n = Math.min(o.n, 150 - FX.ps.length);
+  for (let i = 0; i < n; i++) {
+    const a = o.dir != null ? o.dir + (Math.random() - .5) * (o.spread || 1) : Math.random() * 6.283, s = o.spd * (.35 + Math.random() * .85);
+    FX.ps.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s - (o.up ? o.up * Math.random() : 0), g: o.g || 0, life: o.life * (.6 + Math.random() * .6), t: 0, kind: o.kind, col: col2 && Math.random() < .3 ? col2 : col, size: o.size * (.6 + Math.random() * .9), rot: Math.random() * 6.283, vr: (Math.random() - .5) * 9, tx: o.tx, ty: o.ty });
+  }
+  fxKick();
+}
+function fxRing(x, y, col, r1, dur, w = 3) { if (!FX.cx || !pkFxOn()) return; FX.rings.push({ x, y, col, r1, dur, t: 0, w }); fxKick(); }
+function fxKick() { if (!FX.raf && FX.cx) { FX.last = performance.now(); FX.raf = requestAnimationFrame(fxFrame); } }
+function fxFrame(now) {
+  FX.raf = 0; const cx = FX.cx; if (!cx) return; const dt = Math.min(.05, Math.max(.001, (now - FX.last) / 1000)); FX.last = now;
+  cx.clearRect(0, 0, FX.w, FX.h); cx.globalCompositeOperation = "lighter";
+  for (let i = FX.ps.length - 1; i >= 0; i--) {
+    const p = FX.ps[i]; p.t += dt; if (p.t >= p.life) { FX.ps.splice(i, 1); continue; } const k = p.t / p.life;
+    if (p.kind === "suck") { const f = Math.min(1, dt * (2 + 9 * k)); p.x += (p.tx - p.x) * f; p.y += (p.ty - p.y) * f; } else { p.vy += p.g * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= 1 - dt * .9; }
+    p.rot += p.vr * dt; cx.globalAlpha = Math.max(0, (1 - k) * (k < .12 ? k / .12 : 1)); cx.fillStyle = cx.strokeStyle = p.col;
+    switch (p.kind) {
+      case "spark": cx.lineWidth = p.size * .7; cx.beginPath(); cx.moveTo(p.x, p.y); cx.lineTo(p.x - p.vx * .05, p.y - p.vy * .05); cx.stroke(); break;
+      case "energy": { const a0 = cx.globalAlpha; cx.globalAlpha = a0 * .4; cx.beginPath(); cx.arc(p.x, p.y, p.size * 2.2, 0, 6.283); cx.fill(); cx.globalAlpha = a0; } cx.beginPath(); cx.arc(p.x, p.y, p.size * .8, 0, 6.283); cx.fill(); break;
+      case "shard": cx.save(); cx.translate(p.x, p.y); cx.rotate(p.rot); cx.beginPath(); cx.moveTo(0, -p.size * 1.8); cx.lineTo(p.size, 0); cx.lineTo(0, p.size * 1.8); cx.lineTo(-p.size, 0); cx.closePath(); cx.fill(); cx.restore(); break;
+      case "star": cx.save(); cx.translate(p.x, p.y); cx.rotate(p.rot); cx.beginPath(); for (let j = 0; j < 8; j++) { const rr = j % 2 ? p.size * .4 : p.size * 1.6, a = j * Math.PI / 4; cx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); } cx.closePath(); cx.fill(); cx.restore(); break;
+      case "ember": cx.globalAlpha *= .7 + .3 * Math.sin(p.t * 30 + p.rot); cx.beginPath(); cx.arc(p.x, p.y, p.size, 0, 6.283); cx.fill(); break;
+      default: cx.beginPath(); cx.arc(p.x, p.y, p.size, 0, 6.283); cx.fill();
+    }
+  }
+  for (let i = FX.rings.length - 1; i >= 0; i--) {
+    const g = FX.rings[i]; g.t += dt; if (g.t >= g.dur) { FX.rings.splice(i, 1); continue; } const k = g.t / g.dur, e = 1 - Math.pow(1 - k, 3);
+    cx.globalAlpha = (1 - k) * .85; cx.strokeStyle = g.col; cx.lineWidth = g.w * (1 - k) + .6; cx.beginPath(); cx.arc(g.x, g.y, g.r1 * e, 0, 6.283); cx.stroke();
+  }
+  cx.globalAlpha = 1; cx.globalCompositeOperation = "source-over"; if (FX.ps.length || FX.rings.length) FX.raf = requestAnimationFrame(fxFrame);
+}
+
+/* ----- the scene ----- */
 function packStage() {
   if (PK && !PK.torn && P && P.prefs && P.prefs.packQuick) { PK.torn = true; PK.i = PK.res.length; sfx("whoosh"); return packSummary(); }
-  const m = $("#modal"); m.hidden = false; m.dataset.lock = "1";   // a tap outside the pack must not close it mid-reveal
-  if (!PK.torn) { m.innerHTML = `<div class="packfs"><div class="plbl">Swipe across the top of the pack</div>${packTearHtml(PK.kind)}<button class="btn sm dark" data-act="packTear" style="margin-top:14px">Tap to open</button></div>`; packTearBind(); return; }
-  if (PK.i >= PK.res.length) return packSummary();
-  const x = PK.res[PK.i], c = x.c, r = rarOf(c);
-  m.innerHTML = `<div class="packfs fx-r${r}" data-act="packNext" id="pfs"><button class="btn sm dark packskip" data-act="packSkip">Skip ▸▸</button><div class="pcount">${PK.i + 1} / ${PK.res.length}</div><div class="pc ${PK.flipped ? "flipped" : ""}" id="pcard"><div class="pback ${r >= 4 ? "glint r" + r : ""}"><svg viewBox="0 0 32 32"><use href="#i-spade"/></svg></div><div class="pface">${cardHtml(c, { tilt: true, v: x.v })}</div></div><div class="pinfo ${PK.flipped ? "on" : ""}" id="pinfo"><span><em>Passive</em>${esc(PASS[arCard(c).passive][0])}</span><span><em>Skill</em>${esc(actName(arCard(c)))}</span></div><div class="phint" id="phint">${PK.flipped ? "Tap for the next card" : "Tap to reveal"}</div></div>`;
+  pkReset(); const m = $("#modal"); m.hidden = false; m.dataset.lock = "1";   // a tap outside the pack must not close it mid-reveal
+  PK.ph = "pack"; PK.i = 0; PK.torn = false; PK.seed = Math.random() * 6.28;
+  const n = PK.res.length;
+  m.innerHTML = `<div class="packfs pkx" id="pfs" data-act="packNext"><div class="pk-aura" id="pkaura"></div><div class="pk-rays" id="pkrays"></div><div class="pk-flash" id="pkflash"></div><canvas class="pk-fx" id="pkfx"></canvas>` +
+    `<button class="btn sm dark packskip" data-act="packSkip">Skip ▸▸</button><div class="pcount" id="pcount"></div>` +
+    `<div class="pk-stage" id="pkstage"><div class="pk-glow" id="pkglow"></div><div class="pk-hole" id="pkhole"></div><div class="pk-stack" id="pkstack"></div><div class="pk-pack" id="pkpack"></div></div>` +
+    `<div class="pk-cards" id="pkcards"></div><div class="pinfo" id="pinfo"></div><div class="plbl" id="plbl">${esc(typeof packLabel === "function" ? packLabel(PK.kind) : "Summon")}</div><div class="phint" id="phint">Tap the pack to open it</div><div class="pk-pips" id="pkpips">${PK.res.map(() => "<i></i>").join("")}</div></div>`;
+  const root = $("#pfs"); fxStart(root); pkBuildPack(); document.getElementById("pcount").textContent = n + " cards";
 }
-function packTearBind() {
-  const w = $("#pw"), top = $("#ptop"); if (!w) return; let x0 = null, y0 = 0, p = 0;
-  const set = v => { p = Math.max(0, Math.min(1, v)); top.style.transform = `translate(${p * 60}px, ${-p * 12}px) rotate(${p * 14}deg)`; top.style.opacity = 1 - Math.max(0, p - .85) * 6; };
-  w.onpointerdown = e => { x0 = e.clientX; y0 = e.clientY; try { w.setPointerCapture(e.pointerId); } catch (_) {} };
-  w.onpointermove = e => { if (x0 === null) return; set(Math.abs(e.clientX - x0) / (w.getBoundingClientRect().width * .8)); if (p >= 1) { x0 = null; packTear(); } };
-  w.onpointerup = () => { if (x0 === null) return; x0 = null; if (p > .5) packTear(); else { top.style.transition = "transform .2s"; set(0); setTimeout(() => { top.style.transition = ""; }, 220); } };
+function pkBuildPack() {
+  const st = $("#pkstage"), W = st.clientWidth, H = st.clientHeight, N = 9, sw = W / N, kind = PK.kind, hasArt = packArtKey(kind) && art2("pack", packArtKey(kind)) ? "art" : "";
+  const face = () => `<div class="packw pk-art ${hasArt} k-${kind}" ${packStyle(kind)} style="width:${W}px;height:${H}px">${packGfx(kind)}</div>`;
+  const yb = H * .118, ys = []; for (let i = 0; i <= N; i++) ys.push(Math.round((yb + (Math.sin(i * 1.9 + PK.seed) * .55 + (Math.random() - .5) * .9) * H * .017) * 10) / 10);
+  const ymax = Math.max(...ys) + 3; PK.geo = { W, H, N, sw, ys, ymax };
+  const jag = ys.map((y, i) => `${(i * sw).toFixed(1)}px ${y}px`).join(","), body = `polygon(${jag},${W}px ${H}px,0 ${H}px)`, hole = `polygon(0 0,${W}px 0,${ys.map((y, i) => `${((N - i) * sw).toFixed(1)}px ${ys[N - i]}px`).join(",")})`;
+  $("#pkhole").style.clipPath = hole; $("#pkhole").style.height = ymax + "px";
+  let segs = ""; for (let i = 0; i < N; i++) {
+    const x0 = i * sw, yL = ys[i], yR = ys[i + 1], clip = `polygon(0 0,100% 0,100% ${yR}px,0 ${yL}px)`;
+    segs += `<div class="pk-seg" data-i="${i}" style="left:${x0.toFixed(1)}px;width:${(sw + .8).toFixed(1)}px;height:${ymax}px;transform-origin:50% ${((yL + yR) / 2).toFixed(1)}px"><div class="sf" style="clip-path:${clip}"><div class="sa" style="left:${(-x0).toFixed(1)}px;width:${W}px;height:${H}px">${face()}</div></div><div class="sb" style="clip-path:${clip}"></div></div>`;
+  }
+  $("#pkpack").innerHTML = `<div class="pk-bodyw"><div class="pk-body" style="clip-path:${body}">${face()}</div></div><div class="pk-strip">${segs}</div>`;
+  /* the pile of card backs sits behind the pack body, hidden, until it rises */
+  const L = Math.min(6, PK.res.length); let layers = ""; for (let i = 0; i < L; i++) layers += `<div class="pkl" data-i="${i}" style="z-index:${L - i}"><svg viewBox="0 0 32 32"><use href="#i-spade"/></svg></div>`;
+  const stack = $("#pkstack"); stack.innerHTML = layers; PK.L = L;
+  const cw = stack.firstElementChild.offsetWidth, chh = stack.firstElementChild.offsetHeight, s0 = (W * .84) / cw, sy = ys[Math.floor(N / 2)] + chh * s0 / 2 + 8 - H / 2;
+  PK.pile = { cw, ch: chh, s0, sy };
+  [...stack.children].forEach((el, i) => { el.style.transform = `translateY(${sy.toFixed(1)}px) scale(${s0.toFixed(3)})`; el.style.opacity = i === 0 ? 1 : 1; });
+  const pk = $("#pkpack"); if (pk) pk.classList.add("idle");
 }
 function packTear() {
-  if (!PK || PK.torn) return; PK.torn = true; if (typeof thDuck === "function") thDuck(.12, 1.4); sfx("seal"); setTimeout(() => sfx("gather"), 160); setTimeout(() => sfx("whoosh"), 380); const w = $("#pw"); if (w) w.classList.add("torn");
-  setTimeout(() => { if (PK) { PK.i = 0; PK.flipped = false; packStage(); } }, 520);
+  if (!PK || PK.ph !== "pack") return; PK.torn = true; PK.ph = "tear"; if (typeof thDuck === "function") thDuck(.12, 1.4);
+  const run = PKX.run; PKX.fast = false; pkOpen(run).catch(e => { if (e !== PKDEAD) { console.error(e); if (PK) { PK.i = 0; try { packSummary(); } catch (_) {} } } });
+}
+async function pkOpen(run) {
+  const geo = PK.geo, st = $("#pkstage"), pack = $("#pkpack"), segs = [...pack.querySelectorAll(".pk-seg")], hole = $("#pkhole"), glow = $("#pkglow"), ph = $("#phint"), pl = $("#plbl"), reduce = !uiMotion();
+  pack.classList.remove("idle"); ph.hidden = true; pl.style.opacity = 0; const root = $("#pfs");
+  /* 1. anticipation: the pack swells and trembles */
+  sfx("pkAnticipate"); uiHaptic("tap");
+  const shake = pkShakeOn() ? [{ transform: "scale(1) rotate(0)" }, { transform: "scale(1.025) translate(-2px,1px) rotate(-.9deg)" }, { transform: "scale(1.04) translate(2px,-1px) rotate(.9deg)" }, { transform: "scale(1.05) translate(-2px,0) rotate(-.7deg)" }, { transform: "scale(1.06) translate(1px,1px) rotate(.5deg)" }] : [{ transform: "scale(1)" }, { transform: "scale(1.05)" }];
+  await pkAnim(pack, shake, { duration: reduce ? 160 : 520, easing: "ease-in-out" }); pkAlive(run);
+  /* 2. the tear runs from the middle outward, a little ahead on one side */
+  sfx("pkTear"); uiHaptic("ok"); const c = Math.floor(geo.N / 2), sr = st.getBoundingClientRect(), rr = root.getBoundingClientRect(), lead = Math.random() < .5 ? 1 : -1, peels = [];
+  pkAnim(hole, [{ opacity: 0 }, { opacity: 1 }], { duration: 260, delay: reduce ? 0 : 120 }); pkAnim(glow, [{ opacity: 0, transform: "scale(.5)" }, { opacity: 1, transform: "scale(1.15)" }], { duration: reduce ? 200 : 900, delay: reduce ? 0 : 160, easing: "ease-out" });
+  segs.forEach((seg, i) => {
+    const d = i - c, rank = Math.abs(d) + (d * lead > 0 ? 0 : .35), delay = reduce ? 0 : rank * 135, dir = d === 0 ? lead : Math.sign(d), a = 112 + Math.random() * 18, rz = dir * (6 + Math.random() * 9), tx = dir * (3 + Math.random() * 9), ty = 10 + Math.random() * 14;
+    peels.push(pkAnim(seg, reduce ? [{ opacity: 1 }, { opacity: 0 }] : [{ transform: "rotateX(0) rotateZ(0) translate3d(0,0,0)", opacity: 1 }, { transform: `rotateX(${a * .62}deg) rotateZ(${rz * .5}deg) translate3d(${tx * .5}px,${-ty * .4}px,10px)`, opacity: 1, offset: .5 }, { transform: `rotateX(${a}deg) rotateZ(${rz}deg) translate3d(${tx}px,${-ty - 22}px,-24px)`, opacity: 1, offset: .78 }, { transform: `rotateX(${a + 8}deg) rotateZ(${rz * 1.2}deg) translate3d(${tx * 1.3}px,${-ty - 34}px,-30px)`, opacity: 0 }], { duration: reduce ? 200 : 470, delay, easing: "cubic-bezier(.3,.7,.35,1)" }));
+    pkLater(run, 560 * 0 + delay + 60, () => { const x = sr.left - rr.left + (i + .5) * geo.sw, y = sr.top - rr.top + (geo.ys[i] + geo.ys[i + 1]) / 2; fxBurst(x, y, { n: 5, kind: "spark", spd: 130, life: .5, size: 2.2, dir: -Math.PI / 2, spread: 1.6, up: 40 }, "#ffe9a8", "#ffffff"); });
+  });
+  pkLater(run, reduce ? 0 : 520, () => sfx("pkSeparate"));
+  await Promise.all(peels); pkAlive(run);
+  /* 3. the cards rise out of the opening, the wrapper drops away, the pile settles */
+  PK.ph = "emerge"; sfx("pkEmerge"); const pile = PK.pile, layers = [...$("#pkstack").children], rise = pile.sy - pile.ch * pile.s0 * .52;
+  const rises = layers.map((el, i) => pkAnim(el, [{ transform: `translateY(${pile.sy.toFixed(1)}px) scale(${pile.s0.toFixed(3)}) rotateX(0)` }, { transform: `translateY(${(rise - i * 7).toFixed(1)}px) scale(${pile.s0.toFixed(3)}) rotateX(7deg)` }], { duration: reduce ? 160 : 380, delay: reduce ? 0 : i * 40, easing: "cubic-bezier(.2,.8,.3,1)" }));
+  pkLater(run, 60, () => fxBurst(sr.left - rr.left + geo.W / 2, sr.top - rr.top + geo.ys[Math.floor(geo.N / 2)], { n: 18, kind: "spark", spd: 190, life: .6, size: 2.4, dir: -Math.PI / 2, spread: 2, up: 60 }, "#ffe9a8", "#ffffff"));
+  await pkWait(reduce ? 0 : 280); pkAlive(run);
+  pkAnim(pack, [{ transform: "translateY(0) scale(1.06) rotate(0)", opacity: 1 }, { transform: "translateY(58%) scale(.88) rotate(4deg)", opacity: 0 }], { duration: reduce ? 160 : 420, easing: "ease-in" }); pkAnim(hole, [{ opacity: 1 }, { opacity: 0 }], { duration: 360 }); pkAnim(glow, [{ opacity: 1 }, { opacity: 0 }], { duration: 520 });
+  await Promise.all(rises); pkAlive(run);
+  /* the pile settles with a small bounce into a staggered stack */
+  const fin = i => `translateY(0) scale(${(1 - i * .012).toFixed(3)}) translateX(${i * 3}px) rotate(${((i % 2 ? 1 : -1) * i * 1.5).toFixed(2)}deg)`;
+  const toC = layers.map((el, i) => pkAnim(el, [{ transform: `translateY(${(rise - i * 7).toFixed(1)}px) scale(${pile.s0.toFixed(3)}) rotateX(7deg)` }, { transform: `translateY(14px) scale(${(1.08).toFixed(3)}) rotateX(0)`, offset: .62 }, { transform: fin(i) }], { duration: reduce ? 120 : 360, delay: reduce ? 0 : i * 25, easing: "cubic-bezier(.3,.9,.4,1)" }));
+  pkLater(run, 240, () => sfx("pkThud")); await Promise.all(toC); pkAlive(run);
+  pack.style.display = "none"; await pkWait(60); pkAlive(run);
+  PKX.fast = false; await pkShow(run, 0);
+}
+/* ----- showing one card ----- */
+const pkCardHtml = () => `<div class="pkc" id="pkcard"><div class="pback"><svg viewBox="0 0 32 32"><use href="#i-spade"/></svg></div><div class="pface"></div></div>`;
+async function pkShow(run, k) {
+  pkAlive(run); PKX.fast = false; const x = PK.res[k], c = x.c, r = pkRar(c), R = PKR[r], col = pkCol(r), n = PK.res.length, best = Math.max(...PK.res.map(y => pkRar(y.c))), reduce = !uiMotion();
+  const last = n > 1 && k === n - 1 && r === best && r >= 2;   // the final card is the best of the pack: build the suspense
+  PK.ph = "reveal"; PK.i = k; $("#pcount").textContent = (k + 1) + " / " + n; const wrap = $("#pkcards"); wrap.innerHTML = pkCardHtml(); const card = $("#pkcard"), face = card.querySelector(".pface"), aura = $("#pkaura"), rays = $("#pkrays"), flash = $("#pkflash"), info = $("#pinfo"), ph = $("#phint");
+  ph.hidden = true; info.classList.remove("on");
+  const stack = $("#pkstack"); if (stack.children.length > Math.max(0, n - k - 1)) stack.firstElementChild && stack.removeChild(stack.firstElementChild);   // the pile gets thinner as it is dealt
+  if (k > 0) { sfx("pkMove"); await pkAnim(card, [{ transform: "translateY(26px) scale(.94)", opacity: 0 }, { transform: "translateY(0) scale(1)", opacity: 1 }], { duration: reduce ? 90 : 190, easing: "ease-out" }); pkAlive(run); }
+  /* build-up: only for rarer cards; the back glows in the card's rarity color */
+  const pause = reduce ? 0 : R.pause + (last ? (r >= 4 ? .55 : .35) : 0);
+  if (pause > 0) {
+    card.classList.add("charge"); card.style.setProperty("--cc", col); aura.style.setProperty("--ac", col); pkAnim(aura, [{ opacity: 0 }, { opacity: .16 + r * .04 }], { duration: pause * 1000 });
+    sfx(last ? "pkFinal" : "pkCharge", pause); const pos = FX.root ? fxAt(card) : null, steps = pos ? Math.floor(pause / .09) : 0;
+    for (let i = 0; i < steps; i++) pkLater(run, i * 90, () => { const a = Math.random() * 6.283, d = pos.w * (.9 + Math.random() * .5); fxBurst(pos.x + Math.cos(a) * d, pos.y + Math.sin(a) * d * 1.2, { n: last ? 5 : 3, kind: "suck", spd: 0, life: .45, size: 2.6, tx: pos.x, ty: pos.y }, col, "#ffffff"); });
+    if (pkShakeOn() && r >= 4) pkAnim(card, [{ transform: "translate(0,0)" }, { transform: "translate(-2px,1px)" }, { transform: "translate(2px,-1px)" }, { transform: "translate(-1px,-1px)" }, { transform: "translate(1px,1px)" }, { transform: "translate(0,0)" }], { duration: 160, iterations: Math.max(1, Math.round(pause / .16)) });
+    await pkWait(pause * 1000); pkAlive(run); PKX.anims.forEach(a => { try { if (a.effect && a.effect.target === card) a.cancel(); } catch (_) {} });
+  }
+  /* the real flip: the front is built now, so it is never in the page while the back faces the player */
+  face.innerHTML = cardHtml(c, { tilt: true, v: x.v }) + `<i class="pk-holo"><b></b></i>${r >= 6 ? '<i class="pk-prism"></i>' : ""}`;
+  face.style.visibility = "hidden"; card.classList.remove("charge"); sfx("pkFlip"); const tilt = (Math.random() < .5 ? -1 : 1) * (3 + Math.random() * 3);
+  pkLater(run, R.flip * 520, () => pkImpact(run, r, card, col, aura, rays, flash));
+  const turn = pkAnim(card, reduce ? [{ transform: "rotateY(0deg)" }, { transform: "rotateY(180deg)" }] : [{ transform: "translateZ(0) rotateY(0deg) rotateZ(0deg) scale(1)" }, { transform: `translateZ(95px) rotateY(90deg) rotateZ(${tilt}deg) scale(1.1)`, offset: .5, easing: "ease-in" }, { transform: "translateZ(0) rotateY(180deg) rotateZ(0deg) scale(1)" }], { duration: (reduce ? .18 : R.flip) * 1000, easing: "cubic-bezier(.45,.05,.3,1)" });
+  pkEdge(run, turn.anim, () => { face.style.visibility = ""; const bk = card.querySelector(".pback"); if (bk) bk.style.visibility = "hidden"; });
+  await turn; pkAlive(run);
+  pkAnim(card, [{ transform: "rotateY(184deg) scale(1.05)" }, { transform: "rotateY(178.5deg) scale(.99)", offset: .6 }, { transform: "rotateY(180deg) scale(1)" }], { duration: reduce ? 1 : 190, easing: "ease-out" });
+  /* the facts under the card */
+  const nm = PASS[arCard(c).passive][0], tag = x.r.dup ? `<span class="tg d"><em>Duplicate</em>+${x.r.coins} coins</span>` : x.r.isNew ? `<span class="tg"><em>New</em>${esc(RNAME[r])}</span>` : `<span class="tg"><em>${esc(RNAME[r])}</em>&nbsp;</span>`;
+  info.innerHTML = `<span><em>Passive</em>${esc(nm)}</span><span><em>Skill</em>${esc(actName(arCard(c)))}</span>${tag}`; info.classList.add("on");
+  const dots = $("#pkpips").children; if (dots[k]) { dots[k].style.setProperty("--pc", col); dots[k].classList.add("on"); }
+  ph.textContent = k < n - 1 ? "Tap for the next card" : "Tap to see everything"; ph.hidden = false; PK.ph = "shown"; PK.holdUntil = performance.now() + (PKX.fast ? 0 : R.hold * 1000);
+}
+/* what a tier does at the moment its face turns up. Everything but the card's own holo sweep lives behind the card. */
+function pkImpact(run, r, card, col, aura, rays, flash) {
+  if (PKX.run !== run || !PK) return; const R = PKR[r], pos = FX.root ? fxAt(card) : null; sfx("pkReveal", r); uiHaptic(r >= 5 ? "heavy" : r >= 3 ? "ok" : "tap");
+  if (pos) { fxBurst(pos.x, pos.y, Object.assign({}, R.burst), col, r >= 6 ? "#ffd05a" : "#ffffff"); for (let i = 0; i < R.ring; i++) pkLater(run, i * 130, () => fxRing(pos.x, pos.y, i === 1 && r >= 5 ? "#ffffff" : col, pos.w * (1.0 + i * .5), .8 + i * .15, 4)); }
+  if (pkFxOn()) {
+    if (R.flash) { flash.style.background = r >= 6 ? `radial-gradient(circle at 50% 46%, #ffffff 0%, ${col} 38%, transparent 74%)` : `radial-gradient(circle at 50% 46%, ${col} 0%, transparent 72%)`; pkAnim(flash, [{ opacity: 0 }, { opacity: R.flash, offset: .3 }, { opacity: 0 }], { duration: r >= 6 ? 560 : 420, easing: "ease-out" }); }
+    aura.style.setProperty("--ac", col); pkAnim(aura, [{ opacity: 0 }, { opacity: .1 + r * .07, offset: .25 }, { opacity: .06 + r * .04 }], { duration: 900, easing: "ease-out" });
+    if (R.rays) { rays.style.setProperty("--ac", col); rays.style.display = "block"; pkAnim(rays, [{ opacity: 0 }, { opacity: R.rays * .55, offset: .3 }, { opacity: R.rays * .32 }], { duration: 1100, easing: "ease-out" }); }
+    const sw = card.querySelector(".pk-holo b"); if (sw && R.sweep) { const passes = r >= 5 ? 2 : 1; for (let i = 0; i < passes; i++) pkAnim(sw, [{ transform: "translateX(-130%) skewX(-12deg)", opacity: 0 }, { opacity: R.sweep, offset: .2 }, { opacity: R.sweep, offset: .8 }, { transform: "translateX(320%) skewX(-12deg)", opacity: 0 }], { duration: 760, delay: i * 520, easing: "ease-in-out" }); }
+    if (r >= 6) card.querySelector(".pface").classList.add("prism");
+  }
 }
 function packNext() {
-  if (!PK || !PK.torn) return;
-  if (!PK.flipped) {
-    PK.flipped = true; const x = PK.res[PK.i], r = rarOf(x.c); $("#pcard").classList.add("flipped"); $("#pinfo").classList.add("on"); $("#phint").textContent = "Tap for the next card"; sfx("reveal", r);
-    const f = $("#pfs"); f.classList.add("hit"); if (r >= 5) { f.classList.add("big"); sfx("charge"); }
-  } else { PK.i++; PK.flipped = false; packStage(); }
+  if (!PK) return; const ph = PK.ph;
+  if (ph === "pack") return packTear();
+  if (ph === "tear" || ph === "emerge" || ph === "reveal" || ph === "move") return pkFast();
+  if (ph !== "shown") return;
+  if (!PKX.fast && performance.now() < (PK.holdUntil || 0)) return;   // let the best cards breathe for a moment
+  PK.ph = "move"; const run = PKX.run; PKX.fast = false; pkNextCard(run).catch(e => { if (e !== PKDEAD) { console.error(e); try { packSummary(); } catch (_) {} } });
 }
-function packSkip() { if (!PK || !PK.torn) return; sfx("flip", 1); PK.i = PK.res.length; packSummary(); }
+async function pkNextCard(run) {
+  const card = $("#pkcard"), rays = $("#pkrays"), aura = $("#pkaura"), info = $("#pinfo"); info.classList.remove("on"); sfx("pkMove");
+  pkAnim(rays, [{ opacity: 0.3 }, { opacity: 0 }], { duration: 260 }); pkAnim(aura, [{ opacity: .2 }, { opacity: 0 }], { duration: 260 });
+  await pkAnim(card, [{ transform: "rotateY(180deg) translate3d(0,0,0) scale(1)", opacity: 1 }, { transform: "rotateY(180deg) translate3d(-34vw,38vh,0) rotateZ(-16deg) scale(.32)", opacity: 0 }], { duration: uiMotion() ? 260 : 80, easing: "cubic-bezier(.5,0,.8,.4)" }); pkAlive(run);
+  rays.style.display = "none"; PK.i++; if (PK.i >= PK.res.length) return packSummary(); await pkShow(run, PK.i);
+}
+function packSkip() { if (!PK) return; pkReset(); PK.torn = true; PK.ph = "sum"; PK.i = PK.res.length; sfx("flip", 1); packSummary(); }
 function packSummary() {
-  const m = $("#modal"); m.hidden = false; const best = Math.max(...PK.res.map(x => rarOf(x.c))), order = PK.multi ? PK.res.slice().sort((p, q) => rarOf(q.c) - rarOf(p.c)) : PK.res, news = PK.res.filter(x => x.r.isNew).length;
-  m.innerHTML = `<div class="packfs sum"><span class="ribbon gold" style="font-size:22px">${best >= 5 ? "AMAZING PULL" : "YOUR PULL"}</span><p class="note" style="margin:0;text-align:center">${PK.multi ? PK.n + " summons · " + PK.res.length + " cards · " : ""}${news} new${PK.res.some(x => x.r.dup) ? " · +" + PK.res.reduce((a, x) => a + (x.r.dup ? x.r.coins : 0), 0) + " coins from duplicates" : ""}</p><div class="psum">${order.map(x => `<div class="wrap">${cardHtml(x.c, { tilt: !PK.multi, v: x.v })}<div class="tg ${x.r.dup ? "d" : ""}">${x.r.dup ? "+" + x.r.coins : x.r.isNew ? "NEW" : ""}${x.v ? (x.r.dup || x.r.isNew ? " · " : "") + VARIANTS[x.v].short : ""}</div></div>`).join("")}</div><div class="row c" style="margin-top:12px"><button class="btn dark" data-act="packDone">Done</button><button class="btn yellow" data-act="summon" data-k="${PK.kind}" data-n="1">Summon again</button></div></div>`;
+  pkReset(); PK.ph = "sum"; const m = $("#modal"); m.hidden = false; const best = Math.max(...PK.res.map(x => rarOf(x.c))), order = PK.multi ? PK.res.slice().sort((p, q) => rarOf(q.c) - rarOf(p.c)) : PK.res, news = PK.res.filter(x => x.r.isNew).length;
+  m.innerHTML = `<div class="packfs sum pk-in"><span class="ribbon gold" style="font-size:22px">${best >= 5 ? "AMAZING PULL" : "YOUR PULL"}</span><p class="note" style="margin:0;text-align:center">${PK.multi ? PK.n + " summons · " + PK.res.length + " cards · " : ""}${news} new${PK.res.some(x => x.r.dup) ? " · +" + PK.res.reduce((a, x) => a + (x.r.dup ? x.r.coins : 0), 0) + " coins from duplicates" : ""}</p><div class="psum">${order.map((x, i) => `<div class="wrap" style="--d:${Math.min(i, 14) * 45}ms">${cardHtml(x.c, { tilt: !PK.multi, v: x.v })}<div class="tg ${x.r.dup ? "d" : ""}">${x.r.dup ? "+" + x.r.coins : x.r.isNew ? "NEW" : ""}${x.v ? (x.r.dup || x.r.isNew ? " · " : "") + VARIANTS[x.v].short : ""}</div></div>`).join("")}</div><div class="row c" style="margin-top:12px"><button class="btn dark" data-act="packDone">Done</button><button class="btn yellow" data-act="summon" data-k="${PK.kind}" data-n="1">Summon again</button></div></div>`;
   if (tab === "summon") show("summon");
 }
-function packDone() { PK = null; if (typeof thDuck === "function") thDuck(1, 2); closeModal(); if (tab === "summon") show("summon"); }
+function packDone() { pkReset(); PK = null; if (typeof thDuck === "function") thDuck(1, 2); closeModal(); if (tab === "summon") show("summon"); }
 function tiltToggle() { TILT.on = !TILT.on; try { localStorage.setItem("triad.tilt", TILT.on ? "1" : "0"); } catch (_) {} if (TILT.on) tiltAsk(); else { const m = $("#modal"); m.style.setProperty("--tx", 0); m.style.setProperty("--ty", 0); } show("summon"); }
 
 /* ===== CLASH: 5 v 5 lane duels with 8-card decks (5 front, 3 backup), energy, elements and reactions. Rules: GAME_RULES.md ===== */
@@ -7891,6 +8118,29 @@ async function jingle(kind) {
   ambDuck(.45, .5); j.g.gain.cancelScheduledValues(c.currentTime); j.g.gain.setValueAtTime(AU.sv * .7 * j.def.norm, c.currentTime); try { j.el.currentTime = 0; } catch (_) {}
   const p = j.el.play(); if (p && p.catch) p.catch(() => { ambDuck(1, .5); sfx(kind); }); return true;
 }
+
+/* ===== pack opening sounds (2026-12-13): each stage of the opening has its own sound, played in order, never together. pkReveal(r) is sized by rarity 1 to 6. ===== */
+Object.assign(SFX, {
+  pkAnticipate: (c, t) => { tone(c, 110, t, .52, { type: "sawtooth", v: .05, to: 175, a: .08 }); tone(c, 220, t + .04, .46, { type: "triangle", v: .05, to: 340, a: .06 }); for (let i = 0; i < 6; i++) hiss(c, t + .06 + i * .08, .05, { type: "highpass", f: R_(4000, 6500), v: .1, a: .004 }); },
+  pkTear: (c, t) => { for (let i = 0; i < 30; i++) hiss(c, t + Math.pow(i / 30, 1.12) * .85 + R_(0, .01), .03, { type: "highpass", f: R_(2400, 7200), v: .16, a: .002 }); hiss(c, t, .85, { type: "bandpass", f: 900, to: 2800, q: .8, v: .13, a: .05 }); tone(c, 200, t, .8, { type: "sawtooth", v: .03, to: 520, a: .1 }); },
+  pkSeparate: (c, t) => { hiss(c, t, .3, { type: "bandpass", f: 2400, to: 700, q: 1, v: .2 }); tone(c, 520, t, .22, { type: "triangle", v: .06, to: 240 }); for (let i = 0; i < 5; i++) hiss(c, t + .05 + i * .05, .04, { type: "highpass", f: R_(3000, 5600), v: .09, a: .003 }); },
+  pkEmerge: (c, t) => { tone(c, 260, t, .5, { type: "triangle", v: .1, to: 1040, a: .02 }); hiss(c, t, .5, { type: "highpass", f: 1200, to: 7000, v: .15 }); [0, 4, 7, 12].forEach((s, i) => tone(c, NOTE(s, 3), t + .16 + i * .06, .4, { v: .06 })); },
+  pkMove: (c, t) => SFX.cardSlide(c, t),
+  pkFlip: (c, t) => { hiss(c, t, .15, { type: "highpass", f: 2200, to: 5200, v: .15 }); tone(c, 640, t, .13, { type: "triangle", v: .07, to: 260 }); },
+  pkThud: (c, t) => { tone(c, 150, t, .14, { v: .26, to: 60 }); hiss(c, t, .07, { type: "lowpass", f: 900, v: .18 }); },
+  pkCharge: (c, t, d) => { d = +d || .6; tone(c, 130, t, d, { type: "sawtooth", v: .06, to: 520, a: d * .6 }); tone(c, 260, t, d, { type: "triangle", v: .06, to: 1040, a: d * .6 }); hiss(c, t, d, { type: "bandpass", f: 600, to: 4200, q: 1.5, v: .1, a: d * .5 }); },
+  pkFinal: (c, t, d) => { d = +d || 1.2; [0, .42, .76, 1.04].forEach(o => { if (o < d) tone(c, 62, t + o, .18, { v: .3, to: 38 }); }); tone(c, 200, t, d, { type: "sawtooth", v: .05, to: 1250, a: d * .75 }); hiss(c, t, d, { type: "bandpass", f: 400, to: 6200, q: 1.2, v: .12, a: d * .6 }); for (let i = 0; i < 8; i++) tone(c, R_(2200, 5200), t + d * .5 + i * (d * .06), .3, { v: .04 }); },
+  pkReveal: (c, t, r) => {
+    r = Math.max(1, Math.min(6, +r || 1)); tone(c, 150, t, .14, { v: .22, to: 60 });
+    if (r === 1) tone(c, NOTE(0, 2), t + .02, .26, { type: "triangle", v: .07 });
+    else if (r === 2) { [0, 4].forEach((s, i) => tone(c, NOTE(s, 2), t + .02 + i * .07, .3, { type: "triangle", v: .09 })); hiss(c, t, .16, { type: "highpass", f: 5000, to: 9000, v: .1 }); }
+    else if (r === 3) { bell(c, t + .03, AU.out, 76, .1 * AU.sv, 1.4); [0, 4, 7].forEach((s, i) => tone(c, NOTE(s, 2), t + .03 + i * .06, .5, { type: "triangle", v: .09 })); hiss(c, t, .25, { type: "highpass", f: 4500, to: 9500, v: .12 }); }
+    else if (r === 4) { tone(c, 70, t, .5, { v: .3, to: 38 }); [0, 4, 7, 12].forEach((s, i) => tone(c, NOTE(s, 1), t + .04 + i * .05, .9, { type: "triangle", v: .08 })); bell(c, t + .05, AU.out, 79, .14 * AU.sv, 1.8); for (let i = 0; i < 6; i++) tone(c, R_(2400, 5200), t + .15 + i * .06, .3, { v: .05 }); }
+    else if (r === 5) { tone(c, 55, t, .9, { v: .34, to: 28 }); [0, 7, 12, 16, 19, 24].forEach(s => tone(c, NOTE(s, 0), t + .04, 1.5, { v: .06, a: .12 })); [72, 79, 84].forEach((m, i) => bell(c, t + .08 + i * .11, AU.out, m, .13 * AU.sv, 2.2)); hiss(c, t, .8, { type: "bandpass", f: 500, to: 8000, q: .7, v: .16 }); for (let i = 0; i < 12; i++) tone(c, R_(2200, 5600), t + .2 + i * .06, .3, { v: .05 }); }
+    else { tone(c, NOTE(0, -1), t, 1.3, { type: "sawtooth", v: .12, to: NOTE(0, -1) * .5 }); tone(c, 45, t + .05, 1.4, { v: .36, to: 22 }); hiss(c, t, 1.2, { type: "bandpass", f: 300, to: 9000, q: .6, v: .2 }); [67, 74, 79, 86, 91].forEach((m, i) => bell(c, t + .1 + i * .12, AU.out, m, .12 * AU.sv, 2.4)); for (let i = 0; i < 16; i++) tone(c, R_(2000, 5200), t + .3 + i * .07, .35, { v: .05 }); }
+  },
+});
+LAB_SFX.push(["pkAnticipate", "Pack: anticipation"], ["pkTear", "Pack: foil tear"], ["pkSeparate", "Pack: wrapper separates"], ["pkEmerge", "Pack: cards rise"], ["pkFlip", "Pack: card flip"], ["pkCharge", "Pack: build-up"], ["pkFinal", "Pack: final card"], ["pkReveal:1", "Reveal: Common"], ["pkReveal:2", "Reveal: Uncommon"], ["pkReveal:3", "Reveal: Rare"], ["pkReveal:4", "Reveal: Epic"], ["pkReveal:5", "Reveal: Legendary"], ["pkReveal:6", "Reveal: Secret Rare"]);
 
 document.addEventListener("visibilitychange", () => { if (!AU.ctx) return; if (document.hidden) { AU.ctx.suspend(); if (AU.el) AU.el.pause(); } else { AU.ctx.resume(); if (AU.el && AU.bgm && usingMine()) AU.el.play().catch(() => {}); } });
 /* a check that runs the three songs through an offline mixer and reports how loud they are (the page's own test hook) */
