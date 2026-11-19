@@ -446,6 +446,30 @@ table.odds { width: 100%; border-collapse: collapse; } table.odds td { padding: 
 .cardback { padding: 0; } .cardback img { width: 100%; height: 100%; object-fit: fill; display: block; border-radius: 6px; }
 .a2pile .pcard { position: relative; } .a2pile .pcard > span { position: absolute; inset: 0; display: block; font-size: 0; } .a2pile .pcard > span img { width: 100%; height: 100%; object-fit: fill; display: block; border-radius: inherit; }
 .a2pile .pcard .pcount { position: relative; z-index: 2; }
+/* ===== quality.css: match gestures, the info layer, the deck builder's collection grid ===== */
+#ck .slot { touch-action: none; -webkit-touch-callout: none; user-select: none; -webkit-user-select: none; }
+.arhold { position: absolute; left: 12px; right: 12px; top: 50%; transform: translateY(-50%); max-width: 380px; margin: 0 auto; z-index: 30; pointer-events: none; padding: 10px 12px 11px; border-radius: 14px; background: rgba(9, 16, 30, .93); box-shadow: 0 0 0 1px #ffffff26, 0 10px 30px #000a; color: #e8ecf5; font: 600 12px/1.4 var(--body); animation: arholdin .16s ease-out; }
+@keyframes arholdin { from { opacity: 0; transform: translateY(-46%) scale(.97); } }
+.arhold .hhead { display: flex; gap: 10px; align-items: center; margin-bottom: 6px; } .arhold .hhead img { width: 56px; height: 72px; object-fit: cover; border-radius: 8px; flex: none; box-shadow: 0 0 0 1px #ffffff30; }
+.arhold .hh { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; } .arhold .hh b { font: 400 16px/1.15 var(--display); color: #fff; } .arhold .hs { font-size: 11px; color: #c9d3e6; }
+.arhold .hst { display: flex; gap: 10px; margin: 3px 0; } .arhold .hst span { display: flex; flex-direction: column; align-items: center; } .arhold .hst i { font: 700 8px var(--display); letter-spacing: .14em; color: #8fa0bd; font-style: normal; } .arhold .hst b { font: 700 14px/1.1 var(--num); color: #fff; }
+.arhold p { margin: 4px 0 0; } .arhold em { font-style: normal; font: 700 10px var(--display); letter-spacing: .1em; color: #e3bf66; text-transform: uppercase; } .arhold small { display: block; color: #9fb0cc; font-size: 11px; }
+.ardrag { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 45; pointer-events: none; filter: drop-shadow(0 0 6px #ffd25a99); }
+#ck .slot[data-over] { outline: 3px solid #ffd25a; outline-offset: 1px; box-shadow: 0 0 0 4px #ffd25a55, 0 0 22px #ffd25acc; }
+.arhold { padding: 7px 11px 8px; font-size: 11.5px; line-height: 1.32; } .arhold .hh b { font-size: 15px; } .arhold .hh small { color: #9fb0cc; font-size: 10.5px; } .arhold .hst { margin: 2px 0 1px; gap: 12px; } .arhold p { margin: 3px 0 0; }
+@keyframes arholdin { from { opacity: 0; } }
+#layer { position: fixed; inset: 0; z-index: 60; background: radial-gradient(ellipse at 50% 60%, #0a1230cc, #02040aee); display: flex; align-items: flex-end; justify-content: center; } #layer[hidden] { display: none; }
+#layer .sheet { padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 14px); }
+.psum .wrap .card[data-act] { cursor: pointer; }
+/* the deck builder's picker is the collection's grid */
+.pickgrid { margin-top: 2px; } .pickgrid.short { max-height: 210px; overflow-y: auto; } .pickgrid:not(.short) { padding: 2px; }
+.pickgrid .kp { position: relative; min-width: 0; } .pickgrid .kp .kn { right: auto; top: auto; left: 50%; bottom: -7px; transform: translateX(-50%); z-index: 6; white-space: nowrap; }
+.pickgrid .kp.cmpon .card, .pickgrid .kp.cmpon .ku { outline: 3px solid #ffd25a; outline-offset: 1px; }
+.dbar { margin: 6px 0 6px; }
+.pickgrid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px 9px; } @media (min-width: 520px) { .pickgrid { grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); } }
+/* the buttons under a card's full sheet (add to the deck, close) stay in reach while the sheet scrolls */
+#layer .sheet > .row.c:last-child { position: sticky; bottom: -14px; padding: 10px 0 6px; margin-bottom: -6px; background: linear-gradient(#0000, #0b1428ee 38%); z-index: 4; }
+.dfoot { position: sticky; bottom: -14px; padding: 12px 0 8px; margin-bottom: -8px; background: linear-gradient(#0000, #0b1428f2 36%); z-index: 5; }
 
 /* ===== Clash ===== */
 #ck { position: fixed; inset: 0; z-index: 20; background: radial-gradient(ellipse at 50% 40%, #12583a 0%, var(--felt-d) 55%, var(--felt-dd) 100%); }
@@ -2054,7 +2078,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.12.14-c";
+const VER = "2026.12.15-a";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -2228,16 +2252,16 @@ function tiltAsk(force) {   // must run inside a tap: iOS asks the player for mo
 /* One loop moves every card in the open sheet. It runs on the display's own frame clock (60 or 120 Hz), eases with a time-based spring so the speed never depends on the frame rate, and moves only
    transforms: the foil and glare are oversized layers that slide, so the browser re-composites on the GPU instead of repainting a blend-mode gradient 60 times a second. */
 const TL = { cards: [], dirty: true, x: 0, y: 0, drag: null, t: 0, bound: false };
-function tiltScan() { const m = document.getElementById("modal"); TL.cards = m && !m.hidden ? [...m.querySelectorAll(".card")].map(el => ({ el, holo: el.querySelector(".holo"), glare: el.querySelector(".glare"), art: el.querySelector(".win .art"), tilt: el.classList.contains("tilt") })) : []; TL.dirty = false; }
+function tiltScan() { const m = document.getElementById("modal"), ly = document.getElementById("layer"); TL.cards = [m && !m.hidden ? m : null, ly && !ly.hidden ? ly : null].filter(Boolean).flatMap(x => [...x.querySelectorAll(".card")]).map(el => ({ el, holo: el.querySelector(".holo"), glare: el.querySelector(".glare"), art: el.querySelector(".win .art"), tilt: el.classList.contains("tilt") })) ; TL.dirty = false; }
 function tiltBind() {
   if (TL.bound) return; TL.bound = true; const m = document.getElementById("modal"); if (window.MutationObserver) new MutationObserver(() => { TL.dirty = true; }).observe(m, { childList: true, subtree: true, attributes: true, attributeFilter: ["hidden"] });
-  const aim = e => { const cd = e.target.closest && e.target.closest("#modal .card"); if (!cd) return; const b = cd.getBoundingClientRect(); TL.drag = { x: Math.max(-1, Math.min(1, ((e.clientX - b.left) / b.width - .5) * 2)), y: Math.max(-1, Math.min(1, ((e.clientY - b.top) / b.height - .5) * 2)) }; };
+  const aim = e => { const cd = e.target.closest && e.target.closest("#modal .card, #layer .card"); if (!cd) return; const b = cd.getBoundingClientRect(); TL.drag = { x: Math.max(-1, Math.min(1, ((e.clientX - b.left) / b.width - .5) * 2)), y: Math.max(-1, Math.min(1, ((e.clientY - b.top) / b.height - .5) * 2)) }; };
   document.addEventListener("pointerdown", aim, { passive: true }); document.addEventListener("pointermove", e => { if (TL.drag || e.pointerType === "mouse") aim(e); }, { passive: true });
   const end = () => { TL.drag = null; }; document.addEventListener("pointerup", end); document.addEventListener("pointercancel", end);
 }
 (function tiltLoop(now) {
-  tiltBind(); const m = document.getElementById("modal");
-  if (m && !m.hidden) {
+  tiltBind(); const m = document.getElementById("modal"), ly = document.getElementById("layer");
+  if ((m && !m.hidden) || (ly && !ly.hidden)) {
     if (TL.dirty) tiltScan();
     if (TL.cards.length) {
       const dt = Math.min(.05, Math.max(.001, ((now || performance.now()) - (TL.t || now || performance.now())) / 1000)); TL.t = now || performance.now();
@@ -2345,7 +2369,8 @@ function packStage() {
     `<button class="btn sm dark packskip" data-act="packSkip">Skip ▸▸</button><div class="pcount" id="pcount"></div>` +
     `<div class="pk-stage" id="pkstage"><div class="pk-glow" id="pkglow"></div><div class="pk-hole" id="pkhole"></div><div class="pk-stack" id="pkstack"></div><div class="pk-pack" id="pkpack"></div></div>` +
     `<div class="pk-cards" id="pkcards"></div><div class="pinfo" id="pinfo"></div><div class="plbl" id="plbl">${esc(typeof packLabel === "function" ? packLabel(PK.kind) : "Summon")}</div><div class="phint" id="phint">Tap the pack to open it</div><div class="pk-pips" id="pkpips">${PK.res.map(() => "<i></i>").join("")}</div></div>`;
-  const root = $("#pfs"); fxStart(root); pkBuildPack(); document.getElementById("pcount").textContent = n + " cards";
+  const root = $("#pfs"); fxStart(root); pkBuildPack();
+  root.addEventListener("click", e => { if (!PK || PK.ph !== "shown") return; const c = $("#pkcard"); if (!c) return; const r = c.getBoundingClientRect(); if (e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom) { e.stopPropagation(); detail(PK.res[PK.i].c.id, true); } });   // the card itself opens its full sheet above the opening document.getElementById("pcount").textContent = n + " cards";
 }
 function pkBuildPack() {
   const st = $("#pkstage"), W = st.clientWidth, H = st.clientHeight, N = 9, sw = W / N, kind = PK.kind, hasArt = packArtKey(kind) && art2("pack", packArtKey(kind)) ? "art" : "";
@@ -2436,7 +2461,7 @@ async function pkShow(run, k) {
   const nm = PASS[arCard(c).passive][0], tag = x.r.dup ? `<span class="tg d"><em>Duplicate</em>+${x.r.coins} coins</span>` : x.r.isNew ? `<span class="tg"><em>New</em>${esc(RNAME[r])}</span>` : `<span class="tg"><em>${esc(RNAME[r])}</em>&nbsp;</span>`;
   info.innerHTML = `<span><em>Passive</em>${esc(nm)}</span><span><em>Skill</em>${esc(actName(arCard(c)))}</span>${tag}`; info.classList.add("on");
   const dots = $("#pkpips").children; if (dots[k]) { dots[k].style.setProperty("--pc", col); dots[k].classList.add("on"); }
-  ph.textContent = k < n - 1 ? "Tap for the next card" : "Tap to see everything"; ph.hidden = false; PK.ph = "shown"; PK.holdUntil = performance.now() + (PKX.fast ? 0 : R.hold * 1000);
+  ph.textContent = k < n - 1 ? "Tap the card for details · tap elsewhere for the next" : "Tap the card for details · tap elsewhere to finish"; ph.hidden = false; PK.ph = "shown"; PK.holdUntil = performance.now() + (PKX.fast ? 0 : R.hold * 1000);
 }
 /* what a tier does at the moment its face turns up. Everything but the card's own holo sweep lives behind the card. */
 function pkImpact(run, r, card, col, aura, rays, flash) {
@@ -2467,7 +2492,7 @@ async function pkNextCard(run) {
 function packSkip() { if (!PK) return; pkReset(); PK.torn = true; PK.ph = "sum"; PK.i = PK.res.length; sfx("flip", 1); packSummary(); }
 function packSummary() {
   pkReset(); PK.ph = "sum"; const m = $("#modal"); m.hidden = false; const best = Math.max(...PK.res.map(x => rarOf(x.c))), order = PK.multi ? PK.res.slice().sort((p, q) => rarOf(q.c) - rarOf(p.c)) : PK.res, news = PK.res.filter(x => x.r.isNew).length;
-  m.innerHTML = `<div class="packfs sum pk-in"><span class="ribbon gold" style="font-size:22px">${best >= 5 ? "AMAZING PULL" : "YOUR PULL"}</span><p class="note" style="margin:0;text-align:center">${PK.multi ? PK.n + " summons · " + PK.res.length + " cards · " : ""}${news} new${PK.res.some(x => x.r.dup) ? " · +" + PK.res.reduce((a, x) => a + (x.r.dup ? x.r.coins : 0), 0) + " coins from duplicates" : ""}</p><div class="psum">${order.map((x, i) => `<div class="wrap" style="--d:${Math.min(i, 14) * 45}ms">${cardHtml(x.c, { tilt: !PK.multi, v: x.v })}<div class="tg ${x.r.dup ? "d" : ""}">${x.r.dup ? "+" + x.r.coins : x.r.isNew ? "NEW" : ""}${x.v ? (x.r.dup || x.r.isNew ? " · " : "") + VARIANTS[x.v].short : ""}</div></div>`).join("")}</div><div class="row c" style="margin-top:12px"><button class="btn dark" data-act="packDone">Done</button><button class="btn yellow" data-act="summon" data-k="${PK.kind}" data-n="1">Summon again</button></div></div>`;
+  m.innerHTML = `<div class="packfs sum pk-in"><span class="ribbon gold" style="font-size:22px">${best >= 5 ? "AMAZING PULL" : "YOUR PULL"}</span><p class="note" style="margin:0;text-align:center">${PK.multi ? PK.n + " summons · " + PK.res.length + " cards · " : ""}${news} new${PK.res.some(x => x.r.dup) ? " · +" + PK.res.reduce((a, x) => a + (x.r.dup ? x.r.coins : 0), 0) + " coins from duplicates" : ""}</p><div class="psum">${order.map((x, i) => `<div class="wrap" style="--d:${Math.min(i, 14) * 45}ms">${cardHtml(x.c, { tilt: !PK.multi, v: x.v, attr: `data-act="detail" data-id="${x.c.id}" data-over="1"` })}<div class="tg ${x.r.dup ? "d" : ""}">${x.r.dup ? "+" + x.r.coins : x.r.isNew ? "NEW" : ""}${x.v ? (x.r.dup || x.r.isNew ? " · " : "") + VARIANTS[x.v].short : ""}</div></div>`).join("")}</div><div class="row c" style="margin-top:12px"><button class="btn dark" data-act="packDone">Done</button><button class="btn yellow" data-act="summon" data-k="${PK.kind}" data-n="1">Summon again</button></div></div>`;
   if (tab === "summon") show("summon");
 }
 function packDone() { pkReset(); PK = null; if (typeof thDuck === "function") thDuck(1, 2); closeModal(); if (tab === "summon") show("summon"); }
@@ -3740,12 +3765,23 @@ function cmpPanel(D) {
   return `<div class="cmp"><h4>${cur ? "SWAP" : "ADD"} · ${esc(SLOT_NAME(k))}</h4>${head}<div class="cmp-t"><div class="cmp-r hd"><span></span><b>Now</b><b>New</b><i></i></div>${rows}</div>${syn}${err ? `<p class="note" style="color:#ff9aa4;margin:6px 0 0">${esc(err)}</p>` : ""}` +
     `<div class="row c" style="margin-top:10px"><button class="btn yellow" data-ck="dconfirm" ${err ? "disabled" : ""}>${cur ? "Confirm swap" : "Confirm"}</button><button class="btn dark" data-ck="dcancel">Cancel</button></div></div>`;
 }
+/* the picker under the deck: the collection's own grid, search bar and filter sheet (they share the collection's sort and filters) */
+const deckFiltN = D => (D && D.tab === "sk" ? (F.sel !== "all" ? 1 : 0) + (F.ssort !== "name" ? 1 : 0) : (F.lv ? 1 : 0) + (F.el !== "all" ? 1 : 0) + (F.sort !== "rar" ? 1 : 0));
+function deckGridHtml(D) {
+  const q = (D.q || "").toLowerCase(), selId = D.cards[D.sel], badge = (id, n) => (selId === id ? '<b class="kn here">HERE</b>' : n ? `<b class="kn">×${n}</b>` : "");
+  if (D.tab === "sk") {
+    const so = { name: (a, b) => SKC[a].n.localeCompare(SKC[b].n), cost: (a, b) => SKC[a].c - SKC[b].c || SKC[a].n.localeCompare(SKC[b].n), tier: (a, b) => (SKC[b].tier || 1) - (SKC[a].tier || 1) || SKC[a].n.localeCompare(SKC[b].n) }[F.ssort] || (() => 0);
+    return SKC_IDS.filter(id => (!q || SKC[id].n.toLowerCase().includes(q)) && (F.sel === "all" || SKC[id].el === F.sel)).sort(so).map(id => `<div class="kp ${D.cmp === id ? "cmpon" : ""} ${selId === id ? "here" : ""}" data-ck="dpick" data-id="${id}">${skTile(id)}${badge(id, D.cards.filter(y => y === id).length)}</div>`).join("") || '<p class="note">No skill cards match.</p>';
+  }
+  const fv = c => (P.fav && P.fav[c.id] ? 1 : 0), base = collSort();
+  return ownedList().filter(c => (!q || c.name.toLowerCase().includes(q)) && (F.lv === 0 || c.lv === F.lv) && (F.el === "all" || arCard(c).el === F.el)).sort((a, b) => fv(b) - fv(a) || base(a, b))
+    .map(c => `<div class="kp ${D.cmp === c.id ? "cmpon" : ""} ${selId === c.id ? "here" : ""}" data-ck="dpick" data-id="${c.id}">${cardHtml(c, { count: P.own[c.id] || 0 })}${badge(c.id, D.cards.filter(y => y === c.id).length)}</div>`).join("") || '<p class="note">No cards match. Try another filter.</p>';
+}
+function deckGridFill() { const g = $("#dgrid"); if (g && CKD) g.innerHTML = deckGridHtml(CKD); }
 function deckSheet2() {
   const D = CKD, sh = $("#modal .sheet"), st = sh ? sh.scrollTop : 0, nameEl = $("#ckname"); if (nameEl) D.name = nameEl.value;
-  const pk0 = $("#modal .kpick"), pst = pk0 ? pk0.scrollTop : 0;
+  const pk0 = $("#dgrid"), pst = pk0 ? pk0.scrollTop : 0;
   const err = deckRules(D.cards) || (D.cards.filter(Boolean).length < 12 ? "A deck is 12 cards." : "");
-  const SORTS = { cost: (a, b) => a.cost - b.cost || a.c.name.localeCompare(b.c.name), atk: (a, b) => b.atk - a.atk, hp: (a, b) => b.hp - a.hp, name: (a, b) => a.c.name.localeCompare(b.c.name) };
-  const own = D.tab === "sk" ? SKC_IDS.map(deckKit).sort((a, b) => a.cost - b.cost || a.name.localeCompare(b.name)) : ownedList().map(c => deckKit(c.id)).filter(x => D.el === "all" || x.el === D.el).sort(SORTS[D.sort]);
   const nSkill = D.cards.filter(x => x && isSkill(x)).length;
   const slot = k => { const id = D.cards[k]; return `<div class="kslot ${D.sel === k ? "on" : ""} ${D.flash === k ? "swapflash" : ""}" data-ck="dslot" data-k="${k}">${id && (BY[id] || isSkill(id)) ? kcardMini(id) : '<div class="ku mini empty"><span>+</span></div>'}</div>`; };
   const selId = D.cards[D.sel];
@@ -3755,11 +3791,12 @@ function deckSheet2() {
     `<div class="selbar"><span>Editing <b>${esc(SLOT_NAME(D.sel))}</b>${selId && (BY[selId] || isSkill(selId)) ? ": " + esc(isSkill(selId) ? SKC[selId].n : BY[selId].name) : ": empty"}</span>${selId ? '<button class="btn sm dark" data-ck="dremove">Remove</button>' : ""}</div>` +
     `<div class="row" style="margin:6px 0 0;gap:6px"><button class="btn sm dark" data-ck="dundo" ${D.undo.length ? "" : "disabled"}>↶ Undo</button><button class="btn sm dark" data-me="fill" ${D.cards.filter(Boolean).length >= 12 ? "disabled" : ""}>Fill empty</button><button class="btn sm dark" data-me="copycode">Copy code</button><button class="btn sm dark" data-me="cover" ${selId && BY[selId] ? "" : "disabled"}>Set as cover</button><button class="btn sm dark" data-ck="dclear" ${D.cards.some(Boolean) ? "" : "disabled"}>Clear deck</button></div>` +
     styleLine(D.cards) + (err ? `<p class="note" style="color:#ff9aa4;margin:6px 0 0">${esc(err)}</p>` : '<p class="note" style="color:var(--ok);margin:6px 0 0">Ready to play.</p>') +
-    (D.cmp ? cmpPanel(D) : `<div class="row" style="margin:10px 0 4px;gap:6px"><button class="btn sm ${D.tab === "cr" ? "yellow" : "dark"}" data-ck="dtab" data-t="cr">Creatures</button><button class="btn sm ${D.tab === "sk" ? "yellow" : "dark"}" data-ck="dtab" data-t="sk">Skill cards · ${nSkill}/${SK_MAX}</button></div>` + (D.tab === "sk" ? "" : `<div class="row" style="margin:6px 0 4px"><select data-ck="dfilt"><option value="all">All elements</option>${ELKEYS.map(e => `<option value="${e}" ${D.el === e ? "selected" : ""}>${EL[e][1]} ${EL[e][0]}</option>`).join("")}</select><select data-ck="dsort">${[["cost", "Cost"], ["atk", "Attack"], ["hp", "Health"], ["name", "Name"]].map(([v, n]) => `<option value="${v}" ${D.sort === v ? "selected" : ""}>Sort: ${n}</option>`).join("")}</select></div>`) +
-      `<p class="note" style="margin:0 0 4px">Tap a card to compare it with ${esc(SLOT_NAME(D.sel).toLowerCase())}.${D.tab === "sk" ? " Skill cards are drawn like any card, played once for their energy cost, and then gone." : " Your cards only."}</p>`) +
-    `<div class="kpick ${D.cmp ? "short" : ""}">${own.map(x => { const n = D.cards.filter(y => y === x.id).length; return `<div class="kp ${D.cmp === x.id ? "cmpon" : ""} ${selId === x.id ? "here" : ""}" data-ck="dpick" data-id="${x.id}">${kcardMini(x.id)}${selId === x.id ? '<b class="kn here">HERE</b>' : n ? `<b class="kn">×${n}</b>` : ""}</div>`; }).join("")}</div>` +
-    `<div class="row c" style="margin-top:10px"><button class="btn yellow" data-ck="deckSave" ${deckDirty(D) ? "" : "disabled"}>${deckDirty(D) ? "Save deck" : "Saved"}</button><button class="btn dark" data-ck="dclose">Close</button></div>`);
-  lockSheet(); const s2 = $("#modal .sheet"); if (s2) s2.scrollTop = st; const p2 = $("#modal .kpick"); if (p2) p2.scrollTop = pst; D.flash = -1;
+    (D.cmp ? cmpPanel(D) : `<div class="seg ckind" style="margin-top:12px"><button class="${D.tab !== "sk" ? "on" : ""}" data-ck="dtab" data-t="cr">Character cards</button><button class="${D.tab === "sk" ? "on" : ""}" data-ck="dtab" data-t="sk">Skill cards · ${nSkill}/${SK_MAX}</button></div>` +
+      `<div class="cbar dbar"><input type="search" id="dq" placeholder="${D.tab === "sk" ? "Search skill cards" : "Search cards"}" value="${esc(D.q || "")}"><button class="fbtn" data-ck="dfiltOpen" aria-label="Sort and filter">${ic("filter", "")}${deckFiltN(D) ? '<i class="dot"></i>' : ""}</button></div>` +
+      `<p class="note" style="margin:0 0 6px">Tap a card to see it in full, then put it in ${esc(SLOT_NAME(D.sel).toLowerCase())}.${D.tab === "sk" ? " Skill cards are drawn like any card, played once for their energy cost, and then gone." : " Your cards only."}</p>`) +
+    `<div class="grid pickgrid ${D.cmp ? "short" : ""}" id="dgrid">${deckGridHtml(D)}</div>` +
+    `<div class="row c dfoot" style="margin-top:10px"><button class="btn yellow" data-ck="deckSave" ${deckDirty(D) ? "" : "disabled"}>${deckDirty(D) ? "Save deck" : "Saved"}</button><button class="btn dark" data-ck="dclose">Close</button></div>`);
+  lockSheet(); const s2 = $("#modal .sheet"); if (s2) s2.scrollTop = st; const p2 = $("#dgrid"); if (p2) p2.scrollTop = pst; const dq = $("#dq"); if (dq) dq.oninput = () => { D.q = dq.value; deckGridFill(); }; D.flash = -1;
 }
 /* the X at the top: nothing to save closes at once; otherwise save, discard or keep editing */
 async function deckX() {
@@ -3920,7 +3957,12 @@ document.addEventListener("click", async e => {
     case "dx": return deckX();
     case "dsortdeck": { const D = CKD; deckSnap(D); deckSortBy(D, d.s); D.cmp = null; uiFx("tap"); return deckSheet2(); }
     case "dslot": CKD.sel = +d.k; CKD.cmp = null; uiFx("tap"); return deckSheet2();
-    case "dpick": { if (CKD.cards[CKD.sel] === d.id) { uiFx("err"); return toast("That card is already in this slot."); } CKD.cmp = d.id; uiFx("tap"); return deckSheet2(); }
+    case "dpick": {
+      const here = CKD.cards[CKD.sel] === d.id, lab = here ? "" : `<button class="btn yellow" data-ck="dcmp" data-id="${d.id}">${CKD.cards[CKD.sel] ? "Swap into " : "Put in "}${esc(SLOT_NAME(CKD.sel).toLowerCase())}</button>`, close = `<button class="btn dark" data-act="closeLayer">Close</button>`;
+      uiFx("tap"); return isSkill(d.id) ? skillSheet(d.id, true, lab + close) : detail(d.id, true, (here ? '<span class="note">Already in this slot.</span>' : "") + lab + close);
+    }
+    case "dcmp": { closeLayer(); if (CKD.cards[CKD.sel] === d.id) return; CKD.cmp = d.id; uiFx("tap"); return deckSheet2(); }
+    case "dfiltOpen": return filterSheet(true);
     case "dcancel": CKD.cmp = null; uiFx("back"); return deckSheet2();
     case "dtab": CKD.tab = d.t; CKD.cmp = null; uiFx("tap"); return deckSheet2();
     case "dconfirm": {
@@ -6511,7 +6553,7 @@ document.addEventListener("click", e => {
   if (a === "storyCharEp") { closeModal(); return storyPlay(sceneChar(d.k, +d.i), () => storyCharSheet(d.k)); }
 }, true);
 /* a character's card sheet gets a Story button when that character has a story */
-{ const _detail = detail; detail = function (id) { _detail(id); try { const key = storyCharKey(id); if (key && P.own[id] > 0) { const sh = document.querySelector("#modal .sheet"); if (sh) sh.insertAdjacentHTML("beforeend", `<div class="row c" style="margin-top:10px"><button class="btn sm yellow" data-ck="storyChar" data-k="${key}">Story · ${storyCharRead(key)}/${STORY.chars[key].length}</button></div>`); } } catch (_) {} }; }
+{ const _detail = detail; detail = function (id, over, extra) { _detail(id, over, extra); try { const key = storyCharKey(id); if (key && P.own[id] > 0 && !DOVER) {   /* (not in the layer above a pack opening: that button would close the opening) */ const sh = document.querySelector("#modal .sheet"); if (sh) sh.insertAdjacentHTML("beforeend", `<div class="row c" style="margin-top:10px"><button class="btn sm yellow" data-ck="storyChar" data-k="${key}">Story · ${storyCharRead(key)}/${STORY.chars[key].length}</button></div>`); } } catch (_) {} }; }
 
 /* ===== ARENA screen: the real-time match board (engine: arena.js, rules: GAME_RULES_v2.md) =====
    The board is built once and updated in place every frame, so taps are never lost to a redraw. */
@@ -6652,13 +6694,14 @@ function arSlotUpd(el, u, s, kind, now) {
   const A = AM.A, me = AM.me, ss = s ^ me, uid = u ? u.uid : 0; if (el._u !== uid) arFill(el, u, s, kind);
   const sel = AM.sel && AM.sel.s === s && AM.sel.i === +el.dataset.i && AM.sel.kind === kind, m = AM.mode, selU = AM.sel && AM.sel.kind === "lane" && A.s[AM.sel.s ^ me].lane[AM.sel.i];
   let tgt = false; const selSk = AM.sel && AM.sel.kind === "bench" && AM.sel.s === 0 ? A.s[me].bench[AM.sel.i] : null;
-  if (selSk && selSk.skill && kind === "lane" && u) { const tt = SKC[selSk.sid].t; tgt = (tt === "ally" && s === 0) || (tt === "enemy" && s === 1); } else if (m && u && kind === "lane") tgt = (ABIL[m.act].t === "ally" && s === 0) || (ABIL[m.act].t === "enemy" && s === 1);
+  if (AM.drag && kind === "lane") { const t = AM.drag.t; tgt = t === "ally" ? s === 0 && !!u : t === "enemy" ? s === 1 && !!u : t === "slot" ? s === 0 && !u : t === "ownslot" ? s === 0 : t === "none"; }
+  else if (selSk && selSk.skill && kind === "lane" && u) { const tt = SKC[selSk.sid].t; tgt = (tt === "ally" && s === 0) || (tt === "enemy" && s === 1); } else if (m && u && kind === "lane") tgt = (ABIL[m.act].t === "ally" && s === 0) || (ABIL[m.act].t === "enemy" && s === 1);
   else if (selU && AM.sel.s === 0 && s === 1 && kind === "lane" && u) tgt = arTarget(A, me, AM.sel.i) === +el.dataset.i;
   if (u && (u.skill || (kind === "bench" && s === 1))) {   // a skill card, or a hidden card in the opponent's hand
     const sel0 = AM.sel && AM.sel.s === s && AM.sel.i === +el.dataset.i && AM.sel.kind === kind, can = u.skill && s === 0 && A.s[me].energy >= SKC[u.sid].c;
     el.className = `ku slot ${s ? "foe" : "me"} mini hand ${u.skill && s === 0 ? "skillcard" : "back"}${sel0 ? " sel" : ""}${u.skill && s === 0 && !can ? " dim" : ""}`; if (u.skill && s === 0) el.style.setProperty("--sk", skTone(u.sid)); return;
   }
-  if (!u) { el.className = "ku empty slot " + kind + (kind === "lane" && s === 0 && ((AM.sel && AM.sel.kind === "bench") || (m && ABIL[m.act].t === "slot")) ? " tgt" : ""); return; }
+  if (!u) { el.className = "ku empty slot " + kind + (tgt || (kind === "lane" && s === 0 && ((AM.sel && AM.sel.kind === "bench") || (m && ABIL[m.act].t === "slot"))) ? " tgt" : ""); return; }
   const fx = el._fx, r = el._r, a = arAtk(A, ss, u);
   el.className = `ku slot ${s ? "foe" : "me"} el-${u.el} r${rarOf(BY[u.cid])}${kind === "bench" ? " mini" : ""}${sel ? " sel" : ""}${tgt ? " tgt" : ""}${fx.hurt > now ? " hurt" : ""}${fx.enter > now ? " enter" : ""}${u.frozen > 0 ? " frozen" : ""}${u.shield > 0 ? " shielded" : ""}${u.lv > 1 ? " lv" + u.lv : ""}${kind === "bench" && A.s[ss].energy < AR.SWAP_E && s === 0 ? " dim" : ""}`;
   r.a.textContent = Math.round(a); r.h.textContent = Math.max(0, Math.ceil(u.hp)); r.hb.classList.toggle("hurt", u.hp < u.max * .999); r.hb.classList.toggle("low", u.hp < u.max * .3);
@@ -6680,7 +6723,7 @@ function arPanel() {
     const k = SKC[u.sid], can = S0.energy >= k.c; sig = "sk" + u.uid + can;
     h = `<div class="kp2"><div class="kinfo"><b>${esc(k.n)}</b><span class="kstats">${stat("Cost", k.c + "⚡")}<span class="st"><i>${k.t === "ally" ? "One of your cards" : k.t === "enemy" ? "One enemy card" : k.t === "slot" ? "An empty lane" : "A whole side"}</i></span></span></div><div class="kbtns">${k.t === "none" ? `<button class="btn sm yellow" data-ar="playcard" ${can ? "" : "disabled"}>Play · ${k.c}⚡</button>` : `<span class="note">${can ? "Tap a highlighted card" : "Not enough energy"}</span>`}<button class="btn sm dark" data-ar="info">Details</button></div></div>`;
   }
-  else if (!u) { sig = "none"; h = `<div class="kp1"><span>Your cards fight on their own. Tap one of yours, then an enemy, to lock its target. A glowing <b>⚡</b> means its skill is ready.</span></div>`; }
+  else if (!u) { sig = "none"; h = `<div class="kp1"><span>Your cards fight on their own. Tap one of yours, then an enemy, to lock its target (tap it again to let go). A glowing <b>⚡</b> means its skill is ready: drag the card onto its target. Hold any card to read it.</span></div>`; }
   else {
     const mine = sel.s === 0, ready = mine && sel.kind === "lane" && u.skcd <= 0 && S0.energy >= u.acost, tl = u.lock != null && A.s[1 - me].lane[u.lock];
     sig = [sel.s, sel.i, sel.kind, u.uid, ready, !!tl, S0.energy >= AR.SWAP_E, u.skcd > 0, Math.ceil(u.hp), u.lv].join();
@@ -6866,6 +6909,7 @@ function arFinish() {
 function arTap(s, i, kind) {
   const A = AM.A; if (A.over) return; const me = AM.me, sel = AM.sel, m = AM.mode, u = kind === "lane" ? A.s[s ^ me].lane[i] : A.s[s ^ me].bench[i], S0 = A.s[me];
   if (m) {
+    if (kind === "lane" && s === 0 && i === m.i) { AM.mode = null; AM.sel = null; AM.sig = ""; return; }   // the casting card tapped again: put it down
     const mt = ABIL[m.act].t; if (kind === "lane" && ((u && ((mt === "ally" && s === 0) || (mt === "enemy" && s === 1))) || (!u && mt === "slot" && s === 0))) { arPut({ k: "use", i: m.i, t: i }); AM.mode = null; AM.sig = ""; }
     return;
   }
@@ -6883,7 +6927,9 @@ function arTap(s, i, kind) {
   AM.sel = u && !(sel && sel.s === s && sel.i === i && sel.kind === kind) ? { s, i, kind } : null; AM.sig = "";
 }
 document.addEventListener("click", e => {
-  const el = e.target.closest("[data-ar]"); if (!el || !AM) return; const a = el.dataset.ar, A = AM.A, d = el.dataset;
+  const el = e.target.closest("[data-ar]"); if (!AM) return;
+  if (!el) { if (AM.A && !AM.A.over && !AM.intro && e.target.closest && e.target.closest("#arena") && !e.target.closest("button")) { if (AM.mode) AM.mode = null; else AM.sel = null; AM.sig = ""; } return; }   // the empty board puts down whatever is selected
+  const a = el.dataset.ar, A = AM.A, d = el.dataset;
   switch (a) {
     case "slot": sfx("select"); return arTap(+d.s, +d.i, d.kind);
     case "playcard": { const S0 = A.s[AM.me], sel = AM.sel, h = sel && sel.kind === "bench" ? S0.bench[sel.i] : null; if (!h || !h.skill) return; if (S0.energy < SKC[h.sid].c) return toast("Not enough energy."); arPut({ k: "play", b: sel.i }); AM.sel = null; AM.sig = ""; return; }
@@ -6909,6 +6955,84 @@ function arenaBgKey(A) {
   const top = Object.entries(n).sort((x, y) => y[1] - x[1]), tot = top.reduce((s, x) => s + x[1], 0); if (!top.length) return "colosseum"; if ((top[1] && top[1][1] === top[0][1]) || top[0][1] / tot < .3) return "colosseum"; return ARENA_BG[top[0][0]] || "colosseum";
 }
 function arenaBg(A) { const ck = $("#ck"), u = art2("arena", arenaBgKey(A)); if (!ck) return; if (u) ck.style.setProperty("--arena", `url(${u})`); else ck.style.removeProperty("--arena"); }
+
+/* ----- gestures on the board (2026-12-15) -----
+   Tap a selected card again to put it down (also cancels a skill that is waiting for its target); tap the empty board to put down whatever is selected.
+   Drag from one of your cards onto another card to use it: a creature whose skill is ready uses the skill on that target; a creature whose skill is not ready sets its target when dropped on an enemy;
+   a skill card from your hand plays on the card it is dropped on; a creature from your hand swaps into the lane it is dropped on.
+   Hold any card for 2 seconds to read it in a small panel over the middle of the board. The fight never pauses, nothing is selected, and letting go closes the panel. */
+const ARG = { HOLD: 2000, MOVE: 10 };
+const arSlotOf = el => (el && el.closest ? el.closest('#ck .slot[data-ar="slot"]') : null);
+function arUnitAt(s, i, kind) { const A = AM.A, ss = s ^ AM.me; return kind === "lane" ? A.s[ss].lane[i] : A.s[ss].bench[i]; }
+/* what dragging this card would do, or null */
+function arDragKind(g) {
+  const A = AM.A, S0 = A.s[AM.me], u = g.u; if (!u) return null;
+  if (g.kind === "lane") { if (u.skcd > 0 || S0.energy < u.acost) return { what: "lock", t: "enemy" }; return { what: "use", t: ABIL[u.active].t }; }
+  if (g.kind === "bench") return u.skill ? { what: "play", t: SKC[u.sid].t } : { what: "swap", t: "ownslot" };
+  return null;
+}
+function arValidDrop(k, el) {
+  if (!el) return false; const s = +el.dataset.s, i = +el.dataset.i, kind = el.dataset.kind; if (kind !== "lane") return false; const u = arUnitAt(s, i, "lane");
+  switch (k.t) { case "ally": return s === 0 && !!u; case "enemy": return s === 1 && !!u; case "slot": return s === 0 && !u; case "ownslot": return s === 0; case "none": return true; }
+  return false;
+}
+function arDropAct(g, el) {
+  const A = AM.A, me = AM.me, S0 = A.s[me], k = g.k, hint = { ally: "Drop it on one of your cards.", enemy: "Drop it on an enemy card.", slot: "Drop it on an empty lane of yours.", ownslot: "Drop it on one of your lanes." };
+  if (!arValidDrop(k, el)) { if (k.what !== "lock") toast(hint[k.t] || "Nothing to use it on there."); return; }
+  const i = el ? +el.dataset.i : 0;
+  if (k.what === "use") { arPut({ k: "use", i: g.i, t: k.t === "none" ? 0 : i }); AM.sel = null; }
+  else if (k.what === "lock") { arPut({ k: "lock", i: g.i, t: i }); }
+  else if (k.what === "play") { if (S0.energy < SKC[g.u.sid].c) return toast("Not enough energy."); arPut(k.t === "none" ? { k: "play", b: g.i } : { k: "play", b: g.i, t: i }); AM.sel = null; }
+  else if (k.what === "swap") { if (S0.energy < AR.SWAP_E) return toast("Not enough energy."); if (S0.swapcd[i] > 0) return toast("That slot is recharging."); arPut({ k: "swap", b: g.i, l: i }); AM.sel = null; }
+  AM.sig = ""; sfx("select");
+}
+function arHoldHtml(g) {
+  const A = AM.A, me = AM.me, u = g.u, tgtName = { ally: "one of your cards", enemy: "one enemy card", slot: "an empty lane", none: "a whole side" };
+  if (u.skill) { const k = SKC[u.sid]; return `<div class="hh"><b>${esc(k.n)}</b><span class="hs">Skill card · ${k.c}⚡ · ${tgtName[k.t] || ""}</span></div><p>${esc(skText(u.sid))}</p><small>Used once, then it is gone.</small>`; }
+  const ss = g.s ^ me, a = Math.round(arAtk(A, ss, u)), st = (k, v) => `<span><i>${k}</i><b>${v}</b></span>`;
+  return `<div class="hh"><b>${esc(u.name)}</b><span class="elchip el-${u.el}">${elIco(u.el)}${EL[u.el][0]}</span><small>${esc(FAC[u.fac] || u.fac)} · targets ${esc(TGT_NAME[u.tm])}</small></div><div class="hst">${st("ATK", a)}${st("HP", Math.ceil(u.hp) + "/" + Math.round(u.max))}${st("SPD", u.spd.toFixed(2))}${st("COST", u.cost)}${st("LV", u.lv)}</div>` +
+    `<p><em>Passive · ${esc(passName(u))}</em> ${passText(u.passive)}</p><p><em>Skill · ${esc(actName(u))} · ${u.acost}⚡</em> ${actText(u.active)}</p>${u.mark ? `<p><em>Marked · ${EL[u.mark.el][0]}</em> Extra damage from the matching element.</p>` : ""}`;
+}
+(function arGestures() {
+  let g = null; const ck = () => document.getElementById("ck");
+  const stopClick = () => { const stop = ev => { ev.stopPropagation(); ev.preventDefault(); }; document.addEventListener("click", stop, { capture: true, once: true }); setTimeout(() => document.removeEventListener("click", stop, true), 160); };
+  const hideHold = () => { const h = document.getElementById("arhold"); if (h) h.remove(); };
+  const showHold = () => { if (!g || !AM) return; hideHold(); const h = document.createElement("div"); h.id = "arhold"; h.className = "arhold"; h.innerHTML = arHoldHtml(g); ck().appendChild(h);
+    try {   // the middle of the board is the gap between the two rows (cards that lunge at each other move, the board does not), so the panel is centered on it and both sides stay in view
+      const ar = document.getElementById("arena").getBoundingClientRect(), c0 = (h.offsetParent || ck()).getBoundingClientRect(), hh = h.getBoundingClientRect().height;
+      h.style.transform = "none"; h.style.top = Math.max(6, ar.top - c0.top + ar.height / 2 - hh / 2) + "px";
+    } catch (_) {}
+  };
+  const clearDrag = () => { if (AM) AM.drag = null; const l = document.getElementById("ardrag"); if (l) l.remove(); document.querySelectorAll("#ck .slot[data-over]").forEach(e => e.removeAttribute("data-over")); };
+  const end = () => { if (!g) return; clearTimeout(g.t); hideHold(); clearDrag(); g = null; };
+  const center = el => { const r = el.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; };
+  document.addEventListener("pointerdown", e => {
+    if (!AM || !AM.A || AM.A.over || (e.pointerType === "mouse" && e.button > 0)) return; const el = arSlotOf(e.target); if (!el) return; end();
+    const s = +el.dataset.s, i = +el.dataset.i, kind = el.dataset.kind, u = arUnitAt(s, i, kind); if (!u || (s === 1 && kind === "bench")) return;
+    g = { el, s, i, kind, u, sx: e.clientX, sy: e.clientY, drag: false, held: false, k: null };
+    g.t = setTimeout(() => { if (!g || g.drag) return; g.held = true; showHold(); if (navigator.vibrate) try { navigator.vibrate(8); } catch (_) {} }, ARG.HOLD);
+  });
+  document.addEventListener("pointermove", e => {
+    if (!g || !AM) return; const d = Math.hypot(e.clientX - g.sx, e.clientY - g.sy);
+    if (!g.drag && d > ARG.MOVE) {
+      clearTimeout(g.t); if (g.held) { hideHold(); g.held = false; }
+      const k = g.s === 0 ? arDragKind(g) : null; if (!k) { g = null; return; }
+      g.drag = true; g.k = k; AM.drag = k; AM.sel = { s: 0, i: g.i, kind: g.kind }; AM.sig = ""; sfx("select");
+      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg"); svg.id = "ardrag"; svg.setAttribute("class", "ardrag"); svg.innerHTML = '<defs><marker id="ardh" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#ffd25a"/></marker></defs><line id="ardl" stroke="#ffd25a" stroke-width="5" stroke-linecap="round" stroke-dasharray="1 9" marker-end="url(#ardh)"/>'; ck().appendChild(svg);
+    }
+    if (g && g.drag) {
+      const c = center(g.el), l = document.getElementById("ardl"); if (l) { l.setAttribute("x1", c.x); l.setAttribute("y1", c.y); l.setAttribute("x2", e.clientX); l.setAttribute("y2", e.clientY); }
+      const t = arSlotOf(document.elementFromPoint(e.clientX, e.clientY)); document.querySelectorAll("#ck .slot[data-over]").forEach(x => x.removeAttribute("data-over")); if (t && t !== g.el && arValidDrop(g.k, t)) t.setAttribute("data-over", "1");
+    }
+  });
+  document.addEventListener("pointerup", e => {
+    if (!g) return; const info = g, was = info.drag || info.held; if (info.drag && AM) { const t = arSlotOf(document.elementFromPoint(e.clientX, e.clientY)), onBoard = !t && document.elementFromPoint(e.clientX, e.clientY) && document.elementFromPoint(e.clientX, e.clientY).closest("#arena"); if (t && t !== info.el) arDropAct(info, t); else if (!t && onBoard && info.k.t === "none" && info.k.what !== "lock") arDropAct(info, null); }
+    end(); if (was) stopClick();
+  });
+  document.addEventListener("pointercancel", end);
+  document.addEventListener("contextmenu", e => { if (arSlotOf(e.target)) e.preventDefault(); });
+  window.addEventListener("blur", end);
+})();
 
 /* ===== Clash online: two phones, one shared board that both of them simulate. ===== */
 /* Both phones hold the same match (seat 0 is the host, seat 1 the guest). Each player plans in secret and sends the list of what they did; when both lists are in,
@@ -8044,32 +8168,39 @@ function fillColl() {
   box.innerHTML = list.map(c => { const h = cardHtml(c, { count: P.own[c.id] || 0, miss: !(P.own[c.id] > 0), attr: `data-act="detail" data-id="${c.id}"` }); let h2 = h; if (P.own[c.id] > 0 && !P.seen[c.id]) h2 = h2.replace('<i class="crn"></i>', '<i class="crn"></i><i class="newtag">NEW</i>'); if (P.fav && P.fav[c.id]) h2 = h2.replace('<i class="crn"></i>', '<i class="crn"></i><i class="favtag">★</i>'); return h2; }).join("") || `<p class="note">${F.own === "own" ? "No cards match. Try another filter, or open packs to find more." : "No cards match."}</p>`;
 }
 /* the sort and filter sheet: one tap on a chip changes the list behind it (favourites always stay on top) */
-function filterSheet() {
+function filterSheet(over) {   // over: opened from the deck builder, in the layer above it
+  const skillTab = over ? (CKD && CKD.tab === "sk") : F.kind === "skill", closeAct = over ? "closeLayer" : "closeModal";
   const chip = (f, v, label, on) => `<button class="chip ${on ? "on" : ""}" data-act="fset" data-f="${f}" data-v="${v}">${label}</button>`, sec = (t, body) => `<span class="ribbon">${t}</span><div class="chips">${body}</div>`;
   let b;
-  if (F.kind === "skill") {
+  if (skillTab) {
     b = sec("SORT BY", [["name", "Name"], ["cost", "Energy cost"], ["tier", "Tier"]].map(([v, n]) => chip("ssort", v, n, F.ssort === v)).join("")) + sec("ELEMENT", chip("sel", "all", "Any", F.sel === "all") + ELKEYS.map(e => chip("sel", e, EL[e][1] + " " + EL[e][0], F.sel === e)).join(""));
   } else {
     b = sec("SORT BY", [["rar", "Rarity"], ["new", "Newest"], ["cost", "Cost"], ["atk", "Attack"], ["hp", "Health"], ["name", "Name"], ["cnt", "Copies"]].map(([v, n]) => chip("sort", v, n, F.sort === v)).join("")) +
-      sec("SHOW", [["own", "My cards"], ["all", "Unowned too"], ["miss", "Only missing"], ["ex", "Secret Rare"], ["fav", "Favourites"]].map(([v, n]) => chip("own", v, n, F.own === v)).join("")) +
+      (over ? "" : sec("SHOW", [["own", "My cards"], ["all", "Unowned too"], ["miss", "Only missing"], ["ex", "Secret Rare"], ["fav", "Favourites"]].map(([v, n]) => chip("own", v, n, F.own === v)).join(""))) +
       sec("RARITY", chip("lv", 0, "Any", F.lv === 0) + [1, 2, 3, 4, 5].map(l => chip("lv", l, RNAME[l], F.lv === l)).join("")) +
       sec("ELEMENT", chip("el", "all", "Any", F.el === "all") + ELKEYS.map(e => chip("el", e, EL[e][1] + " " + EL[e][0], F.el === e)).join(""));
   }
-  openSheet(`<h2 class="fat">Sort &amp; filter</h2>${b}<p class="note" style="text-align:center;margin:10px 0 0">Favourites always come first.</p><div class="row c" style="margin-top:12px"><button class="btn sm dark" data-act="freset">Reset</button><button class="btn yellow" data-act="closeModal">Done</button></div>`);
+  (over ? openLayer : openSheet)(`<h2 class="fat">Sort &amp; filter</h2>${b}<p class="note" style="text-align:center;margin:10px 0 0">Favourites always come first.</p><div class="row c" style="margin-top:12px"><button class="btn sm dark" data-act="freset" data-over="${over ? 1 : 0}">Reset</button><button class="btn yellow" data-act="${closeAct}">Done</button></div>`);
 }
-function skillSheet(id) {
-  const k = SKC[id]; openSheet(`<button class="sico r" data-act="closeModal" aria-label="Close">✕</button><div style="width:min(46%,170px);margin:6px auto 10px">${skTile(id)}</div><h2 class="fat" style="text-align:center;margin:0">${esc(k.n)}</h2><p class="note" style="text-align:center;margin:4px 0 8px">${k.c} energy · ${k.t === "ally" ? "one of your cards" : k.t === "enemy" ? "one enemy card" : k.t === "slot" ? "an empty lane" : "a whole side"}</p><div class="rules"><p>${esc(skText(id))}</p></div><p class="note" style="text-align:center;margin:10px 0 0">Every player has every skill card. Put up to ${SK_MAX} in a deck, ${SK_COPIES} copies of each.</p>`);
+function skillSheet(id, over, extra) {
+  const k = SKC[id]; (over ? openLayer : openSheet)(`<button class="sico r" data-act="${over ? "closeLayer" : "closeModal"}" aria-label="Close">✕</button><div style="width:min(46%,170px);margin:6px auto 10px">${skTile(id)}</div><h2 class="fat" style="text-align:center;margin:0">${esc(k.n)}</h2><p class="note" style="text-align:center;margin:4px 0 8px">${k.c} energy · ${k.t === "ally" ? "one of your cards" : k.t === "enemy" ? "one enemy card" : k.t === "slot" ? "an empty lane" : "a whole side"}</p><div class="rules"><p>${esc(skText(id))}</p></div><p class="note" style="text-align:center;margin:10px 0 0">Every player has every skill card. Put up to ${SK_MAX} in a deck, ${SK_COPIES} copies of each.</p>${extra ? `<div class="row c" style="margin-top:12px;gap:8px">${extra}</div>` : ""}`);
 }
+let DOVER = false;   // is the card sheet open in the layer above (true) or in the main sheet (false)
+function openLayer(h) {
+  let m = document.getElementById("layer"); if (!m) { m = document.createElement("div"); m.id = "layer"; document.body.appendChild(m); m.addEventListener("click", e => { if (e.target.id === "layer") closeLayer(); }); }
+  m.hidden = false; m.innerHTML = `<div class="sheet">${/class="(sico|sheetx)/.test(h) ? "" : '<button class="sheetx" data-act="closeLayer" aria-label="Close">✕</button>'}${h}</div>`; if (typeof TL !== "undefined") TL.dirty = true;
+}
+function closeLayer() { const m = document.getElementById("layer"); if (m) { m.hidden = true; m.innerHTML = ""; } DOVER = false; if (typeof TL !== "undefined") TL.dirty = true; }
 function openSheet(h) { const m = $("#modal"); m.hidden = false; delete m.dataset.lock; m.innerHTML = `<div class="sheet">${/class="(sico|sheetx)/.test(h) ? "" : '<button class="sheetx" data-act="closeModal" aria-label="Close">✕</button>'}${h}</div>`; }
 /* a sheet that must be answered with its own buttons (a result, a choice, a waiting screen): tapping outside it does nothing */
 function lockSheet() { $("#modal").dataset.lock = "1"; }
-function detail(id) {
-  seenInit(); if (P.own[id] > 0 && !P.seen[id]) { P.seen[id] = 1; scheduleSave(); chrome(); }
+function detail(id, over, extra) {
+  if (over !== undefined) DOVER = !!over; seenInit(); if (P.own[id] > 0 && !P.seen[id]) { P.seen[id] = 1; scheduleSave(); chrome(); }
   const c = BY[id], n = P.own[id] || 0, k = arCard(c), rr = rarOf(c);
-  openSheet(`${n ? favIco(id) : ""}<button class="sico r" data-act="closeModal" aria-label="Close">✕</button><div style="width:min(66%,248px);margin:2px auto 12px">${cardHtml(c, { miss: !n, tilt: true })}</div><div class="row" style="align-items:flex-start;flex-wrap:nowrap;gap:14px"><div style="min-width:0;flex:1"><h2 class="fat" style="text-align:left;font-size:18px;margin:2px 0 8px;line-height:1.15">${esc(c.name)}</h2><div class="row" style="gap:8px"><span class="rtag r${rr}">${RNAME[rr]}</span><span class="elchip el-${k.el}">${elIco(k.el)}${EL[k.el][0]}</span></div><p class="note" style="margin:8px 0 0;line-height:1.5">${esc(FAC[k.fac] || k.fac)}<br>Targets: ${TGT_NAME[k.tm]}<br>Strike ${+(k.atk * AR.ATKX * AR.STRIKE).toFixed(1)} every ${+(AR.IV / k.spd).toFixed(1)} s<br>Owned ${n} / 3<br>${whereTxt(c, n)}</p></div></div>` +
+  (DOVER ? openLayer : openSheet)(`${n ? favIco(id) : ""}<button class="sico r" data-act="${DOVER ? "closeLayer" : "closeModal"}" aria-label="Close">✕</button><div style="width:min(66%,248px);margin:2px auto 12px">${cardHtml(c, { miss: !n, tilt: true })}</div><div class="row" style="align-items:flex-start;flex-wrap:nowrap;gap:14px"><div style="min-width:0;flex:1"><h2 class="fat" style="text-align:left;font-size:18px;margin:2px 0 8px;line-height:1.15">${esc(c.name)}</h2><div class="row" style="gap:8px"><span class="rtag r${rr}">${RNAME[rr]}</span><span class="elchip el-${k.el}">${elIco(k.el)}${EL[k.el][0]}</span></div><p class="note" style="margin:8px 0 0;line-height:1.5">${esc(FAC[k.fac] || k.fac)}<br>Targets: ${TGT_NAME[k.tm]}<br>Strike ${+(k.atk * AR.ATKX * AR.STRIKE).toFixed(1)} every ${+(AR.IV / k.spd).toFixed(1)} s<br>Owned ${n} / 3<br>${whereTxt(c, n)}</p></div></div>` +
     `${varsOwned(id).length ? `<div class="row c" style="margin:6px 0 0"><span class="note">Variant</span>${["std"].concat(VAR_ORDER.filter(x => varsOwned(id).includes(x))).map(x => `<button class="btn sm ${(selVariant(id) || "std") === x ? "yellow" : "dark"}" data-act="setvar" data-id="${id}" data-v="${x}">${x === "std" ? "Standard" : VARIANTS[x].name}</button>`).join("")}</div>` : ""}<div class="cstat"><div class="a"><b>${Math.round(k.atk * AR.ATKX)}</b><small>Attack</small></div><div class="h"><b>${hpOf(k)}</b><small>Health</small></div><div class="s"><b>${k.spd.toFixed(2)}</b><small>Speed</small></div><div class="c"><b>${k.cost}</b><small>Cost</small></div></div>` +
     `${chainStrip(id)}<div class="skillbox"><em>Passive · ${esc(passName(k))}</em>${passText(k.passive)}</div><div class="skillbox"><em>Skill · ${esc(actName(k))} · ${k.acost} energy${abilBase(k) && abilBase(k) !== actName(k) ? " · " + esc(abilBase(k)) : ""}</em>${actText(k.active)}</div>` +
-    `<div class="row c" style="margin-top:14px">${c.ev ? '<span class="note">Only the Element Festival gives this card.</span>' : c.ex ? '<span class="note">Only a pack gives this card.</span>' : ""}${n > 1 ? `<button class="btn sm" data-act="sell" data-id="${id}">Sell 1 · ${ECON.sell[rr]} ${ic("coin")}</button>` : ""}</div>`);
+    `<div class="row c" style="margin-top:14px">${c.ev ? '<span class="note">Only the Element Festival gives this card.</span>' : c.ex ? '<span class="note">Only a pack gives this card.</span>' : ""}${n > 1 ? `<button class="btn sm" data-act="sell" data-id="${id}">Sell 1 · ${ECON.sell[rr]} ${ic("coin")}</button>` : ""}</div>${extra ? `<div class="row c" style="margin-top:10px;gap:8px">${extra}</div>` : ""}`);
 }
 let DE = null;
 function editDeck(i) { DE = { i, name: P.decks[i].name, cards: P.decks[i].cards.slice() }; deckSheet(); }
@@ -8591,8 +8722,8 @@ document.addEventListener("click", async e => {
     case "svtab": SV = d.k; return show("summon");
     case "ckind": F.kind = d.k; F.q = ""; return show("cards");
     case "filtOpen": return filterSheet();
-    case "fset": { const f = d.f, v = ["lv"].includes(f) ? +d.v : d.v; F[f] = v; document.querySelectorAll(`#modal .chip[data-f="${f}"]`).forEach(b => b.classList.toggle("on", b.dataset.v === String(v))); fillColl(); const fb = document.querySelector(".fbtn"); if (fb) fb.innerHTML = ic("filter", "") + (filtN() ? '<i class="dot"></i>' : ""); return; }
-    case "freset": F = Object.assign(F, { own: "own", lv: 0, el: "all", sort: "rar", ssort: "name", sel: "all" }); return show("cards"), filterSheet();
+    case "fset": { const f = d.f, v = ["lv"].includes(f) ? +d.v : d.v; F[f] = v; document.querySelectorAll(`#modal .chip[data-f="${f}"], #layer .chip[data-f="${f}"]`).forEach(b => b.classList.toggle("on", b.dataset.v === String(v))); fillColl(); if (typeof CKD !== "undefined" && CKD && $("#dgrid")) deckGridFill(); document.querySelectorAll(".fbtn").forEach(fb => { const deck = fb.dataset.ck === "dfiltOpen"; fb.innerHTML = ic("filter", "") + ((deck ? deckFiltN(CKD) : filtN()) ? '<i class="dot"></i>' : ""); }); return; }
+    case "freset": F = Object.assign(F, { own: "own", lv: 0, el: "all", sort: "rar", ssort: "name", sel: "all" }); if (d.over === "1") { deckGridFill(); return filterSheet(true); } return show("cards"), filterSheet();
     case "skdetail": return skillSheet(d.id);
     case "setvar": return setVar(d.id, d.v);
     case "avatar": return avatarSheet();
@@ -8611,7 +8742,8 @@ document.addEventListener("click", async e => {
     case "tiltToggle": return tiltToggle();
     case "odds": return oddsModal(d.k || "std");
     case "closeModal": return closeModal();
-    case "detail": return detail(d.id);
+    case "detail": return detail(d.id, d.over === "1");
+    case "closeLayer": return closeLayer();
     case "newDeck": { P.decks.push({ name: "Deck " + (P.decks.length + 1), cards: [] }); scheduleSave(); return editDeck(P.decks.length - 1); }
     case "editDeck": return editDeck(+d.i);
     case "deckRemove": DE.cards.splice(+d.k, 1); return deckSheet();
@@ -8651,7 +8783,7 @@ document.addEventListener("change", async e => {
   if (e.target.id === "deckSel") { P.deck = +e.target.value; scheduleSave(); }
 });
 function closeModal() {
-  const m = $("#modal"); m.hidden = true; m.innerHTML = ""; delete m.dataset.lock;
+  closeLayer(); const m = $("#modal"); m.hidden = true; m.innerHTML = ""; delete m.dataset.lock;
   const ub = document.getElementById("undo"); if (ub) ub.remove();
   /* safety net: a finished match must never be left on screen with nothing to tap; if its result sheet is gone for any reason, go back to the menu */
   if (typeof G !== "undefined" && G && G.over && !$("#ck").hidden) setTimeout(() => { if (G && G.over && $("#modal").hidden && !$("#ck").hidden) ckLeave(); }, 80);
