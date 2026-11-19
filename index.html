@@ -513,6 +513,25 @@ table.odds { width: 100%; border-collapse: collapse; } table.odds td { padding: 
 .hub-top { display: flex; gap: 6px; align-items: center; } .hub-edit { width: 34px; height: 34px; border-radius: 50%; border: 1px solid #ffffff44; background: #0d1624bb; color: #fff; font-size: 16px; }
 .hub-m.m-unrated { grid-column: 3; grid-row: 2; } .hub-m.m-unrated img { filter: hue-rotate(150deg) saturate(.8); }
 
+/* ===== boot screens ===== */
+#splash { transition: opacity .5s; background: #05080e; }
+#splash .sp-studio { text-align: center; color: #e9edf3; animation: spStudio 1.5s ease both; } #splash .sp-studio b { display: block; font: 400 34px var(--display); letter-spacing: .34em; padding-left: .34em; } #splash .sp-studio small { display: block; margin-top: 8px; font: 600 12px var(--body); letter-spacing: .6em; padding-left: .6em; opacity: .6; position: static; color: inherit; -webkit-text-stroke: 0; }
+@keyframes spStudio { 0% { opacity: 0; transform: scale(.97); } 25%, 75% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+#splash.sp-title-on, #splash.sp-load-on { justify-content: flex-end; padding-bottom: calc(36px + env(safe-area-inset-bottom, 0px)); }
+.tt-bg { position: absolute; inset: 0; background: #0f1a2c center / cover no-repeat; animation: ttZoom 14s ease-out both; } .tt-bg.ld { filter: brightness(.55) saturate(.9); }
+@keyframes ttZoom { from { transform: scale(1.12); } to { transform: scale(1); } }
+.tt-shade { position: absolute; inset: 0; background: linear-gradient(#05080ecc 0, #05080e66 32%, #05080e00 52%, #05080ed9 100%); }
+.tt-logo { position: absolute; left: 0; right: 0; top: 17%; text-align: center; z-index: 2; animation: ttIn .9s .1s ease both; } .tt-logo.sm { top: 12%; } .tt-logo .logo { font-size: 62px; line-height: .92; color: #fff; text-shadow: 0 3px 3px #000, 0 4px 28px #000c; transform: rotate(-3deg); } .tt-logo .logo i { display: block; font-style: normal; color: var(--yellow); font-size: 44px; }
+@keyframes ttIn { from { opacity: 0; transform: translateY(-14px); } to { opacity: 1; transform: none; } }
+.tt-go { position: relative; z-index: 2; min-width: 240px; padding: 16px 34px; border: 2px solid #f0d68a; border-radius: 16px; background: linear-gradient(#2d4a72dd, #17263fdd); color: #fff; font: 400 26px var(--display); letter-spacing: .06em; box-shadow: 0 0 26px #f0d68a55, 0 8px 22px #000a; animation: ttPulse 2s ease-in-out infinite; }
+@keyframes ttPulse { 50% { box-shadow: 0 0 40px #f0d68add, 0 8px 22px #000a; transform: scale(1.025); } }
+#splash .tt-tap { position: relative; z-index: 2; margin: 10px 0 56px; font: 700 12px var(--body); letter-spacing: .2em; text-transform: uppercase; color: #d5e0eb; opacity: .75; }
+.tt-btns { position: absolute; z-index: 2; left: 14px; right: 14px; bottom: calc(40px + env(safe-area-inset-bottom, 0px)); display: flex; justify-content: center; gap: 10px; }
+.tt-b { min-width: 104px; padding: 10px 18px; border-radius: 12px; border: 1.5px solid #9fc3ee88; background: linear-gradient(#2e4766dd, #1c2e46dd); color: #fff; font: 700 14px var(--body); } .tt-b[hidden] { display: none; }
+.tt-ver { position: absolute; z-index: 2; left: 12px; right: 12px; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); text-align: center; font: 600 11px var(--body); color: #c4d1de; opacity: .8; } .tt-copy { position: absolute; z-index: 2; top: calc(10px + env(safe-area-inset-top, 0px)); left: 12px; font: 600 10px var(--body); color: #c4d1de; opacity: .6; }
+.ld-box { position: relative; z-index: 2; width: min(84%, 420px); text-align: center; margin-bottom: 8px; } .ld-bar { height: 16px; border-radius: 9px; background: #0a111cd9; border: 1.5px solid #9fc3ee99; overflow: hidden; box-shadow: 0 0 14px #0008; } .ld-bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #c9982e, #f7e2a1); box-shadow: 0 0 12px #f0d68a99; }
+.ld-box b { display: block; margin-top: 10px; font: 700 15px var(--body); color: #fff; text-shadow: 0 1px 4px #000; } .ld-box p { margin: 12px 8px 0; font: 500 13px/1.4 var(--body); color: #d5e0eb; text-shadow: 0 1px 4px #000; min-height: 36px; }
+
 /* ===== Clash ===== */
 #ck { position: fixed; inset: 0; z-index: 20; background: radial-gradient(ellipse at 50% 40%, #12583a 0%, var(--felt-d) 55%, var(--felt-dd) 100%); }
 #ck[hidden] { display: none; }
@@ -1619,7 +1638,7 @@ input[type=password] { background: #05150d; color: #fff; border: 3px solid #000;
 <div id="modal" hidden></div>
 <div id="toast"></div>
 <div id="rot"><i>📱</i><b>TURN YOUR PHONE UPRIGHT</b><span>Triad plays in portrait.</span></div>
-<div id="splash"><div class="logo fat">TRIAD<i>SUMMONS</i></div><small>Loading</small></div>
+<div id="splash" class="sp-studio-on"><div class="sp-studio"><b>KAMIGEN</b><small>GAMES</small></div></div>
 
 <script>
 /* ===== the card table (triad_app/gen_cards.py): id, name, level, top, right, bottom, left, summon-only, group ===== */
@@ -1893,7 +1912,7 @@ const UIC = {};   // last shown coin and gem totals, so the pills count up or do
 function chrome() {
   if (!P) { $("#hud").innerHTML = ""; return; }
   const pct = Math.floor(100 * P.xp / need(P.lv));
-  $("#hud").innerHTML = `<div class="hexw" data-me="profile" data-frame="${P.frame && frameOk(P.frame) ? P.frame : ""}"><div class="hex">${P.avatar && BY[P.avatar] && P.own[P.avatar] > 0 ? `<img class="hexart" alt="" src="${artSrc(BY[P.avatar])}">` : "<span>♠</span>"}</div><b class="lvbadge">${P.lv}</b></div><div class="who" data-me="profile"><b class="fat">${esc(playerName())}</b>${P.title ? `<small class="ttl">${esc(P.title)}</small>` : ""}<div class="xp"><i style="width:${pct}%"></i><small>${P.xp} / ${need(P.lv)}${saveMode === "local" ? " · on this device" : ""}</small></div>${(() => { rankInit(); const ri = rankInfo(P.rank.pts); return `<div class="rr" data-me="profile" title="Ranked rating"><b class="rk rk-${ri.name}">${ri.name}</b><div class="rrbar"><i style="width:${ri.pct}%"></i><small>RR ${P.rank.pts}${ri.hi ? "" : ""}</small></div></div>`; })()}</div><div class="pills"><span class="pill c">${ic("coin", "")}<b data-n="coins">${P.coins == null ? 0 : P.coins}</b></span><span class="pill g">${ic("gem", "")}<b data-n="gems">${P.gems == null ? 0 : P.gems}</b></span>${P.tokens > 0 ? `<span class="pill t">${ic("ticket", "")}<b data-n="tokens">${P.tokens}</b></span>` : ""}</div><button class="mute" data-me="settings" aria-label="Settings">${ic("gear", "")}</button>`;
+  $("#hud").innerHTML = `<div class="hexw" data-me="profile" data-frame="${P.frame && frameOk(P.frame) ? P.frame : ""}"><div class="hex">${P.avatar && BY[P.avatar] && P.own[P.avatar] > 0 ? `<img class="hexart" alt="" src="${artSrc(BY[P.avatar])}">` : "<span>♠</span>"}</div><b class="lvbadge">${P.lv}</b></div><div class="who" data-me="profile"><b class="fat">${esc(playerName())}</b>${P.title ? `<small class="ttl">${esc(P.title)}</small>` : ""}<div class="xp"><i style="width:${pct}%"></i><small>${P.xp} / ${need(P.lv)}${saveMode === "local" ? " · on this device" : ""}</small></div>${(() => { rankInit(); const ri = rankInfo(P.rank.pts); return `<div class="rr" data-me="profile" title="Ranked rating"><b class="rk rk-${ri.name}">${ri.name}</b><div class="rrbar"><i style="width:${ri.pct}%"></i><small>RR ${ri.rr}${ri.hi ? "" : ""}</small></div></div>`; })()}</div><div class="pills"><span class="pill c">${ic("coin", "")}<b data-n="coins">${P.coins == null ? 0 : P.coins}</b></span><span class="pill g">${ic("gem", "")}<b data-n="gems">${P.gems == null ? 0 : P.gems}</b></span>${P.tokens > 0 ? `<span class="pill t">${ic("ticket", "")}<b data-n="tokens">${P.tokens}</b></span>` : ""}</div><button class="mute" data-me="settings" aria-label="Settings">${ic("gear", "")}</button>`;
   for (const k of ["coins", "gems"]) { const el = document.querySelector('#hud [data-n="' + k + '"]'), v = P[k] == null ? 0 : P[k]; if (el) { const prev = UIC[k]; if (prev !== undefined && prev !== v) { el.dataset.v = prev; uiCount(el, v); uiPulse(el.parentNode, v > prev ? "gain" : "spend"); } else el.dataset.v = v; UIC[k] = v; } }
   if (typeof achCheck === "function") { achCheck(); seasonCheck(); }
   const claimable = !P.login || missions().some(m => m.have >= m.need && !P.mis.claimed[m.id]);
@@ -2119,7 +2138,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.12.16-b";
+const VER = "2026.12.16-c";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -3382,8 +3401,10 @@ function campDeck(ch, k) {
   const deck = withSkills(pick.slice(0, 12), Math.min(2, ch + (arc >= 2 ? 1 : 0)), r); for (let i = deck.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [deck[i], deck[j]] = [deck[j], deck[i]]; } return deck;
 }
 const campLevel = (ch, k) => Math.min(2, Math.floor(campIndex(ch, k) / 9));
-const RANK_LV = 5, TIERS_R = [["E", 0], ["D", 600], ["C", 1000], ["B", 1300], ["A", 1600], ["S", 1900], ["SS", 2200], ["SSS", 2600]];   // the ladder is eight letter ranks; 800 points (where everyone starts) is D
-const rankInfo = pts => { const t = rankTier(pts), lo = TIERS_R[t][1], nx = TIERS_R[t + 1]; return { t, name: TIERS_R[t][0], lo, hi: nx ? nx[1] : null, pct: nx ? Math.max(0, Math.min(100, Math.round(100 * (pts - lo) / (nx[1] - lo)))) : 100, next: nx ? nx[0] : null }; };
+/* Ranked rating (RR) runs 0 to 8000 and is what the player sees. Underneath, the ladder still counts "points" (an Elo-style number that tops out near 3000), so matching and the server's budget checks are unchanged: RR = points x 8000 / 3000. */
+const RANK_LV = 5, PTS_MAX = 3000, RR_MAX = 8000, RR_K = RR_MAX / PTS_MAX, rrOf = pts => Math.min(RR_MAX, Math.round(pts * RR_K));
+const RANKS_RR = [["E", 0], ["D", 1600], ["C", 2800], ["B", 3600], ["A", 4400], ["S", 5200], ["SS", 6000], ["SSS", 7200]], TIERS_R = RANKS_RR.map(([n, rr]) => [n, rr / RR_K]);   // eight letter ranks; SSS starts at 7200 RR; a new player (800 points = 2133 RR) is D
+const rankInfo = pts => { const t = rankTier(pts), rr = rrOf(pts), lo = RANKS_RR[t][1], nx = RANKS_RR[t + 1]; return { t, name: RANKS_RR[t][0], rr, lo, hi: nx ? nx[1] : RR_MAX, pct: nx ? Math.max(0, Math.min(100, Math.round(100 * (rr - lo) / (nx[1] - lo)))) : Math.max(0, Math.min(100, Math.round(100 * (rr - lo) / (RR_MAX - lo)))), next: nx ? nx[0] : null }; };
 const rankTier = pts => { let t = 0; TIERS_R.forEach(([n, v], i) => { if (pts >= v) t = i; }); return t; };
 const rankLevel = pts => (pts < 1100 ? 0 : pts < 1800 ? 1 : 2);
 const campMode = (ch, k) => ({ kind: "camp", ch, k, deck: campDeck(ch, k), core: campBoss(k, ch).core, energy: campPos(ch, k).boss ? 1 : 0 });
@@ -3745,7 +3766,7 @@ function viewBattle(v) {
     (hk ? `<div class="hub-id"><small><i style="--c:var(--ds-${hk.el}-1)"></i>${EL[hk.el][0]} · ${esc(FAC[hk.fac] || hk.fac)}</small><h1>${esc(BY[heroId].name)}</h1></div>` : "") +
     (err ? `<p class="hub-err">${esc(err)}</p>` : "") +
     `<div class="hub-modes">` +
-    mode(unlocked ? "m-ranked" : "lock m-ranked", `data-ck="ranked" ${err || !unlocked ? "disabled" : ""}`, HM_ART.ranked, "Ranked", unlocked ? `${TIERS_R[tier][0]} · ${rk.pts} RR` : `Level ${RANK_LV}`) +
+    mode(unlocked ? "m-ranked" : "lock m-ranked", `data-ck="ranked" ${err || !unlocked ? "disabled" : ""}`, HM_ART.ranked, "Ranked", unlocked ? `${TIERS_R[tier][0]} · ${rrOf(rk.pts)} RR` : `Level ${RANK_LV}`) +
     (nx ? `<button class="hub-camp" data-ck="campStage" data-ch="${nx[0]}" data-k="${nx[1]}" ${err ? "disabled" : ""}><span class="bg">${hmAny("region:" + nx[0])}</span><span class="tx"><small>${campDone() ? "Continue" : "Begin"}</small><b>Campaign</b><em>${esc(CAMP[nx[0]].name)}</em></span></button>` : `<button class="hub-camp" data-ck="start" data-l="1" ${err ? "disabled" : ""}><span class="bg">${hmImg(heroId)}</span><span class="tx"><small>Complete</small><b>Quick battle</b><em>Normal</em></span></button>`) +
     mode("m-versus", 'data-act="tab" data-k="versus"', HM_ART.friend, "Private Match", "With a friend") +
     mode("m-practice", `data-ck="practiceSheet" ${err ? "disabled" : ""}`, HM_ART.practice, "Practice", "Any level") +
@@ -3957,8 +3978,8 @@ function ckResult() {
     const key = mode.ch + "-" + mode.k, first = !P.camp.cl[key]; xp = win ? 30 : 10;
     if (win) { if (first) { P.camp.cl[key] = true; const cn = CAMP[mode.ch].foes.length, isBoss = campPos(mode.ch, mode.k).boss, isFin = mode.k === cn - 1; coins = isBoss ? ECON.campBoss : ECON.campFirst; if (isFin) { gems = ECON.region.gems; extra = cn > 6 ? "Season cleared!" : "Region cleared!"; } else if (isBoss) extra = "Arc cleared!"; } else coins = ECON.campRepeat; } else coins = ECON.loss;
   } else if (mode.kind === "ranked") {
-    rankInit(); const rk = P.rank, opp = mode.opp, E = 1 / (1 + Math.pow(10, (opp - rk.pts) / 400)), S = win ? 1 : draw ? .5 : 0, before = rankTier(rk.pts), delta = Math.round(32 * (S - E)); rk.pts = Math.max(0, rk.pts + delta); win ? rk.w++ : draw ? 0 : rk.l++; const after = rankTier(rk.pts);
-    extra = (delta >= 0 ? "+" : "") + delta + " points · " + TIERS_R[after][0] + " " + rk.pts; xp = win ? 40 : 15; coins = win ? ECON.rankWin : ECON.loss;
+    rankInit(); const rk = P.rank, opp = mode.opp, E = 1 / (1 + Math.pow(10, (opp - rk.pts) / 400)), S = win ? 1 : draw ? .5 : 0, before = rankTier(rk.pts), delta = Math.round(32 * (S - E)); rk.pts = Math.max(0, Math.min(PTS_MAX, rk.pts + delta)); win ? rk.w++ : draw ? 0 : rk.l++; const after = rankTier(rk.pts);
+    extra = (delta >= 0 ? "+" : "") + Math.round(delta * RR_K) + " RR · rank " + TIERS_R[after][0] + " · " + rrOf(rk.pts) + " RR"; xp = win ? 40 : 15; coins = win ? ECON.rankWin : ECON.loss;
     if (win && rk.day !== today()) { rk.day = today(); coins += ECON.rankDaily; }
     if (after > rk.tierBest) { rk.tierBest = after; coins += ECON.tierUp.coins; gems += ECON.tierUp.gems; promo = TIERS_R[after][0]; extra += " · NEW TIER, +" + ECON.tierUp.coins + " coins, +" + ECON.tierUp.gems + " gems"; }
   } else if (mode.kind === "online") { xp = win ? 20 : 10; coins = win ? ECON.onlineWin : ECON.loss; }
@@ -7795,7 +7816,7 @@ function profileSheet() {
   achCheck(); rankInit(); const rk = P.rank, tier = TIERS_R[rankTier(rk.pts)][0], wr = P.plays ? Math.round(100 * P.wins / P.plays) : 0, done = ACH.filter(a => P.ach && P.ach[a.id]).length;
   const art = P.avatar && BY[P.avatar] && P.own[P.avatar] > 0 ? `<img class="hexart" alt="" src="${artSrc(BY[P.avatar])}">` : "<span>♠</span>";
   const st = (n, l) => `<div><b>${n}</b><small>${l}</small></div>`;
-  openSheet(`<div class="prof"><div class="hexw" data-act="avatar" data-frame="${P.frame && frameOk(P.frame) ? P.frame : ""}"><div class="hex">${art}</div><b class="lvbadge">${P.lv}</b></div><h2 class="fat">${esc(playerName())}</h2>${P.title ? `<span class="rtag r4">${esc(P.title)}</span>` : ""}<p class="note" style="margin:6px 0 0">${tier} · ${rk.pts} points${ACC ? " · online as " + esc(ACC.name) : " · guest"}</p></div>` +
+  openSheet(`<div class="prof"><div class="hexw" data-act="avatar" data-frame="${P.frame && frameOk(P.frame) ? P.frame : ""}"><div class="hex">${art}</div><b class="lvbadge">${P.lv}</b></div><h2 class="fat">${esc(playerName())}</h2>${P.title ? `<span class="rtag r4">${esc(P.title)}</span>` : ""}<p class="note" style="margin:6px 0 0">rank ${tier} · ${rrOf(rk.pts)} RR${ACC ? " · online as " + esc(ACC.name) : " · guest"}</p></div>` +
     `<p class="note" style="margin:10px 0 4px">Showcase</p>${binderStrip()}<div class="pstats">${st(P.plays || 0, "Matches")}${st(P.wins || 0, "Wins")}${st(wr + "%", "Win rate")}${st(nOwned() + "/" + C.length, "Cards")}${st(P.pulls || 0, "Summons")}${st(done + "/" + ACH.length, "Achievements")}</div>` +
     `<div class="row c" style="gap:8px"><button class="btn sm" data-me="ach">Achievements</button><button class="btn sm" data-me="lb">Leaderboard</button><button class="btn sm" data-act="avatar">Portrait &amp; frame</button></div>` +
     `<div class="row c" style="margin-top:10px;gap:8px"><button class="btn sm yellow" data-me="settings">Settings</button><button class="btn sm dark" data-act="closeModal">Close</button></div>`);
@@ -8006,16 +8027,16 @@ async function lbSheet(tab) {
   openSheet(`<h2 class="fat">Leaderboard</h2>${seg}<p class="note" style="text-align:center">Loading…</p>`);
   const r = await accCall("/lb", { token: ACC.token }); if (!$("#modal .sheet")) return;
   if (!r.ok) return openSheet(`<h2 class="fat">Leaderboard</h2>${seg}<p class="note" style="text-align:center">${esc(r.err || "The leaderboard is not available right now.")}</p>${back}`);
-  openSheet(`<h2 class="fat">Leaderboard</h2>${seg}<p class="note" style="text-align:center;margin:0 0 10px">${r.you ? "You are #" + r.you.rank + " with " + r.you.pts + " points" : "Play a ranked match to appear here."}</p><div class="list mlist">${r.rows.map((p, i) => `<button class="panel item lbrow" data-me="view" data-n="${esc(p.name)}"><b class="lbn">${i + 1}</b>${pHex(p)}<div class="t"><b>${esc(p.name)}</b><small>${tierOf(p.pts)} · Lv ${p.lv}${p.title ? " · " + esc(p.title) : ""}</small></div><span class="tag gold">${p.pts}</span></button>`).join("") || '<p class="note" style="text-align:center">No ranked players yet. Be the first.</p>'}</div>${back}`);
+  openSheet(`<h2 class="fat">Leaderboard</h2>${seg}<p class="note" style="text-align:center;margin:0 0 10px">${r.you ? "You are #" + r.you.rank + " with " + rrOf(r.you.pts) + " RR" : "Play a ranked match to appear here."}</p><div class="list mlist">${r.rows.map((p, i) => `<button class="panel item lbrow" data-me="view" data-n="${esc(p.name)}"><b class="lbn">${i + 1}</b>${pHex(p)}<div class="t"><b>${esc(p.name)}</b><small>${tierOf(p.pts)} · Lv ${p.lv}${p.title ? " · " + esc(p.title) : ""}</small></div><span class="tag gold">${p.pts}</span></button>`).join("") || '<p class="note" style="text-align:center">No ranked players yet. Be the first.</p>'}</div>${back}`);
 }
 async function viewPlayer(name, back) {
   if (!ACC) return toast("Sign in to view players."); openSheet(`<h2 class="fat">${esc(name)}</h2><p class="note" style="text-align:center">Loading…</p>`);
   const r = await accCall("/profile/view", { token: ACC.token, name }); if (!$("#modal .sheet")) return;
   if (!r.ok) return openSheet(`<h2 class="fat">${esc(name)}</h2><p class="note" style="text-align:center">${esc(r.err || "Could not load this player.")}</p><div class="row c" style="margin-top:12px"><button class="btn sm dark" data-act="closeModal">Close</button></div>`);
   const p = r.p, wr = p.plays ? Math.round(100 * p.wins / p.plays) : 0, st = (x, l) => `<div><b>${x}</b><small>${l}</small></div>`;
-  openSheet(`<div class="prof">${pHex(p).replace('class="hexw"', 'class="hexw" style="display:inline-block"')}<h2 class="fat">${esc(p.name)}</h2>${p.title ? `<span class="rtag r4">${esc(p.title)}</span>` : ""}<p class="note" style="margin:6px 0 0">${tierOf(p.pts)} · ${p.pts} points · ${r.online ? "online now" : p.seen ? "last played " + ago(p.seen) : "not played yet"}</p></div>` +
+  openSheet(`<div class="prof">${pHex(p).replace('class="hexw"', 'class="hexw" style="display:inline-block"')}<h2 class="fat">${esc(p.name)}</h2>${p.title ? `<span class="rtag r4">${esc(p.title)}</span>` : ""}<p class="note" style="margin:6px 0 0">rank ${tierOf(p.pts)} · ${rrOf(p.pts)} RR · ${r.online ? "online now" : p.seen ? "last played " + ago(p.seen) : "not played yet"}</p></div>` +
     (p.binder.length ? `<p class="note" style="margin:10px 0 4px">Showcase</p><div class="binder">${p.binder.map(id => `<img alt="" src="${artSrc(BY[id])}">`).join("")}</div>` : "") +
-    `<div class="pstats">${st(p.lv, "Level")}${st(p.wins, "Wins")}${st(wr + "%", "Win rate")}${st(p.plays, "Matches")}${st(p.cards + "/" + C.length, "Cards")}${st(p.pts, "Points")}</div>` +
+    `<div class="pstats">${st(p.lv, "Level")}${st(p.wins, "Wins")}${st(wr + "%", "Win rate")}${st(p.plays, "Matches")}${st(p.cards + "/" + C.length, "Cards")}${st(rrOf(p.pts), "RR")}</div>` +
     `<div class="row c" style="gap:8px">${r.me ? "" : r.friend ? (r.online ? `<button class="btn sm yellow" data-ac="challenge" data-n="${esc(p.name)}">Challenge</button>` : "") : `<button class="btn sm yellow" data-me="addf" data-n="${esc(p.name)}">Add friend</button>`}${r.me ? "" : `<button class="btn sm dark" data-me="person" data-n="${esc(p.name)}">⋯</button>`}<button class="btn sm dark" data-me="${back || "lb"}">Back</button></div>`);
 }
 
@@ -8023,7 +8044,7 @@ async function viewPlayer(name, back) {
 function seasonCheck() {
   if (!P || !P.rank) return; const cur = new Date().toISOString().slice(0, 7); if (!P.sn) { P.sn = { id: cur }; return scheduleSave(); } if (P.sn.id === cur) return;
   const r = P.rank; if ((r.w || 0) + (r.l || 0) > 0) { P.seasons = (P.seasons || []).concat([{ id: P.sn.id, pts: r.pts, t: rankTier(r.pts) }]).slice(-12); r.pts = Math.round((r.pts + 800) / 2); }
-  P.sn = { id: cur }; scheduleSave(); setTimeout(() => toast("A new ranked season began. Your points moved to " + r.pts + "."), 1500);
+  P.sn = { id: cur }; scheduleSave(); setTimeout(() => toast("A new ranked season began. Your RR moved to " + rrOf(r.pts) + "."), 1500);
 }
 
 /* ---------- error reports: version, message and browser only, a few per session ---------- */
@@ -8868,6 +8889,43 @@ document.addEventListener("pointerup", unlockAudio, true); document.addEventList
 window.addEventListener("pagehide", () => { dirty = true; flush(); });
 setTimeout(artWarm, 1500);
 chrome(); bgmLoad();
-(async () => { const t0 = Date.now(); await loadProfile(); await sleep(Math.max(0, 1100 - (Date.now() - t0))); $("#splash").classList.add("gone"); setTimeout(() => { const s = $("#splash"); if (s) s.remove(); }, 600); if (P && !P.named && !P.name && !ACC) setTimeout(() => nameSheet(true), 500); if (ACC && P && ACC.name !== P.name) { P.name = ACC.name; P.named = true; } hubConnect(); cloudSync(); if (!ACC) gateShow("up"); setTimeout(iosHint, 2500); })();
+/* ===== boot: studio card, title screen (Game Start), loading screen driven by what really has to load, then the home ===== */
+const STUDIO = "KAMIGEN GAMES", LOAD_TIPS = ["Elements react: Water then Lightning is a Conduct, Ice then Fire a Melt.", "Hold a card in a match to read it without pausing the fight.", "Drag a card onto a target to use its skill.", "Skill cards are used up when you play them, so draw another.", "Tap a card you own to see all of it. Tap that card again to see just the art.", "Your rank is E to SSS. SSS starts at 7200 RR.", "Unrated matches never touch your rating."];
+function bootTitle(sp) {
+  const sky = art2("arena", "sky") || art2("arena", "void") || "";
+  sp.className = "sp-title-on"; sp.innerHTML = `<div class="tt-bg" style="${sky ? `background-image:url(${sky})` : ""}"></div><div class="tt-shade"></div>` +
+    `<div class="tt-logo"><div class="logo fat">TRIAD<i>SUMMONS</i></div></div>` +
+    `<button class="tt-go" id="ttGo">Game Start</button><p class="tt-tap">Tap to begin</p>` +
+    `<div class="tt-btns"><button class="tt-b" id="ttIn" ${!ACC && srvOn() ? "" : "hidden"}>Sign in</button><button class="tt-b" id="ttInfo">Info</button></div>` +
+    `<div class="tt-ver">Version ${VER}${ACC ? " · " + esc(ACC.name || "") : ""}</div><div class="tt-copy">© ${STUDIO}</div>`;
+  return new Promise(res => {
+    sp.onclick = e => { if (e.target.closest(".tt-btns")) return; res(); };
+    sp.querySelector("#ttInfo").onclick = e => { e.stopPropagation(); window.open("privacy.html", "_blank"); };
+    sp.querySelector("#ttIn").onclick = e => { e.stopPropagation(); res("in"); };
+  });
+}
+async function bootLoad(sp, extra) {
+  const tip = LOAD_TIPS[Math.floor(Math.random() * LOAD_TIPS.length)];
+  const ldArt = art2("region", Math.floor(Math.random() * 5)) || art2("arena", "forest") || ""; sp.className = "sp-load-on"; sp.innerHTML = `<div class="tt-bg ld" style="${ldArt ? `background-image:url(${ldArt})` : ""}"></div><div class="tt-shade"></div><div class="tt-logo sm"><div class="logo fat">TRIAD<i>SUMMONS</i></div></div><div class="ld-box"><div class="ld-bar"><i id="ldFill"></i></div><b id="ldTxt">Loading… 0%</b><p>${esc(tip)}</p></div>`;
+  const imgs = [];
+  ["ranked", "versus", "practice", "campaign"].forEach(k => { const u = art2("menu", k); if (u) imgs.push(u); });
+  for (let c = 0; c < 5; c++) { const u = art2("region", c); if (u) imgs.push(u); }
+  try { P.cd[P.cdi].cards.slice(0, 5).forEach(id => { if (BY[id]) imgs.push(artSrc(BY[id], true)); }); } catch (_) {}
+  const tasks = imgs.map(u => () => new Promise(r => { const im = new Image(); im.onload = im.onerror = () => r(); im.src = u; if (im.decode) im.decode().then(r, r); })).concat([() => (document.fonts && document.fonts.ready) || 0, ...(extra || [])]);
+  let done = 0, shown = 0; const total = tasks.length, t0 = Date.now(), MIN = 1300;
+  const paint = () => { const real = done / total, t = Math.min(1, (Date.now() - t0) / MIN), v = Math.min(real, t) * 100; shown += (v - shown) * .35; const f = $("#ldFill"), x = $("#ldTxt"); if (f) f.style.width = shown + "%"; if (x) x.textContent = "Loading… " + Math.round(shown) + "%"; };
+  const iv = setInterval(paint, 40);
+  await Promise.all(tasks.map(t => Promise.race([Promise.resolve().then(t).catch(() => {}), sleep(6000)]).then(() => { done++; })));
+  await sleep(Math.max(0, MIN - (Date.now() - t0))); done = total; shown = 100; const f = $("#ldFill"), x = $("#ldTxt"); if (f) f.style.width = "100%"; if (x) x.textContent = "Loading… 100%"; clearInterval(iv); await sleep(220);
+}
+(async () => {
+  const t0 = Date.now(), sp = $("#splash"), loaded = loadProfile();
+  await loaded; await sleep(Math.max(0, 1500 - (Date.now() - t0)));   // the studio card
+  const pick = await bootTitle(sp);
+  await bootLoad(sp, [() => { hubConnect(); return Promise.race([Promise.resolve(cloudSync()), sleep(4000)]); }]);
+  sp.classList.add("gone"); setTimeout(() => { const s = $("#splash"); if (s) s.remove(); }, 600);
+  if (P && !P.named && !P.name && !ACC) setTimeout(() => nameSheet(true), 500); if (ACC && P && ACC.name !== P.name) { P.name = ACC.name; P.named = true; }
+  if (!ACC) gateShow(pick === "in" ? "in" : "up"); setTimeout(iosHint, 2500);
+})();
 </script>
 <script>if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) navigator.serviceWorker.register('sw.js');</script>
