@@ -561,6 +561,20 @@ table.odds { width: 100%; border-collapse: collapse; } table.odds td { padding: 
 
 .bst-fan { height: 252px; } .bst-all { position: relative; z-index: 5; margin-bottom: 12px; }
 
+/* ===== the quest screen ===== */
+.q-top { display: flex; align-items: center; justify-content: space-between; margin: 4px 0 8px; } .q-count { font: 700 13px var(--body); opacity: .85; }
+.q-hero { position: relative; height: 150px; border-radius: 18px; overflow: hidden; border: 1.5px solid var(--rc, #ffffff33); box-shadow: 0 6px 18px #0008; background: #16202e; } .q-hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.q-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(#0000 20%, #050a12e6); } .q-hero.lockd img { filter: grayscale(.8) brightness(.6); }
+.q-ht { position: absolute; z-index: 2; left: 14px; right: 14px; bottom: 10px; } .q-ht small { display: block; font: 800 11px var(--body); letter-spacing: .12em; text-transform: uppercase; color: #f0d68a; } .q-ht b { display: block; font-size: 25px; line-height: 1.1; color: #fff; text-shadow: 0 2px 8px #000; } .q-ht span { display: block; font: 600 12.5px var(--body); color: #d5e0eb; } .q-ht .bar { margin-top: 6px; height: 6px; }
+.q-body { margin-top: 6px; } .q-trail { display: flex; flex-wrap: wrap; gap: 10px 6px; justify-content: center; padding: 6px 4px 12px; }
+.qn { position: relative; width: 62px; padding: 0; border: 0; background: none; color: #fff; text-align: center; } .qn .qb { display: grid; place-items: center; width: 52px; height: 52px; margin: 0 auto 3px; border-radius: 50%; font: 800 19px var(--body); background: linear-gradient(#34507a, #1c2e46); border: 2.5px solid #9fc3ee; box-shadow: 0 4px 10px #0008; }
+.qn small { display: block; font: 600 9.5px/1.15 var(--body); color: #d5e0eb; height: 22px; overflow: hidden; }
+.qn.done .qb { background: linear-gradient(#2f8a5a, #1b5c3b); border-color: #7cf0a8; } .qn .qd { position: absolute; top: -3px; right: 5px; width: 18px; height: 18px; border-radius: 50%; background: #7cf0a8; color: #06220f; font: 800 12px/18px var(--body); font-style: normal; }
+.qn.next .qb { border-color: #f0d68a; background: linear-gradient(#e6b84a, #a8731a); color: #1b1305; box-shadow: 0 0 18px #f0d68acc; animation: ttPulse 1.8s ease-in-out infinite; } .qn.boss .qb { width: 58px; height: 58px; border-radius: 16px; border-color: #ff8d98; } .qn.lock { opacity: .5; }
+.q-bar { position: sticky; bottom: 70px; z-index: 6; display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 8px; } .q-arr { width: 44px; height: 38px; border-radius: 12px; border: 1.5px solid #ffffff44; background: #0d1624dd; color: #fff; font: 700 24px/1 var(--body); } .q-arr:disabled { opacity: .35; }
+.q-dots { display: flex; gap: 6px; } .q-dots i { width: 8px; height: 8px; border-radius: 50%; background: #ffffff44; } .q-dots i.on { background: #f0d68a; width: 20px; border-radius: 5px; } .q-dots i.soon { opacity: .5; }
+.q-go { position: sticky; bottom: 12px; z-index: 6; display: flex; align-items: center; gap: 10px; width: 100%; margin-top: 8px; padding: 10px 14px; border: 2px solid #f0d68a; border-radius: 16px; text-align: left; background: linear-gradient(#34507a, #1c2e46); color: #fff; box-shadow: 0 0 22px #f0d68a55, 0 6px 16px #000a; } .q-go small { display: block; font: 800 10.5px var(--body); letter-spacing: .12em; text-transform: uppercase; color: #f0d68a; } .q-go b { display: block; flex: 1; font: 400 18px var(--display); } .q-go > span, .q-go i { font-style: normal; font-size: 20px; }
+
 /* ===== Clash ===== */
 #ck { position: fixed; inset: 0; z-index: 20; background: radial-gradient(ellipse at 50% 40%, #12583a 0%, var(--felt-d) 55%, var(--felt-dd) 100%); }
 #ck[hidden] { display: none; }
@@ -1947,7 +1961,7 @@ function chrome() {
   const claimable = !P.login || missions().some(m => m.have >= m.need && !P.mis.claimed[m.id]);
   $("#nav").innerHTML = TABS.map(([k, n, i]) => `<button data-act="tab" data-k="${k}" class="${tab === k ? "on" : ""}"><span class="dia">${ic(i, "")}</span><span class="lb">${n.toUpperCase()}</span>${(k === "daily" && claimable) || (k === "cards" && newCount() > 0) ? '<i class="dot"></i>' : ""}</button>`).join("");
 }
-function show(k) { const same = tab === k; tab = k; musicMode(modeForTab(k)); chrome(); const v = $("#view"); v.classList.remove("nos"); v.scrollTop = 0; if (!same) uiPulse(v, "enter", 300); if (!P) { v.innerHTML = ""; return; } ({ battle: viewBattle, play: viewPlay, summon: viewSummon, cards: viewCards, daily: viewDaily, versus: viewVersus })[k](v); if (k === "battle" && typeof tutMaybe === "function") setTimeout(tutMaybe, 700); }
+function show(k) { const same = tab === k; tab = k; musicMode(modeForTab(k)); chrome(); const v = $("#view"); v.classList.remove("nos"); v.classList.remove("qst"); v.scrollTop = 0; if (!same) uiPulse(v, "enter", 300); if (!P) { v.innerHTML = ""; return; } ({ battle: viewBattle, play: viewPlay, summon: viewSummon, cards: viewCards, daily: viewDaily, versus: viewVersus })[k](v); if (k === "battle" && typeof tutMaybe === "function") setTimeout(tutMaybe, 700); }
 /* the portrait: a card the player owns stands in for "you" in the header and on the battle board */
 /* the portrait picker: one scrolling list (never a scroller inside a scroller), a live preview on top, search and an element filter, and an explicit "Use this portrait" */
 let AV = { q: "", el: "all", pick: null };
@@ -2167,7 +2181,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.12.18-a";
+const VER = "2026.12.18-b";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -3822,7 +3836,7 @@ function viewBattle(v) {
     (err ? `<p class="hub-err">${esc(err)}</p>` : "") +
     `<div class="hub-modes">` +
     mode(unlocked ? "m-ranked" : "lock m-ranked", `data-ck="ranked" ${err || !unlocked ? "disabled" : ""}`, HM_ART.ranked, "Ranked", unlocked ? `${TIERS_R[tier][0]} · ${rrOf(rk.pts)} RR` : `Level ${RANK_LV}`) +
-    (nx ? `<button class="hub-camp" data-ck="campStage" data-ch="${nx[0]}" data-k="${nx[1]}" ${err ? "disabled" : ""}><span class="bg">${hmAny("region:" + nx[0])}</span><span class="tx"><small>${campDone() ? "Continue" : "Begin"}</small><b>Campaign</b><em>${esc(CAMP[nx[0]].name)}</em></span></button>` : `<button class="hub-camp" data-ck="start" data-l="1" ${err ? "disabled" : ""}><span class="bg">${hmImg(heroId)}</span><span class="tx"><small>Complete</small><b>Quick battle</b><em>Normal</em></span></button>`) +
+    (nx ? `<button class="hub-camp" data-ck="camp" ${err ? "disabled" : ""}><span class="bg">${hmAny("region:" + nx[0])}</span><span class="tx"><small>${campDone() ? "Continue" : "Begin"}</small><b>Campaign</b><em>${esc(CAMP[nx[0]].name)}</em></span></button>` : `<button class="hub-camp" data-ck="start" data-l="1" ${err ? "disabled" : ""}><span class="bg">${hmImg(heroId)}</span><span class="tx"><small>Complete</small><b>Quick battle</b><em>Normal</em></span></button>`) +
     mode("m-versus", 'data-act="tab" data-k="versus"', HM_ART.friend, "Private Match", "With a friend") +
     mode("m-practice", `data-ck="practiceSheet" ${err ? "disabled" : ""}`, HM_ART.practice, "Practice", "Any level") +
     mode("m-unrated", `data-ck="unrated" ${err ? "disabled" : ""}`, HM_ART.ranked, "Unrated Match", "No rating at stake") +
@@ -3830,23 +3844,34 @@ function viewBattle(v) {
 }
 const campDone = () => Object.keys((P.camp && P.camp.cl) || {}).length;
 const CAMP_COL = ["#2fbf74", "#e8693a", "#5fb8ff", "#3fd0c9", "#b574ff"];
+let CSEL = -1;   // the season the quest screen shows (-1: the one the player is on)
+function campNext() { for (let ch = 0; ch < CAMP.length; ch++) for (let k = 0; k < CAMP[ch].foes.length; k++) if (campOpen(ch, k) && !P.camp.cl[ch + "-" + k]) return [ch, k]; return null; }
+/* the quest screen: one season at a time (arrows to move between them), its painting on top, each arc as a trail of stages, and a Continue button that stays on screen */
 function viewCamp(v) {
   if (!P.camp) P.camp = { cl: {} };
-  let h = `<div class="row" style="margin:6px 0 0"><button class="btn sm dark" data-ck="campBack">← Back</button><span class="note">${campDone()} / ${CAMP_TOTAL} beaten</span><button class="btn sm dark" data-ck="storyLog">Story log</button></div>`;
-  CAMP.forEach((c, ch) => {
-    const n = c.foes.length, open = campOpen(ch, 0);
-    h += `<div class="region ${open ? "" : "lock"}" style="--rc:${CAMP_COL[ch] || "#b574ff"}"><div class="rh">${regionImg(ch)}<div class="rht"><b class="fat">Season ${ch + 1}: ${esc(c.name)}</b><small>${open ? esc(c.sub) : "🔒 Finish the previous season"}</small></div></div>`;
-    const SZ = campSizes(ch); let k0 = 0;
+  const nx = campNext(), total = CAMP.length + SEASON_PLAN.slice(CAMP.length).length; if (CSEL < 0 || CSEL >= total) CSEL = nx ? nx[0] : CAMP.length - 1; const ch = CSEL;
+  v.classList.add("qst");
+  let h = `<div class="q-top"><button class="btn sm dark" data-ck="campBack">← Back</button><span class="q-count">${campDone()} / ${CAMP_TOTAL} beaten</span><button class="btn sm dark" data-ck="storyLog">Story log</button></div>`;
+  if (ch >= CAMP.length) {
+    h += `<div class="q-hero lockd"><div class="q-ht"><small>Season ${ch + 1}</small><b class="fat">${esc(SEASON_PLAN[ch])}</b><span>Coming soon</span></div></div>`;
+  } else {
+    const c0 = CAMP[ch], n = c0.foes.length, open = campOpen(ch, 0), done = c0.foes.filter((_, k) => P.camp.cl[ch + "-" + k]).length, SZ = campSizes(ch);
+    h += `<div class="q-hero ${open ? "" : "lockd"}" style="--rc:${CAMP_COL[ch] || "#b574ff"}">${regionImg(ch)}<div class="q-ht"><small>Season ${ch + 1} · ${done}/${n} stages</small><b class="fat">${esc(c0.name)}</b><span>${open ? esc(c0.sub) : "🔒 Finish the previous season first"}</span><div class="bar"><i style="width:${100 * done / n}%"></i></div></div></div>`;
+    h += `<div class="q-body">`; let k0 = 0;
     for (let a = 0; a < SZ.length; a++) {
-      h += `<div class="arcn">Arc ${a + 1}${c.arcs && c.arcs[a] ? " · " + esc(c.arcs[a]) : ""}</div><div class="nodes six" style="margin:4px 10px 10px">`;
-      for (let i = 0; i < SZ[a]; i++) { const k = k0 + i, o = campOpen(ch, k), done = !!P.camp.cl[ch + "-" + k], boss = i === SZ[a] - 1, fin = n > 6 && k === n - 1; h += `<button class="node ${done ? "done" : ""} ${!o ? "lock" : ""} ${o && !done ? "next" : ""} ${boss ? "boss" : ""}" ${o ? `data-ck="campStage" data-ch="${ch}" data-k="${k}"` : "disabled"}><span>${o ? (fin ? "♛" : boss ? "☠" : k + 1) : "🔒"}</span>${done ? "<small>✓</small>" : ""}</button>`; }
-      h += "</div>"; k0 += SZ[a];
+      h += `<div class="arcn">Arc ${a + 1}${c0.arcs && c0.arcs[a] ? " · " + esc(c0.arcs[a]) : ""}</div><div class="q-trail">`;
+      for (let i2 = 0; i2 < SZ[a]; i2++) {
+        const k = k0 + i2, o = campOpen(ch, k), dn = !!P.camp.cl[ch + "-" + k], boss = i2 === SZ[a] - 1, fin = n > 6 && k === n - 1, cur = nx && nx[0] === ch && nx[1] === k;
+        h += `<button class="qn ${dn ? "done" : ""} ${!o ? "lock" : ""} ${cur ? "next" : ""} ${boss ? "boss" : ""}" ${o ? `data-ck="campStage" data-ch="${ch}" data-k="${k}"` : "disabled"}><span class="qb">${o ? (fin ? "♛" : boss ? "☠" : k + 1) : "🔒"}</span><small>${o ? esc(c0.foes[k]) : "???"}</small>${dn ? '<i class="qd">✓</i>' : ""}</button>`;
+      }
+      h += `</div>`; k0 += SZ[a];
     }
     if (n <= 6) h += `<p class="note" style="text-align:center;margin:0 0 10px">More of this season is coming.</p>`;
-    h += "</div>";
-  });
-  SEASON_PLAN.slice(CAMP.length).forEach((nm, i) => { h += `<div class="region lock"><div class="rh"><div class="rht"><b class="fat">Season ${CAMP.length + i + 1}: ${esc(nm)}</b><small>Coming soon</small></div></div></div>`; });
-  v.innerHTML = h + '<p class="note" style="text-align:center">Each season favours two elements. Learn their combos, then build against them.</p>';
+    h += `<p class="note" style="text-align:center;margin:6px 0 80px">Each season favours two elements. Learn their combos, then build against them.</p></div>`;
+  }
+  const cont = nx ? `<button class="q-go" data-ck="campStage" data-ch="${nx[0]}" data-k="${nx[1]}"><small>${campDone() ? "Continue" : "Begin"} · Season ${nx[0] + 1}</small><b>${esc(CAMP[nx[0]].foes[nx[1]])}</b><i>▶</i></button>` : "";
+  h += `<div class="q-bar"><button class="q-arr" data-ck="campSeason" data-d="-1" ${ch <= 0 ? "disabled" : ""}>‹</button><div class="q-dots">${Array.from({ length: total }, (_, i) => `<i class="${i === ch ? "on" : ""} ${i >= CAMP.length ? "soon" : ""}"></i>`).join("")}</div><button class="q-arr" data-ck="campSeason" data-d="1" ${ch >= total - 1 ? "disabled" : ""}>›</button></div>${cont}`;
+  v.innerHTML = h;
   if (typeof storyIntroMaybe === "function") storyIntroMaybe();
 }
 function campSheet(ch, k) {
@@ -4079,6 +4104,7 @@ document.addEventListener("click", async e => {
     case "campStage": return campSheet(+d.ch, +d.k);
     case "campGo": closeModal(); return typeof campBegin === "function" ? campBegin(+d.ch, +d.k) : ckStart(campLevel(+d.ch, +d.k), campMode(+d.ch, +d.k));
     case "unrated": return rankedFind("unrated");
+    case "campSeason": { const t = CAMP.length + SEASON_PLAN.slice(CAMP.length).length; CSEL = Math.max(0, Math.min(t - 1, CSEL + (+d.d))); uiFx("tap"); return show("battle"); }
     case "ranked": if (P.lv < RANK_LV) return toast("Ranked unlocks at level " + RANK_LV + "."); return rankedFind("ranked");
     case "rematch": return ckRematch();
     case "leave": return ckLeave();
