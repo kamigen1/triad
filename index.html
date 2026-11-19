@@ -506,6 +506,13 @@ table.odds { width: 100%; border-collapse: collapse; } table.odds td { padding: 
 .hub-camp .tx { position: absolute; z-index: 2; left: 10px; right: 10px; bottom: 12px; text-align: center; } .hub-camp small { display: block; font: 800 11px var(--body); letter-spacing: .14em; text-transform: uppercase; color: #f0d68a; } .hub-camp b { display: block; font: 400 21px/1.05 var(--display); color: #fff; text-shadow: 0 2px 8px #000; } .hub-camp em { display: block; margin-top: 2px; font: 600 12px var(--body); font-style: normal; color: #d5e0eb; }
 .hub-camp:disabled { opacity: .6; }
 
+/* rank letter + RR bar in the header, the deck pill's edit button, the unrated tile */
+.who .rr { display: flex; align-items: center; gap: 6px; margin-top: 3px; } .rk { flex: none; min-width: 24px; height: 20px; padding: 0 5px; display: inline-grid; place-items: center; border-radius: 6px; font: 800 13px var(--body); color: #1b1305; background: linear-gradient(#f7e2a1, #c9982e); box-shadow: 0 1px 4px #0006; }
+.rk-E { background: linear-gradient(#cfd6dd, #8a96a3); } .rk-D { background: linear-gradient(#e0b98a, #a8703b); } .rk-C { background: linear-gradient(#f1f4f7, #9aa7b6); } .rk-S, .rk-SS, .rk-SSS { background: linear-gradient(#ffd7f5, #b46bd8); color: #2a0f3a; } .rk-SS { background: linear-gradient(#bfe8ff, #4a8fe0); color: #07203f; } .rk-SSS { background: linear-gradient(#fff3b0, #ff9a3c); color: #3b1700; box-shadow: 0 0 10px #ffb84d99; }
+.rrbar { position: relative; flex: 1; height: 14px; border-radius: 7px; background: #0d162299; border: 1px solid #ffffff2e; overflow: hidden; } .rrbar i { position: absolute; inset: 0 auto 0 0; background: linear-gradient(90deg, #c9982e, #f7e2a1); } .rrbar small { position: relative; display: block; font: 700 9.5px/12px var(--body); text-align: center; color: #fff; text-shadow: 0 1px 2px #000; }
+.hub-top { display: flex; gap: 6px; align-items: center; } .hub-edit { width: 34px; height: 34px; border-radius: 50%; border: 1px solid #ffffff44; background: #0d1624bb; color: #fff; font-size: 16px; }
+.hub-m.m-unrated { grid-column: 3; grid-row: 2; } .hub-m.m-unrated img { filter: hue-rotate(150deg) saturate(.8); }
+
 /* ===== Clash ===== */
 #ck { position: fixed; inset: 0; z-index: 20; background: radial-gradient(ellipse at 50% 40%, #12583a 0%, var(--felt-d) 55%, var(--felt-dd) 100%); }
 #ck[hidden] { display: none; }
@@ -1886,7 +1893,7 @@ const UIC = {};   // last shown coin and gem totals, so the pills count up or do
 function chrome() {
   if (!P) { $("#hud").innerHTML = ""; return; }
   const pct = Math.floor(100 * P.xp / need(P.lv));
-  $("#hud").innerHTML = `<div class="hexw" data-me="profile" data-frame="${P.frame && frameOk(P.frame) ? P.frame : ""}"><div class="hex">${P.avatar && BY[P.avatar] && P.own[P.avatar] > 0 ? `<img class="hexart" alt="" src="${artSrc(BY[P.avatar])}">` : "<span>♠</span>"}</div><b class="lvbadge">${P.lv}</b></div><div class="who" data-me="profile"><b class="fat">${esc(playerName())}</b>${P.title ? `<small class="ttl">${esc(P.title)}</small>` : ""}<div class="xp"><i style="width:${pct}%"></i><small>${P.xp} / ${need(P.lv)}${saveMode === "local" ? " · on this device" : ""}</small></div></div><div class="pills"><span class="pill c">${ic("coin", "")}<b data-n="coins">${P.coins == null ? 0 : P.coins}</b></span><span class="pill g">${ic("gem", "")}<b data-n="gems">${P.gems == null ? 0 : P.gems}</b></span>${P.tokens > 0 ? `<span class="pill t">${ic("ticket", "")}<b data-n="tokens">${P.tokens}</b></span>` : ""}</div><button class="mute" data-me="settings" aria-label="Settings">${ic("gear", "")}</button>`;
+  $("#hud").innerHTML = `<div class="hexw" data-me="profile" data-frame="${P.frame && frameOk(P.frame) ? P.frame : ""}"><div class="hex">${P.avatar && BY[P.avatar] && P.own[P.avatar] > 0 ? `<img class="hexart" alt="" src="${artSrc(BY[P.avatar])}">` : "<span>♠</span>"}</div><b class="lvbadge">${P.lv}</b></div><div class="who" data-me="profile"><b class="fat">${esc(playerName())}</b>${P.title ? `<small class="ttl">${esc(P.title)}</small>` : ""}<div class="xp"><i style="width:${pct}%"></i><small>${P.xp} / ${need(P.lv)}${saveMode === "local" ? " · on this device" : ""}</small></div>${(() => { rankInit(); const ri = rankInfo(P.rank.pts); return `<div class="rr" data-me="profile" title="Ranked rating"><b class="rk rk-${ri.name}">${ri.name}</b><div class="rrbar"><i style="width:${ri.pct}%"></i><small>RR ${P.rank.pts}${ri.hi ? "" : ""}</small></div></div>`; })()}</div><div class="pills"><span class="pill c">${ic("coin", "")}<b data-n="coins">${P.coins == null ? 0 : P.coins}</b></span><span class="pill g">${ic("gem", "")}<b data-n="gems">${P.gems == null ? 0 : P.gems}</b></span>${P.tokens > 0 ? `<span class="pill t">${ic("ticket", "")}<b data-n="tokens">${P.tokens}</b></span>` : ""}</div><button class="mute" data-me="settings" aria-label="Settings">${ic("gear", "")}</button>`;
   for (const k of ["coins", "gems"]) { const el = document.querySelector('#hud [data-n="' + k + '"]'), v = P[k] == null ? 0 : P[k]; if (el) { const prev = UIC[k]; if (prev !== undefined && prev !== v) { el.dataset.v = prev; uiCount(el, v); uiPulse(el.parentNode, v > prev ? "gain" : "spend"); } else el.dataset.v = v; UIC[k] = v; } }
   if (typeof achCheck === "function") { achCheck(); seasonCheck(); }
   const claimable = !P.login || missions().some(m => m.have >= m.need && !P.mis.claimed[m.id]);
@@ -2112,7 +2119,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.12.16-a";
+const VER = "2026.12.16-b";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -3375,7 +3382,8 @@ function campDeck(ch, k) {
   const deck = withSkills(pick.slice(0, 12), Math.min(2, ch + (arc >= 2 ? 1 : 0)), r); for (let i = deck.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [deck[i], deck[j]] = [deck[j], deck[i]]; } return deck;
 }
 const campLevel = (ch, k) => Math.min(2, Math.floor(campIndex(ch, k) / 9));
-const RANK_LV = 5, TIERS_R = [["Bronze", 0], ["Silver", 1000], ["Gold", 1300], ["Platinum", 1600], ["Diamond", 1900], ["Master", 2200]];
+const RANK_LV = 5, TIERS_R = [["E", 0], ["D", 600], ["C", 1000], ["B", 1300], ["A", 1600], ["S", 1900], ["SS", 2200], ["SSS", 2600]];   // the ladder is eight letter ranks; 800 points (where everyone starts) is D
+const rankInfo = pts => { const t = rankTier(pts), lo = TIERS_R[t][1], nx = TIERS_R[t + 1]; return { t, name: TIERS_R[t][0], lo, hi: nx ? nx[1] : null, pct: nx ? Math.max(0, Math.min(100, Math.round(100 * (pts - lo) / (nx[1] - lo)))) : 100, next: nx ? nx[0] : null }; };
 const rankTier = pts => { let t = 0; TIERS_R.forEach(([n, v], i) => { if (pts >= v) t = i; }); return t; };
 const rankLevel = pts => (pts < 1100 ? 0 : pts < 1800 ? 1 : 2);
 const campMode = (ch, k) => ({ kind: "camp", ch, k, deck: campDeck(ch, k), core: campBoss(k, ch).core, energy: campPos(ch, k).boss ? 1 : 0 });
@@ -3707,7 +3715,7 @@ const kcardMini = (id, extra = "") => { if (isSkill(id)) return skTile(id, extra
 const campOpen = (ch, k) => (ch === 0 && k === 0) || !!(P.camp && P.camp.cl[k === 0 ? (ch - 1) + "-" + (CAMP[ch - 1].foes.length - 1) : ch + "-" + (k - 1)]);
 
 /* ----- ranked: a ladder of points, unlocked at level 5 ----- */
-function rankInit() { if (!P.rank) P.rank = { pts: 800, w: 0, l: 0, tierBest: 0, day: "" }; }
+function rankInit() { if (!P.rank) P.rank = { pts: 800, w: 0, l: 0, tierBest: rankTier(800), rv: 2, day: "" }; if (P.rank.rv !== 2) { P.rank.tierBest = (P.rank.tierBest || 0) + 1; P.rank.rv = 2; }   /* rv 2: the ladder went from six named tiers to eight letter ranks, so a saved best tier moves up one */ }
 function rankOpp(pts) { return Math.max(400, pts + Math.round((Math.random() * 2 - 1) * 120)); }
 
 /* ----- the Battle tab ----- */
@@ -3731,17 +3739,17 @@ function viewBattle(v) {
   const side = (ico, label, attrs, badge) => `<button class="hub-ic" ${attrs}><span class="ii">${ico}</span><small>${label}</small>${badge ? '<i class="bdg">!</i>' : ""}</button>`;
   const mode = (cls, attrs, id, title, sub) => `<button class="hub-m ${cls}" ${attrs}>${hmAny(id, true)}<span class="tx"><b>${title}</b><small>${sub}</small></span></button>`;
   v.innerHTML = `<section class="hub"><div class="hub-art">${hmImg(heroId, true)}</div>` +
-    `<div class="hub-top"><select id="ckdeck" class="hub-deck" data-ck="deckSel" aria-label="Deck">${P.cd.map((x, i) => `<option value="${i}" ${i === P.cdi ? "selected" : ""}>${esc(x.name)}${ckDeckOk(x.cards) ? " (incomplete)" : ""}</option>`).join("")}</select></div>` +
+    `<div class="hub-top"><select id="ckdeck" class="hub-deck" data-ck="deckSel" aria-label="Deck">${P.cd.map((x, i) => `<option value="${i}" ${i === P.cdi ? "selected" : ""}>${esc(x.name)}${ckDeckOk(x.cards) ? " (incomplete)" : ""}</option>`).join("")}</select><button class="hub-edit" data-ck="deckEdit" aria-label="Edit deck">✎</button></div>` +
     `<div class="hub-l">${side(ic("daily", ""), "Missions", 'data-act="tab" data-k="daily"', claim)}${side(ic("cards", ""), "Story log", 'data-ck="storyLog"')}</div>` +
     `<div class="hub-r">${side(ic("cards", ""), "Portrait", 'data-act="avatar"')}${side("?", "How to play", 'data-ck="rules"')}</div>` +
     (hk ? `<div class="hub-id"><small><i style="--c:var(--ds-${hk.el}-1)"></i>${EL[hk.el][0]} · ${esc(FAC[hk.fac] || hk.fac)}</small><h1>${esc(BY[heroId].name)}</h1></div>` : "") +
     (err ? `<p class="hub-err">${esc(err)}</p>` : "") +
     `<div class="hub-modes">` +
-    mode(unlocked ? "m-ranked" : "lock m-ranked", `data-ck="ranked" ${err || !unlocked ? "disabled" : ""}`, HM_ART.ranked, "Ranked", unlocked ? `${TIERS_R[tier][0]} · ${rk.pts}` : `Level ${RANK_LV}`) +
+    mode(unlocked ? "m-ranked" : "lock m-ranked", `data-ck="ranked" ${err || !unlocked ? "disabled" : ""}`, HM_ART.ranked, "Ranked", unlocked ? `${TIERS_R[tier][0]} · ${rk.pts} RR` : `Level ${RANK_LV}`) +
     (nx ? `<button class="hub-camp" data-ck="campStage" data-ch="${nx[0]}" data-k="${nx[1]}" ${err ? "disabled" : ""}><span class="bg">${hmAny("region:" + nx[0])}</span><span class="tx"><small>${campDone() ? "Continue" : "Begin"}</small><b>Campaign</b><em>${esc(CAMP[nx[0]].name)}</em></span></button>` : `<button class="hub-camp" data-ck="start" data-l="1" ${err ? "disabled" : ""}><span class="bg">${hmImg(heroId)}</span><span class="tx"><small>Complete</small><b>Quick battle</b><em>Normal</em></span></button>`) +
-    mode("m-versus", 'data-act="tab" data-k="versus"', HM_ART.friend, "Friends", "Online") +
+    mode("m-versus", 'data-act="tab" data-k="versus"', HM_ART.friend, "Private Match", "With a friend") +
     mode("m-practice", `data-ck="practiceSheet" ${err ? "disabled" : ""}`, HM_ART.practice, "Practice", "Any level") +
-    mode("m-deck", 'data-ck="deckEdit"', heroId, "Deck", `${d.cards.length} cards`) +
+    mode("m-unrated", `data-ck="unrated" ${err ? "disabled" : ""}`, HM_ART.ranked, "Unrated Match", "No rating at stake") +
     `</div></section>`;
 }
 const campDone = () => Object.keys((P.camp && P.camp.cl) || {}).length;
@@ -3994,7 +4002,8 @@ document.addEventListener("click", async e => {
     case "campBack": BV = "home"; return show("battle");
     case "campStage": return campSheet(+d.ch, +d.k);
     case "campGo": closeModal(); return typeof campBegin === "function" ? campBegin(+d.ch, +d.k) : ckStart(campLevel(+d.ch, +d.k), campMode(+d.ch, +d.k));
-    case "ranked": if (P.lv < RANK_LV) return toast("Ranked unlocks at level " + RANK_LV + "."); return rankedFind();
+    case "unrated": return rankedFind("unrated");
+    case "ranked": if (P.lv < RANK_LV) return toast("Ranked unlocks at level " + RANK_LV + "."); return rankedFind("ranked");
     case "rematch": return ckRematch();
     case "leave": return ckLeave();
     case "rules": return rulesSheet();
@@ -7175,13 +7184,15 @@ function cknSrvCreate() {
 }
 function cknSrvJoin() { const code = ($("#vsCode").value || "").trim().toUpperCase(); if (code.length !== 4) return toast("Enter the 4-letter room code."); cknSrvConnect(code, {}); }
 /* ranked: look for a real player for up to 30 seconds, then fall back to the ladder opponent */
-function rankedFind() {
-  if (!srvOn()) return rankedStart(); rankInit(); let done = false;
-  const stop = () => { done = true; try { QWS && QWS.close(); } catch (_) {} QWS = null; }, fall = () => { if (done) return; stop(); closeModal(); toast("No one nearby right now. Here is a ladder opponent."); rankedStart(); };
-  openSheet(`<h2 class="fat">FINDING AN OPPONENT</h2><p class="note" style="text-align:center">Looking for a player near your rating…</p><div class="row c" style="margin-top:12px"><button class="btn dark" data-ck="findCancel">Cancel</button></div>`); lockSheet();
+function rankedFind(mode) {
+  mode = mode === "unrated" ? "unrated" : "ranked";
+  const fb = () => (mode === "unrated" ? ckStart(1, { kind: "practice" }) : rankedStart());
+  if (!srvOn()) return fb(); rankInit(); let done = false;
+  const stop = () => { done = true; try { QWS && QWS.close(); } catch (_) {} QWS = null; }, fall = () => { if (done) return; stop(); closeModal(); toast(mode === "unrated" ? "No one is looking right now. Here is a practice match." : "No one nearby right now. Here is a ladder opponent."); fb(); };
+  openSheet(`<h2 class="fat">FINDING AN OPPONENT</h2><p class="note" style="text-align:center">${mode === "unrated" ? "Looking for any player. Nothing is won or lost on your rating." : "Looking for a player near your rating…"}</p><div class="row c" style="margin-top:12px"><button class="btn dark" data-ck="findCancel">Cancel</button></div>`); lockSheet();
   let ws; try { ws = QWS = new WebSocket(SERVER_URL.replace(/\/$/, "") + "/queue"); } catch (_) { return fall(); }
-  ws.onopen = () => ws.send(JSON.stringify({ t: "find", rating: P.rank.pts, token: typeof ACC !== "undefined" && ACC ? ACC.token : "" }));
-  ws.onmessage = e => { let m; try { m = JSON.parse(e.data); } catch (_) { return; } if (m.t === "match" && !done) { stop(); cknSrvConnect(m.room, { ranked: true }); } };
+  ws.onopen = () => ws.send(JSON.stringify({ t: "find", mode, rating: P.rank.pts, token: typeof ACC !== "undefined" && ACC ? ACC.token : "" }));
+  ws.onmessage = e => { let m; try { m = JSON.parse(e.data); } catch (_) { return; } if (m.t === "match" && !done) { stop(); cknSrvConnect(m.room, { ranked: mode === "ranked" }); } };
   ws.onerror = fall; setTimeout(fall, 30000);
   RFIND = stop;
 }
@@ -7760,11 +7771,11 @@ const ACH = [
   { id: "cmp", n: "Explorer", t: "Clear 8 campaign stages", ti: "Trailblazer", r: 2, v: nCamp, need: 8 },
   { id: "cmp20", n: "Far from home", t: "Clear 20 campaign stages", ti: "Realm Walker", r: 4, v: nCamp, need: 20 },
   { id: "cmp30", n: "End of the road", t: "Clear every campaign episode", ti: "Crown of the Road", r: 6, v: nCamp, need: CAMP_TOTAL },
-  { id: "rk1", n: "Silver lining", t: "Reach Silver in Ranked", ti: "Silvershield", r: 2, v: () => ((P.rank && P.rank.tierBest) || 0), need: 1 },
-  { id: "rk", n: "Climber", t: "Reach Gold in Ranked", ti: "Goldbound", r: 3, v: () => ((P.rank && P.rank.tierBest) || 0), need: 2 },
-  { id: "rk3", n: "Above the clouds", t: "Reach Platinum in Ranked", ti: "Starlit Champion", r: 4, v: () => ((P.rank && P.rank.tierBest) || 0), need: 3 },
-  { id: "rk4", n: "Flawless", t: "Reach Diamond in Ranked", ti: "Diamondheart", r: 5, v: () => ((P.rank && P.rank.tierBest) || 0), need: 4 },
-  { id: "rk5", n: "The summit", t: "Reach Master in Ranked", ti: "Master of the Table", r: 6, v: () => ((P.rank && P.rank.tierBest) || 0), need: 5 },
+  { id: "rk1", n: "Silver lining", t: "Reach rank C in Ranked", ti: "Silvershield", r: 2, v: () => ((P.rank && P.rank.tierBest) || 0), need: 2 },
+  { id: "rk", n: "Climber", t: "Reach rank B in Ranked", ti: "Goldbound", r: 3, v: () => ((P.rank && P.rank.tierBest) || 0), need: 3 },
+  { id: "rk3", n: "Above the clouds", t: "Reach rank A in Ranked", ti: "Starlit Champion", r: 4, v: () => ((P.rank && P.rank.tierBest) || 0), need: 4 },
+  { id: "rk4", n: "Flawless", t: "Reach rank S in Ranked", ti: "Diamondheart", r: 5, v: () => ((P.rank && P.rank.tierBest) || 0), need: 5 },
+  { id: "rk5", n: "The summit", t: "Reach rank SS in Ranked", ti: "Master of the Table", r: 6, v: () => ((P.rank && P.rank.tierBest) || 0), need: 6 },
   { id: "dk", n: "Deckbuilder", t: "Keep 3 ready decks", ti: "Tactician", r: 2, v: nReady, need: 3 },
   { id: "dk8", n: "Armoury", t: "Keep 8 ready decks", ti: "Armory Lord", r: 4, v: nReady, need: 8 },
 ];
@@ -7920,11 +7931,11 @@ function deckCover(d) { const id = d.cover && BY[d.cover] ? d.cover : d.cards.fi
 const ring = (id, n, ok, h, bg, c, g, a) => ({ id, n, ok, h, bg, c, g, a });
 const FRAMES = [
   { id: "", n: "Plain", ok: () => true },
-  ring("silver", "Silver", () => rk() >= 1, "Reach Silver in Ranked", "linear-gradient(150deg,#f1f4f7,#8f9cab)", "#c9d1da", 4),
-  ring("gold", "Gold", () => rk() >= 2, "Reach Gold in Ranked", "linear-gradient(150deg,#ffe9a8,#c9982e)", "#d2b979", 6),
-  ring("plat", "Platinum", () => rk() >= 3, "Reach Platinum in Ranked", "linear-gradient(150deg,#c9fffb,#4fb6ad)", "#8fd5d0", 7),
-  ring("diamond", "Diamond", () => rk() >= 4, "Reach Diamond in Ranked", "conic-gradient(from 30deg,#8cb8f2,#eaf5ff,#8cb8f2,#4a7fd0,#8cb8f2)", "#8cb8f2", 8),
-  ring("master", "Master", () => rk() >= 5, "Reach Master in Ranked", "conic-gradient(#a892ba,#f1e4ff,#a892ba,#6b4f8a,#a892ba)", "#a892ba", 9),
+  ring("silver", "Silver", () => rk() >= 2, "Reach rank C in Ranked", "linear-gradient(150deg,#f1f4f7,#8f9cab)", "#c9d1da", 4),
+  ring("gold", "Gold", () => rk() >= 3, "Reach rank B in Ranked", "linear-gradient(150deg,#ffe9a8,#c9982e)", "#d2b979", 6),
+  ring("plat", "Platinum", () => rk() >= 4, "Reach rank A in Ranked", "linear-gradient(150deg,#c9fffb,#4fb6ad)", "#8fd5d0", 7),
+  ring("diamond", "Diamond", () => rk() >= 5, "Reach rank S in Ranked", "conic-gradient(from 30deg,#8cb8f2,#eaf5ff,#8cb8f2,#4a7fd0,#8cb8f2)", "#8cb8f2", 8),
+  ring("master", "Master", () => rk() >= 6, "Reach rank SS in Ranked", "conic-gradient(#a892ba,#f1e4ff,#a892ba,#6b4f8a,#a892ba)", "#a892ba", 9),
   ring("vet", "Veteran", () => !!(P.ach && P.ach.w50), "Win 50 matches", "repeating-linear-gradient(135deg,#b7b1a0 0 4px,#53677a 4px 8px)", "", 0, "w50"),
   ring("coll", "Collector", () => !!(P.ach && P.ach.c60), "Own 60 different cards", "linear-gradient(150deg,#b8f0d0,#2f8a62)", "#7fb59a", 6, "c60"),
   ring("legend", "Legend", () => !!(P.ach && P.ach.leg), "Own a Legendary card", "conic-gradient(#f0d68a,#a892ba,#f0d68a,#fff3c7,#f0d68a)", "#f0d68a", 10, "leg"),
@@ -7985,8 +7996,8 @@ function introTip() { const ov = document.getElementById("arintro"); if (!ov) re
 function promoFx(name) { const e = document.createElement("div"); e.className = "promo"; e.innerHTML = `<small>PROMOTED</small><b>${esc(name)}</b>`; document.body.appendChild(e); sfx("level"); uiHaptic("ok"); setTimeout(() => e.remove(), 2600); }
 
 /* ---------- leaderboard and public profiles (served by the Hub; fixed fields only) ---------- */
-const TIER_N = ["Bronze", "Silver", "Gold", "Platinum", "Diamond", "Master"];
-const tierOf = pts => TIER_N[Math.min(5, rankTier(pts))];
+const TIER_N = TIERS_R.map(t => t[0]);
+const tierOf = pts => TIER_N[Math.min(TIER_N.length - 1, rankTier(pts))];
 function pHex(p) { return `<span class="hexw" data-frame="${esc(p.frame || "")}"><span class="hex">${p.avatar && BY[p.avatar] ? `<img class="hexart" alt="" src="${artSrc(BY[p.avatar])}">` : "<span>♠</span>"}</span></span>`; }
 async function lbSheet(tab) {
   tab = tab === "h" || !ACC ? "h" : "t";

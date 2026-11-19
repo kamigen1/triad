@@ -125,19 +125,19 @@ export class Lobby {
     server.addEventListener("message", async (e) => {
       let m; try { m = JSON.parse(e.data); } catch (_) { return; }
       if (m.t !== "find" || me) return;
-      const mine = me = { ws: server, rating: Math.max(0, Math.min(9999, +m.rating || 800)), at: Date.now(), lname: "" };
+      const mine = me = { mode: m.mode === "unrated" ? "unrated" : "ranked", ws: server, rating: Math.max(0, Math.min(9999, +m.rating || 800)), at: Date.now(), lname: "" };
       if (typeof m.token === "string" && m.token) { try { const r = await this.hub("/_who", { token: m.token }); if (r.ok) mine.lname = r.lname; } catch (_) {} }   // signed in: so a blocked pair is never matched
       if (gone) return;
       let cand = null, gap = 1e9;
       for (const w of this.waiting.slice()) {
-        if (w.ws === server) continue;
+        if (w.ws === server || w.mode !== mine.mode) continue;
         if (mine.lname && w.lname) { let bl = false; try { bl = (await this.hub("/_blk", { a: mine.lname, b: w.lname })).blocked; } catch (_) {} if (bl) continue; }
         const d = Math.abs(w.rating - mine.rating); if (d < gap) { gap = d; cand = w; }
       }
       const idx = cand ? this.waiting.indexOf(cand) : -1;
       if (gone) return;
       if (idx >= 0) {
-        const other = this.waiting.splice(idx, 1)[0], code = roomCode(7);   // seven characters marks a ranked room
+        const other = this.waiting.splice(idx, 1)[0], code = roomCode(mine.mode === "unrated" ? 6 : 7);   // seven characters marks a ranked room; six is an ordinary online one
         for (const p of [other, mine]) { try { p.ws.send(JSON.stringify({ t: "match", room: code })); p.ws.close(1000, "matched"); } catch (_) {} }
         me = null;
       } else { this.waiting.push(mine); try { server.send(JSON.stringify({ t: "wait" })); } catch (_) {} }
