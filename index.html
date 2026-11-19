@@ -2078,7 +2078,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.12.15-a";
+const VER = "2026.12.15-b";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -3357,7 +3357,7 @@ const AR = {
   E0: 5, EMAX: 10, ERATE: 2.4,       // starting energy, cap, seconds per energy (halved: energy is scarce, so each skill is a decision)
   SWAP_E: 0, SWAP_CD: 8,             // bringing a reserve in is free (energy 0); only the wait before that slot can swap again
   IV: 6, STRIKE: .5, ATKX: 8,      // seconds between basic strikes at speed 1.0, the share of ATK a strike deals, and the factor from a card's base attack to its fight attack (slower, bigger hits)
-  FOCUS_SUPPORT: 16, AI_EVERY: [10, 10, 5], AI_SLIP: [.4, .2, 0], EASY_FOCUS: .2, AI_TH: 3,   // AI: HP value of a healer/buffer when picking a focus target; ticks between its decisions and the share of ready skills it fumbles, by level
+  FOCUS_SUPPORT: 16, AI_EVERY: [10, 10, 5], AI_REACT: [22, 16, 10], AI_GAP: [16, 12, 8], AI_SLIP: [.4, .2, 0], EASY_FOCUS: .2, AI_TH: 3,   // AI: HP value of a healer/buffer when picking a focus target; ticks between its decisions and the share of ready skills it fumbles, by level
   MARK_T: 8, CORE: 40, HPX: 8, SKILL_CD: 4, GROW_T: 8, SURGE_AT: 60, SURGE_T: 10, INPUT_DELAY: 3, RETARGET: 1,
 };
 /* skill energy costs run from 1 (a small utility) to 8 (an extreme AREA hit or area heal; single-target moves stay at 6 or less), averaging about 2.5 across the roster; the stronger the effect, the more it costs */
@@ -3561,9 +3561,22 @@ function arAiCards(A, s, en, send) {
   });
   return en;
 }
+/* The computer does not act instantly: every decision goes into a queue and is released after a reaction delay,
+   one action at a time with a gap between them (ticks, by level), so it can't drop a drawn card or fire every skill the moment they are ready. */
+function arAiMk(A, s) {
+  return c => {
+    const Q = (A.aiQ = A.aiQ || {})[s] || (A.aiQ[s] = []), l = A.level[s]; if (Q.length >= 3) return;   // at most three queued at once; it decides again when they are out
+    const gap = AR.AI_GAP[l] + Math.floor(arRand(A) * AR.AI_GAP[l] * .5);
+    Q.push({ at: Q.length ? Q[Q.length - 1].at + gap : A.tick + AR.AI_REACT[l] + Math.floor(arRand(A) * AR.AI_REACT[l] * .4), c });
+  };
+}
+function arAiFlush(A, s) {
+  const Q = A.aiQ && A.aiQ[s]; if (!Q) return;
+  while (Q.length && Q[0].at <= A.tick) { const c = Object.assign({ s }, Q.shift().c); if (A.hook) A.hook(c); else arInput(A, c, 1); }
+}
 /* ----- the computer player (also "Auto" mode for a human): decides every half second ----- */
 function arAi(A, s) {
-  if (A.over) return; const lvl = A.level[s]; if (A.tick % AR.AI_EVERY[lvl] !== 0) return; if (lvl >= 2) return arAiPro(A, s); const S = A.s[s], F = A.s[1 - s], send = c => (A.hook ? A.hook(Object.assign({ s }, c)) : arInput(A, Object.assign({ s }, c), 1)); let en = S.energy; const used = {};
+  if (A.over) return; arAiFlush(A, s); if (A.aiQ && A.aiQ[s] && A.aiQ[s].length) return; const lvl = A.level[s]; if (A.tick % AR.AI_EVERY[lvl] !== 0) return; if (lvl >= 2) return arAiPro(A, s); const S = A.s[s], F = A.s[1 - s], send = arAiMk(A, s); let en = S.energy; const used = {};
   const reacts = (m, e) => !!REACT[m + ">" + e];
   for (let i = 0; i < 5; i++) if (!S.lane[i] && S.swapcd[i] <= 0 && en >= AR.SWAP_E) {
     const b = S.bench.map((u, k) => ({ u, k })).filter(x => x.u && !x.u.skill && !used[x.k]).sort((p, q) => q.u.atk - p.u.atk)[0];
@@ -3593,7 +3606,7 @@ function arAi(A, s) {
    It prices every skill it could use in health-equivalents, spends energy on the best price per energy (and holds it when nothing is worth it, unless the bar is nearly full or the bell is near),
    guards a card that is about to fall, finishes cards with burst, retreats a nearly dead card for a healthy backup, and focuses fire without flip-flopping. ----- */
 function arAiPro(A, s) {
-  if (A.over) return; const S = A.s[s], F = A.s[1 - s], send = c => (A.hook ? A.hook(Object.assign({ s }, c)) : arInput(A, Object.assign({ s }, c), 1));
+  if (A.over) return; const S = A.s[s], F = A.s[1 - s], send = arAiMk(A, s);
   const AX = AR.ATKX, SK = AR.SK, st = (A.aiMem = A.aiMem || {})[s] || ((A.aiMem[s]) = { focus: 0 });
   let en = S.energy; const used = {}, reacts = (m, e) => !!REACT[m + ">" + e];
   const hit = (side, u) => arAtk(A, side, u) * AR.STRIKE, per = u => AR.IV / u.spd;
