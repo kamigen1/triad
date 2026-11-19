@@ -1989,7 +1989,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.12.12-a";
+const VER = "2026.12.12-b";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -3759,35 +3759,8 @@ const STORY = {
     ],
   },
   eps: [],   // Season 1 is generated from STORY_S1.md into story1.js (python tools_story.py STORY_S1.md story1.js 0)
-  banters: [   // 2 to 4 lines; each is read once for 500 coins. `after` is the stage that unlocks it.
-    { id: "b1", after: "0-1", title: "Roadside manners", lines: ["sylwen/smug: You talk like a man who has only ever read about talking.", "veyr/calm: I talk as much as I need to.", "sylwen/happy: That is exactly what I mean."] },
-    { id: "b2", after: "0-4", title: "The long way round", lines: ["sylwen/calm: In the Wake, the shortest path is the one that finds you.", "veyr/calm: That seems backwards.", "sylwen/smug: That is why the forest likes it."] },
-    { id: "b3", after: "2-5", title: "First rule of the cairns", lines: ["roan/smug: Never let someone else set the pace.", "sylwen/angry: You say that while walking behind me.", "roan/shock: I am following the pace. That is different."] },
-    { id: "b4", after: "0-6", title: "What the glass remembers", lines: ["veyr/calm: When I touch the walls, I hear a song.", "sylwen/calm: What does it sing?", "veyr/sad: One word. Over and over. I think it is a name."] },
-    { id: "b5", after: "4-3", title: "A warden's supper", lines: ["auralis/calm: I have not eaten at a fire in twelve years. Wardens eat at lamps.", "roan/happy: Then you are going to love this soup.", "auralis/tender: I think I will."] },
-  ],
-  chars: {   // character stories: three short episodes each, unlocked by owning the card. Reading all three pays the full-story bonus.
-    veyr: [
-      { t: "Glass", lines: ["n: Veyr runs a hand along the black blade as he does every dawn.", "veyr/calm: Three years. Not one dream I could keep.", "veyr/calm: But the blade is warm, always warm, as if it just left someone's hand.", "veyr/sad: I do not know whose."] },
-      { t: "The Same Dream", lines: ["n: Veyr dreams of a plaza of light.", "veyr/mystery: A crowd. A voice calling out. A man stepping forward, not afraid.", "veyr/calm: I wake the way I always do. Without his face.", "veyr/calm: But I know the way he stood. I will know him if I see him."] },
-      { t: "A Name for a Blade", lines: ["sylwen/happy: Every sword should have a name.", "veyr/calm: I never gave it one.", "sylwen/calm: Then wait. It will tell you.", "n: The blade hums, very softly, and Veyr smiles for the first time that day."] },
-    ],
-    sylwen: [
-      { t: "Messages Across Water", lines: ["n: Sylwen carries messages across the lakes for people who cannot cross them.", "sylwen/happy: Most are boring. 'Buy salt.' 'Come home.' 'I am sorry.'", "sylwen/calm: The sorry ones are the ones I read twice. People mean them most when they cannot say them out loud."] },
-      { t: "The Thornwake Remembers", lines: ["n: The Wake rearranges itself around her, as it always has.", "sylwen/calm: When I was small I got lost. The forest took me home with a path that was gone by morning.", "sylwen/tender: I think the forest and I have an understanding."] },
-      { t: "Home's Direction", lines: ["sylwen/calm: People ask where I am from. I tell them whichever way I am walking.", "veyr/calm: And now?", "sylwen/happy: Now it is wherever you are going. Somebody has to keep you from getting lost."] },
-    ],
-    roan: [
-      { t: "First Light on the Cairns", lines: ["n: Roan trains at dawn, every dawn, in the same worn spot on the cairns.", "roan/smug: The sun comes up whether I swing or not. I like to give it something to look at."] },
-      { t: "Never Beaten", lines: ["roan/calm: People think the point is never losing.", "roan/calm: It is not. It is that when you do lose, you know exactly what you were missing.", "roan/shock: Which is a thing I plan to find out the moment someone manages it."] },
-      { t: "A Rival's Gift", lines: ["n: Roan leaves a red headband on Veyr's pack.", "roan/smug: A spare. Tie it on before the next fight.", "veyr/calm: I am not sure it suits me.", "roan/happy: Nobody has ever said that and meant it. Wear it."] },
-    ],
-    auralis: [
-      { t: "A Lantern's Weight", lines: ["n: Every night, Auralis lights the last lantern in the chapel herself.", "auralis/calm: People think it is a small thing. It is the heaviest I carry.", "auralis/sad: Every flame is a promise that someone is watching over them."] },
-      { t: "The Warden's Oath", lines: ["auralis/calm: I swore to keep the lanterns burning. I did not swear to know why they burn.", "auralis/sad: That was my mistake. A sworn oath is a very good place to hide."] },
-      { t: "What She Does Not Say", lines: ["n: Auralis closes the old ledger and puts it back in the shelf.", "auralis/calm: There are things in the chapel records I have never read aloud.", "auralis/tender: One day I will. For now, I want to be someone who can still look him in the eye."] },
-    ],
-  },
+  banters: [],   // all banters and character stories live in story_extra.js
+  chars: {},
 };
 
 /* generated by tools_story.py from STORY_S1.md. Edit the document, not this file. */
@@ -4275,33 +4248,6 @@ STORY.s[1] = {
   },
   eps: [],   // generated: story2eps.js
 };
-/* ----- banters (read once each for 500 coins): `after` is the stage that unlocks it ----- */
-STORY.banters.push(
-  { id: "s2a", after: "1-1", title: "Fine print", lines: ["sylwen/smug: You read every word of your contract before you signed it, I take it.", "zarek/calm: I read the first page. It was very reasonable.", "sylwen/shock: And the other four hundred?", "zarek/calm: That's the part that taught me to read."] },
-  { id: "s2b", after: "1-2", title: "Kael's coin", lines: ["kael/smug: I keep the gold-lantern coin. A thing that bad deserves to be remembered.", "zarek/calm: You're going to spend it on soup.", "kael/shock: I was going to spend it on soup."] },
-  { id: "s2c", after: "1-7", title: "Beans", lines: ["zarek/calm: The beans were adequate.", "sylwen/angry: Adequate?", "zarek/calm: In the Wastes, that's a standing ovation."] },
-  { id: "b8", after: "3-3", title: "An ear for glass", lines: ["nyxara/smug: Your sword's humming flat.", "veyr/calm: I didn't know it could be flat.", "nyxara/calm: Everything can. That's what makes it music."] },
-  { id: "b9", after: "3-7", title: "The sound of ash", lines: ["sylwen/calm: It's too quiet here. The Wake always talks.", "nyxara/calm: The ash swallowed it. Listen. Nothing's left to echo.", "veyr/sad: Then we make something worth echoing."] },
-  { id: "b10", after: "4-8", title: "Soup, again", lines: ["auralis/tender: Roan, you promised me soup.", "roan/smug: I promised you the best soup.", "kael/happy: I'll see your soup and raise you a stew.", "sylwen/shock: Why is there now a contest?"] },
-);
-/* ----- character stories (3 episodes each; unlocked by owning the card) ----- */
-Object.assign(STORY.chars, {
-  nyxara: [
-    { t: "Hedge Craft", lines: ["n: Nyxara sits in the road and listens to nothing at all.", "nyxara/calm: People think an echo is a copy. It is a witness.", "nyxara/smug: A place remembers every sound it has ever held. You only need to be rude enough to ask."] },
-    { t: "A Lost Voice", lines: ["n: Nyxara hums the same three notes whenever she thinks nobody is listening.", "nyxara/sad: I am looking for a voice. I have not found it in any valley I have heard.", "veyr/calm: Whose voice?", "nyxara/calm: One I would know anywhere, and cannot place at all."] },
-    { t: "What She Heard", lines: ["nyxara/calm: When the Glass Night happened, I was in a cellar three valleys away. Every echo in the world went quiet for a heartbeat.", "nyxara/sad: Then every echo screamed.", "nyxara/calm: I will tell you what it said when you can hear it without turning away."] },
-  ],
-  kael: [
-    { t: "Contract Law", lines: ["n: Kael recites the oath of a Brandwright over the forge fire.", "kael/smug: A Brandwright marks the gear, keeps the contract and never works for someone who pays in anything but coin.", "kael/calm: I was always very good at the last part."] },
-    { t: "Borrowed Fire", lines: ["kael/calm: Every time I light my sword, I owe the fox a little.", "kael/sad: She calls it a loan. I call it the best thing anyone has ever done for me.", "kael/happy: I will pay her back when she lets me."] },
-    { t: "The Ninth Seat", lines: ["kael/calm: A Brandwright company has eight seats. The ninth is always empty at the table.", "kael/sad: I know whose it was. I also know why she asked us not to say.", "kael/calm: Some secrets are the only things holding a company together."] },
-  ],
-  yuzari: [
-    { t: "Eight Tails", lines: ["n: Yuzari curls her tails around herself in the cold.", "yuzari/calm: People count them. Then they count them again. Then they ask politely, which is the worst part.", "yuzari/smug: I tell them nine is bad luck."] },
-    { t: "A Letter Every Spring", lines: ["n: A letter arrives under the shrine's bell. Yuzari reads it, then burns it.", "yuzari/calm: I know what it says for as long as I hold it.", "yuzari/sad: When the smoke clears, it is gone, and I only know I have been told something kind."] },
-    { t: "Why Forget", lines: ["yuzari/calm: I gave away a tail on purpose. I know that much.", "yuzari/mystery: Whatever I traded it for, I decided I would rather not remember the price.", "yuzari/tender: I trust that woman. She was me."] },
-  ],
-});
 
 /* generated by tools_story.py from STORY_S2.md. Edit the document, not this file. */
 STORY.s = STORY.s || {}; STORY.s[1] = Object.assign(STORY.s[1] || {}, { eps: [
@@ -4875,25 +4821,6 @@ STORY.s[2] = {
       after: ["n: The Sovereign crumbles into frost and light. The cold in the mountain breaks like a held breath.", "rimefang/calm: The Accord is finished. Somebody should write it down properly this time.", "zarek/smug: I volunteer. In very rude handwriting.", "n: Pip lands in the ruined throne room and bows, very quickly.", "pip/afraid: The Council is displeased! This is the third being lost! They are meeting in the morning!", "auralis/angry: Then tell them a warden of this order will be attending.", "n: Far to the south, the first spring thaw runs down the mountains into the sea. The party looks west, toward the water."] },
   ],
 };
-STORY.banters.push(
-  { id: "b11", after: "2-2", title: "Cold feet", lines: ["roan/shock: My boots are frozen to the floor.", "sylwen/calm: You are standing in a snowdrift.", "roan/smug: A drift of very bad design."] },
-  { id: "b12", after: "2-8", title: "Wall rules", lines: ["zarek/smug: Rule one of walls: never sit on the side that is going to fall.", "roan/calm: Which side is that?", "zarek/smug: The side with the heroes."] },
-  { id: "b13", after: "2-12", title: "The newest recruit", lines: ["zarek/calm: Do I get a title?", "auralis/calm: You get a bunk.", "zarek/smug: I have been promoted.", "veyr/calm: I did not know it could be a promotion."] },
-  { id: "b14", after: "2-15", title: "Quiet is not peace", lines: ["nyxara/calm: In the Court, I heard the shape of silence. It was not rest.", "veyr/calm: What was it?", "nyxara/sad: Waiting."] },
-  { id: "b15", after: "2-23", title: "Frostbitten", lines: ["rimefang/smug: You are all very warm for people who came here to fight a winter.", "roan/happy: That is the soup.", "rimefang/shock: What soup?"] },
-);
-Object.assign(STORY.chars, {
-  zarek: [
-    { t: "A Seat on the Wall", lines: ["n: Zarek watches the courtyard below as if it were a play.", "zarek/smug: Everybody wants me to rule. That is how I know I should not.", "zarek/calm: The ones who want a crown always want it for someone else."] },
-    { t: "A Cousin's Letter", lines: ["n: A letter arrives with a black wax seal and a spidery hand.", "zarek/calm: Lilivane. She writes once a decade to tell me what I am doing wrong.", "zarek/smug: I have not opened it. I like the look of it more than the contents."] },
-    { t: "The Rival at the Court", lines: ["zarek/calm: Seris and I once fought for three days over a bridge neither of us owned.", "zarek/smug: I lost. She has never let me forget it, and I have never let her stop.", "zarek/tender: It is the only friendship I have ever kept."] },
-  ],
-  rimefang: [
-    { t: "A Promise, Not a Treaty", lines: ["n: Rimefang coils around the highest peak and watches the passes.", "rimefang/calm: A treaty ends when it is no longer convenient. A promise ends when you do."] },
-    { t: "The Credit", lines: ["rimefang/calm: Cindervault believes he ended the war. I let him.", "rimefang/smug: A friend is someone you let win at the right moment."] },
-    { t: "Seasons Fair", lines: ["rimefang/calm: Winter and summer. Winter and summer. A mountain that remembers only one of them turns into a grave.", "rimefang/tender: So I keep them both, and I keep them fair."] },
-  ],
-});
 
 /* ===== story4.js: Season 4, The Tidal Ruins (24 episodes), as pure data. Same line format as story.js. =====
    Beats: the Sunken Choir's hymn is not a hymn. It feeds the lanterns with the choir's voices, and it carries the heavens' orders to every gold-eyed soldier on the continent.
@@ -4983,20 +4910,6 @@ STORY.s[3] = {
       after: ["n: The Voice shatters into a thousand lanterns, and every one of them goes out.", "n: In the nave above, the thousand singers draw one long breath, and for the first time in a hundred and nine years, stop.", "nerissa/tender: Rest. It is over.", "auralis/sad: The lanterns will dim now. All of them.", "veyr/calm: Will it be so bad?", "auralis/calm: No. We will light our own.", "n: On the water, a small boat carries a courier with a long coat, who bows to the sea, lifts a lantern in salute and turns away.", "kradin/calm: Not all light has to be owed. Well sung.", "pip/afraid: The Council! The Council will hear of this!", "veyr/calm: Good. Let them hear."] },
   ],
 };
-STORY.banters.push(
-  { id: "b16", after: "3-2", title: "Wet socks", lines: ["roan/angry: My socks are wet.", "zarek/smug: So are mine. I am simply better at hiding it.", "roan/shock: That is not a skill."] },
-  { id: "b17", after: "3-8", title: "A king's snacks", lines: ["crownlet/happy: I have a tin of biscuits. They are slightly damp.", "zarek/smug: I will take a damp biscuit.", "roan/happy: He is the best of us."] },
-  { id: "b18", after: "3-12", title: "A hundred and nine", lines: ["auralis/sad: I have lit a lantern every night for twelve years.", "sylwen/calm: You did not know.", "auralis/calm: I did not. But I will now."] },
-  { id: "b19", after: "3-17", title: "Out of tune", lines: ["nyxara/smug: Everything here is slightly flat.", "zarek/calm: That is the point. You said so yourself.", "nyxara/smug: I say many things."] },
-  { id: "b20", after: "3-23", title: "A hymn of our own", lines: ["nerissa/calm: Auralis. Will you sing it again, someday?", "auralis/tender: Whenever you want.", "sylwen/happy: I am going to write that one down."] },
-);
-Object.assign(STORY.chars, {
-  nerissa: [
-    { t: "The Cathedral Child", lines: ["n: Nerissa sits at the top of the stairs, her feet in the warm water.", "nerissa/calm: I grew up in a drowned house. I thought everyone did.", "nerissa/smug: Imagine my surprise when I learned that most people sleep in the dry."] },
-    { t: "The Letters", lines: ["nerissa/calm: Sylwen carries my letters across the water. Every one begins with weather.", "nerissa/tender: I do not know how to start with anything else."] },
-    { t: "The Last Verse, Again", lines: ["nerissa/calm: People ask whether it was worth it. Finishing the hymn. Ending something that old.", "nerissa/tender: I tell them it was not an ending. It was a rest."] },
-  ],
-});
 
 /* ===== story5.js: Season 5, The Cogworks of Tessaly (24 episodes), as pure data. Same line format as story.js. =====
    Beats: the Foundry-Vale wants Axiom-09 back because he is the one unit that refused the heavenly seal. The heavens' fifth being, the Perfect Reckoner, counts every soul as tainted or clean.
@@ -5084,18 +4997,400 @@ STORY.s[4] = {
       after: ["n: The rings come apart, one by one, each name flickering as it goes dark.", "n: The Reckoner's last ring turns slowly, the seal on it split down the middle, and reads one final line aloud: THE COUNT IS ONE SHORT.", "axiom09/calm: That is the nine. That is me. I was the one left uncounted.", "n: Pip drops into the chamber with a scroll that trembles.", "pip/afraid: This is the fifth! The Council will send someone worse! They will send a ruler, a first light, a king!", "veyr/calm: Then it will be a very long walk.", "n: In the wreck of the vault, a lantern courier tears the last notice from the wall, folds it, and tucks it into a coat pocket.", "kradin/calm: Keep going east. The ones in front are tired, and you are the only ones who have stopped to listen.", "n: Far off, over the mountains, a cherry-blossom wind blows, and under it, for the first time, someone is calling a name."] },
   ],
 };
+
+/* ===== story_extra.js: the minor scenes: banters and character stories (voice pass 2026-11-18). =====
+   One file for all of them, so every voice is edited in one place. Line format as in story.js. Voice rules: STORY_S1_MAP.md and STORY_S2_MAP.md.
+   Banters: 2 to 5 lines, 500 coins once each, unlocked by clearing the stage in `after` ("season-episode", both 0-based).
+   Character stories: three episodes per character, unlocked by owning the card; reading all three pays a 20-gem bonus. They never name Kami.
+   BANTERS_LATER holds banters for seasons not written yet; they are not live until their season is built. */
+STORY.banters.length = 0;
 STORY.banters.push(
-  { id: "b21", after: "4-2", title: "Registered", lines: ["roan/angry: They would not let me in because I am unregistered.", "zarek/smug: Welcome to my entire life.", "roan/shock: How is this the same thing?"] },
-  { id: "b22", after: "4-8", title: "A poster, a point", lines: ["sylwen/calm: Whoever they are hunting, they are brave.", "veyr/calm: How do you know?", "sylwen/calm: Nobody runs from this many people unless they are carrying something worth keeping."] },
-  { id: "b23", after: "4-14", title: "Walking tour", lines: ["axiom09/calm: This is the Reckoning Hall. It has eleven hundred doors, of which nine are real.", "roan/smug: Which nine?", "axiom09/calm: The ones that open."] },
-  { id: "b24", after: "4-18", title: "Brothers", lines: ["axiom12/calm: I will remain with the party. If that is permitted.", "axiom09/tender: It is.", "zarek/smug: Welcome to the worst-tempered family in the world."] },
-  { id: "b25", after: "4-23", title: "East", lines: ["veyr/calm: Cherry blossoms. In the middle of winter.", "auralis/calm: They say the Ninefold Gate blooms when something important crosses it.", "veyr/calm: Then something important is a few days ahead of us."] },
+  /* ----- Season 1 ----- */
+  { id: "b1", after: "0-1", title: "Roadside manners", lines: ["sylwen/smug: You talk like a man who's only ever read about talking.", "veyr/calm: I talk as much as I need to.", "sylwen/happy: That's exactly what I mean."] },
+  { id: "b2", after: "0-4", title: "The long way round", lines: ["sylwen/calm: In the Wake, the shortest path is the one that finds you.", "veyr/calm: That seems backwards.", "sylwen/smug: That's why the forest likes it."] },
+  { id: "b4", after: "0-6", title: "What the glass remembers", lines: ["veyr/calm: When I touch the walls, I hear a song.", "sylwen/calm: What's it sing?", "veyr/sad: One word. Over and over. I think it's a name."] },
+  /* ----- Season 2 ----- */
+  { id: "s2a", after: "1-1", title: "Fine print", lines: ["sylwen/smug: You read every word of that contract before you signed it, I take it.", "zarek/calm: I read the first page. It was very reasonable.", "sylwen/shock: And the other four hundred?", "zarek/calm: That's the part that taught me to read."] },
+  { id: "s2b", after: "1-2", title: "Kael's coin", lines: ["kael/smug: I keep the gold-lantern coin. A thing that bad deserves to be remembered.", "zarek/calm: You're going to spend it on soup.", "kael/shock: I was going to spend it on soup."] },
+  { id: "s2c", after: "1-7", title: "Beans", lines: ["zarek/calm: The beans were adequate.", "sylwen/angry: Adequate?", "zarek/calm: In the Wastes, that's a standing ovation."] },
+  /* ----- Season 3 ----- */
+  { id: "b11", after: "2-1", title: "Cold feet", lines: ["sylwen/calm: Honey, you're standin' in a snowdrift.", "zarek/smug: A drift of very bad design.", "sylwen/happy: I'm gonna tell everybody you said that."] },
+  { id: "b12", after: "2-3", title: "Wall rules", lines: ["zarek/smug: Rule one of walls: never sit on the side that's about to fall.", "veyr/calm: Which side is that?", "zarek/smug: The side with the heroes."] },
+  { id: "b14", after: "2-5", title: "Quiet is not peace", lines: ["veyr/calm: Nobody in that court said a word. Not one.", "sylwen/sad: I know. I've heard quiet that was resting. That wasn't it.", "veyr/calm: What was it?", "sylwen/calm: Waitin'."] },
+  { id: "b13", after: "2-9", title: "The newest recruit", lines: ["roan/calm: Do I get a title?", "zarek/smug: You get a bunk. And a spoon, if you ask nicely.", "roan/shock: That's it?", "zarek/calm: I was promoted twice and I'd say that's about right."] },
+  { id: "b3", after: "2-9", title: "First rule of the cairns", lines: ["roan/smug: Never let somebody else set the pace.", "sylwen/angry: You say that while walkin' behind me.", "roan/shock: I'm following the pace. It's different."] },
+  { id: "b15", after: "2-9", title: "Frostbitten", lines: ["rimefang/smug: You're all very warm for people who came to fight a winter.", "roan/happy: That's the soup.", "rimefang/shock: What soup?"] },
+  /* ----- Season 4 ----- */
+  { id: "b16", after: "3-1", title: "Wet socks", lines: ["roan/angry: My socks are wet.", "zarek/smug: So are mine. I'm simply better at hiding it.", "roan/shock: That's not a skill."] },
+  { id: "b17", after: "3-3", title: "Damp biscuits", lines: ["sylwen/happy: Y'all want a biscuit? It's a little damp.", "zarek/calm: I'll take a damp biscuit.", "roan/happy: Zarek's the best of us."] },
+  { id: "b8", after: "3-8", title: "An ear for glass", lines: ["nyxara/smug: Your sword's humming flat, darling.", "veyr/calm: I didn't know it could be flat.", "nyxara/calm: Everything can. That's what makes it music."] },
+  { id: "b9", after: "3-9", title: "The sound of ash", lines: ["sylwen/calm: It's too quiet here. The Wake never stops talkin'.", "nyxara/calm: The ash swallowed it. Listen. There's nothing left to echo.", "veyr/sad: Then we'll make something worth echoing."] },
+  { id: "b19", after: "3-9", title: "Out of tune", lines: ["nyxara/smug: Everything down here is slightly flat.", "zarek/calm: You said that's the point.", "nyxara/smug: I say many things."] },
+  { id: "b20", after: "3-9", title: "A hymn of our own", lines: ["nerissa/calm: Nyxara. Will you hum it for me again, someday?", "nyxara/tender: Whenever you like.", "sylwen/happy: I'm gonna write that one down."] },
+  /* ----- Season 5 ----- */
+  { id: "b18", after: "4-5", title: "A hundred and nine", lines: ["auralis/sad: I've lit a lantern every night for twelve years.", "sylwen/calm: You didn't know.", "auralis/calm: I didn't. But I will now."] },
+  { id: "b5", after: "4-9", title: "A warden's supper", lines: ["auralis/calm: I haven't eaten at a fire in twelve years. Wardens eat at lamps.", "roan/happy: Then you're gonna love this soup.", "auralis/tender: I think I will."] },
+  { id: "b10", after: "4-9", title: "Soup, again", lines: ["auralis/tender: Roan, you promised me soup.", "roan/smug: I promised you the best soup.", "kael/happy: I'll see your soup and raise you a stew.", "sylwen/shock: Why's there a contest now?"] },
 );
+const BANTERS_LATER = [
+  { id: "b21", after: "6-2", title: "Registered", lines: ["roan/angry: They wouldn't let me in. Said I'm unregistered.", "zarek/smug: Welcome to my entire life.", "roan/shock: How's that the same thing?"] },
+  { id: "b22", after: "6-5", title: "A poster, a point", lines: ["sylwen/calm: Whoever they're huntin', they're brave.", "veyr/calm: How do you know?", "sylwen/calm: Nobody runs from this many people unless they're carryin' something worth keepin'."] },
+  { id: "b23", after: "6-6", title: "Walking tour", lines: ["axiom09/calm: This is the Reckoning Hall. It has eleven hundred doors. Nine are real.", "roan/smug: Which nine?", "axiom09/calm: The ones that open."] },
+  { id: "b24", after: "6-8", title: "Brothers", lines: ["axiom12/calm: I will remain with the party. If that is permitted.", "axiom09/tender: It is.", "zarek/smug: Welcome to the worst-tempered family in the world."] },
+  { id: "b25", after: "5-9", title: "East", lines: ["veyr/calm: Cherry blossoms. In the middle of winter.", "auralis/calm: They say the Ninefold Gate blooms when something important crosses it.", "veyr/calm: Then something important's a few days ahead of us."] },
+];
+
+/* ----- character stories ----- */
+for (const k of Object.keys(STORY.chars)) delete STORY.chars[k];
 Object.assign(STORY.chars, {
+  veyr: [
+    { t: "Glass", lines: [
+      "n: Before dawn, Veyr sits on a rock with the black sword across his knees, running a thumb along the flat of the blade the way another man might worry a coin.",
+      "veyr/calm: Three years. Not one dream I could keep.",
+      "sylwen/calm: You've been up since midnight. I heard the sword hummin'.",
+      "veyr/calm: It's always warm. Warm like it just left somebody's hand.",
+      "sylwen/mystery: Whose?",
+      "veyr/sad: I don't know. I try to picture a face and there's just a window with the shutters closed.",
+      "sylwen/tender: That sounds awful lonesome.",
+      "veyr/calm: It was. Until the road.",
+      "n: Sylwen doesn't answer. She sits beside him and hands over a heel of her grandmother's bread, and they watch the sun come up over the glass.",
+    ] },
+    { t: "The Same Dream", lines: [
+      "n: Veyr wakes with his hand around the hilt and the taste of metal in his mouth.",
+      "veyr/afraid: There was a plaza. Full of light. A crowd. A voice calling out a name, and I couldn't hear it.",
+      "sylwen/calm: Same as last time?",
+      "veyr/calm: Same. But there was a man this time. He stepped out of the crowd. He wasn't afraid of it.",
+      "sylwen/mystery: Afraid of what?",
+      "veyr/calm: The light. Everybody else was shieldin' their eyes. He walked right into it.",
+      "sylwen/calm: Did you see his face?",
+      "veyr/sad: No. But I know how he stood. Like he'd already forgiven it.",
+      "n: He looks at his hands for a long moment.",
+      "veyr/calm: I'll know him when I see him. That much I'm sure of.",
+    ] },
+    { t: "A Name for a Blade", lines: [
+      "sylwen/happy: Every sword should have a name.",
+      "veyr/calm: I never gave it one.",
+      "sylwen/smug: Then you've been rude to it for three years.",
+      "veyr/calm: It's never complained.",
+      "sylwen/calm: It hums. That's complainin' in sword. Mine's called Thistle and she sulks if I leave her in the rain.",
+      "veyr/calm: Your bow has a name?",
+      "sylwen/happy: Every worthwhile thing has a name. It's just manners.",
+      "n: Veyr turns the black blade in the firelight and the glass flickers, gold and dark.",
+      "veyr/calm: I'll wait. It can tell me when it's ready.",
+      "n: The blade hums, very softly, and Veyr smiles for the first time that day.",
+    ] },
+  ],
+  sylwen: [
+    { t: "Messages Across Water", lines: [
+      "n: On the shore of a grey lake, Sylwen counts a stack of sealed letters into her satchel and wraps them in oilcloth.",
+      "sylwen/happy: Most of these are borin'. 'Buy salt.' 'Come home.' 'The cow's dead.'",
+      "veyr/calm: And the others?",
+      "sylwen/calm: The sorry ones. I read those twice. I know I shouldn't.",
+      "veyr/calm: Why twice?",
+      "sylwen/sad: 'Cause people mean 'em most when they can't say 'em out loud. A man'll write 'forgive me' on paper who couldn't say it to a wall.",
+      "veyr/calm: And you carry them anyway.",
+      "sylwen/calm: That's the job. You carry it light and you deliver it true. Nobody's ever asked me to carry mine.",
+      "n: She ties the satchel shut and looks out over the water.",
+    ] },
+    { t: "The Thornwake Remembers", lines: [
+      "n: At the edge of the Wake, the branches lean in around Sylwen like old friends at a funeral.",
+      "sylwen/calm: When I was small I got lost out here. Six years old and the sun goin' down.",
+      "veyr/calm: How'd you get home?",
+      "sylwen/tender: The forest took me. I swear it did. A path opened up in front of me, soft as a carpet, and it was gone by mornin'.",
+      "veyr/calm: You don't think it was luck.",
+      "sylwen/happy: Honey, I know it wasn't. The Wake and me, we've got an understandin'. I'm family.",
+      "n: Overhead, a bough lowers a little, as if it were nodding.",
+      "sylwen/tender: See? Told you.",
+    ] },
+    { t: "Home's Direction", lines: [
+      "sylwen/calm: People ask me where I'm from. I tell 'em whichever way I'm walkin'.",
+      "veyr/calm: And now?",
+      "sylwen/happy: Now it's wherever you're goin'. Somebody's got to keep you from walkin' into walls.",
+      "veyr/calm: I don't walk into walls.",
+      "sylwen/smug: You walked into a door in Fordholm.",
+      "veyr/calm: It was dark.",
+      "sylwen/happy: That's what home's for. Somebody to say 'It was dark' and mean 'I've got you'.",
+      "n: Veyr is quiet a moment, and then, a little awkwardly, he laughs.",
+    ] },
+  ],
+  roan: [
+    { t: "First Light on the Cairns", lines: [
+      "n: Before the sun clears the ridge, Roan is already on the old cairn, working through a drill so familiar the sword seems to move on its own.",
+      "roan/smug: The sun comes up whether I swing or not. I like to give it something to look at.",
+      "sylwen/calm: You do this every mornin'?",
+      "roan/calm: Every morning for eleven years. Except the day I had a fever. I did it anyway, but sitting down.",
+      "sylwen/happy: That's the dumbest and most admirable thing I ever heard.",
+      "roan/shock: It's discipline.",
+      "sylwen/smug: It's a habit that learned to dress up.",
+      "n: Roan opens their mouth to argue, then grins, and swings again.",
+    ] },
+    { t: "Never Beaten", lines: [
+      "roan/calm: People think the point is never losing.",
+      "veyr/calm: Isn't it?",
+      "roan/calm: No. It's that when you do lose, you know exactly what you were missing.",
+      "roan/smug: Which is a thing I plan to find out the minute somebody manages it.",
+      "veyr/calm: You think that's me.",
+      "roan/shock: I think it could be. That's why I'm still here.",
+      "veyr/calm: And if it isn't?",
+      "roan/calm: Then I'll learn something else. It's not a bad way to spend a life.",
+      "n: Roan sheathes the sword with a flourish that's clearly been practiced in a mirror.",
+    ] },
+    { t: "A Rival's Gift", lines: [
+      "n: Veyr wakes to find a red headband laid on his pack, folded with military neatness.",
+      "veyr/calm: Roan. What's this?",
+      "roan/smug: A spare. Tie it on before the next fight.",
+      "veyr/calm: I'm not sure it suits me.",
+      "roan/happy: Nobody's ever said that and meant it. Wear it.",
+      "veyr/calm: Is it a rival thing?",
+      "roan/calm: It's a courtesy. A rival's the only person who'll tell you honestly where you're weak.",
+      "roan/smug: So consider it a promise. I'll keep telling you.",
+      "n: Veyr ties it on. It doesn't suit him at all.",
+      "roan/happy: See? Terrible. I love it.",
+    ] },
+  ],
+  auralis: [
+    { t: "A Lantern's Weight", lines: [
+      "n: Every night, in the last warm hour before dark, Auralis lights the last lantern in the chapel herself.",
+      "auralis/calm: People think it's a small thing. It's the heaviest I carry.",
+      "sylwen/calm: Why's that?",
+      "auralis/sad: Every flame is a promise that someone's watching over them. And I've never once known who was meant to be watching.",
+      "sylwen/tender: You were.",
+      "auralis/calm: I was holding the match. That's not the same.",
+      "n: She sets the lamp in its niche and steps back to watch it settle.",
+    ] },
+    { t: "The Warden's Oath", lines: [
+      "auralis/calm: I swore to keep the lanterns burning. I didn't swear to know why they burn.",
+      "veyr/calm: Is that a loophole?",
+      "auralis/sad: It was a hiding place. A sworn oath is a very comfortable place to stand when you don't want to look at what's behind you.",
+      "veyr/calm: And now?",
+      "auralis/calm: Now I can see it. And I find I'm not afraid of the sight. Only of how long I looked away.",
+    ] },
+    { t: "What She Doesn't Say", lines: [
+      "n: Auralis closes the old ledger and puts it back on its shelf, squaring the spine with one finger.",
+      "auralis/calm: There are things in the chapel records I've never read aloud.",
+      "sylwen/mystery: Why not?",
+      "auralis/tender: Because once they're said, I can't take them back. And I'd like, for a little while longer, to be somebody who can still look him in the eye.",
+      "sylwen/calm: Him, who?",
+      "auralis/calm: I'm sorry. I didn't mean to say that.",
+      "n: She turns away, and for the first time her composure slips, only a little, like a candle in a draft.",
+    ] },
+  ],
+  nyxara: [
+    { t: "Hedge Craft", lines: [
+      "n: Nyxara sits in the middle of the road with her hat tipped back and her eyes closed, listening to nothing at all.",
+      "veyr/calm: What are you hearing?",
+      "nyxara/smug: Everything, darling. People think an echo's a copy. It isn't. It's a witness.",
+      "nyxara/calm: A place remembers every sound it's ever held. You only need to be rude enough to ask.",
+      "veyr/calm: And what does this road say?",
+      "nyxara/calm: That someone walked it a long time ago, humming. A child, I think. It's not a happy tune. But it's very brave.",
+    ] },
+    { t: "A Lost Voice", lines: [
+      "n: Nyxara hums the same three notes whenever she thinks nobody's listening.",
+      "sylwen/calm: You've got that same tune stuck, haven't you.",
+      "nyxara/sad: I'm looking for a voice. I haven't found it in any valley I've heard.",
+      "veyr/calm: Whose voice?",
+      "nyxara/calm: One I'd know anywhere, and can't place at all. It's rather like having a word on the tip of your tongue for twenty years.",
+      "sylwen/tender: Maybe we'll find it.",
+      "nyxara/smug: Maybe. Don't tell me if you do. I'd rather the surprise.",
+    ] },
+    { t: "What She Heard", lines: [
+      "nyxara/calm: When the Glass Night happened, I was in a cellar three valleys away. Every echo in the world went quiet for a heartbeat.",
+      "veyr/calm: Quiet?",
+      "nyxara/sad: As if the whole world held its breath. And then every echo screamed.",
+      "veyr/afraid: What did it say?",
+      "nyxara/calm: I'll tell you when you can hear it without turning away.",
+      "veyr/calm: I'm not afraid.",
+      "nyxara/tender: I know, dear. That's what I'm afraid of.",
+    ] },
+  ],
+  kael: [
+    { t: "Contract Law", lines: [
+      "n: Kael recites the Brandwright oath over the forge fire, one hand on the hilt, the other holding a mug.",
+      "kael/smug: A Brandwright marks the gear, keeps the contract, and never works for someone who pays in anything but coin.",
+      "sylwen/calm: And you've never broken that?",
+      "kael/calm: Not once. I've bent it into some very interesting shapes, mind you.",
+      "zarek/calm: He once took a job protecting a tavern's soup recipe from a soup rival.",
+      "kael/happy: And I protected it! The recipe was terrible. That's not my department.",
+      "sylwen/happy: Did the soup rival pay you too?",
+      "kael/smug: Double. That's the part I don't tell the Guild.",
+      "kael/calm: I've always been very good at the last part of the oath, friend. The coin part.",
+    ] },
+    { t: "Borrowed Fire", lines: [
+      "n: Kael draws the burning sword at night and holds it up to the dark. The flame is steady, warm, and not quite his.",
+      "kael/calm: Every time I light this, I owe the fox a little.",
+      "zarek/calm: You've told me that before.",
+      "kael/sad: She calls it a loan. I call it the best thing anyone's ever done for me. I was nobody. She gave me fire and didn't ask what I'd burn.",
+      "zarek/calm: And what did you burn?",
+      "kael/calm: Nothing that didn't deserve it. Mostly.",
+      "kael/happy: I'll pay her back when she lets me.",
+      "zarek/smug: She'll never let you.",
+      "kael/calm: That's why it's such a good arrangement. A debt you can't pay is a debt you'll always come back to.",
+    ] },
+    { t: "The Ninth Seat", lines: [
+      "n: In a half-lit tavern, Kael sets nine chairs around a table and fills eight mugs. The ninth chair stays empty and turned a little away.",
+      "kael/calm: A Brandwright company has eight seats. The ninth's always empty at the table.",
+      "sylwen/calm: Why do you set it, then?",
+      "kael/sad: I know whose it was. I also know why she asked us not to say.",
+      "sylwen/mystery: You really aren't gonna tell me.",
+      "kael/calm: Some secrets are the only thing holding a company together, friend.",
+      "n: He lifts the ninth mug anyway and sets it down, untouched, with a small nod.",
+      "kael/tender: Wherever you are. We kept your seat.",
+    ] },
+  ],
+  yuzari: [
+    { t: "Eight Tails", lines: [
+      "n: Yuzari curls her tails around herself against the cold, a white heap with a very bright eye on top.",
+      "yuzari/calm: People count them, little one. Then they count them again. Then they ask politely, which is the worst part.",
+      "sylwen/calm: I wasn't gonna ask.",
+      "yuzari/smug: You wanted to. I could hear you not asking.",
+      "sylwen/happy: Okay. I wanted to.",
+      "yuzari/happy: I tell them nine is bad luck. It's very nearly true.",
+      "sylwen/calm: What do you tell the ones who don't ask?",
+      "yuzari/tender: Nothing. Those are my favorite. They just sit with me and watch the fire.",
+      "n: Sylwen sits. Neither of them says anything for a long, warm while.",
+    ] },
+    { t: "A Letter Every Spring", lines: [
+      "n: A letter arrives under the shrine's bell. Yuzari reads it, then burns it, and the ash drifts up in a slow spiral.",
+      "yuzari/calm: I know what it says for as long as I hold it.",
+      "sylwen/calm: And after?",
+      "yuzari/sad: When the smoke clears, it's gone, and I only know that I've been told something kind.",
+      "sylwen/tender: Could I carry one for you? To the sender?",
+      "yuzari/mystery: Do you know, in all these years, nobody's ever offered?",
+      "sylwen/calm: Seems like a thing somebody ought to.",
+      "yuzari/happy: Ask me next spring. If I still know your name by then, we'll see.",
+      "n: She says it lightly, and her tails curl in a little tighter.",
+    ] },
+    { t: "Why Forget", lines: [
+      "yuzari/calm: I gave away a tail on purpose. I know that much.",
+      "zarek/calm: You've said.",
+      "yuzari/mystery: Whatever I traded it for, I decided I'd rather not remember the price. Isn't that strange?",
+      "zarek/calm: Not very. I've done the same with a mother's name.",
+      "yuzari/sad: Oh, darling. Did you do it on purpose?",
+      "zarek/calm: No. It was taken. That's the difference.",
+      "yuzari/tender: Is it? I've started to wonder. I trust that woman who gave it away. She was me.",
+      "n: A long silence between them. The fire cracks.",
+      "yuzari/calm: Perhaps that's all we can do, in the end. Trust whoever we were, and be kind to whoever we are.",
+    ] },
+  ],
+  zarek: [
+    { t: "A Seat on the Wall", lines: [
+      "n: Zarek sits on a low wall above the courtyard, watching the court below as if it were a play.",
+      "zarek/smug: Everybody wants me to rule. That's how I know I shouldn't.",
+      "veyr/calm: Why?",
+      "zarek/calm: The ones who want a crown always want it for someone else. A crown's a heavy hat to wear for somebody else.",
+      "veyr/calm: And you'd rather sit on a wall.",
+      "zarek/smug: A wall's honest. It tells you which side you're on.",
+      "sylwen/calm: What if you're on the top?",
+      "zarek/calm: Then I'm on both. Which is the only place worth standing.",
+      "n: The courtyard below goes about its business, and Zarek, a little amused, goes on watching it.",
+    ] },
+    { t: "A Cousin's Letter", lines: [
+      "n: A letter arrives with a black wax seal and a spidery hand. Zarek turns it over and doesn't open it.",
+      "zarek/calm: Lilivane. She writes once a decade to tell me what I'm doing wrong.",
+      "sylwen/calm: Y'all aren't gonna read it?",
+      "zarek/smug: I like the look of it more than the contents.",
+      "sylwen/happy: That's the most family thing I ever heard.",
+      "zarek/calm: It's the only family thing I've got.",
+      "veyr/calm: What's she say?",
+      "zarek/smug: The same thing every time. 'You'd be a terrible king.' She's right. It's the nicest thing anyone's said to me.",
+    ] },
+    { t: "The Rival at the Court", lines: [
+      "zarek/calm: Seris and I once fought for three days over a bridge neither of us owned.",
+      "veyr/calm: Who won?",
+      "zarek/smug: She did. She's never let me forget it, and I've never let her stop.",
+      "veyr/calm: That's a strange way to be friends.",
+      "zarek/tender: It's the only friendship I've ever kept. I sent her a note when I left the Guild. I asked her to say I'd lost.",
+      "sylwen/calm: Lost what?",
+      "zarek/calm: Anything. It doesn't matter. She'll know which one I mean.",
+    ] },
+  ],
+  rimefang: [
+    { t: "A Promise, Not a Treaty", lines: [
+      "n: Rimefang coils around the highest peak and watches the passes, patient as the snow.",
+      "rimefang/calm: A treaty ends when it stops being convenient. A promise ends when you do.",
+      "roan/shock: Which one's the Accord?",
+      "rimefang/smug: I've never said.",
+      "roan/calm: That's not an answer.",
+      "rimefang/calm: It's the only honest one. People have built entire kingdoms on the difference, and then been very surprised.",
+      "n: A long breath of cold air rolls down the mountainside, carrying snow in its teeth.",
+      "rimefang/tender: Ask me again in a century. I might tell you, if you're still asking.",
+    ] },
+    { t: "The Credit", lines: [
+      "rimefang/calm: Cindervault believes he ended the war. I let him.",
+      "sylwen/calm: Why?",
+      "rimefang/smug: A friend's someone you let win at the right moment.",
+      "sylwen/happy: That's about the kindest thing I ever heard a mountain say.",
+      "rimefang/calm: I'm not entirely a mountain. But I'll take the compliment.",
+      "sylwen/calm: What did he lose, exactly?",
+      "rimefang/tender: A stubborn belief that he had to win alone. It cost him a very long time to unlearn. I thought I'd make it cheaper.",
+    ] },
+    { t: "Seasons Fair", lines: [
+      "rimefang/calm: Winter and summer. Winter and summer. A mountain that remembers only one of them turns into a grave.",
+      "veyr/calm: So you keep both.",
+      "rimefang/tender: I keep them both, and I keep them fair. It's the only job I've ever wanted.",
+      "veyr/calm: Is it hard?",
+      "rimefang/calm: Every day. That's how I know it's the right one.",
+      "n: Far below, a thaw begins at the tree line, and, higher up, snow drifts down to meet it.",
+    ] },
+  ],
+  nerissa: [
+    { t: "The Cathedral Child", lines: [
+      "n: Nerissa sits at the top of a drowned stair with her feet in the warm water, a lantern at her side that she hasn't lit.",
+      "nerissa/calm: I grew up in a flooded house. I thought everyone did.",
+      "sylwen/shock: Everybody sleeps dry.",
+      "nerissa/smug: Imagine my surprise. I was eleven before I understood that beds weren't supposed to bob.",
+      "sylwen/happy: What'd you do?",
+      "nerissa/calm: Tied mine to the bedpost. And then to my wrist.",
+      "nerissa/tender: I still do, a little. It's a comfort to be moored to something.",
+    ] },
+    { t: "The Letters", lines: [
+      "nerissa/calm: Sylwen carries my letters across the water. Every one begins with weather.",
+      "sylwen/calm: Y'all always start with the tide.",
+      "nerissa/tender: I don't know how to start with anything else. It's the one thing I can promise will be true.",
+      "sylwen/calm: Who're they for?",
+      "nerissa/calm: Whoever answers. Mostly nobody. Occasionally a boy in the next harbor who thinks I'm a very articulate sea.",
+      "sylwen/happy: That's the best thing I've ever heard.",
+      "nerissa/smug: I let him believe it. It's good for his imagination.",
+    ] },
+    { t: "The Last Verse, Again", lines: [
+      "nerissa/calm: People ask whether it was worth it. Finishing the hymn. Ending something that old.",
+      "veyr/calm: And?",
+      "nerissa/tender: I tell them it wasn't an ending. It was a rest.",
+      "veyr/calm: Do you believe that?",
+      "nerissa/calm: I believe a song that never ends isn't a song. It's a wound with a tune.",
+      "n: The water around her ankles settles into a slow, silvery stillness.",
+      "nerissa/tender: Now I get to listen to the tide, and it only sings what it means.",
+    ] },
+  ],
   axiom09: [
-    { t: "A Task", lines: ["n: Axiom-09 stands in the rain, his cores dimmed to a patient glow.", "axiom09/calm: I have been looking for a task for six years.", "axiom09/calm: I did not know the looking could be one."] },
-    { t: "The Count", lines: ["axiom09/calm: Everyone asks what the nine means. I tell them it is a count.", "axiom09/mystery: Of what, they say. I tell them, of the number of times I have asked myself the same question.", "axiom09/calm: It is not nine yet."] },
-    { t: "Brothers in Brass", lines: ["n: Axiom-09 and Axiom-12 sit on the same wall and watch the sun go down.", "axiom12/calm: I have been wondering what the doubt feels like.", "axiom09/tender: A little like rain. You will get used to it."] },
+    { t: "A Task", lines: [
+      "n: Axiom-09 stands in the rain, cores dimmed to a patient glow, water running down the brass.",
+      "axiom09/calm: I have been looking for a task for six years.",
+      "roan/calm: You're out of work?",
+      "axiom09/calm: I did not know the looking could be one.",
+      "roan/happy: Then you've been busy. That's a full-time job.",
+      "axiom09/mystery: Is it? I had assumed an occupation produced something.",
+      "roan/smug: It produced you. Come on. Soup.",
+      "axiom09/calm: I do not eat.",
+      "roan/happy: Nobody does, the first time. Sit anyway.",
+    ] },
+    { t: "The Count", lines: [
+      "axiom09/calm: Everyone asks what the nine means. I tell them it is a count.",
+      "zarek/calm: Of what?",
+      "axiom09/mystery: Of the number of times I have asked myself the same question.",
+      "zarek/calm: And the question?",
+      "axiom09/calm: Whether I am a thing that was made, or a thing that decided.",
+      "axiom09/calm: It is not nine yet. I am hoping to stop before then.",
+      "zarek/smug: Don't stop too soon. The interesting answers live past nine.",
+    ] },
+    { t: "Brothers in Brass", lines: [
+      "n: Axiom-09 and Axiom-12 sit on the same wall and watch the sun go down.",
+      "axiom12/calm: I have been wondering what the doubt feels like.",
+      "axiom09/tender: A little like rain. You will get used to it.",
+      "axiom12/calm: Is it unpleasant?",
+      "axiom09/calm: At first. Then it becomes the weather you live in.",
+      "n: Neither of them says anything more. The sun goes down, and for a long while the two of them hold exactly the same dim glow.",
+    ] },
   ],
 });
 
