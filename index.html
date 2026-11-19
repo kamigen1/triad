@@ -471,6 +471,18 @@ table.odds { width: 100%; border-collapse: collapse; } table.odds td { padding: 
 #layer .sheet > .row.c:last-child { position: sticky; bottom: -14px; padding: 10px 0 6px; margin-bottom: -6px; background: linear-gradient(#0000, #0b1428ee 38%); z-index: 4; }
 .dfoot { position: sticky; bottom: -14px; padding: 12px 0 8px; margin-bottom: -8px; background: linear-gradient(#0000, #0b1428f2 36%); z-index: 5; }
 
+/* the card display: the card is the focus, the facts are big and plain */
+.dtl .cbig { width: min(90%, 360px); margin: 6px auto 4px; cursor: pointer; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; touch-action: manipulation; }
+.dtl .chint { text-align: center; font-size: 12px; opacity: .55; margin: 4px 0 10px; }
+.dtl .dname { text-align: center; font-size: 26px; line-height: 1.15; margin: 6px 0 10px; }
+.dtl .dtags { gap: 10px; margin-bottom: 12px; } .dtl .dtags .rtag, .dtl .dtags .elchip { font-size: 15px; padding: 5px 12px; } .dtl .down { font-size: 15px; opacity: .8; }
+.dtl .dfacts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 0 12px; text-align: center; font-size: 16px; font-weight: 600; }
+.dtl .dfacts > div:last-child { grid-column: 1 / -1; } .dtl .dfacts > div { background: rgba(255,255,255,.05); border-radius: 12px; padding: 8px 6px; min-width: 0; } .dtl .dfacts small { display: block; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; opacity: .6; font-weight: 500; margin-bottom: 2px; }
+.dtl .cstat b { font-size: 28px; } .dtl .cstat small { font-size: 12px; }
+.dtl .skillbox { font-size: 17px; line-height: 1.45; padding: 12px 14px; } .dtl .skillbox em { font-size: 13px; display: block; margin-bottom: 4px; }
+/* art only: everything printed on the card fades away */
+.cbig .card > *:not(.win):not(.holo):not(.glare):not(.tint) { transition: opacity .18s; } .cbig.artonly .card > *:not(.win):not(.holo):not(.glare):not(.tint) { opacity: 0 !important; }
+
 /* ===== Clash ===== */
 #ck { position: fixed; inset: 0; z-index: 20; background: radial-gradient(ellipse at 50% 40%, #12583a 0%, var(--felt-d) 55%, var(--felt-dd) 100%); }
 #ck[hidden] { display: none; }
@@ -505,7 +517,7 @@ table.odds { width: 100%; border-collapse: collapse; } table.odds td { padding: 
 /* deck views */
 .kdeck { margin-top: 8px; } .kd5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; } .kd5.b3 { grid-template-columns: repeat(5, 1fr); } .kd5.b3 .kslot:nth-child(n+4) { display: none; } .kd3 { display: flex; gap: 5px; align-items: center; margin-top: 6px; } .kd3 .ku { width: 15%; } .kd3 small { font: 700 10px var(--display); color: var(--muted); width: 54px; }
 .kslot { border-radius: 10px; padding: 2px; } .kslot.on { background: var(--yellow); }
-.kpick { display: grid; grid-template-columns: repeat(auto-fill, minmax(62px, 1fr)); gap: 6px; max-height: 38vh; overflow-y: auto; padding: 2px; } .kp { position: relative; cursor: pointer; } .kp .kn { position: absolute; right: -2px; top: -4px; background: var(--yellow); color: #000; font: 700 11px var(--display); border-radius: 8px; padding: 0 4px; z-index: 5; }
+ .kp { position: relative; cursor: pointer; } .kp .kn { position: absolute; right: -2px; top: -4px; background: var(--yellow); color: #000; font: 700 11px var(--display); border-radius: 8px; padding: 0 4px; z-index: 5; }
 .rules p { margin: 0 0 8px; font-size: 13px; line-height: 1.4; font-weight: 700; color: #dff7ea; }
 @media (orientation: landscape) and (max-height: 540px) { .ckwrap { max-width: none; flex-wrap: wrap; } }
 
@@ -571,7 +583,6 @@ nav button:active { transform: scale(.93); }
 .kslot.swapflash { animation: swapflash .6s cubic-bezier(.2, 1.4, .4, 1); } @keyframes swapflash { 0% { transform: scale(.7) rotate(-4deg); filter: brightness(2); } 60% { transform: scale(1.12); } 100% { transform: none; filter: none; } }
 .selbar { display: flex; align-items: center; gap: 8px; margin-top: 16px; padding: 7px 10px; border-radius: 10px; background: #ffffff10; font-size: 13px; font-weight: 800; } .selbar span { flex: 1; min-width: 0; } .selbar b { color: var(--yellow); }
 .kp.cmpon { box-shadow: 0 0 0 3px #6df09a, 0 0 14px #6df09a88; border-radius: 8px; } .kp.here { opacity: .55; } .kn.here { background: #2a3a66; color: #cfe0ff; }
-.kpick.short { max-height: 168px; overflow-y: auto; }
 .cmp { margin-top: 10px; padding: 10px; border-radius: 14px; background: #0b1530; border: 2px solid #6df09a66; animation: dlgin .22s ease-out; } .cmp h4 { margin: 0 0 8px; font: 700 14px var(--display); letter-spacing: .12em; color: var(--yellow); text-align: center; }
 .cmp-h { display: flex; align-items: center; justify-content: center; gap: 10px; } .cmp-h > div { width: 92px; } .cmp-h small { display: block; text-align: center; font-size: 9px; letter-spacing: .08em; color: var(--muted); margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .cmp-arrow { color: var(--yellow); font-style: normal; }
 .cmp-t { margin-top: 8px; } .cmp-r { display: grid; grid-template-columns: 76px 1fr 1fr 58px; gap: 6px; align-items: center; padding: 4px 6px; border-radius: 6px; font-size: 12.5px; } .cmp-r:nth-child(even) { background: #ffffff0a; }
@@ -2078,7 +2089,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.12.15-b";
+const VER = "2026.12.15-c";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -2191,7 +2202,7 @@ async function joinMake() {
 }
 function viewVersus(v) {
   const online = !!(db && uid) || (srvOn() && (VSG === "clash" || !!ACC)), clash = VSG === "clash"; if (clash) ckInit();
-  const picker = `<div class="row c" style="margin:4px 0 8px"><button class="btn sm ${clash ? "yellow" : "dark"}" data-act="vsGame" data-g="clash">Clash</button><button class="btn sm ${clash ? "dark" : "yellow"}" data-act="vsGame" data-g="triad">Classic Triad</button></div>`;
+  const picker = "";
   const deckRow = clash ? `<div class="row" style="margin:14px 0 0"><span class="note">Deck</span><select data-ck="deckSel">${P.cd.map((x, i) => `<option value="${i}" ${i === P.cdi ? "selected" : ""}>${esc(x.name)}${ckDeckOk(x.cards) ? " ✕" : ""}</option>`).join("")}</select></div><p class="note" style="text-align:center">Friend matches play on our online server. They pay a few coins and XP, and your cards are never at risk.</p>` : `<div class="row" style="margin:14px 0 0"><span class="note">Deck</span>${deckSelect()}</div><p class="note" style="text-align:center">Classic Triad is a separate spin-off. Its matches pay no coins, XP, cards or mission progress, and nothing here changes your collection.</p>`;
   const oldWays = `<span class="ribbon green">ROOM CODE</span><div class="panel"><p class="note" style="margin:0 0 10px">${srvOn() ? (online ? "A 4-letter room code on our online server. Both players just need the app and an account." : "Sign in to use room codes on our online server.") : "Room codes need a connection to our online server."}${clash ? "" : " Classic Triad rooms pass messages between the two phones; the match itself pays nothing."}</p><div class="row c"><button class="btn yellow" data-act="vsCreate" ${online ? "" : "disabled"}>Create room</button><input type="text" id="vsCode" maxlength="4" placeholder="CODE" style="width:90px;text-transform:uppercase;text-align:center" ${online ? "" : "disabled"}><button class="btn" data-act="vsJoin" ${online ? "" : "disabled"}>Join</button></div></div>`;
   const friendsUi = clash && srvOn();
@@ -3954,7 +3965,6 @@ document.addEventListener("click", async e => {
     case "campStage": return campSheet(+d.ch, +d.k);
     case "campGo": closeModal(); return typeof campBegin === "function" ? campBegin(+d.ch, +d.k) : ckStart(campLevel(+d.ch, +d.k), campMode(+d.ch, +d.k));
     case "ranked": if (P.lv < RANK_LV) return toast("Ranked unlocks at level " + RANK_LV + "."); return rankedFind();
-    case "triad": closeModal(); return show("play");
     case "rematch": return ckRematch();
     case "leave": return ckLeave();
     case "rules": return rulesSheet();
@@ -7761,7 +7771,7 @@ function settingsSheet() {
     `<span class="ribbon">DISPLAY</span><div class="panel">${tg("sMot", !(pf.motion === "off" || UI.mq.matches), "Animations", "Menu and card movement")}${tg("sVfx", pf.vfx !== false, "Battle effects", "Flashes, sparks and rings")}${tg("sShake", pf.shake !== false, "Screen shake")}${tg("sHap", pf.haptics !== false, "Vibration")}${UI.mq.matches ? '<p class="note" style="margin:8px 0 0">Your phone asks apps to reduce motion, so animations stay off.</p>' : ""}</div>` +
     `<span class="ribbon">CARDS AND PACKS</span><div class="panel">${tg("sTilt", TILT.on, "Card tilt", tiltNote)}${tg("sPack", pf.packQuick === true, "Quick pack opening", "Skip the tear and the flips, and go straight to your cards")}</div>` +
     `<span class="ribbon">ACCOUNT AND DATA</span><div class="panel"><div class="row setrow"><span>Display name<small class="setsub">${esc(playerName())}</small></span><button class="btn sm dark" data-act="nameEdit">Rename</button></div>${ACC ? '<div class="row setrow"><span>Recovery code<small class="setsub">Resets a forgotten password. Shown once.</small></span><button class="btn sm dark" data-ac="recMake">Make one</button></div>' : ""}<p class="note" style="margin:0 0 8px">${ACC ? "Signed in as <b style=\"color:var(--yellow)\">" + esc(ACC.name) + "</b>. Your progress is saved to your account." : "Playing as a guest. Progress is only on this phone."}</p>${ACC ? `<p class="note" style="margin:0 0 4px">Which save wins when you sign in: <b>${srcDev ? "this phone" : "your online save"}</b>.</p><div class="row"><button class="btn sm dark" data-me="${srcDev ? "srconl" : "srcdev"}">${srcDev ? "Use my online save" : "Use this phone instead…"}</button></div>` : ""}<div class="row" style="gap:8px;margin-top:8px">${ACC ? `<button class="btn sm dark" data-me="blocked">Blocked (${blockedList().length})</button>` : ""}${ACC ? '<button class="btn sm dark" data-ac="logout">Sign out</button>' : '<button class="btn sm yellow" data-ac="up">Create account</button>'}<button class="btn sm red" data-me="del">${ACC ? "Delete account" : "Erase my progress"}</button></div></div>` +
-    `<span class="ribbon">HELP</span><div class="row c" style="gap:8px"><button class="btn sm" data-ck="rules">How to play</button><button class="btn sm" data-me="tut">Replay the tutorial</button><button class="btn sm" data-ck="triad">Classic Triad</button></div>` +
+    `<span class="ribbon">HELP</span><div class="row c" style="gap:8px"><button class="btn sm" data-ck="rules">How to play</button><button class="btn sm" data-me="tut">Replay the tutorial</button></div>` +
     `<p class="note" style="text-align:center;margin:12px 0 0;opacity:.6;font-size:11px">Version ${typeof VER !== "undefined" ? VER : ""}</p>` +
     `<div class="row c" style="margin-top:10px"><button class="btn sm dark" data-me="profile">Back</button></div>`);
 }
@@ -8210,11 +8220,21 @@ function lockSheet() { $("#modal").dataset.lock = "1"; }
 function detail(id, over, extra) {
   if (over !== undefined) DOVER = !!over; seenInit(); if (P.own[id] > 0 && !P.seen[id]) { P.seen[id] = 1; scheduleSave(); chrome(); }
   const c = BY[id], n = P.own[id] || 0, k = arCard(c), rr = rarOf(c);
-  (DOVER ? openLayer : openSheet)(`${n ? favIco(id) : ""}<button class="sico r" data-act="${DOVER ? "closeLayer" : "closeModal"}" aria-label="Close">✕</button><div style="width:min(66%,248px);margin:2px auto 12px">${cardHtml(c, { miss: !n, tilt: true })}</div><div class="row" style="align-items:flex-start;flex-wrap:nowrap;gap:14px"><div style="min-width:0;flex:1"><h2 class="fat" style="text-align:left;font-size:18px;margin:2px 0 8px;line-height:1.15">${esc(c.name)}</h2><div class="row" style="gap:8px"><span class="rtag r${rr}">${RNAME[rr]}</span><span class="elchip el-${k.el}">${elIco(k.el)}${EL[k.el][0]}</span></div><p class="note" style="margin:8px 0 0;line-height:1.5">${esc(FAC[k.fac] || k.fac)}<br>Targets: ${TGT_NAME[k.tm]}<br>Strike ${+(k.atk * AR.ATKX * AR.STRIKE).toFixed(1)} every ${+(AR.IV / k.spd).toFixed(1)} s<br>Owned ${n} / 3<br>${whereTxt(c, n)}</p></div></div>` +
+  (DOVER ? openLayer : openSheet)(`${n ? favIco(id) : ""}<button class="sico r" data-act="${DOVER ? "closeLayer" : "closeModal"}" aria-label="Close">✕</button><div class="dtl"><div class="cbig" title="Tap or hold the card to see only the art">${cardHtml(c, { miss: !n, tilt: true })}</div><p class="chint">Tap or hold the card to see just the art</p>` +
+    `<h2 class="dname">${esc(c.name)}</h2><div class="row c dtags"><span class="rtag r${rr}">${RNAME[rr]}</span><span class="elchip el-${k.el}">${elIco(k.el)}${EL[k.el][0]}</span><span class="down">Owned ${n} / 3</span></div>` +
+    `<div class="dfacts"><div><small>Type</small>${esc(FAC[k.fac] || k.fac)}</div><div><small>Targets</small>${TGT_NAME[k.tm]}</div><div><small>Strike</small>${+(k.atk * AR.ATKX * AR.STRIKE).toFixed(1)} every ${+(AR.IV / k.spd).toFixed(1)} s</div></div>` +
     `${varsOwned(id).length ? `<div class="row c" style="margin:6px 0 0"><span class="note">Variant</span>${["std"].concat(VAR_ORDER.filter(x => varsOwned(id).includes(x))).map(x => `<button class="btn sm ${(selVariant(id) || "std") === x ? "yellow" : "dark"}" data-act="setvar" data-id="${id}" data-v="${x}">${x === "std" ? "Standard" : VARIANTS[x].name}</button>`).join("")}</div>` : ""}<div class="cstat"><div class="a"><b>${Math.round(k.atk * AR.ATKX)}</b><small>Attack</small></div><div class="h"><b>${hpOf(k)}</b><small>Health</small></div><div class="s"><b>${k.spd.toFixed(2)}</b><small>Speed</small></div><div class="c"><b>${k.cost}</b><small>Cost</small></div></div>` +
     `${chainStrip(id)}<div class="skillbox"><em>Passive · ${esc(passName(k))}</em>${passText(k.passive)}</div><div class="skillbox"><em>Skill · ${esc(actName(k))} · ${k.acost} energy${abilBase(k) && abilBase(k) !== actName(k) ? " · " + esc(abilBase(k)) : ""}</em>${actText(k.active)}</div>` +
-    `<div class="row c" style="margin-top:14px">${c.ev ? '<span class="note">Only the Element Festival gives this card.</span>' : c.ex ? '<span class="note">Only a pack gives this card.</span>' : ""}${n > 1 ? `<button class="btn sm" data-act="sell" data-id="${id}">Sell 1 · ${ECON.sell[rr]} ${ic("coin")}</button>` : ""}</div>${extra ? `<div class="row c" style="margin-top:10px;gap:8px">${extra}</div>` : ""}`);
+    `${n > 1 ? `<div class="row c" style="margin-top:14px"><button class="btn sm" data-act="sell" data-id="${id}">Sell 1 · ${ECON.sell[rr]} ${ic("coin")}</button></div>` : ""}${extra ? `<div class="row c" style="margin-top:12px;gap:8px">${extra}</div>` : ""}</div>`);
 }
+/* the big card on the display screen: a tap switches the printed overlay off/on, holding shows just the art while the finger is down */
+(function () {
+  let t = null, held = false, box = null;
+  document.addEventListener("pointerdown", e => { const b = e.target.closest && e.target.closest(".dtl .cbig"); if (!b) return; box = b; held = false; clearTimeout(t); t = setTimeout(() => { held = true; b.classList.add("artonly"); }, 260); });
+  const up = e => { if (!box) return; clearTimeout(t); const b = box; box = null; if (held) { if (!b.dataset.sticky) b.classList.remove("artonly"); } else if (e.type === "pointerup") { const on = !b.classList.contains("artonly"); b.classList.toggle("artonly", on); if (on) b.dataset.sticky = "1"; else delete b.dataset.sticky; } else b.classList.remove("artonly"); };
+  document.addEventListener("pointerup", up); document.addEventListener("pointercancel", up);
+  document.addEventListener("contextmenu", e => { if (e.target.closest && e.target.closest(".dtl .cbig")) e.preventDefault(); });
+})();
 let DE = null;
 function editDeck(i) { DE = { i, name: P.decks[i].name, cards: P.decks[i].cards.slice() }; deckSheet(); }
 function deckSheet() {
@@ -8729,7 +8749,6 @@ document.addEventListener("click", async e => {
     case "rematch": return rematch();
     case "take": return takeCard(d.id);
     case "netRoomCancel": netClose(); return closeModal();
-    case "vsGame": VSG = d.g; return show("versus");
     case "summon": return summon(d.k || "std", +d.n || 1);
     case "pool": SEL = d.k; return show("summon");
     case "svtab": SV = d.k; return show("summon");
