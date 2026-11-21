@@ -939,6 +939,9 @@ body .ribbon::after { background: linear-gradient(90deg, #f0d68a88, transparent)
 #story .st-box { background: linear-gradient(#241a5ef0, #0f1230f6) !important; border: 1.5px solid #f0d68a99 !important; box-shadow: 0 -6px 24px #000a, 0 0 18px #9a78ff33 !important; }
 #story .st-name { color: #f0d68a !important; } #story .st-btns button { background: linear-gradient(#171f45e8, #0c1228f2) !important; border: 1.5px solid #8a76e0aa !important; color: #fff !important; }
 
+/* skill cards are free to play: no energy badge on them */
+.ku.skillcard .kcost, .skillcard .kcost { display: none !important; }
+
 /* ===== Clash ===== */
 #ck { position: fixed; inset: 0; z-index: 20; background: radial-gradient(ellipse at 50% 40%, #12583a 0%, var(--felt-d) 55%, var(--felt-dd) 100%); }
 #ck[hidden] { display: none; }
@@ -2545,7 +2548,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.12.22-l";
+const VER = "2026.12.22-m";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -3183,12 +3186,13 @@ function ckPadDeck(cards) {
 function ckInit() {
   if (!P.cd) P.cd = []; if (!P.cd.length) { P.cd.push({ name: "Starter", cards: ckAutoDeck() }); P.cdi = 0; scheduleSave(); } if (P.cdi == null || !P.cd[P.cdi]) P.cdi = 0;
   if (!P.ck) P.ck = { w: 0, l: 0, day: "", won: false };
+  for (const d of P.cd) { const ok = d.cards.filter(id => !id || BY[id] || isSkill(id)); if (ok.length !== d.cards.length) { d.cards = ok; scheduleSave(); } }
   for (const d of P.cd) if (d.cards.length < 12) { d.cards = ckPadDeck(d.cards); scheduleSave(); }
   if (ownedList().length < 12 && typeof STARTER !== "undefined") { for (const id of STARTER) if (!(P.own[id] > 0) && ownedList().length < 12) P.own[id] = 1; scheduleSave(); }
 }
 /* an AI deck keeps 8 or 9 creatures and 3 or 4 skill cards chosen for its level (the weaker the level, the plainer the cards) */
 function withSkills(deck, level, r) {
-  const plain = ["sk_mend", "sk_ward", "sk_empower", "sk_gale", "sk_cleanse", "sk_disrupt", "sk_m_fire", "sk_m_water", "sk_m_wind", "sk_m_earth"], strong = plain.concat(["sk_mend2", "sk_aegis", "sk_freeze", "sk_weaken", "sk_frenzy", "sk_overgrow", "sk_vitality", "sk_sharpen", "sk_massheal", "sk_massward", "sk_rally", "sk_massfreeze", "sk_massweaken", "sk_m_lightning", "sk_m_ice", "sk_m_light", "sk_m_dark"]);
+  const plain = ["sk_draw1", "sk_energy1", "sk_energy2", "sk_weaken1", "sk_slow1", "sk_silence1", "sk_regen1", "sk_tempo1"], strong = plain.concat(["sk_draw2", "sk_energy3", "sk_weaken", "sk_vuln1", "sk_slow2", "sk_silence2", "sk_regen2", "sk_poison1", "sk_poison2", "sk_frenzy1", "sk_frenzy2", "sk_tide1", "sk_swap1", "sk_swap2", "sk_swap3", "sk_siphon1", "sk_tempo2", "sk_overclock1"]);
   const list = level >= 1 ? strong : plain, k = level >= 2 ? 4 : 3, out = deck.slice(0, 12 - k), n = {};
   while (out.length < 12) { const id = list[Math.floor(r() * list.length)]; if ((n[id] || 0) >= 2) continue; n[id] = (n[id] || 0) + 1; out.push(id); }
   return out;
@@ -3196,11 +3200,11 @@ function withSkills(deck, level, r) {
 /* ===== DECK STYLES. A deck is more than twelve good cards: these are the plans a deck can have. Each style names the passives and skills that serve it and the skill cards that fit.
    The computer builds its opponents around one (so no two fights feel alike) and the deck editor tells the player which style their deck leans toward and can fill empty slots by style. ===== */
 const ARCH = {
-  rush: { n: "Rush", d: "Hit first and hardest: fast, aggressive cards and attack boosts, to win before the other side sets up.", pass: ["swift", "berserk", "crit", "echo", "overkill", "blood", "pierce", "soul", "amp"], act: ["buff", "haste", "pact", "fire", "lightning", "hit", "wind"], sk: ["sk_empower", "sk_frenzy", "sk_gale", "sk_sharpen"] },
-  fortress: { n: "Fortress", d: "Take the hits and wait: guards, shields and thorns that grind the attacker down, with a weakening skill to turn it around.", pass: ["guard", "protector", "sponge", "laststand", "thorns", "fortify", "reserve", "pierce"], act: ["weaken", "vuln"], sk: ["sk_ward", "sk_aegis", "sk_massward", "sk_weaken", "sk_empower"] },
-  control: { n: "Control", d: "Stop the other side playing: freezes, strips and marks, so their best cards never get to act.", pass: ["voideater", "mimic", "chain", "amp", "pierce"], act: ["stun", "strip", "silence", "slow", "mark", "ice", "fate"], sk: ["sk_freeze", "sk_massfreeze", "sk_disrupt", "sk_massdisrupt", "sk_weaken", "sk_massweaken"] },
-  sustain: { n: "Sustain", d: "Outlast them: healing, regeneration and second lives, so every fight goes long in your favour.", pass: ["mender", "regen", "phoenix", "vamp", "lastwords", "fortify"], act: ["heal", "regen", "cleanse", "grow", "light"], sk: ["sk_mend", "sk_mend2", "sk_massheal", "sk_cleanse", "sk_vitality"] },
-  rally: { n: "Rally", d: "Win together: cards that make their neighbours and their faction stronger, grown by buffs.", pass: ["decree", "pack", "formation", "rally", "grow", "battery", "treasure"], act: ["buff", "grow", "haste", "light"], sk: ["sk_rally", "sk_overgrow", "sk_empower", "sk_sharpen"] },
+  rush: { n: "Rush", d: "Hit first and hardest: fast, aggressive cards and attack boosts, to win before the other side sets up.", pass: ["swift", "berserk", "crit", "echo", "overkill", "blood", "pierce", "soul", "amp"], act: ["buff", "haste", "pact", "fire", "lightning", "hit", "wind"], sk: ["sk_frenzy1", "sk_frenzy2", "sk_frenzy3", "sk_energy2", "sk_tempo1", "sk_overclock1"] },
+  fortress: { n: "Fortress", d: "Take the hits and wait: guards, shields and thorns that grind the attacker down, with a weakening skill to turn it around.", pass: ["guard", "protector", "sponge", "laststand", "thorns", "fortify", "reserve", "pierce"], act: ["weaken", "vuln"], sk: ["sk_weaken1", "sk_weaken", "sk_vuln1", "sk_slow1", "sk_regen1"] },
+  control: { n: "Control", d: "Stop the other side playing: freezes, strips and marks, so their best cards never get to act.", pass: ["voideater", "mimic", "chain", "amp", "pierce"], act: ["stun", "strip", "silence", "slow", "mark", "ice", "fate"], sk: ["sk_slow2", "sk_silence1", "sk_silence2", "sk_fate1", "sk_trade1", "sk_siphon1", "sk_vuln2"] },
+  sustain: { n: "Sustain", d: "Outlast them: healing, regeneration and second lives, so every fight goes long in your favour.", pass: ["mender", "regen", "phoenix", "vamp", "lastwords", "fortify"], act: ["heal", "regen", "cleanse", "grow", "light"], sk: ["sk_regen1", "sk_regen2", "sk_tide1", "sk_tide2", "sk_raise1"] },
+  rally: { n: "Rally", d: "Win together: cards that make their neighbours and their faction stronger, grown by buffs.", pass: ["decree", "pack", "formation", "rally", "grow", "battery", "treasure"], act: ["buff", "grow", "haste", "light"], sk: ["sk_draw1", "sk_energy1", "sk_energy3", "sk_tempo2", "sk_overclock1"] },
   reaction: { n: "Reactions", d: "Set up element combos: two elements that react, marks to start the chain, and the cards that cash it in.", pass: ["amp"], act: ["mark"], sk: [], special: true },
 };
 const REACT_PAIRS = [["water", "lightning"], ["ice", "fire"], ["wind", "earth"], ["fire", "wind"], ["light", "dark"], ["water", "ice"]];
@@ -3212,11 +3216,11 @@ function ckAiDeck(level, archId) {
   const score = c => { const k = ckCard(c); let s = a.special ? (k.el === pair[0] || k.el === pair[1] ? 1.8 : 0) + archFit(k, a) * .5 : archFit(k, a); return s + rarOf(c) * RARW + Math.random() * 2.4; };
   const ranked = pool.map(c => [c, score(c)]).sort((p, q) => q[1] - p[1]).map(p => p[0]), pick = [], n = {}, k = level >= 2 ? 4 : 3;
   for (const c of ranked) { if (pick.length >= 12 - k) break; if ((n[c.id] || 0) >= (rarOf(c) >= 5 ? 1 : 2)) continue; pick.push(c.id); n[c.id] = (n[c.id] || 0) + 1; }
-  const plain = ["sk_mend", "sk_ward", "sk_empower", "sk_gale", "sk_cleanse", "sk_disrupt", "sk_m_fire", "sk_m_water", "sk_m_wind", "sk_m_earth"], allowed = level >= 1 ? null : plain;
-  const marks = pair.map(e => "sk_m_" + e), pref = (a.special ? marks.concat(["sk_disrupt", "sk_cleanse", "sk_empower"]) : a.sk).filter(s => SKC[s] && (!allowed || allowed.includes(s))), out = pick.slice(), sn = {};
+  const plain = ["sk_draw1", "sk_energy1", "sk_energy2", "sk_weaken1", "sk_slow1", "sk_silence1", "sk_regen1", "sk_tempo1"], allowed = level >= 1 ? null : plain;
+  const pref = (a.special ? ["sk_draw1", "sk_energy1", "sk_weaken1", "sk_slow1", "sk_silence1"] : a.sk).filter(s => SKC[s] && (!allowed || allowed.includes(s))), out = pick.slice(), sn = {};
   const list = pref.length ? pref : plain; let guard = 0;
   while (out.length < 12 && guard++ < 60) { const s = list[Math.floor(Math.random() * list.length)]; if ((sn[s] || 0) >= 2) continue; sn[s] = (sn[s] || 0) + 1; out.push(s); }
-  while (out.length < 12) out.push("sk_mend");
+  while (out.length < 12) out.push("sk_energy1");
   return out.sort(() => Math.random() - .5);
 }
 /* which style a deck leans toward: [{ id, score }] best first (creature fits count 2, a style's own skill cards 1.5, a reacting element pair 2 per matched pair) */
@@ -3918,11 +3922,19 @@ const SUPDEF = [
   ["raise", "raise", ["Raise", "Revival", "Resurrection"], [{ c: 4, t: "slot", v: .35 }, { c: 5, t: "slot", v: .55 }, { c: 6, t: "slot", v: .8, shield: 1 }]],
   ["tempo", "tempo", ["Meditate", "Channel", "Wellspring"], [{ c: 1, t: "none", m: .5, T: 8 }, { c: 2, t: "none", m: .75, T: 10 }, { c: 3, t: "none", m: 1, T: 12 }]],
   ["overclock", "overclock", ["Overclock", "Supercharge"], [{ c: 3, t: "none", T: 3 }, { c: 5, t: "none", T: 5, e: 1 }]],
+  /* ----- skill cards no creature has (2026-11): they cost nothing to play (the 3 energy is paid to draw them) ----- */
+  ["draw", "draw", ["Insight", "Deep Insight"], [{ c: 2, t: "none", cnt: 2 }, { c: 3, t: "none", cnt: 3 }]],
+  ["energy", "energy", ["Spark", "Surge", "Flood"], [{ c: 1, t: "none", e: 1 }, { c: 2, t: "none", e: 2 }, { c: 3, t: "none", e: 3 }]],
+  ["swap", "swap", ["Reshuffle", "Turncoat", "Wild Card"], [{ c: 2, t: "ally", src: "own" }, { c: 3, t: "ally", src: "foe" }, { c: 3, t: "ally", src: "any" }]],
+  ["frenzy", "frenzy", ["Bloodlust", "Fury", "Rampage"], [{ c: 2, t: "ally", m: .25 }, { c: 3, t: "ally", m: .4 }, { c: 4, t: "ally", m: .6 }]],
+  ["tide", "tide", ["Soothing Tide", "Great Tide"], [{ c: 3, t: "none", f: .35, m: .5, T: 5 }, { c: 5, t: "none", f: .6, m: .7, T: 5 }]],
+  ["sacrifice", "sacrifice", ["Offering", "Blood Offering"], [{ c: 2, t: "ally" }, { c: 3, t: "ally", draw: 1 }]],
 ];
 for (const [fam, k, names, tiers] of SUPDEF) tiers.forEach((o, t) => { const id = fam + (t + 1); ABIL[id] = Object.assign({ id, fam, tier: t + 1, n: names[t], k }, o); });
 for (const el of ELK8) ABIL["mark_" + el] = { id: "mark_" + el, fam: "mark", tier: 1, n: "mark", k: "mark", el, c: 1, t: "enemy", noTier: 1 };
 const FAMN = { hit: "Neutral", heal: "Healing", shield: "Shielding", buff: "Attack boost", haste: "Haste", weaken: "Weaken", vuln: "Expose", slow: "Slow", stun: "Stun", poison: "Poison", silence: "Silence", regen: "Regeneration", grow: "Growth", strip: "Dispel", cleanse: "Cleansing", pact: "Pact", fate: "Fate", trade: "Trade Places", siphon: "Siphon", raise: "Raise", overclock: "Overclock", tempo: "Energy flow", mark: "Mark" };
 for (const el of ELK8) FAMN[el] = el[0].toUpperCase() + el.slice(1);
+Object.assign(FAMN, { draw: "Draw", energy: "Energy", swap: "Swap", frenzy: "Frenzy", tide: "Tide", sacrifice: "Sacrifice" });
 /* the item card (skill card) id of an ability: the old ids are kept for the abilities that were already cards, so saved decks keep working */
 const ITEMOLD = { heal1: "sk_mend", heal2: "sk_mend2", heal3: "sk_massheal", shield1: "sk_ward", shield2: "sk_aegis", shield3: "sk_massward", cleanse1: "sk_cleanse", buff2: "sk_empower", buff3: "sk_frenzy", buff4: "sk_rally", haste2: "sk_gale", grow1: "sk_sharpen", grow2: "sk_vitality", grow3: "sk_overgrow", stun2: "sk_freeze", stun3: "sk_massfreeze", weaken2: "sk_weaken", weaken3: "sk_massweaken", strip1: "sk_disrupt", strip2: "sk_massdisrupt" };
 for (const el of ELK8) ITEMOLD["mark_" + el] = "sk_m_" + el;
@@ -3940,10 +3952,18 @@ function abilOK(A, s, src, ab, ti) {
     case "trade": return !!F.lane[ti] && (S.lane.filter(Boolean).length > 0) && (!!ab.weakest || !!src);
     case "raise": return !S.lane[ti] && !!(S.grave && S.grave.length);
     case "siphon": return A.s[1 - s].energy > 0.2;
+    case "draw": return !!(S.pile && S.pile.length);
+    case "energy": return S.energy < AR.EMAX - .1;
+    case "swap": return !!S.lane[ti] && (ab.src === "own" ? (S.pile || []).some(id => !isSkill(id)) : ab.src === "foe" ? (F.pile || []).some(id => !isSkill(id)) : true);
+    case "sacrifice": return !!S.lane[ti] && S.lane.filter(Boolean).length >= 2;
   }
   if (ab.t === "ally") return !!S.lane[ti]; if (ab.t === "enemy") return !!F.lane[ti]; return true;
 }
 function abilCured(u) { u.burn = null; u.poison = null; u.silT = 0; u.slowT = 0; u.wkT = 0; u.vulnT = 0; u.mark = null; }
+/* heal a card (a card under Bloodlust, u.nh, can no longer be healed); returns what was healed */
+function arHeal(u, g) { if (!u || u.nh || !(g > 0)) return 0; const b = u.hp; u.hp = Math.min(u.max, u.hp + g); return u.hp - b; }
+/* draw up to n cards from the pile into the free spots of the hand */
+function arDrawN(A, s, n) { const S = A.s[s]; for (let k = 0; k < n; k++) { const hi = S.bench.findIndex(b => !b); if (hi < 0 || !S.pile || !S.pile.length) break; const id = S.pile.shift(), u = isSkill(id) ? arSkillCard(A, id) : arUnit(A, id); S.bench[hi] = u; arLog(A, (u.skill ? "A skill card" : u.name) + " is drawn", s, "swap"); arEv(A, { t: "draw", s, i: hi }); } }
 /* apply an ability. src is the creature using it (null for an item card), ti the target lane index, E the enhancement (x1.5 at match level 3). */
 function arAbil(A, s, src, ab, ti, E) {
   E = E || 1; const S = A.s[s], F = A.s[1 - s], X = AR.ATKX, Hh = AR.HPX, T = ab.t === "ally" ? S.lane[ti] : ab.t === "enemy" ? F.lane[ti] : null;
@@ -3958,8 +3978,8 @@ function arAbil(A, s, src, ab, ti, E) {
       if (ab.pierce && T.shield > 0) T.shield -= T.shield * Math.min(1, ab.pierce * 1);
       let dmg = base; if (ab.exec && T.hp < T.max * .3) dmg *= 1 + ab.exec;
       const d = arHit(A, src, s, 1 - s, ti, dmg, el) || 0, alive = F.lane[ti] === T && T.hp > 0;
-      if (ab.drain && src && src.hp > 0) src.hp = Math.min(src.max, src.hp + d * ab.drain);
-      if (ab.heal) { const low = allies().sort((p, q) => p.hp / p.max - q.hp / q.max)[0]; if (low) { low.hp = Math.min(low.max, low.hp + d * ab.heal); arEv(A, { t: "heal", s, i: S.lane.indexOf(low), d: d * ab.heal }); } }
+      if (ab.drain && src && src.hp > 0) arHeal(src, d * ab.drain);
+      if (ab.heal) { const low = allies().sort((p, q) => p.hp / p.max - q.hp / q.max)[0]; if (low) { arHeal(low, d * ab.heal); arEv(A, { t: "heal", s, i: S.lane.indexOf(low), d: d * ab.heal }); } }
       if (alive) {
         if (ab.burn) { T.burn = { d: ab.burn[0] * Hh, t: ab.burn[1] }; buff(T, 1 - s, "burning"); }
         if (ab.slow) { T.slow = ab.slow[0]; T.slowT = ab.slow[1]; buff(T, 1 - s, "slowed"); }
@@ -3972,7 +3992,7 @@ function arAbil(A, s, src, ab, ti, E) {
       if (ab.weak) for (const o of foes()) { o.wk = ab.weak[0]; o.wkT = ab.weak[1]; }
       return;
     }
-    case "heal": each(s, T, u => { const g = ab.v * Hh * E; u.hp = Math.min(u.max, u.hp + g); arEv(A, { t: "heal", s, i: S.lane.indexOf(u), d: g }); if (ab.cleanse) abilCured(u); }); return;
+    case "heal": each(s, T, u => { const g = ab.v * Hh * E; arHeal(u, g); arEv(A, { t: "heal", s, i: S.lane.indexOf(u), d: g }); if (ab.cleanse) abilCured(u); }); return;
     case "shield": each(s, T, u => { u.shield += ab.v * Hh * E; buff(u, s, "+" + Math.round(ab.v * Hh * E) + " ward"); }); return;
     case "buff": each(s, T, u => { u.tmp = ab.v * E; u.tmpT = ab.T; buff(u, s, "+" + Math.round(ab.v * E * X) + " ATK"); }); return;
     case "haste": each(s, T, u => { u.hasteT = ab.T * E; buff(u, s, "haste"); if (ab.reset) u.skcd = 0; }); return;
@@ -3997,7 +4017,7 @@ function arAbil(A, s, src, ab, ti, E) {
     case "trade": {   // one of your cards and one of theirs change sides
       if (!T) return; const mine = S.lane.map((u, i) => ({ u, i })).filter(x => x.u), give = (ab.weakest || !src ? mine.slice().sort((p, q) => p.u.max - q.u.max || p.i - q.i)[0] : mine.find(x => x.u === src)); if (!give) return;
       S.lane[give.i] = T; F.lane[ti] = give.u; for (const u of [T, give.u]) { u.lock = null; u.cd = AR.IV / u.spd; u.by = null; }
-      if (ab.heal) T.hp = Math.min(T.max, T.hp + T.max * ab.heal); if (ab.stun) { give.u.frozen = ab.stun; give.u.cd += ab.stun; }
+      if (ab.heal) arHeal(T, T.max * ab.heal); if (ab.stun) { give.u.frozen = ab.stun; give.u.cd += ab.stun; }
       arLog(A, give.u.name + " and " + T.name + " change sides", s, "swap"); arEv(A, { t: "enter", s, i: give.i }); arEv(A, { t: "enter", s: 1 - s, i: ti }); return;
     }
     case "siphon": { const e = Math.min(F.energy, ab.e * E); F.energy -= e; S.energy = Math.min(AR.EMAX, S.energy + e); arLog(A, "Energy is siphoned: " + e.toFixed(1), s, "skill"); return; }
@@ -4007,6 +4027,19 @@ function arAbil(A, s, src, ab, ti, E) {
     }
     case "tempo": { const m = ab.m * E; S.eb = { m: Math.max(S.eb && S.eb.t > 0 ? S.eb.m : 0, m), t: ab.T }; arLog(A, "Energy flows " + Math.round(m * 100) + "% faster for " + ab.T + " s", s, "skill"); return; }
     case "overclock": for (const u of allies()) { u.skcd = 0; u.hasteT = Math.max(u.hasteT, ab.T); } if (ab.e) S.energy = Math.min(AR.EMAX, S.energy + ab.e); arLog(A, "Skills are ready again", s, "skill"); return;
+    case "draw": arDrawN(A, s, ab.cnt); return;
+    case "energy": S.energy = Math.min(AR.EMAX, S.energy + ab.e); arLog(A, "Energy: +" + ab.e, s, "skill"); return;
+    case "swap": {   // one of your cards in play is changed into another creature
+      if (!T) return; let id = null;
+      if (ab.src === "own" || ab.src === "foe") {
+        const from = ab.src === "own" ? S : F, c = (from.pile || []).map((x, k) => ({ x, k })).filter(p => !isSkill(p.x)); if (!c.length) return;
+        const p = c[Math.floor(arRand(A) * c.length)]; id = p.x; from.pile.splice(p.k, 1); S.pile.push(T.cid);
+      } else { const all = POOLALL.filter(c => !c.ex); id = all[Math.floor(arRand(A) * all.length)].id; }
+      const n = arUnit(A, id); n.cd = AR.IV / n.spd; S.lane[ti] = n; arLog(A, T.name + " turns into " + n.name, s, "swap"); arEv(A, { t: "enter", s, i: ti }); return;
+    }
+    case "frenzy": each(s, T, u => { u.fz = Math.max(u.fz || 0, ab.m); u.nh = true; buff(u, s, "+" + Math.round(ab.m * 100) + "% damage, no healing"); }); return;
+    case "tide": { for (const u of allies()) { const g = arHeal(u, u.max * ab.f); if (g > 0) arEv(A, { t: "heal", s, i: S.lane.indexOf(u), d: g }); } S.eb = { m: -ab.m, t: ab.T }; arLog(A, "Your energy fills " + Math.round(ab.m * 100) + "% slower for " + ab.T + " s", s, "skill"); return; }
+    case "sacrifice": { if (!T) return; T.shield = 0; T.hp = 0; S.energy = AR.EMAX; arLog(A, T.name + " is sacrificed: energy is full", s, "skill"); if (ab.draw) arDrawN(A, s, ab.draw); return; }
   }
 }
 
@@ -4036,6 +4069,12 @@ function abilText(ab) {
     case "trade": return `${ab.weakest ? "Your weakest card" : "This card"} and an enemy card change sides${ab.heal ? "; the one you take is healed " + pc(ab.heal) : ""}${ab.stun ? "; the one you give is stunned " + ab.stun + " s" : ""}.`;
     case "siphon": return `Steal ${ab.e} energy from the enemy.`;
     case "raise": return `Bring back your latest fallen card in an empty lane with ${pc(ab.v)} health${ab.shield ? " and a ward" : ""}.`;
+    case "draw": return `Draw ${ab.cnt} cards from your deck (as many as fit in your hand).`;
+    case "energy": return `Gain ${ab.e} energy right now.`;
+    case "swap": return ab.src === "own" ? "Change one of your cards in play into a random creature from your deck. The old card goes back into the deck." : ab.src === "foe" ? "Change one of your cards in play into a random creature taken from the enemy deck. The old card goes into your deck." : "Change one of your cards in play into a completely random creature.";
+    case "frenzy": return `One of your cards deals ${pc(ab.m)} more damage for the rest of the fight, but it can no longer be healed.`;
+    case "tide": return `Heal every card of yours in play for ${pc(ab.f)} of its health, but your energy fills ${pc(ab.m)} slower for ${ab.T} s.`;
+    case "sacrifice": return `Sacrifice one of your cards (you need two in play): your energy fills to the maximum${ab.draw ? " and you draw a card" : ""}.`;
     case "tempo": return `Your energy fills ${pc(ab.m)} faster for ${ab.T} s.`;
     case "overclock": return `Every card of yours gets its skill ready and strikes ${AR.SK.gale}x as fast for ${ab.T} s${ab.e ? ", and you gain " + ab.e + " energy" : ""}.`;
   }
@@ -4079,6 +4118,16 @@ function abilCands(A, s, u, ab, E) {
     case "siphon": { const e = Math.min(F.energy, ab.e * E); push(0, e * 5 + (S.energy + e > AR.EMAX ? -3 : 0)); break; }
     case "raise": { const g = S.grave && S.grave[S.grave.length - 1]; if (!g) break; const k = ckCard(BY[g.cid || g]), slot = S.lane.findIndex(x => !x); if (slot < 0) break; push(slot, (k.atk * AR.ATKX * k.hp * Hh) / 800 * ab.v * 1.6 + 6); break; }
     case "tempo": { const e = ab.m * E * ab.T / AR.ERATE, room = AR.EMAX - S.energy; push(0, room < 2 ? 0 : Math.min(e, room + 2) * 4); break; }
+    case "draw": { if (S.pile && S.pile.length) push(0, 3 + ab.cnt * 2); break; }
+    case "energy": { const room = AR.EMAX - S.energy; if (room >= ab.e) push(0, ab.e * 5); break; }
+    case "swap": {
+      const pw = id => (ckCard(BY[id]).atk * X * ckCard(BY[id]).hp * Hh) / 800, src = ab.src === "foe" ? F.pile : S.pile, pile = (src || []).filter(id => !isSkill(id));
+      const avg = ab.src === "any" ? 40 : pile.length ? pile.reduce((a, id) => a + pw(id), 0) / pile.length : 0; if (!avg) break;
+      for (const x of al) { const p = (x.u.atk * x.u.hp) / 800; if (p < avg * .7) push(x.i, (avg - p) * 1.3); } break;
+    }
+    case "frenzy": { if (!fo.length) break; for (const x of al) if (!x.u.nh && x.u.hp > x.u.max * .5) push(x.i, ab.m * hit(s, x.u) * 14); break; }
+    case "tide": { const v = al.reduce((a, x) => a + Math.min(x.u.max - x.u.hp, x.u.max * ab.f) * (danger(x.u) ? 1.5 : 1), 0) - ab.m * 8; push(0, v); break; }
+    case "sacrifice": { if (al.length < 2 || S.energy >= 3) break; for (const x of al) if (x.u.hp < x.u.max * .3) push(x.i, 9 + (ab.draw ? 3 : 0)); break; }
     case "overclock": { const v = al.reduce((a, x) => a + (x.u.skcd > 0 ? x.u.acost * 1.2 : 0), 0) + al.length * hit(s, al[0] ? al[0].u : {}) * ab.T / 6; push(0, v + (ab.e || 0) * 4); break; }
   }
   return out;
@@ -4111,7 +4160,9 @@ for (const [id, ab] of Object.entries(ABIL)) ACT[id] = { n: ab.n, c: ab.c, t: ab
    v = strength in the same stat points the creature skills use (health effects are multiplied by AR.HPX, attack effects by AR.ATKX), T = seconds, c = energy cost, t = target: ally, enemy or none (the whole side). */
 /* every non-damage ability is an item card. SKC[id] = { n, c, t, ab, fx, el? } (the old shape, plus ab: the ability it plays). */
 const SKC = {};
-for (const ab of Object.values(ABIL)) { if (ab.cr || ab.k === "dmg") continue; SKC[itemId(ab.id)] = { n: abilFull(ab), c: ab.c, t: ab.t, ab: ab.id, fx: ab.fam, el: ab.el || null, tier: ab.tier || 1 }; }
+/* families a creature can have as its own skill are not skill cards: a skill card always does something no creature does (2026-11). They cost nothing to play; drawing them costs the usual 3 energy. */
+const SKIP_FAM = { heal: 1, shield: 1, buff: 1, haste: 1, stun: 1, grow: 1, strip: 1, cleanse: 1, mark: 1 };
+for (const ab of Object.values(ABIL)) { if (ab.cr || ab.k === "dmg" || SKIP_FAM[ab.fam]) continue; SKC[itemId(ab.id)] = { n: abilFull(ab), c: 0, t: ab.t, ab: ab.id, fx: ab.fam, el: ab.el || null, tier: ab.tier || 1 }; }
 const SKC_IDS = Object.keys(SKC), isSkill = id => !!SKC[id], SK_MAX = 7, SK_COPIES = 2, SK_CREATURES_MIN = 5;
 const SK_GLYPH = { heal: "💚", shield: "🛡", buff: "⚔", haste: "💨", weaken: "⬇", vuln: "🎯", slow: "🐌", stun: "💫", poison: "☠", silence: "🤫", regen: "🌿", grow: "🌱", strip: "🌀", cleanse: "✨", fate: "🔀", trade: "⇄", siphon: "🔋", raise: "🕊", overclock: "⚡", tempo: "🔆", mark: "◎" };
 const SK_TONE = { heal: "#6FBF98", shield: "#7FA6D6", buff: "#D9A05A", haste: "#8FD0DE", weaken: "#B5707A", vuln: "#C98A7A", slow: "#8FA8C8", stun: "#C7B56F", poison: "#8FBF6A", silence: "#9A9AB0", regen: "#7FC9A0", grow: "#86A86A", strip: "#A892BA", cleanse: "#E3D8A8", fate: "#B98AD0", trade: "#D08AB0", siphon: "#6FC0D0", raise: "#E8D8A0", overclock: "#E0B060", tempo: "#F0D070", mark: "#C9B07A" };
@@ -4233,8 +4284,8 @@ const arLane = (A, s, i) => A.s[s].lane[i];
 const arLive = (A, s) => A.s[s].lane.map((u, i) => ({ u, i })).filter(x => x.u);
 function arAtk(A, s, u) {
   const surge = A.t >= AR.SURGE_AT ? Math.floor((A.t - AR.SURGE_AT) / AR.SURGE_T) + 1 : 0;
-  return Math.max(0, u.atk * (1 + AR.LV.atk[u.lv - 1]) + AR.ATKX * ((u.tmpT > 0 ? u.tmp : 0) - (u.wkT > 0 ? u.wk : 0) + (u.passive === "berserk" && u.hp * 2 < u.max ? AR.PS.berserk : 0) + (u.passive === "pack" ? A.s[s].lane.filter(x => x && x !== u && x.fac === u.fac).length * AR.PS.pack : 0) + (u.passive === "laststand" && u.hp < u.max * .3 ? AR.PS.laststand : 0) +
-    (u.passive === "formation" ? [A.s[s].lane[A.s[s].lane.indexOf(u) - 1], A.s[s].lane[A.s[s].lane.indexOf(u) + 1]].filter(Boolean).length * AR.PS.formation : 0) + A.s[s].lane.filter(x => x && x !== u && x.passive === "decree" && x.fac === u.fac).length * AR.PS.decree + surge));
+  return Math.max(0, (1 + (u.fz || 0)) * (u.atk * (1 + AR.LV.atk[u.lv - 1]) + AR.ATKX * ((u.tmpT > 0 ? u.tmp : 0) - (u.wkT > 0 ? u.wk : 0) + (u.passive === "berserk" && u.hp * 2 < u.max ? AR.PS.berserk : 0) + (u.passive === "pack" ? A.s[s].lane.filter(x => x && x !== u && x.fac === u.fac).length * AR.PS.pack : 0) + (u.passive === "laststand" && u.hp < u.max * .3 ? AR.PS.laststand : 0) +
+    (u.passive === "formation" ? [A.s[s].lane[A.s[s].lane.indexOf(u) - 1], A.s[s].lane[A.s[s].lane.indexOf(u) + 1]].filter(Boolean).length * AR.PS.formation : 0) + A.s[s].lane.filter(x => x && x !== u && x.passive === "decree" && x.fac === u.fac).length * AR.PS.decree + surge)));
 }
 function arCoreHit(A, ts, d) { A.s[ts].core -= d; arLog(A, "Core takes " + Math.round(d), ts, "core"); arEv(A, { t: "core", s: ts, d }); }
 /* who a card strikes: its locked target, else its targeting behavior; -1 means the enemy field is empty (the core) */
@@ -4276,7 +4327,7 @@ function arHit(A, src, ss, ts, ti, dmg, el, o = {}) {
   if (T.sponge) { T.sponge = false; T.spT = AR.PS.spongeT; d = 0; arLog(A, T.name + " absorbs the hit (Sponge)", ts, "passive"); }
   const ab = Math.min(T.shield, d); T.shield -= ab; d -= ab; T.hp -= d;
   if (el && !react) T.mark = { el, t: AR.MARK_T };
-  if (src) { if (src.passive === "vamp" && d > 0) src.hp = Math.min(src.max, src.hp + d * AR.PS.vamp); if (T.passive === "thorns" && o.melee) { src.hp -= AR.PS.thorns * AR.ATKX; if (!T.thT || A.tick - T.thT > 30) { T.thT = A.tick; arLog(A, T.name + " reflects damage (Thorns)", ts, "passive"); } } if (src.passive === "overkill" && T.hp < 0) { arLog(A, src.name + "'s excess damage hits the core (Overkill)", ss, "passive"); arCoreHit(A, ts, -T.hp * AR.PS.overkill); } }
+  if (src) { if (src.passive === "vamp" && d > 0) arHeal(src, d * AR.PS.vamp); if (T.passive === "thorns" && o.melee) { src.hp -= AR.PS.thorns * AR.ATKX; if (!T.thT || A.tick - T.thT > 30) { T.thT = A.tick; arLog(A, T.name + " reflects damage (Thorns)", ts, "passive"); } } if (src.passive === "overkill" && T.hp < 0) { arLog(A, src.name + "'s excess damage hits the core (Overkill)", ss, "passive"); arCoreHit(A, ts, -T.hp * AR.PS.overkill); } }
   arEv(A, { t: "hit", s: ts, i: ti, d, el, react: react && react.n });
   if (src && !o.noStat) { const st = A.stat || (A.stat = { auto: 0, skill: 0, uses: 0 }); if (o.melee) st.auto += d; else st.skill += d; }   // balance counters (not part of the fight)
   if (react && react.splash) for (const j of [ti - 1, ti + 1]) { const N = A.s[ts].lane[j]; if (N) { N.hp -= d * react.splash; arEv(A, { t: "hit", s: ts, i: j, d: d * react.splash }); } }
@@ -4309,8 +4360,8 @@ function arRun(A, c) {
     if (!S.pile || !S.pile.length || S.energy < AR.DRAW_E) return; const hi = S.bench.findIndex(b => !b); if (hi < 0) return;
     S.energy -= AR.DRAW_E; const id = S.pile.shift(), u = isSkill(id) ? arSkillCard(A, id) : arUnit(A, id); S.bench[hi] = u; arLog(A, (u.skill ? "A skill card" : u.name) + " is drawn", c.s, "swap"); arEv(A, { t: "draw", s: c.s, i: hi });
   } else if (c.k === "play") {   // an item card from the hand: pay its cost, apply it, and it is gone
-    const h = S.bench[c.b]; if (!h || !h.skill) return; const k = SKC[h.sid], ab = ABIL[k.ab]; if (!ab || S.energy < ab.c || !abilOK(A, c.s, null, ab, c.t)) return;
-    S.energy -= ab.c; S.bench[c.b] = null; arLog(A, k.n + " is played", c.s, "skill"); arEv(A, { t: "skill", s: c.s, i: -1, b: c.b, card: true, name: k.n, ti: c.t, ta: ab.t === "slot" ? "ally" : ab.t, el: k.el || null });
+    const h = S.bench[c.b]; if (!h || !h.skill) return; const k = SKC[h.sid], ab = ABIL[k.ab]; if (!ab || !abilOK(A, c.s, null, ab, c.t)) return;
+    S.bench[c.b] = null; arLog(A, k.n + " is played", c.s, "skill"); arEv(A, { t: "skill", s: c.s, i: -1, b: c.b, card: true, name: k.n, ti: c.t, ta: ab.t === "slot" ? "ally" : ab.t, el: k.el || null });
     arAbil(A, c.s, null, ab, c.t, 1); arSweep(A);
   } else if (c.k === "use") {
     const u = S.lane[c.i]; if (!u || u.skcd > 0 || u.silT > 0 || S.energy < u.acost) return; const ab = ABIL[u.active]; if (!ab || !abilOK(A, c.s, u, ab, c.t)) return;
@@ -4321,7 +4372,7 @@ function arRun(A, c) {
   }
 }
 /* a skill card in the hand: it has no body on the field, so it carries zero health for the bookkeeping that adds up a side's cards */
-function arSkillCard(A, sid) { const k = SKC[sid]; return { uid: ++A.uid, skill: true, sid, name: k.n, cost: k.c, hp: 0, max: 0 }; }
+function arSkillCard(A, sid) { const k = SKC[sid]; return { uid: ++A.uid, skill: true, sid, name: k.n, cost: 0, hp: 0, max: 0 }; }
 function arStrip(T) { T.atk = Math.max(1, T.atk - T.pb.a); T.max = Math.max(1, T.max - T.pb.h); T.hp = Math.min(T.hp, T.max); T.pb = { a: 0, h: 0 }; T.tmpT = 0; T.shield = 0; T.mark = null; }
 /* ----- one tick. Returns false if it is waiting for the other phone's inputs (online lockstep). ----- */
 function arStep(A) {
@@ -4335,11 +4386,11 @@ function arStep(A) {
     for (const { u, i } of arLive(A, s)) {
       u.cd -= dt * (u.slowT > 0 ? 1 - u.slow : 1); if (u.skcd > 0) u.skcd -= dt; if (u.frozen > 0) u.frozen -= dt; if (u.tmpT > 0) u.tmpT -= dt; if (u.hasteT > 0) u.hasteT -= dt; if (u.mark && (u.mark.t -= dt) <= 0) u.mark = null;
       if (u.slowT > 0) u.slowT -= dt; if (u.silT > 0) u.silT -= dt; if (u.wkT > 0) u.wkT -= dt; if (u.vulnT > 0) u.vulnT -= dt;
-      if (u.burn) { u.hp -= u.burn.d * dt; if ((u.burn.t -= dt) <= 0) u.burn = null; } if (u.poison) { u.hp -= u.poison.d * dt; if ((u.poison.t -= dt) <= 0) u.poison = null; } if (u.reg) { u.hp = Math.min(u.max, u.hp + u.reg.d * dt); if ((u.reg.t -= dt) <= 0) u.reg = null; }
-      if (u.passive === "regen" && u.hp < u.max) u.hp = Math.min(u.max, u.hp + u.max * AR.PS.regen * dt);
+      if (u.burn) { u.hp -= u.burn.d * dt; if ((u.burn.t -= dt) <= 0) u.burn = null; } if (u.poison) { u.hp -= u.poison.d * dt; if ((u.poison.t -= dt) <= 0) u.poison = null; } if (u.reg) { arHeal(u, u.reg.d * dt); if ((u.reg.t -= dt) <= 0) u.reg = null; }
+      if (u.passive === "regen" && u.hp < u.max) arHeal(u, u.max * AR.PS.regen * dt);
       if (u.spT > 0 && (u.spT -= dt) <= 0 && u.passive === "sponge") u.sponge = true;
       if ((u.pt -= dt) <= 0) {
-        if (u.passive === "mender") { u.pt = 4; const t = arLive(A, s).map(x => x.u).sort((a, b) => a.hp / a.max - b.hp / b.max)[0]; if (t && t.hp < t.max) t.hp = Math.min(t.max, t.hp + AR.PS.mender * AR.HPX); }
+        if (u.passive === "mender") { u.pt = 4; const t = arLive(A, s).map(x => x.u).sort((a, b) => a.hp / a.max - b.hp / b.max)[0]; if (t && t.hp < t.max) arHeal(t, AR.PS.mender * AR.HPX); }
         else { u.pt = AR.GROW_T; if (u.passive === "grow") u.atk += AR.PS.grow * AR.ATKX; if (u.passive === "fortify") { u.max += AR.PS.fortify * AR.HPX; u.hp += AR.PS.fortify * AR.HPX; } if (u.passive === "rally") [i - 1, i + 1].forEach(j => { const a = S.lane[j]; if (a) a.atk += AR.PS.rally * AR.ATKX; }); }
       }
     }
@@ -4378,10 +4429,10 @@ const arNeedBody = S => S.lane.some(u => !u) && !S.bench.some(b => b && !b.skill
 function arAiCards(A, s, en, send) {
   const S = A.s[s]; let played = false;
   S.bench.forEach((h, b) => {
-    if (played || !h || !h.skill) return; const k = SKC[h.sid], ab = ABIL[k.ab]; if (!ab || en < ab.c) return;
+    if (played || !h || !h.skill) return; const k = SKC[h.sid], ab = ABIL[k.ab]; if (!ab) return;
     const best = abilCands(A, s, null, ab, 1).filter(x => abilOK(A, s, null, ab, x.t)).sort((p, q) => q.v - p.v)[0]; if (!best) return;
-    if (best.v / ab.c < (A.level[s] >= 2 ? AR.AI_TH : 2.2)) return;
-    en -= ab.c; played = true; send(ab.t === "none" ? { k: "play", b } : { k: "play", b, t: best.t });
+    if (best.v / Math.max(1, ab.c) < (A.level[s] >= 2 ? AR.AI_TH : 2.2)) return;
+    played = true; send(ab.t === "none" ? { k: "play", b } : { k: "play", b, t: best.t });
   });
   return en;
 }
@@ -7961,7 +8012,7 @@ function arPanel() {
   if (m) { sig = "m" + m.act + m.i; h = `<div class="kp1"><b>${esc(actName(A.s[me].lane[m.i]))}</b><span>${ABIL[m.act].t === "ally" ? "Choose one of your cards" : ABIL[m.act].t === "slot" ? "Choose an empty lane" : "Choose an enemy card"}.</span><button class="btn sm dark" data-ar="cancel">Cancel</button></div>`; }
   else if (u && u.skill) {
     const k = SKC[u.sid], can = S0.energy >= k.c; sig = "sk" + u.uid + can;
-    h = `<div class="kp2"><div class="kinfo"><b>${esc(k.n)}</b><span class="kstats">${stat("Cost", k.c + "⚡")}<span class="st"><i>${k.t === "ally" ? "One of your cards" : k.t === "enemy" ? "One enemy card" : k.t === "slot" ? "An empty lane" : "A whole side"}</i></span></span></div><div class="kbtns">${k.t === "none" ? `<button class="btn sm yellow" data-ar="playcard" ${can ? "" : "disabled"}>Play · ${k.c}⚡</button>` : `<span class="note">${can ? "Tap a highlighted card" : "Not enough energy"}</span>`}<button class="btn sm dark" data-ar="info">Details</button></div></div>`;
+    h = `<div class="kp2"><div class="kinfo"><b>${esc(k.n)}</b><span class="kstats">${stat("Cost", "Free")}<span class="st"><i>${k.t === "ally" ? "One of your cards" : k.t === "enemy" ? "One enemy card" : k.t === "slot" ? "An empty lane" : "A whole side"}</i></span></span></div><div class="kbtns">${k.t === "none" ? `<button class="btn sm yellow" data-ar="playcard" ${can ? "" : "disabled"}>Play</button>` : `<span class="note">${can ? "Tap a highlighted card" : "Not enough energy"}</span>`}<button class="btn sm dark" data-ar="info">Details</button></div></div>`;
   }
   else if (!u) { sig = "none"; h = `<div class="kp1"><span>Your cards fight on their own. Tap one of yours, then an enemy, to lock its target (tap it again to let go). A glowing <b>⚡</b> means its skill is ready: drag the card onto its target. Hold any card to read it.</span></div>`; }
   else {
@@ -7978,7 +8029,7 @@ function arPanel() {
 function arInfo() {
   const A = AM.A, me = AM.me, sel = AM.sel; if (!sel) return;
   const u = sel.kind === "bench" ? A.s[sel.s ^ me].bench[sel.i] : A.s[sel.s ^ me].lane[sel.i]; if (!u) return;
-  if (u.skill) { const k = SKC[u.sid]; return openSheet(`<h2 class="fat">${esc(k.n)}</h2><div class="skillbox"><em>Item card · ${k.c} energy · ${k.t === "ally" ? "one of your cards" : k.t === "enemy" ? "one enemy card" : k.t === "slot" ? "an empty lane" : "affects a whole side"}</em>${esc(skText(u.sid))}</div><p class="note" style="text-align:center">Used once, then it is gone.</p><div class="row c" style="margin-top:12px"><button class="btn yellow" data-act="closeModal">Back to the fight</button></div>`); }
+  if (u.skill) { const k = SKC[u.sid]; return openSheet(`<h2 class="fat">${esc(k.n)}</h2><div class="skillbox"><em>Item card · free to play · ${k.t === "ally" ? "one of your cards" : k.t === "enemy" ? "one enemy card" : k.t === "slot" ? "an empty lane" : "affects a whole side"}</em>${esc(skText(u.sid))}</div><p class="note" style="text-align:center">Used once, then it is gone.</p><div class="row c" style="margin-top:12px"><button class="btn yellow" data-act="closeModal">Back to the fight</button></div>`); }
   openSheet(`<h2 class="fat">${esc(u.name)}</h2><div class="row" style="gap:8px;justify-content:center"><span class="elchip el-${u.el}">${elIco(u.el)}${EL[u.el][0]}</span><span class="note">${esc(FAC[u.fac] || u.fac)} · targets ${esc(TGT_NAME[u.tm])}</span></div>` +
     `<div class="skillbox"><em>Passive · ${esc(passName(u))}</em>${passText(u.passive)}</div><div class="skillbox"><em>Skill · ${esc(actName(u))} · ${u.acost} energy${abilBase(u) && abilBase(u) !== actName(u) ? " · " + esc(abilBase(u)) : ""}</em>${actText(u.active)}</div>` +
     `<div class="skillbox"><em>Match level ${u.lv}</em>${lvText(u)}</div>${u.mark ? `<div class="skillbox"><em>Marked</em><span class="elchip el-${u.mark.el}">${elIco(u.mark.el)}${EL[u.mark.el][0]}</span> Extra damage from the matching element.</div>` : ""}<div class="row c" style="margin-top:12px"><button class="btn yellow" data-act="closeModal">Back to the fight</button></div>`);
