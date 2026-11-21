@@ -613,6 +613,26 @@ html .card.ar.vr-alt .win::before, html .card.ar.vr-holo .win::before {
   background-size: 37cqw 41cqw, 29cqw 47cqw, 53cqw 39cqw; background-repeat: repeat;
 }
 
+/* ===== feel.js: the hub rail (next goal + chests), chest sheets, rank road, weekly rule, daily deal, tips, bigger damage numbers ===== */
+.hub-rail { position: absolute; z-index: 3; left: 8px; right: 8px; bottom: calc(41% + 16px); height: 58px; display: flex; gap: 8px; align-items: stretch; }
+.hub-id { bottom: calc(41% + 80px) !important; }
+.goal { flex: 1; min-width: 0; text-align: left; padding: 6px 12px; border-radius: 14px; border: 1.5px solid #ffffff40; background: linear-gradient(#162338dd, #0b1422ee); box-shadow: 0 4px 12px #0008; color: #fff; display: flex; flex-direction: column; justify-content: center; line-height: 1.15; overflow: hidden; }
+.goal small { font: 800 9px var(--body); letter-spacing: .18em; color: #9fb4d4; } .goal b { font: 400 15px var(--display); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .goal span { font: 600 10.5px var(--body); color: #c6d3e4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.goal.hot { border-color: #f0d68a; box-shadow: 0 0 16px #f0d68a66, 0 4px 12px #0008; } .goal.hot small { color: #f0d68a; }
+.chests { display: flex; gap: 6px; } .chs { width: 52px; border-radius: 12px; border: 1.5px solid #ffffff33; background: linear-gradient(#162338dd, #0b1422ee); box-shadow: 0 4px 10px #0008; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; padding: 2px 0; }
+.chs small { font: 700 9px var(--body); letter-spacing: .02em; color: #c6d3e4; } .chs.empty { opacity: .55; border-style: dashed; }
+.chs.rdy { border-color: #f0d68a; animation: chsPulse 1.3s ease-in-out infinite; } .chs.rdy small { color: #f0d68a; }
+@keyframes chsPulse { 50% { box-shadow: 0 0 18px #f0d68acc, 0 4px 10px #0008; transform: translateY(-2px); } }
+.chest-ico { display: inline-block; width: 30px; height: 26px; color: var(--cc, #b07a45); } .chest-ico svg { width: 100%; height: 100%; display: block; filter: drop-shadow(0 2px 3px #0009); } .chest-ico.big { width: 78px; height: 68px; margin: 4px auto 6px; animation: chestPop .6s cubic-bezier(.2, 1.4, .4, 1); }
+@keyframes chestPop { from { transform: scale(.4) rotate(-8deg); opacity: 0; } to { transform: none; opacity: 1; } }
+.road { display: flex; flex-direction: column; gap: 6px; max-height: 56vh; overflow: auto; } .rd { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 12px; background: #1a2a42; border: 1px solid #ffffff22; }
+.rd-n { width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; font: 400 20px var(--display); font-style: normal; background: #26364f; color: #fff; } .rd-b { flex: 1; min-width: 0; } .rd-b b { display: block; font: 700 14px var(--body); } .rd-b small { display: block; font: 600 11px var(--body); color: #aebfd6; } .rd-s { font-size: 15px; }
+.rd.done .rd-n { background: linear-gradient(#3b7a4f, #245238); } .rd.here { border-color: #f0d68a; box-shadow: 0 0 14px #f0d68a55; } .rd.here .rd-n { background: linear-gradient(#f0d68a, #b8923a); color: #231a05; } .rd.lock { opacity: .6; } .rd .bar { margin: 5px 0 3px; height: 7px; } .rd-me { color: #f0d68a !important; }
+.wk-rule { text-align: center; margin: 4px 0 8px; padding: 12px; border-radius: 14px; background: linear-gradient(#1c2c46, #101b2d); border: 1.5px solid var(--wc, #fff); } .wk-rule svg { width: 34px; height: 34px; color: var(--wc, #fff); } .wk-rule b { display: block; font: 400 22px var(--display); } .wk-rule small { color: #aebfd6; font: 600 11.5px var(--body); }
+.deal { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; padding: 10px 12px; border-radius: 14px; background: linear-gradient(135deg, #3d2a14, #1d1408); border: 1.5px solid #f0d68a; box-shadow: 0 0 16px #f0d68a33; } .deal .dl-t { flex: 1; min-width: 0; } .deal small { display: block; font: 800 9.5px var(--body); letter-spacing: .14em; color: #f0d68a; } .deal b { font: 400 16px var(--display); color: #fff; } .deal s { opacity: .6; margin-right: 4px; } .deal .dl-b { font: 700 12px var(--body); color: #aebfd6; } .deal.gone { opacity: .65; border-color: #ffffff33; box-shadow: none; }
+#tiptop { position: fixed; z-index: 99999; max-width: 220px; padding: 7px 11px; border-radius: 10px; background: #0b1220f2; border: 1px solid #f0d68a88; color: #fff; font: 600 12.5px/1.3 var(--body); pointer-events: none; box-shadow: 0 6px 18px #000a; animation: tipIn .14s ease-out; } @keyframes tipIn { from { opacity: 0; transform: translateY(4px) scale(.96); } }
+.kpopn { margin-left: var(--dx, 0); } .kpopn.mid { font-size: 25px; } .kpopn.big { font-size: 31px; color: #ffe7a0; } .kpopn.rname.c2 { font-size: 15px; color: #ffe27a; } .kpopn.rname.c3 { font-size: 18px; color: #ffb35a; } .kpopn.rname.c4 { font-size: 21px; color: #ff7a6a; }
+
 /* ===== Clash ===== */
 #ck { position: fixed; inset: 0; z-index: 20; background: radial-gradient(ellipse at 50% 40%, #12583a 0%, var(--felt-d) 55%, var(--felt-dd) 100%); }
 #ck[hidden] { display: none; }
@@ -1904,8 +1924,8 @@ function cardHtml(c, o = {}) {
   const rr = rarOf(c), k = arCard(c), v = o.v !== undefined ? o.v : selVariant(c.id), cls = ["card", "ar", "r" + rr, "el-" + k.el, v ? "vr-" + v : "", "lv" + c.lv, c.ex ? "ex" : "", o.cls || "", o.miss ? "miss" : "", o.tilt ? "tilt" : ""].join(" ");
   const setNo = c.ev ? "EVENT" : c.set2 ? "S2 " + String(POOL2.indexOf(c) + 1).padStart(2, "0") + "/" + POOL2.length : String(POOL.indexOf(c) + 1).padStart(3, "0") + "/" + POOL.length, fac = FAC[k.fac] || k.fac;
   return `<div class="${cls}" ${o.attr || ""}><div class="win"><img class="art" data-id="${c.id}" alt="" decoding="async" src="${artSrc(c, o.tilt)}"></div><div class="holo"></div><div class="glare"></div><i class="crn"></i>${c.ev ? `<i class="evtag">EVENT</i>` : ""}${v ? `<i class="vtag">${VARIANTS[v].short}</i>` : ""}` +
-    `<div class="cost"><b>${k.cost}</b></div><div class="pips"><i class="pe">${elIco(k.el, "")}</i><i class="pf" style="--fc:${FAC_TONE[k.fac] || "#fff"}">${k.fac}</i></div>` +
-    `<div class="shield"><b>${Math.round(k.atk * AR.ATKX)}</b></div><div class="hpb"><b>${hpOf(k)}</b></div>` + (o.count > 1 ? `<span class="cnt">×${o.count}</span>` : "") +
+    `<div class="cost" data-tip="Energy needed to play it"><b>${k.cost}</b></div><div class="pips"><i class="pe" data-tip="${EL[k.el][0]} element">${elIco(k.el, "")}</i><i class="pf" data-tip="${esc(fac)} faction" style="--fc:${FAC_TONE[k.fac] || "#fff"}">${k.fac}</i></div>` +
+    `<div class="shield" data-tip="Attack: damage of each strike"><b>${Math.round(k.atk * AR.ATKX)}</b></div><div class="hpb" data-tip="Health: the card falls at 0"><b>${hpOf(k)}</b></div>` + (o.count > 1 ? `<span class="cnt">×${o.count}</span>` : "") +
     `<div class="typeline"><i class="ti"></i>Unit · ${esc(fac)}<span>${k.spd.toFixed(1)} spd</span></div><div class="nameband"><b>${esc(c.name)}</b></div>` +
     `<div class="rules"><p><b>${esc(passName(k))}.</b> ${passText(k.passive)}</p><p><b>${esc(actName(k))} · ${k.acost}⚡.</b> ${actText(k.active)}</p></div>` +
     `<div class="foot"><span>Set 1 · ${setNo}</span><span>${c.ev ? "Event " : ""}${RNAME[rr]}</span></div><div class="tint"></div></div>`;
@@ -4101,9 +4121,10 @@ function viewBattle(v) {
   v.innerHTML = `<section class="hub"><div class="hub-art">${hmImg(heroId, true)}</div>` +
     `<div class="hub-top"><select id="ckdeck" class="hub-deck" data-ck="deckSel" aria-label="Deck">${P.cd.map((x, i) => `<option value="${i}" ${i === P.cdi ? "selected" : ""}>${esc(x.name)}${ckDeckOk(x.cards) ? " (incomplete)" : ""}</option>`).join("")}</select><button class="hub-edit" data-ck="deckEdit" aria-label="Edit deck">✎</button></div>` +
     `<div class="hub-l">${side(ic("daily", ""), "Missions", 'data-act="tab" data-k="daily"', claim)}${side(ic("ticket", "") || "★", "Gifts", 'data-pop="openGifts"', giftCount() > 0)}${side("📰", "News", 'data-pop="openNews"', newsUnread())}${side(ic("cards", ""), "Story log", 'data-ck="storyLog"')}</div>` +
-    `<div class="hub-r">${side(ic("cards", ""), "Portrait", 'data-act="avatar"')}${side("?", "How to play", 'data-ck="rules"')}</div>` +
+    `<div class="hub-r">${side(ic("cards", ""), "Portrait", 'data-act="avatar"')}${side("?", "How to play", 'data-ck="rules"')}${side("🛣", "Rank road", 'data-fl="road"')}</div>` +
     (hk ? `<div class="hub-id"><small><i style="--c:var(--ds-${hk.el}-1)"></i>${EL[hk.el][0]} · ${esc(FAC[hk.fac] || hk.fac)}</small><h1>${esc(BY[heroId].name)}</h1></div>` : "") +
     (err ? `<p class="hub-err">${esc(err)}</p>` : "") +
+    (typeof hubRail === "function" ? hubRail() : "") +
     `<div class="hub-modes">` +
     mode(unlocked ? "m-ranked" : "lock m-ranked", `data-ck="ranked" ${err || !unlocked ? "disabled" : ""}`, HM_ART.ranked, "Ranked", unlocked ? `${TIERS_R[tier][0]} · ${rrOf(rk.pts)} RR` : `Level ${RANK_LV}`) +
     (nx ? `<button class="hub-camp" data-ck="camp" ${err ? "disabled" : ""}><span class="bg">${hmAny("region:" + nx[0])}</span><span class="tx"><small>${campDone() ? "Continue" : "Begin"}</small><b>Campaign</b><em>${esc(CAMP[nx[0]].name)}</em></span></button>` : `<button class="hub-camp" data-ck="start" data-l="1" ${err ? "disabled" : ""}><span class="bg">${hmImg(heroId)}</span><span class="tx"><small>Complete</small><b>Quick battle</b><em>Normal</em></span></button>`) +
@@ -4292,7 +4313,7 @@ function ckRender() {
     `<div class="ckpanel">${ckPanel()}</div><button class="fightbtn btn big yellow" data-ck="fight" ${G.phase !== "plan" || CKU.busy || G.over ? "disabled" : ""}>FIGHT</button></div>`;
 }
 const kq = (s, i) => document.querySelector(`#ck .ku[data-s="${s}"][data-i="${i}"][data-kind="lane"]`);
-function kpop(el, text, cls = "") { if (!el) return; const p = document.createElement("span"); p.className = "kpopn " + cls; p.textContent = text; el.appendChild(p); setTimeout(() => p.remove(), 1000); }
+function kpop(el, text, cls = "") { if (!el) return; const p = document.createElement("span"); p.className = "kpopn " + cls; p.textContent = text; p.style.setProperty("--dx", Math.round(Math.random() * 26 - 13) + "px"); el.appendChild(p); setTimeout(() => p.remove(), 1000); }
 async function ckFx(e) {
   ckRender(); const sp = G.speed || 1;
   if (e.t === "phase") { CKU.msg = e.text; const mg = $("#ckmsg"); if (mg) mg.textContent = e.text; sfx("go"); await sleep(380 / sp); }
@@ -4333,9 +4354,11 @@ function ckResult() {
     if (win && rk.day !== today()) { rk.day = today(); coins += ECON.rankDaily; }
     if (after > rk.tierBest) { rk.tierBest = after; giftAdd("Rank " + TIERS_R[after][0] + " reached", "A reward for climbing to rank " + TIERS_R[after][0] + " in Ranked.", { c: ECON.tierUp.coins, g: ECON.tierUp.gems }); promo = TIERS_R[after][0]; extra += " · NEW RANK, " + ECON.tierUp.coins + " coins and " + ECON.tierUp.gems + " gems are in your gift box"; }
   } else if (mode.kind === "online") { xp = win ? 20 : 10; coins = win ? ECON.onlineWin : ECON.loss; }
+  if (mode.weekly && win && typeof weeklyWin === "function") { const wb = weeklyWin(); coins += wb.coins; gems += wb.gems; extra = wb.note + (extra ? " · " + extra : ""); }
+  if (win && typeof chestAward === "function") { const ct = chestAward(mode); if (ct) extra = extra ? extra + " · " + ct : ct; }
   if (G.note) extra = G.note + (extra ? " · " + extra : "");
   P.plays = (P.plays || 0) + 1; if (win) P.wins = (P.wins || 0) + 1; histAdd(win, draw); earn(coins, gems); const xp0 = P.xp, lv0 = P.lv, ups = xp ? gainXp(xp) : []; scheduleSave(); chrome(); sfx(win ? "win" : draw ? "draw" : "lose");
-  const opp = mode.kind === "online" && AM && AM.opp ? String(AM.opp) : "", again = opp ? `<button class="btn sm dark" data-me="rep" data-n="${esc(opp)}">Report</button><button class="btn sm dark" data-me="blk" data-n="${esc(opp)}">Block</button>` : mode.kind === "online" || G.online ? "" : `<button class="btn yellow" data-ck="rematch">${mode.kind === "camp" ? "Again" : "Rematch"}</button>`;
+  const opp = mode.kind === "online" && AM && AM.opp ? String(AM.opp) : "", again = opp ? `<button class="btn sm dark" data-me="rep" data-n="${esc(opp)}">Report</button><button class="btn sm dark" data-me="blk" data-n="${esc(opp)}">Block</button>` : mode.kind === "online" || G.online ? "" : (mode.kind === "camp" && win && typeof campNext === "function" && campNext() ? `<button class="btn yellow" data-ck="nextStage">Next stage ▶</button><button class="btn sm dark" data-ck="rematch">Again</button>` : `<button class="btn yellow" data-ck="rematch">${mode.kind === "camp" ? "Again" : "Rematch"}</button>`);
   const chip = (cls, icon, n, lab) => `<div class="rchip ${cls}"><span class="ri">${icon}</span><b data-n="${parseInt(String(n).replace(/\D/g, ""), 10)}">${n}</b><small>${lab}</small></div>`;
   const xpPct = (lv, x) => Math.min(100, Math.round(100 * x / need(lv))), xpBar = xp ? `<div class="rxp"><small id="rxpl">Level ${lv0}</small><div class="bar"><i id="rxpi" style="width:${xpPct(lv0, xp0)}%"></i></div></div>` : "";
   openSheet(`<div class="res ${win ? "win" : draw ? "draw" : "lose"}"><b class="rtitle">${win ? "VICTORY" : draw ? "DRAW" : "DEFEAT"}</b><small class="rsub">${G.arena ? "Match time " + arClock(G.time) : "Round " + Math.min(G.round, CK.MAXR)}</small>` +
@@ -4346,7 +4369,7 @@ function ckResult() {
 }
 /* the rewards count up one after another and the experience bar fills (a level-up fills it, flashes, and carries on) */
 function resAnim(xp, xpPct, lv0) {
-  document.querySelectorAll("#modal .rchip b[data-n]").forEach((b, i) => { const n = +b.dataset.n; if (!uiMotion()) return; b.dataset.v = 0; b.textContent = "+0"; setTimeout(() => { uiCount(b, n, 700, "+"); sfx("coin"); }, 350 + i * 220); });
+  document.querySelectorAll("#modal .rchip b[data-n]").forEach((b, i) => { const n = +b.dataset.n; if (!uiMotion()) return; b.dataset.v = 0; b.textContent = "+0"; setTimeout(() => { uiCount(b, n, 700, "+"); sfx("coin"); sfx("ping", 1 + i * 2); }, 350 + i * 220); });
   const bar = $("#rxpi"); if (!bar || !xp) return; const lab = $("#rxpl"), to = xpPct(P.lv, P.xp);
   if (!uiMotion()) { if (lab) lab.textContent = "Level " + P.lv; bar.style.width = to + "%"; return; }
   bar.style.transition = "width .8s cubic-bezier(.2,.8,.3,1)";
@@ -4371,6 +4394,7 @@ document.addEventListener("click", async e => {
     case "archSel": CKU.arch = d.a || ""; { const e = $("#stylechips"); if (e) e.innerHTML = styleChips(CKU.arch); } return uiFx("tap");
     case "camp": BV = "camp"; return show("battle");
     case "campBack": BV = "home"; return show("battle");
+    case "nextStage": { const nx = campNext(); closeModal(); if (!nx) return show("battle"); return ckStart(campLevel(nx[0], nx[1]), campMode(nx[0], nx[1])); }
     case "campStage": return campSheet(+d.ch, +d.k);
     case "campGo": closeModal(); return typeof campBegin === "function" ? campBegin(+d.ch, +d.k) : ckStart(campLevel(+d.ch, +d.k), campMode(+d.ch, +d.k));
     case "unrated": return rankedFind("unrated");
@@ -4379,7 +4403,7 @@ document.addEventListener("click", async e => {
     case "rematch": return ckRematch();
     case "leave": return ckLeave();
     case "rules": return rulesSheet();
-    case "practiceSheet": return openSheet(`<h2 class="fat">Practice</h2><p class="note" style="text-align:center;margin:0 0 10px">Practice pays coins and XP.</p><div class="hm-practice"><button class="btn" data-ck="start" data-l="0">Easy<small>Forgiving opponent</small></button><button class="btn yellow" data-ck="start" data-l="1">Normal<small>A fair fight</small></button><button class="btn red" data-ck="start" data-l="2">Hard<small>Plays to win</small></button></div><p class="note" style="text-align:center;margin:12px 0 6px">Opponent style</p><div class="stylechips" id="stylechips">${styleChips(CKU.arch)}</div><div class="row c" style="margin-top:12px"><button class="btn dark" data-act="closeModal">Close</button></div>`);
+    case "practiceSheet": return openSheet(`<h2 class="fat">Practice</h2><p class="note" style="text-align:center;margin:0 0 10px">Practice pays coins and XP.</p><div class="hm-practice"><button class="btn" data-ck="start" data-l="0">Easy<small>Forgiving opponent</small></button><button class="btn yellow" data-ck="start" data-l="1">Normal<small>A fair fight</small></button><button class="btn red" data-ck="start" data-l="2">Hard<small>Plays to win</small></button></div><button class="btn" data-fl="weekly" style="width:100%;margin-top:12px">${typeof weeklyInfo === "function" ? "Weekly challenge · " + weeklyInfo().name : "Weekly challenge"}</button><p class="note" style="text-align:center;margin:12px 0 6px">Opponent style</p><div class="stylechips" id="stylechips">${styleChips(CKU.arch)}</div><div class="row c" style="margin-top:12px"><button class="btn dark" data-act="closeModal">Close</button></div>`);
     case "deckEdit": return deckEditor(P.cdi);
     case "deckSwap": return openSheet(`<h2 class="fat">Swap deck</h2><div class="list">${P.cd.map((x, i) => `<button class="panel item" data-ck="deckPick" data-i="${i}" style="${i === P.cdi ? "border-color:var(--line)" : ""}">${deckCover(x)}<div class="t"><b>${esc(x.name)}</b><small>${ckDeckOk(x.cards) ? "Incomplete" : x.cards.length + " cards, ready"}</small></div>${i === P.cdi ? '<span class="tag gold">ACTIVE</span>' : ""}</button>`).join("")}</div><div class="row c" style="margin-top:10px"><button class="btn sm dark" data-act="closeModal">Close</button></div>`);
     case "deckPick": P.cdi = +d.i; scheduleSave(); closeModal(); chrome(); return show(tab);
@@ -7366,8 +7390,9 @@ const passText = k => { const P = AR.PS, hp = x => Math.round(x * AR.HPX), pc = 
    Without the server (offline) the fight still plays, but it is not verified and earns nothing. */
 async function arStart(level, mode = { kind: "practice" }) {
   ckInit(); const d = P.cd[P.cdi], err = ckDeckOk(d.cards); if (err) return toast(err); if (!uiOnce("arStart", 1500)) return;
-  let sv = null; if (typeof matchStart === "function") { toast("Setting up the fight…"); sv = await matchStart(mode, level); if (sv && sv.refused) return toast(sv.err || "The server refused that fight."); }
-  if (sv) { level = sv.level; if (mode.kind === "ranked") mode.opp = sv.opp; } else if (typeof ACC !== "undefined") toast("No connection to the server: this fight is not verified and earns no rewards.");
+  let sv = null; if (typeof matchStart === "function" && !mode.offline) { toast("Setting up the fight…"); sv = await matchStart(mode, level); if (sv && sv.refused) return toast(sv.err || "The server refused that fight."); }
+  if (sv) { level = sv.level; if (mode.kind === "ranked") mode.opp = sv.opp; } else if (!mode.offline && typeof ACC !== "undefined" && ACC && typeof srvOn === "function" && srvOn() && typeof arOfflineAsk === "function") return arOfflineAsk(level, mode);
+  else if (typeof ACC !== "undefined" && !mode.tut) toast(mode.offline ? "Playing without rewards: this fight is not verified." : "Not signed in: this fight is not verified and earns no rewards.");
   const A = arNew(d.cards, sv ? sv.foe : (mode.deck || ckAiDeck(level, mode.arch)), { ui: true, level: [2, level], mode, seed: sv ? sv.seed : (Math.random() * 2147483647) | 0 });
   if (mode.core) A.s[1].core += mode.core; if (mode.energy) A.s[1].eMul = 1.3;
   arLaunch(A, mode, mode.kind === "camp" ? CAMP[mode.ch].foes[mode.k] : mode.kind === "ranked" ? "RANKED" : "ENEMY", 0, null, level);
@@ -7379,6 +7404,7 @@ function arLaunch(A, mode, opp, me, net, level) {
   G = { arena: true, over: false, phase: "arena", online: !!net, mode, level: level || 0, winner: null, round: 1, time: 0, s: [{ core: A.s[0].core }, { core: A.s[1].core }], speed: 1 };
   if (!A.replay) { A.rec = []; A.tw = [A.s[0].core, A.s[1].core, A.s[0].eMul || 0, A.s[1].eMul || 0, A.s[0].energy, A.s[1].energy]; }
   $("#ck").hidden = false; closeModal(); musicMode("match"); if (typeof arenaBg === "function") arenaBg(A); if (typeof ambArena === "function") { ambArena(A); if (typeof ambDuck === "function") ambDuck(1, .2); if (typeof jinglePreload === "function") jinglePreload(); } if (typeof BG !== "undefined") BG.speed = 1; arBuild(); arIntroStart(); if (typeof introTip === "function") introTip(); AM.raf = requestAnimationFrame(arLoop);
+  if (!net) { const sp = (P && P.prefs && P.prefs.speed) || 1; AM.speed = sp; const sb = $("#arspeed"); if (sb) sb.textContent = sp + "×"; }   // the speed you chose last time
   if (net) { $("#arspeed").style.display = "none"; AM.ka = setInterval(arNetPulse, 1000); }
 }
 /* ----- online: deterministic lockstep. Both phones run the same fight; only commands (with the tick they apply on) and heartbeats cross the wire. ----- */
@@ -7496,7 +7522,8 @@ function arSlotUpd(el, u, s, kind, now) {
   r.sk.style.display = s === 0 && kind === "lane" && u.skcd <= 0 && A.s[me].energy >= u.acost && !A.over ? "" : "none";
 }
 /* The panel under the board is one fixed-height strip: name and numbers, plus the buttons. The ability text lives in its own window ("Details"), so selecting a card never makes the panel grow. */
-const stat = (k, v) => `<span class="st"><i>${k}</i><b>${v}</b></span>`;
+const STAT_TIP = { ATK: "Attack: damage of each strike", HP: "Health: the card falls at 0", Cost: "Energy needed to play it", SPD: "Strikes per second", Speed: "Strikes per second", Level: "Cards level up as they fight" };
+const stat = (k, v) => `<span class="st"${STAT_TIP[k] ? ` data-tip="${STAT_TIP[k]}"` : ""}><i>${k}</i><b>${v}</b></span>`;
 function arPanel() {
   const A = AM.A, me = AM.me, sel = AM.sel; let m = AM.mode, h = "", sig;
   if (m) { const c = A.s[me].lane[m.i]; if (!c || c.hp <= 0) { AM.mode = m = null; AM.sig = ""; toast("That card is gone. Skill cancelled."); } }   // the card that was casting fell while the player was choosing a target
@@ -7591,12 +7618,12 @@ function arEvents(now) {
       setTimeout(() => { if (!AM) return; const p2 = fxPos(tEl); fxSlash(p2, col, e.s ? 35 : -35); fxSparks(p2, col, 6, 26, 360); }, 190);
     }
     else if (e.t === "hit") {
-      if (el) { const p = fxPos(el); if (el._fx) el._fx.hurt = now + 280; kpop(el, "-" + Math.max(1, Math.round(e.d)), e.react ? "react" : ""); fxFlash(p, e.react ? "#ffffff" : elColor(e.el), e.react ? 96 : 60); if (e.d > 16) { fxSparks(p, elColor(e.el), 12, 44, 520); fxShake(arena, 3, 200); }
-        if (e.react) { kpop(el, e.react, "rname"); fxRing(p, elColor(e.el), 96, 620); fxRing(p, "#ffffff", 64, 480, 80); } }
+      if (el) { const p = fxPos(el); if (el._fx) el._fx.hurt = now + 280; kpop(el, "-" + Math.max(1, Math.round(e.d)), (e.react ? "react" : "") + (e.d >= 30 ? " big" : e.d >= 18 ? " mid" : "")); if (e.react) { fxHitStop(70, now); fxPunch(arena); } else if (e.d > 22) fxHitStop(45, now); fxFlash(p, e.react ? "#ffffff" : elColor(e.el), e.react ? 96 : 60); if (e.d > 16) { fxSparks(p, elColor(e.el), 12, 44, 520); fxShake(arena, 3, 200); }
+        if (e.react) { const cb = fxCombo(now); kpop(el, e.react + (cb > 1 ? " ×" + cb : ""), "rname c" + Math.min(cb, 4)); fxRing(p, elColor(e.el), 96, 620); fxRing(p, "#ffffff", 64, 480, 80); } }
       snd("impact", { el: e.el, d: e.d, react: !!e.react });
     }
-    else if (e.t === "core") { const c = $("#core" + e.s); if (c) { const p = fxPos(c.querySelector(".hframe")); c.classList.remove("shake"); void c.offsetWidth; c.classList.add("shake"); kpop(c, "-" + Math.max(1, Math.round(e.d)), "react"); fxFlash(p, "#ff4a5e", 120, 340); fxSparks(p, "#ff8d98", 14, 52, 600); fxRing(p, "#ff4a5e", 110, 560); c.querySelector(".hflash").animate([{ opacity: .9 }, { opacity: 0 }], 360); if (e.d > 6) fxShake(arena, 6, 320); const hc = c.querySelector(".hcrack"); hc.style.opacity = Math.min(1, (1 - Math.max(0, A.s[e.s ^ me].core) / AM.maxCore[e.s ^ me]) * 1.4); } snd("err"); }
-    else if (e.t === "die") { $("#armsg").textContent = e.name + " falls"; snd("fall"); const g = el && el._gone && performance.now() - el._gone.t < 400 ? el._gone : null; if (g && el) { const r = fxPos(el); fxShatter({ html: g.html, cls: g.cls, l: r.l, t: r.t, w: r.w, h: r.h }, col || "#fff"); } }
+    else if (e.t === "core") { fxHitStop(90, now); const c = $("#core" + e.s); if (c) { const p = fxPos(c.querySelector(".hframe")); c.classList.remove("shake"); void c.offsetWidth; c.classList.add("shake"); kpop(c, "-" + Math.max(1, Math.round(e.d)), "react"); fxFlash(p, "#ff4a5e", 120, 340); fxSparks(p, "#ff8d98", 14, 52, 600); fxRing(p, "#ff4a5e", 110, 560); c.querySelector(".hflash").animate([{ opacity: .9 }, { opacity: 0 }], 360); if (e.d > 6) fxShake(arena, 6, 320); const hc = c.querySelector(".hcrack"); hc.style.opacity = Math.min(1, (1 - Math.max(0, A.s[e.s ^ me].core) / AM.maxCore[e.s ^ me]) * 1.4); } snd("err"); }
+    else if (e.t === "die") { fxHitStop(55, now); $("#armsg").textContent = e.name + " falls"; snd("fall"); const g = el && el._gone && performance.now() - el._gone.t < 400 ? el._gone : null; if (g && el) { const r = fxPos(el); fxShatter({ html: g.html, cls: g.cls, l: r.l, t: r.t, w: r.w, h: r.h }, col || "#fff"); } }
     else if (e.t === "enter") { snd("cardPlace"); if (el) { if (el._fx) el._fx.enter = now + 500; const p = fxPos(el); fxRing(p, col || "#e3bf66", 90, 560); fxFlash(p, "#fff3bf", 80, 340); fxMotes(p, "#fff3bf", 5, 30); } }
     else if (e.t === "skill") {
       $("#armsg").textContent = (e.s ? "Foe: " : "") + e.name; sfx("cast", e.el);
@@ -7632,7 +7659,7 @@ function arLoop(now) {
       const w = AM.stall && now - AM.stall > 800; $("#armsg").textContent = w ? "Waiting for your opponent…" : $("#armsg").textContent === "Waiting for your opponent…" ? "" : $("#armsg").textContent;
     }
   } else if ($("#modal").hidden && !A.over && !AM.hold) {   // an open sheet (pause menu) freezes the fight
-    AM.acc += dt * AM.speed;
+    if (now >= (AM.stopUntil || 0)) AM.acc += dt * AM.speed;   // a short freeze on the big moments (fxHitStop)
     while (AM.acc >= AR.DT) { AM.acc -= AR.DT; if (A.tick % 5 === 0 && !A.replay) { arAi(A, 1); if (AM.auto) arAi(A, 0); } arStep(A); if (A.over) break; }
   }
   G.time = A.t; arUpdate(now);
@@ -7719,7 +7746,7 @@ document.addEventListener("click", e => {
     case "playcard": { const S0 = A.s[AM.me], sel = AM.sel, h = sel && sel.kind === "bench" ? S0.bench[sel.i] : null; if (!h || !h.skill) return; if (S0.energy < SKC[h.sid].c) return toast("Not enough energy."); arPut({ k: "play", b: sel.i }); AM.sel = null; AM.sig = ""; return; }
     case "draw": { if (A.over) return; const S0 = A.s[AM.me]; if (!S0.pile || !S0.pile.length) return toast("Your draw pile is empty."); if (!S0.bench.some(b => !b)) return toast("Your hand is full. Bring a card in first."); if (S0.energy < AR.DRAW_E) return toast("Drawing costs " + AR.DRAW_E + " energy."); sfx("select"); arPut({ k: "draw" }); AM.sig = ""; return; }
     case "menu": return openSheet(AM.net ? `<h2 class="fat">MATCH MENU</h2><p class="note" style="text-align:center">The fight keeps going while this is open.</p><div class="row c" style="margin-top:10px"><button class="btn red" data-ck="leave">Resign</button><button class="btn yellow" data-act="closeModal">Back to the fight</button></div>` : `<h2 class="fat">PAUSED</h2><div class="row c" style="margin-top:10px"><button class="btn red" data-ck="leave">Give up</button><button class="btn yellow" data-act="closeModal">Resume</button></div>`);
-    case "speed": AM.speed = AM.speed >= 3 ? 1 : AM.speed + 1; el.textContent = AM.speed + "×"; return;
+    case "speed": AM.speed = AM.speed >= 3 ? 1 : AM.speed + 1; el.textContent = AM.speed + "×"; if (P) { P.prefs = P.prefs || {}; P.prefs.speed = AM.speed; scheduleSave(); } return;
     case "auto": AM.auto = !AM.auto; el.textContent = AM.auto ? "Auto: ON" : "Auto"; el.className = "btn sm " + (AM.auto ? "yellow" : "dark"); return;
     case "cancel": AM.mode = null; AM.sig = ""; return;
     case "log": AM.logOpen = !AM.logOpen; $("#arlog").hidden = !AM.logOpen; el.className = "btn sm " + (AM.logOpen ? "yellow" : "dark"); AM.logSig = ""; return;
@@ -7817,6 +7844,196 @@ function arHoldHtml(g) {
   document.addEventListener("contextmenu", e => { if (arSlotOf(e.target)) e.preventDefault(); });
   window.addEventListener("blur", end);
 })();
+
+/* ===== feel.js: game feel and small mechanics (2026-11). UI only: nothing here touches the fight simulation the server re-runs. =====
+   1 Back button/gesture closes the top sheet first      2 hit-stop (arenaui.js calls fxHitStop)       3 number pop sizes and reaction combos
+   4 result buttons: the next step is the yellow one      5 next-goal strip on the hub                   6 reward chests (timer or wins)
+   7 rank road                                            8 tap-and-hold tips (data-tip)                 9 remembered speed, replay skip
+   10 offline choice (retry or play without rewards)      12 daily deal in the Summon tab                13 the weekly challenge deck rule
+   Assumptions (numbers I picked, change them here): CHEST tiers, DEAL_OFF, the weekly rewards. */
+
+/* ---------------------------------------------------------------- 1. Back: an open sheet closes first, the app only exits from the bare screen */
+let HBN = 0, HBS = 0;
+function hbOpenCount() {
+  const m = document.getElementById("modal"), l = document.getElementById("layer"), ck = document.getElementById("ck");
+  return (l && !l.hidden ? 1 : 0) + (m && !m.hidden ? 1 : 0) + (ck && !ck.hidden && (typeof G !== "undefined" && G && !G.over) ? 1 : 0);
+}
+function hbSync() {
+  const want = hbOpenCount();
+  while (HBN < want) { try { history.pushState({ tc: 1 }, ""); } catch (_) {} HBN++; }
+  while (HBN > want) { HBN--; HBS++; try { history.back(); } catch (_) { HBS--; } }
+}
+function hbBack() {
+  const l = document.getElementById("layer"), m = document.getElementById("modal"), ck = document.getElementById("ck");
+  if (l && !l.hidden) return closeLayer();
+  if (m && !m.hidden) { if (m.dataset.lock) return hbSync(); return closeModal(); }
+  if (ck && !ck.hidden && typeof G !== "undefined" && G && !G.over) { toast("Use the pause button to leave a fight."); return hbSync(); }
+  if (typeof BV !== "undefined" && BV === "camp" && tab === "battle") { BV = "home"; return show("battle"); }
+}
+addEventListener("popstate", () => { if (HBS > 0) { HBS--; return; } HBN = Math.max(0, HBN - 1); hbBack(); });
+for (const nm of ["openSheet", "openLayer", "closeModal", "closeLayer", "arLaunch", "ckLeave"]) {
+  const f0 = window[nm]; if (typeof f0 !== "function") continue;
+  window[nm] = function () { const r = f0.apply(this, arguments); try { hbSync(); } catch (_) {} return r; };   // the page's own globals become the wrapped versions
+}
+
+/* ---------------------------------------------------------------- 2/3. hit-stop and the combo counter (called from arenaui.js) */
+function fxHitStop(ms, now) { if (typeof AM === "undefined" || !AM || AM.net || !shakeOn()) return; AM.stopUntil = Math.max(AM.stopUntil || 0, now + ms); }
+function fxPunch(el, k = 1.016, ms = 170) { if (!el || !shakeOn() || !el.animate) return; el.animate([{ transform: "scale(1)" }, { transform: "scale(" + k + ")" }, { transform: "scale(1)" }], { duration: ms, easing: "ease-out" }); }
+function fxCombo(now) { AM.cmb = now - (AM.cmbAt || 0) < 2400 ? (AM.cmb || 0) + 1 : 1; AM.cmbAt = now; return AM.cmb; }
+
+/* ---------------------------------------------------------------- 6. reward chests: a win earns one; it opens on a timer OR after a few more wins */
+const CHEST = [
+  { n: "Wooden", ms: 3600e3, wins: 2, coins: [120, 200], gems: [0, 2], col: "#b07a45" },
+  { n: "Silver", ms: 3 * 3600e3, wins: 3, coins: [280, 420], gems: [2, 6], col: "#aeb9c8" },
+  { n: "Golden", ms: 8 * 3600e3, wins: 4, coins: [600, 900], gems: [6, 14], col: "#f0c850" },
+], CHEST_SLOTS = 3;
+function chestInit() { if (!P.chs || !Array.isArray(P.chs.s)) P.chs = { s: [null, null, null] }; while (P.chs.s.length < CHEST_SLOTS) P.chs.s.push(null); }
+const chestReady = c => !!c && (c.w <= 0 || Date.now() >= c.at + CHEST[c.t].ms);
+const chestLeft = c => Math.max(0, c.at + CHEST[c.t].ms - Date.now());
+function chestClock(ms) { const s = Math.max(0, Math.ceil(ms / 1000)), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return (h ? h + ":" + String(m).padStart(2, "0") : m) + ":" + String(x).padStart(2, "0"); }
+function chestTier(mode, win) { if (!win) return -1; const k = mode && mode.kind; if (k === "camp") return mode.boss || (typeof campPos === "function" && campPos(mode.ch, mode.k).boss) ? 2 : 1; if (k === "ranked") return 1; return 0; }
+function chestAward(mode) {   // called from the result screen on a verified win; returns a line for the result note
+  chestInit(); const s = P.chs.s;
+  const ch = s.filter(Boolean).filter(c => !chestReady(c))[0]; if (ch) ch.w = Math.max(0, ch.w - 1);   // the oldest charging chest gets the win
+  const t = chestTier(mode, true), i = s.indexOf(null); if (t < 0) return "";
+  if (i < 0) return "Chest slots full: open one to earn more";
+  s[i] = { t, at: Date.now(), w: CHEST[t].wins }; return CHEST[t].n + " chest earned";
+}
+const rnd = ([a, b]) => a + Math.floor(Math.random() * (b - a + 1));
+function chestOpen(i) {
+  chestInit(); const c = P.chs.s[i]; if (!c || !chestReady(c)) return;
+  const T = CHEST[c.t], coins = rnd(T.coins), gems = rnd(T.gems); P.chs.s[i] = null; earn(coins, gems); scheduleSave(); chrome(); sfx("win"); uiHaptic("ok");
+  const chip = (cls, icon, n, lab) => `<div class="rchip ${cls}"><span class="ri">${icon}</span><b data-n="${n}">+0</b><small>${lab}</small></div>`;
+  openSheet(`<div class="res win chest-open"><i class="chest-ico big" style="--cc:${T.col}">${chestSvg()}</i><b class="rtitle">${T.n.toUpperCase()} CHEST</b><div class="rrow">${chip("g", ic("coin", ""), coins, "coins")}${gems ? chip("p", ic("gem", ""), gems, "gems") : ""}</div></div><div class="row c" style="margin-top:14px"><button class="btn yellow" data-fl="collect">Collect</button></div>`);
+  lockSheet(); document.querySelectorAll("#modal .rchip b[data-n]").forEach((b, k) => { b.dataset.v = 0; setTimeout(() => { uiCount(b, +b.dataset.n, 700, "+"); sfx("ping", 1 + k * 2); }, 450 + k * 260); });
+}
+const chestSvg = () => '<svg viewBox="0 0 32 28"><path d="M3 12a13 9 0 0 1 26 0v2H3z" fill="currentColor" opacity=".95"/><rect x="3" y="14" width="26" height="12" rx="2" fill="currentColor" opacity=".75"/><rect x="3" y="12.5" width="26" height="3" fill="#0006"/><rect x="13.5" y="12" width="5" height="7" rx="1.2" fill="#fff8"/></svg>';
+function chestInfo(i) {
+  chestInit(); const c = P.chs.s[i]; if (!c) return toast("Win a battle to earn a chest.");
+  if (chestReady(c)) return chestOpen(i);
+  const T = CHEST[c.t], pct = Math.round(100 * (1 - chestLeft(c) / T.ms));
+  openSheet(`<div class="res"><i class="chest-ico big" style="--cc:${T.col}">${chestSvg()}</i><b class="rtitle">${T.n.toUpperCase()} CHEST</b><p class="rnote">Opens in <b data-chs="${i}">${chestClock(chestLeft(c))}</b><br>or after <b>${c.w}</b> more win${c.w === 1 ? "" : "s"}</p><div class="rxp"><div class="bar"><i style="width:${pct}%"></i></div></div><p class="rnote" style="opacity:.75">The oldest chest gets each win. Nothing here costs gems.</p></div><div class="row c" style="margin-top:12px"><button class="btn dark" data-act="closeModal">Close</button></div>`);
+}
+
+/* ---------------------------------------------------------------- 13. the weekly challenge: a deck rule that changes every Monday (12:00 AM EST) */
+const WEEKLY = [["fire", "Only Fire"], ["water", "Only Water"], ["wind", "Only Wind"], ["earth", "Only Earth"], ["lightning", "Only Lightning"], ["ice", "Only Ice"], ["light", "Only Light"], ["dark", "Only Dark"]];
+const WEEKLY_REWARD = { coins: 600, gems: 15 };
+function weeklyInfo() {
+  const w = weekNo(), r = WEEKLY[w % WEEKLY.length]; if (!P.wk || P.wk.w !== w) P.wk = { w, done: false, wins: 0 };
+  return { el: r[0], name: r[1], done: !!P.wk.done, wins: P.wk.wins || 0 };
+}
+function weeklyBad(cards, el) { return (cards || []).filter(id => !isSkill(id) && BY[id] && arCard(BY[id]).el !== el).map(id => BY[id].name); }
+function weeklyDeckErr(cards) { const e = ckDeckOk(cards); if (e) return e; const w = weeklyInfo(), bad = weeklyBad(cards, w.el); return bad.length ? bad.length + " card" + (bad.length > 1 ? "s" : "") + " in this deck are not " + EL[w.el][0] + ": " + bad.slice(0, 3).join(", ") + (bad.length > 3 ? "…" : "") : ""; }
+function weeklyBuild() {   // a deck of the best owned creatures of the week's element, saved as its own deck so nothing else is changed
+  const w = weeklyInfo(), own = []; for (const id of Object.keys(P.own || {})) { const c = BY[id]; if (!c) continue; const n = Math.min(P.own[id] || 0, rarOf(c) >= 5 ? 1 : 2); if (n && arCard(c).el === w.el) for (let i = 0; i < n; i++) own.push(id); }
+  own.sort((a, b) => rarOf(BY[b]) - rarOf(BY[a]) || BY[b].i - BY[a].i); if (own.length < 12) return toast("You need 12 " + EL[w.el][0] + " creatures for this week's deck. You have " + own.length + ".");
+  const name = "Weekly: " + EL[w.el][0]; let i = P.cd.findIndex(d => d.name === name); if (i < 0) { P.cd.push({ name, cards: [] }); i = P.cd.length - 1; } P.cd[i].cards = own.slice(0, 12); P.cdi = i; scheduleSave(); toast("Deck ready: " + name); weeklySheet();
+}
+function weeklyStart() { const d = P.cd[P.cdi], err = weeklyDeckErr(d.cards); if (err) return toast(err); closeModal(); ckStart(1, { kind: "practice", weekly: 1 }); }
+function weeklyWin() {   // called from the result screen on a weekly win
+  weeklyInfo(); P.wk.wins = (P.wk.wins || 0) + 1; if (P.wk.done) return { coins: 0, gems: 0, note: "Weekly challenge won again" };
+  P.wk.done = true; return { coins: WEEKLY_REWARD.coins, gems: WEEKLY_REWARD.gems, note: "Weekly challenge cleared: bonus " + WEEKLY_REWARD.coins + " coins and " + WEEKLY_REWARD.gems + " gems" };
+}
+function weeklySheet() {
+  ckInit(); const w = weeklyInfo(), d = P.cd[P.cdi], err = weeklyDeckErr(d.cards), col = EL_TONE[w.el] || "#fff";
+  openSheet(`<h2 class="fat">Weekly challenge</h2><div class="wk-rule" style="--wc:${col}">${elIco(w.el, "")}<b>${w.name}</b><small>Only ${EL[w.el][0]} creatures. Skill cards are allowed.</small></div>` +
+    `<p class="note" style="text-align:center">${w.done ? "Cleared this week. More wins still pay normal practice rewards." : "First win this week: <b>" + WEEKLY_REWARD.coins + " coins and " + WEEKLY_REWARD.gems + " gems</b>."}<br>Resets Monday 12:00 AM EST.</p>` +
+    `<p class="note" style="text-align:center;margin-top:6px">Deck: <b>${esc(d.name)}</b>${err ? '<br><span style="color:#ff9a9a">' + esc(err) + "</span>" : " · ready"}</p>` +
+    `<div class="row c" style="margin-top:10px;gap:8px;flex-wrap:wrap"><button class="btn yellow" data-fl="weeklyPlay" ${err ? "disabled" : ""}>Play</button><button class="btn" data-fl="weeklyBuild">Build the deck</button><button class="btn dark" data-act="closeModal">Close</button></div>`);
+}
+
+/* ---------------------------------------------------------------- 12. the daily deal: one discounted 10-summon, rotating banner, once a day */
+const DEAL_OFF = .3;
+function dealInfo() {
+  const pools = activePools().filter(p => p.key !== "std" && p.cost && p.cost.gems); if (!pools.length) return null;
+  const day = Math.floor((Date.now() - 5 * 3600e3) / 864e5), pool = pools[day % pools.length], full = pool.cost.gems * (ECON.multi - 1), price = Math.max(1, Math.ceil(full * (1 - DEAL_OFF)));
+  return { pool, full, price, done: P.dd === today() };
+}
+function dealPanel() {
+  const x = dealInfo(); if (!x) return "";
+  return `<div class="deal ${x.done ? "gone" : ""}"><div class="dl-t"><small>DAILY DEAL · ${Math.round(DEAL_OFF * 100)}% OFF</small><b>${esc(x.pool.name)} · 10 summons</b></div>` +
+    (x.done ? '<span class="dl-b">Back tomorrow</span>' : `<button class="btn yellow sm" data-fl="deal"><s>${x.full}</s> ${ic("gem", "")} ${x.price}</button>`) + "</div>";
+}
+function dealBuy() {
+  const x = dealInfo(); if (!x || x.done) return; if ((P.gems || 0) < x.price) return toast("Not enough gems for today's deal.");
+  P.dd = today(); summon(x.pool.key, ECON.multi, { ok: true, free: 0, coins: 0, gems: x.price });
+}
+
+/* ---------------------------------------------------------------- 7. the rank road */
+function roadSheet() {
+  rankInit(); const rk = P.rank, info = rankInfo(rk.pts), rr = info.rr, rows = [];
+  for (let i = RANKS_RR.length - 1; i >= 0; i--) {
+    const [nm, lo] = RANKS_RR[i], hi = RANKS_RR[i + 1] ? RANKS_RR[i + 1][1] : RR_MAX, reached = rr >= lo, here = i === info.t, got = (rk.tierBest || 0) >= i;
+    rows.push(`<div class="rd ${here ? "here" : reached ? "done" : "lock"}"><i class="rd-n">${nm}</i><div class="rd-b"><b>${lo} RR${i === RANKS_RR.length - 1 ? " and up" : ""}</b><small>${i === 0 ? "Starting rank" : got ? "Reward collected" : "Reward: " + ECON.tierUp.coins + " coins, " + ECON.tierUp.gems + " gems"}</small>${here ? `<div class="bar"><i style="width:${info.pct}%"></i></div><small class="rd-me">You: ${rr} RR${i < RANKS_RR.length - 1 ? " · " + (hi - rr) + " to " + RANKS_RR[i + 1][0] : ""}</small>` : ""}</div><span class="rd-s">${reached ? "✓" : "🔒"}</span></div>`);
+  }
+  openSheet(`<h2 class="fat">Rank road</h2><div class="road">${rows.join("")}</div><div class="row c" style="margin-top:10px"><button class="btn dark" data-act="closeModal">Close</button></div>`);
+}
+
+/* ---------------------------------------------------------------- 5. the hub rail: the next goal and the chest slots */
+function goalNow() {
+  chestInit(); const s = P.chs.s, ri = s.findIndex(c => chestReady(c));
+  if (ri >= 0) return { t: "A chest is ready", s: "Tap to open it", a: `data-fl="chest" data-i="${ri}"`, hot: 1 };
+  if (typeof missions === "function" && (!P.login || missions().some(m => m.have >= m.need && !P.mis.claimed[m.id]))) return { t: "Rewards are waiting", s: "Missions and login", a: 'data-act="tab" data-k="daily"', hot: 1 };
+  const fi = typeof freeInfo === "function" ? freeInfo() : null; if (fi && fi.n >= 1) return { t: "Free pack ready", s: "Open it in Packs", a: 'data-act="tab" data-k="summon"', hot: 1 };
+  const w = weeklyInfo(); if (!w.done) return { t: "Weekly: " + w.name, s: "First win pays " + WEEKLY_REWARD.gems + " gems", a: 'data-fl="weekly"' };
+  rankInit(); if (P.lv >= RANK_LV) { const info = rankInfo(P.rank.pts); if (RANKS_RR[info.t + 1]) return { t: info.hi - info.rr + " RR to rank " + RANKS_RR[info.t + 1][0], s: "Open the rank road", a: 'data-fl="road"' }; }
+  const nx = typeof campNext === "function" ? campNext() : null; if (nx) return { t: "Next: " + CAMP[nx[0]].foes[nx[1]], s: "Season " + (nx[0] + 1) + " · stage " + (nx[1] + 1), a: 'data-ck="camp"' };
+  return { t: "Play a battle", s: "Practice pays coins", a: 'data-ck="practiceSheet"' };
+}
+function hubRail() {
+  chestInit(); const g = goalNow();
+  const slot = (c, i) => !c ? `<button class="chs empty" data-fl="chest" data-i="${i}" aria-label="Empty chest slot"><i class="chest-ico" style="--cc:#6b7a90">${chestSvg()}</i><small>empty</small></button>`
+    : `<button class="chs ${chestReady(c) ? "rdy" : ""}" data-fl="chest" data-i="${i}" aria-label="${CHEST[c.t].n} chest"><i class="chest-ico" style="--cc:${CHEST[c.t].col}">${chestSvg()}</i><small data-chs="${i}">${chestReady(c) ? "OPEN" : chestClock(chestLeft(c))}</small></button>`;
+  return `<div class="hub-rail"><button class="goal ${g.hot ? "hot" : ""}" ${g.a}><small>NEXT</small><b>${esc(g.t)}</b><span>${esc(g.s)}</span></button><div class="chests">${P.chs.s.map(slot).join("")}</div></div>`;
+}
+setInterval(() => {   // the chest clocks tick on the hub and in an open chest sheet
+  if (typeof P === "undefined" || !P || !P.chs) return;
+  document.querySelectorAll("[data-chs]").forEach(el => { const c = P.chs.s[+el.dataset.chs]; if (!c) return; if (chestReady(c)) { if (el.textContent !== "OPEN" && el.closest(".hub-rail")) { el.textContent = "OPEN"; el.closest(".chs").classList.add("rdy"); } } else el.textContent = chestClock(chestLeft(c)); });
+}, 1000);
+
+/* ---------------------------------------------------------------- 8. tap-and-hold tips: any element with data-tip */
+(function () {
+  let tm = 0, tip = null, sx = 0, sy = 0, hold = 0;
+  const hide = () => { clearTimeout(tm); if (tip) { tip.remove(); tip = null; } };
+  const show = el => {
+    hide(); tip = document.createElement("div"); tip.id = "tiptop"; tip.textContent = el.dataset.tip; document.body.appendChild(tip);
+    const r = el.getBoundingClientRect(), w = tip.offsetWidth, x = Math.max(8, Math.min(innerWidth - w - 8, r.left + r.width / 2 - w / 2)), y = r.top - tip.offsetHeight - 8;
+    tip.style.left = x + "px"; tip.style.top = Math.max(8, y < 8 ? r.bottom + 8 : y) + "px"; uiHaptic("tap"); hold = Date.now();
+  };
+  document.addEventListener("pointerdown", e => { const el = e.target.closest && e.target.closest("[data-tip]"); if (!el) return hide(); sx = e.clientX; sy = e.clientY; clearTimeout(tm); tm = setTimeout(() => show(el), 420); }, true);
+  document.addEventListener("pointermove", e => { if (Math.abs(e.clientX - sx) + Math.abs(e.clientY - sy) > 12) clearTimeout(tm); }, true);
+  for (const ev of ["pointerup", "pointercancel"]) document.addEventListener(ev, () => { clearTimeout(tm); if (tip) setTimeout(hide, Math.max(900, 1400 - (Date.now() - hold))); }, true);
+  document.addEventListener("scroll", hide, true);
+})();
+document.addEventListener("contextmenu", e => { if (e.target.closest && e.target.closest("[data-tip]")) e.preventDefault(); });
+
+/* ---------------------------------------------------------------- 9/10. replays skip to the end; the offline choice */
+function repSkip() {
+  if (!AM || !AM.A || !AM.A.replay) return; const A = AM.A; let n = 0; while (!A.over && n++ < 90000) arStep(A); A.ev = [];
+}
+{
+  const f = repWatch; window.repWatch = function () { const r = f.apply(this, arguments); const row = document.querySelector("#ck .a2r"); if (row && !document.getElementById("arskip")) { const b = document.createElement("button"); b.className = "btn sm yellow"; b.id = "arskip"; b.textContent = "Skip ▶▶"; b.dataset.fl = "repskip"; row.prepend(b); } return r; };
+}
+let OFFQ = null;
+function arOfflineAsk(level, mode) {
+  OFFQ = { level, mode };
+  openSheet(`<h2 class="fat">Can't reach the server</h2><p class="note" style="text-align:center">Fights that earn rewards are checked by the server. You can try again, or play this fight without rewards.</p><div class="row c" style="gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn yellow" data-fl="retry">Try again</button><button class="btn" data-fl="offline">Play without rewards</button><button class="btn dark" data-act="closeModal">Cancel</button></div>`);
+}
+
+/* ---------------------------------------------------------------- the one click handler for everything above */
+document.addEventListener("click", e => {
+  const b = e.target.closest && e.target.closest("[data-fl]"); if (!b) return; const a = b.dataset.fl;
+  if (a === "chest") return chestInfo(+b.dataset.i);
+  if (a === "collect") { closeModal(); if (typeof tab !== "undefined" && tab === "battle") show("battle"); return; }
+  if (a === "road") return roadSheet();
+  if (a === "weekly") return weeklySheet();
+  if (a === "weeklyPlay") return weeklyStart();
+  if (a === "weeklyBuild") return weeklyBuild();
+  if (a === "deal") return dealBuy();
+  if (a === "repskip") return repSkip();
+  if (a === "retry" && OFFQ) { const q = OFFQ; OFFQ = null; closeModal(); return arStart(q.level, q.mode); }
+  if (a === "offline" && OFFQ) { const q = OFFQ; OFFQ = null; closeModal(); return arStart(q.level, Object.assign({}, q.mode, { offline: true })); }
+});
 
 /* ===== Clash online: two phones, one shared board that both of them simulate. ===== */
 /* Both phones hold the same match (seat 0 is the host, seat 1 the guest). Each player plans in secret and sends the list of what they did; when both lists are in,
@@ -8350,8 +8567,8 @@ function payPlan(pool, n) {
   return p;
 }
 const planLabel = p => p.free ? "Free pack" : [p.coins ? ic("coin", "") + p.coins : "", p.gems ? ic("gem", "") + p.gems : ""].filter(Boolean).join(" + ");
-function summon(key, n = 1) {
-  rollover(); econInit(); const pool = poolByKey(key), plan = payPlan(pool, n);
+function summon(key, n = 1, ov) {
+  rollover(); econInit(); const pool = poolByKey(key), plan = ov || payPlan(pool, n);
   if (!plan.ok) return toast(pool.key === "std" ? "Not enough coins. Winning fights earns more." : "Not enough gems. Region clears, ranked tiers and daily goals earn them, or visit the Shop.");
   tiltAsk();
   if (plan.free) { P.fp.n--; if (P.fp.n === PACK.freeMax - 1) P.fp.t = Date.now(); }
@@ -8420,6 +8637,7 @@ function viewSummon(v) {
   econInit(); const pools = activePools(); if (!pools.find(p => p.key === SEL)) SEL = "std"; const fi = freeInfo(), rec = (P.recent || []).slice(0, 10);
   let h = `<div class="seg">${[["summon", "Summon"], ["shop", "Shop"], ["exch", "Exchange"]].map(([k, n]) => `<button class="${SV === k ? "on" : ""}" data-act="svtab" data-k="${k}">${n}</button>`).join("")}</div>`;
   if (SV === "summon") {
+    h += typeof dealPanel === "function" ? dealPanel() : "";
     h += bannerRail(pools) + bannerStage(pools.find(p => p.key === SEL));
       `<p class="note" style="text-align:center;margin:10px 0 0">Free Standard packs: <b>${fi.n}/${PACK.freeMax}</b>${fi.n < PACK.freeMax ? " · the next in " + fmtT(fi.next) : ""}. A Standard summon costs ${ECON.std} coins; every other summon costs Gems.</p>` +
       `<span class="ribbon">COLLECTION</span>${setProgress()}${setProgress2()}` + (rec.length ? `<span class="ribbon green">RECENT PULLS</span><div class="recent">${rec.map(id => BY[id] ? cardHtml(BY[id], { attr: `data-act="detail" data-id="${id}"` }) : "").join("")}</div>` : "");
@@ -9573,7 +9791,7 @@ function soundPanel() {
 document.addEventListener("click", async e => {
   const el = e.target.closest("[data-act]"); if (!el || !P && el.dataset.act !== "tab") return; const a = el.dataset.act, d = el.dataset; const sn = SFXMAP[a]; sfx(sn === undefined ? "tap" : sn);
   switch (a) {
-    case "tab": if (d.k === "battle" && tab === "battle" && typeof BV !== "undefined" && BV !== "home") BV = "home";   // tapping Battle while inside the campaign closes it and goes back to the battle menu
+    case "tab": if (d.k === tab) { if (typeof closeModal === "function") closeModal(); if (d.k === "battle" && typeof BV !== "undefined") BV = "home"; if (d.k === "summon" && typeof SV !== "undefined") SV = "summon"; }   // tapping the tab you are on closes what is open and goes back to its home
       return show(d.k);
 
     case "quick": return startAi({ tier: +d.t });
