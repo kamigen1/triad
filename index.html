@@ -9194,17 +9194,19 @@ function activePools() {
   base.splice(2, 0, { key: "s2", id: "s2", group: "core", label: "SET 2", name: "Set 2: Angels & Demons", sub: "Twenty-two new cards, found only here: the Celestial choir and the Demonic court. Priced like Premium (an assumption).", slots: S2_SLOTS, pity: 8, cost: { gems: 50 }, set: 2, forever: true, tone: "#A892BA" });
   base.splice(3, 0, { key: "s3", id: "s3", group: "core", label: "SET 3", name: "Set 3: Wild Crowns", sub: "Seventeen new cards, found only here: crowned beasts, little dragons and the hollow knights. Priced like Set 2 (an assumption).", slots: S3_SLOTS, pity: 8, cost: { gems: 50 }, set: 3, forever: true, tone: "#C9A24A" });
   base.splice(4, 0, { key: "s4", id: "s4", group: "core", label: "SET 4", name: "Set 4: The Drowned Fen", sub: "Eight new cards, found only here: the Undead of the fen, from a crawling cap to the Bell Witch. Priced like Set 3 (an assumption).", slots: S4_SLOTS, pity: 8, cost: { gems: 50 }, set: 4, forever: true, tone: "#6FBF8E" });
+  base.splice(5, 0, { key: "secret", id: "secret", group: "core", label: "SECRET", name: "Secret Summon", sub: "The only place Secret Rares drop: ten of the " + SECRETS().length + " Secret Rares in every summon. Priced well above Premium (an assumption).", slots: SECRET_SLOTS, pity: 99, cost: { gems: 200 }, secret: true, forever: true, tone: "#E070A8" });
   /* themed banners: always on, one for each element, each race and each kind of ability. Same odds, price and pity rule as the Faction Fest (assumption: they copy it); the themed cards are four times as likely and the hit card is always one. */
   const th = [];
   ELKEYS.forEach(e => th.push({ key: "el:" + e, id: "el:" + e, group: "el", label: EL[e][0].toUpperCase(), name: EL[e][0] + " Surge", sub: EL[e][0] + " cards are four times as likely, and the hit card is always one.", slots: PREM_SLOTS, pity: 8, cost: { gems: 60 }, bias: c => arCard(c).el === e, biasName: EL[e][0], forever: true, all: true, tone: EL_TONE[e] }));
   FAC_ORDER.forEach(f => th.push({ key: "fac:" + f, id: "fac:" + f, group: "fac", label: FAC[f].toUpperCase(), name: FAC[f] + " Rally", sub: FAC[f] + " cards are four times as likely, and the hit card is always one.", slots: PREM_SLOTS, pity: 8, cost: { gems: 60 }, bias: c => facOf(c) === f, biasName: FAC[f], forever: true, all: true, tone: FAC_TONE[f] }));
-  AB_BANNERS.forEach(([k, n, sub, list, tone]) => th.push({ key: "ab:" + k, id: "ab:" + k, group: "ab", label: n.toUpperCase(), name: n, sub: sub + ". These cards are four times as likely, and the hit card is always one.", slots: PREM_SLOTS, pity: 8, cost: { gems: 60 }, bias: c => list.includes(arCard(c).active), biasName: n, forever: true, all: true, tone }));
+  AB_BANNERS.forEach(([k, n, sub, list, tone]) => th.push({ key: "ab:" + k, id: "ab:" + k, group: "ab", label: n.toUpperCase(), name: n, sub: sub + ". These cards are four times as likely, and the hit card is always one.", slots: PREM_SLOTS, pity: 8, cost: { gems: 60 }, bias: c => { const a = ABIL[arCard(c).active]; return !!a && list.includes(a.fam); }, biasName: n, forever: true, all: true, tone }));
   return base.concat(th);
 }
 const S2_SLOTS = slots10([[[2, 100]], [[2, 70], [3, 30]], [[3, 70], [4, 30]], [[3, 40], [4, 50], [5, 10]], [[4, 75], [5, 25]]]);   // Set 2 has no Secret Rares: ten cards a summon, the last the hit
 const S3_SLOTS = slots10([[[1, 100]], [[1, 50], [2, 50]], [[2, 100]], [[2, 50], [3, 50]], [[3, 60], [4, 40]]]);   // Set 3 has no Secret Rares; the last card of a summon is the hit (an assumption: these odds are mine)
 const S4_SLOTS = slots10([[[2, 100]], [[2, 60], [3, 40]], [[3, 100]], [[3, 50], [4, 50]], [[4, 75], [5, 25]]]);   // Set 4 has no Secret Rares (an assumption: these odds are mine)
-const AB_BANNERS = [["strikers", "Strikers", "Cards whose skill hits hard: Strike, Arc or Volley", ["strike", "arc", "volley"], "#ff8a5a"], ["guardians", "Guardians", "Cards that heal, shield or cleanse", ["mend", "ward", "cleanse"], "#6fe0a0"], ["warbringers", "Warbringers", "Cards that empower, speed up or grow", ["empower", "gale", "pact", "overgrow"], "#ffd05a"], ["tacticians", "Tacticians", "Cards that freeze, disrupt or mark", ["freeze", "disrupt", "mark"], "#9fb4ff"]];
+const SECRET_SLOTS = slots10([[["ex", 100]], [["ex", 100]], [["ex", 100]], [["ex", 100]], [["ex", 100]]]);   // every card of a Secret summon is a Secret Rare (an assumption)
+const AB_BANNERS = [["strikers", "Strikers", "Cards whose skill deals damage", ["fire", "water", "wind", "earth", "lightning", "ice", "light", "dark", "hit"], "#ff8a5a"], ["guardians", "Guardians", "Cards whose skill heals, shields or cleanses", ["heal", "shield", "cleanse"], "#6fe0a0"], ["warbringers", "Warbringers", "Cards whose skill buffs, speeds up, grows or pacts", ["buff", "haste", "grow", "pact"], "#ffd05a"], ["tacticians", "Tacticians", "Cards whose skill stuns, strips or marks", ["stun", "strip", "mark"], "#9fb4ff"]];
 const POOL_GROUPS = [["rot", "Rotating summons"], ["core", "Core summons"], ["el", "Element banners"], ["fac", "Race banners"], ["ab", "Ability banners"]];
 const poolByKey = k => activePools().find(p => p.key === k) || activePools()[0];
 let SEL = "std", SV = "summon";
@@ -9213,7 +9215,8 @@ const packLabel = k => { const p = poolByKey(k); if (p.label) return p.label; re
 const packTone = k => { const p = poolByKey(k); return p.tone || ""; };
 
 /* ----- drawing cards ----- */
-const poolBase = pool => (pool.set === 4 ? POOL4 : pool.set === 3 ? POOL3 : pool.set === 2 ? POOL2 : pool.all ? POOLALL : POOL);
+const SECRETS = () => POOL.filter(c => c.ex);
+const poolBase = pool => (pool.secret ? SECRETS() : pool.set === 4 ? POOL4 : pool.set === 3 ? POOL3 : pool.set === 2 ? POOL2 : (pool.all ? POOLALL : POOL).filter(c => !c.ex));   // Secret Rares are only in the Secret pack
 function pickCard(pool, r, taken, top, st) {
   const base = poolBase(pool); if (r === "ex" && !base.some(c => c.ex)) r = 5;   // (a pool with no Secret Rares gives its Legendary instead)
   let list = r === "ex" ? base.filter(c => c.ex) : base.filter(c => !c.ex && c.lv === r);
@@ -9930,7 +9933,7 @@ function viewCardsMain(v) {
   ckInit(); seenInit(); const have = ownedList().filter(c => S1[c.id]).length, di = Math.min(P.cdi || 0, P.cd.length - 1), d = P.cd[di];
   const deckPanel = `<div class="panel dk" data-ck="deckOpen" data-i="${di}"><div class="dkh"><b class="fat">${esc(d.name)}</b></div><div class="dstrip">${d.cards.map(id => (isSkill(id) ? skTile(id) : BY[id] ? cardHtml(BY[id]) : "")).join("") || '<p class="note" style="margin:6px auto">Empty deck</p>'}</div></div>`;
   v.innerHTML = `<span class="ribbon">DECK</span>${deckPanel}<div class="row c" style="margin-top:10px">${P.cd.length > 1 ? '<button class="btn sm" data-ck="deckSwap">Swap deck</button>' : ""}<button class="btn sm yellow" data-ck="deckNew" ${P.cd.length >= 8 ? "disabled" : ""}>New deck</button><button class="btn sm dark" data-me="import" ${P.cd.length >= 8 ? "disabled" : ""}>Import code</button></div>` +
-    `<span class="ribbon">COLLECTION · SET 1 ${have}/${POOL.length} · SET 2 ${ownedList().filter(c => c.set2).length}/${POOL2.length} · SET 3 ${ownedList().filter(c => c.set3).length}/${POOL3.length} · SET 4 ${ownedList().filter(c => c.set4).length}/${POOL4.length}</span>` +
+    `<span class="ribbon">COLLECTION</span>` +
     `<div class="cbar"><input type="search" id="fq" placeholder="${F.kind === "skill" ? "Search skill cards" : "Search cards"}" value="${esc(F.q)}"><button class="fbtn" data-act="filtOpen" aria-label="Sort and filter">${ic("filter", "")}${filtN() ? '<i class="dot"></i>' : ""}</button></div>${F.kind !== "skill" ? fchips() : ""}` +
     `<div class="seg ckind"><button class="${F.kind !== "skill" ? "on" : ""}" data-act="ckind" data-k="char">Character cards</button><button class="${F.kind === "skill" ? "on" : ""}" data-act="ckind" data-k="skill">Skill cards</button></div><div class="grid" id="coll"></div>`;
   fillColl(); const q = $("#fq"); q.oninput = () => { F.q = q.value; fillColl(); };
