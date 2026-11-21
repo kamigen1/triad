@@ -894,6 +894,18 @@ body .ribbon::after { background: linear-gradient(90deg, #f0d68a88, transparent)
 .hub-deck, .hub-edit, .goal { background: linear-gradient(#171f45e8, #0c1228f2) !important; border: 1.5px solid #8a76e088 !important; color: #fff !important; }
 .hub-ic i, .hub-ic .ico { background: linear-gradient(#171f45f0, #0c1228f8); border: 1.5px solid #8a76e088; }
 .chs { border-color: #8a76e077 !important; }
+/* ===== Edit Deck (header, collection title, bottom bar) ===== */
+.dhead { display: grid; grid-template-columns: 1fr 1.25fr; gap: 8px; margin-bottom: 8px; } .dhead .dstats { grid-template-columns: 1fr; margin: 0; gap: 6px; } .dhead .dcn { display: flex; justify-content: space-between; }
+.dcover { position: relative; overflow: hidden; border-radius: 14px; border: 1.5px solid #8a76e088; min-height: 112px; background: #0b1124; } .dcover .dcov { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .9; } .dnm { position: absolute; left: 0; right: 0; bottom: 0; padding: 22px 8px 6px; background: linear-gradient(#0000, #070a18f2); } .dnm input { width: 100%; background: none !important; border: 0 !important; padding: 0 !important; font: 600 16px var(--display) !important; color: #fff !important; } .dnm b { font: 600 12.5px var(--body); color: #cdd8e8; }
+.dtools { gap: 8px; margin: 0 0 8px; } .dtools .btn:first-child { flex: 1; }
+.dcol { display: flex; align-items: baseline; gap: 10px; margin-top: 12px; } .dcol b { font: 400 20px var(--display); color: #fff; } .dcol span { font: 600 13px var(--body); color: #aebfd6; }
+#modal:has(.deck-edit) .dfoot { display: flex; gap: 10px; } #modal:has(.deck-edit) .dfoot .btn { flex: 1; min-height: 46px; font-size: 16px; }
+/* ===== Collection sub menus ===== */
+.ctabs { display: flex; gap: 6px; margin: 4px 0 10px; } .ctabs button { position: relative; flex: 1; padding: 10px 6px; border-radius: 999px; border: 1.5px solid #ffffff2e; background: linear-gradient(#141f35e6, #0c1424e6); color: #cdd8e8; font: 600 14px var(--body); } .ctabs button.on { background: linear-gradient(#a98bff, #6f4cd6); color: #fff; border-color: #d9c8ff; box-shadow: 0 0 14px #9a78ff88; } .ctabs u { position: absolute; top: -3px; right: 6px; width: 12px; height: 12px; border-radius: 50%; background: #ff4a5e; border: 2px solid #1a2430; }
+.sethead { display: flex; align-items: center; gap: 12px; padding: 12px 14px; margin-bottom: 8px; border-radius: 16px; border: 1.5px solid #8a76e066; background: linear-gradient(#171f45e0, #0c1228f0); } .sethead .mring { flex: none; position: relative; width: 64px; height: 64px; } .sethead .mring b { position: absolute; inset: 0; display: grid; place-items: center; font: 400 17px var(--display); color: #fff; } .sethead b.fat { display: block; font: 400 21px var(--display); color: #fff; } .sethead small { display: block; font: 500 12.5px var(--body); color: #b9c7da; margin-top: 2px; }
+.sgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; } .stile { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 8px 6px 9px; border-radius: 14px; border: 1.5px solid #8a76e066; background: linear-gradient(#171f45e0, #0c1228f0); color: #fff; text-align: center; } .stile.done { border-color: #f0d68a; box-shadow: 0 0 14px #f0d68a44; } .sti { width: 100%; aspect-ratio: 1.15; overflow: hidden; border-radius: 10px; background: #0b1124; } .sti img { width: 100%; height: 100%; object-fit: cover; } .stile b { font: 600 13.5px var(--body); } .stile small { font: 500 11.5px var(--body); color: #aebfd6; } .stile .bar { width: 100%; height: 6px; } .stile em { font: 700 12px var(--body); font-style: normal; color: #f0d68a; display: inline-flex; align-items: center; gap: 3px; } .stile em .icopic { width: 14px; height: 14px; }
+.gfr { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; } .gslot { position: relative; aspect-ratio: 3 / 4; overflow: hidden; border-radius: 14px; border: 2px solid #f0d68a99; background: #0b1124; padding: 0; color: #fff; box-shadow: 0 6px 14px #0008; } .gslot img { width: 100%; height: 100%; object-fit: cover; } .gslot b { position: absolute; left: 0; right: 0; bottom: 0; padding: 14px 4px 5px; font: 600 12px var(--body); background: linear-gradient(#0000, #070a18f0); } .gslot.empty { border: 2px dashed #8a76e088; display: grid; place-items: center; } .gslot.empty span { font: 300 38px var(--body); color: #8a76e0; }
+.gall { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; } .gall button { padding: 0; aspect-ratio: 1; overflow: hidden; border-radius: 10px; border: 1.5px solid #ffffff26; background: #0b1124; } .gall img { width: 100%; height: 100%; object-fit: cover; } .gall.pick { max-height: 52vh; overflow: auto; }
 
 /* ===== Clash ===== */
 #ck { position: fixed; inset: 0; z-index: 20; background: radial-gradient(ellipse at 50% 40%, #12583a 0%, var(--felt-d) 55%, var(--felt-dd) 100%); }
@@ -4527,17 +4539,17 @@ function deckSheet2() {
   const nSkill = D.cards.filter(x => x && isSkill(x)).length;
   const slot = k => { const id = D.cards[k]; return `<div class="kslot ${D.sel === k ? "on" : ""} ${D.flash === k ? "swapflash" : ""}" data-ck="dslot" data-k="${k}">${id && (BY[id] || isSkill(id)) ? kcardMini(id) : '<div class="ku mini empty"><span>+</span></div>'}</div>`; };
   const selId = D.cards[D.sel];
-  openSheet(`<button class="sheetx keep" data-ck="dx" aria-label="Close">✕</button><h2 class="fat deck-edit"><i></i>Edit Deck<i></i></h2>${deckStatsHtml(D)}<div class="row" style="margin:0 0 6px;flex-wrap:nowrap"><input type="text" id="ckname" maxlength="14" value="${esc(D.name)}" style="flex:1"><button class="btn sm dark" data-ck="deckDel" ${P.cd.length <= 1 ? "disabled" : ""}>Delete</button></div>` +
+  openSheet(`<button class="sheetx keep" data-ck="dx" aria-label="Close">✕</button><h2 class="fat deck-edit"><i></i>Edit Deck<i></i></h2><div class="dhead"><div class="dcover">${deckCover(P.cd[D.i] ? Object.assign({}, P.cd[D.i], { cards: D.cards, cover: D.cover || P.cd[D.i].cover }) : { cards: D.cards })}<div class="dnm"><input type="text" id="ckname" maxlength="14" value="${esc(D.name)}" aria-label="Deck name"><b>${D.cards.filter(Boolean).length} / 12</b></div></div>${deckStatsHtml(D)}</div><div class="row dtools"><button class="btn sm" data-me="fill" ${D.cards.filter(Boolean).length >= 12 ? "disabled" : ""}>✦ Auto Build</button><button class="btn sm dark" data-ck="deckDel" ${P.cd.length <= 1 ? "disabled" : ""}>Delete deck</button></div>` +
     `<p class="note" style="margin:0 0 6px">12 CARDS. Each fight starts with 5 of them at random on the field; draw the rest for 3 energy. Hold a card and drag it to move it.</p><div class="kd6">${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(slot).join("")}</div>` +
     `<div class="row" style="margin:6px 0 0;gap:6px;flex-wrap:wrap"><small class="note" style="margin:0">Sort deck</small>${[["cost", "Cost"], ["rar", "Rarity"], ["el", "Element"], ["type", "Type"], ["name", "Name"]].map(([k, n]) => `<button class="btn sm dark" data-ck="dsortdeck" data-s="${k}">${n}</button>`).join("")}</div>` +
     `<div class="selbar"><span>Editing <b>${esc(SLOT_NAME(D.sel))}</b>${selId && (BY[selId] || isSkill(selId)) ? ": " + esc(isSkill(selId) ? SKC[selId].n : BY[selId].name) : ": empty"}</span>${selId ? '<button class="btn sm dark" data-ck="dremove">Remove</button>' : ""}</div>` +
-    `<div class="row" style="margin:6px 0 0;gap:6px"><button class="btn sm dark" data-ck="dundo" ${D.undo.length ? "" : "disabled"}>↶ Undo</button><button class="btn sm dark" data-me="fill" ${D.cards.filter(Boolean).length >= 12 ? "disabled" : ""}>Fill empty</button><button class="btn sm dark" data-me="copycode">Copy code</button><button class="btn sm dark" data-me="cover" ${selId && BY[selId] ? "" : "disabled"}>Set as cover</button><button class="btn sm dark" data-ck="dclear" ${D.cards.some(Boolean) ? "" : "disabled"}>Clear deck</button></div>` +
+    `<div class="row" style="margin:6px 0 0;gap:6px"><button class="btn sm dark" data-ck="dundo" ${D.undo.length ? "" : "disabled"}>↶ Undo</button><button class="btn sm dark" data-me="copycode">Copy code</button><button class="btn sm dark" data-me="cover" ${selId && BY[selId] ? "" : "disabled"}>Set as cover</button></div>` +
     styleLine(D.cards) + (err ? `<p class="note" style="color:#ff9aa4;margin:6px 0 0">${esc(err)}</p>` : '<p class="note" style="color:var(--ok);margin:6px 0 0">Ready to play.</p>') +
-    (D.cmp ? cmpPanel(D) : `<div class="seg ckind" style="margin-top:12px"><button class="${D.tab !== "sk" ? "on" : ""}" data-ck="dtab" data-t="cr">Character cards</button><button class="${D.tab === "sk" ? "on" : ""}" data-ck="dtab" data-t="sk">Skill cards · ${nSkill}/${SK_MAX}</button></div>` +
+    (D.cmp ? cmpPanel(D) : `<div class="dcol"><b>Collection</b><span>${D.tab === "sk" ? SKC_IDS.length : ownedList().length} ${D.tab === "sk" ? "skills" : "cards"}</span></div><div class="seg ckind" style="margin-top:8px"><button class="${D.tab !== "sk" ? "on" : ""}" data-ck="dtab" data-t="cr">Character cards</button><button class="${D.tab === "sk" ? "on" : ""}" data-ck="dtab" data-t="sk">Skill cards · ${nSkill}/${SK_MAX}</button></div>` +
       `<div class="cbar dbar"><input type="search" id="dq" placeholder="${D.tab === "sk" ? "Search skill cards" : "Search cards"}" value="${esc(D.q || "")}"><button class="fbtn" data-ck="dfiltOpen" aria-label="Sort and filter">${ic("filter", "")}${deckFiltN(D) ? '<i class="dot"></i>' : ""}</button></div>` +
       `<p class="note" style="margin:0 0 6px">Tap a card to see it in full, then put it in ${esc(SLOT_NAME(D.sel).toLowerCase())}.${D.tab === "sk" ? " Skill cards are drawn like any card, played once for their energy cost, and then gone." : " Your cards only."}</p>`) +
     `<div class="grid pickgrid ${D.cmp ? "short" : ""}" id="dgrid">${deckGridHtml(D)}</div>` +
-    `<div class="row c dfoot" style="margin-top:10px"><button class="btn yellow" data-ck="deckSave" ${deckDirty(D) ? "" : "disabled"}>${deckDirty(D) ? "Save deck" : "Saved"}</button><button class="btn dark" data-ck="dclose">Close</button></div>`);
+    `<div class="row c dfoot" style="margin-top:10px"><button class="btn dark" data-ck="dclear" ${D.cards.some(Boolean) ? "" : "disabled"}>🗑 Clear Deck</button><button class="btn yellow" data-ck="deckSave" ${deckDirty(D) ? "" : "disabled"}>${deckDirty(D) ? "✓ Save Deck" : "Saved"}</button></div>`);
   lockSheet(); const s2 = $("#modal .sheet"); if (s2) s2.scrollTop = st; const p2 = $("#dgrid"); if (p2) p2.scrollTop = pst; const dq = $("#dq"); if (dq) dq.oninput = () => { D.q = dq.value; deckGridFill(); }; D.flash = -1;
 }
 /* the X at the top: nothing to save closes at once; otherwise save, discard or keep editing */
@@ -8422,6 +8434,69 @@ document.addEventListener("click", e => {
   }
 });
 
+/* ---------- Collection: Cards / Sets / Gallery ---------- */
+let CT = "cards";   // the collection's sub menu
+const SET_TYPES = [["monster", "Monsters"], ["folk", "Folk"], ["dominant", "Dominants"], ["hero", "Heroes"], ["weapon", "Weapons"], ["armor", "Armor"], ["relic", "Relics"], ["esper", "Espers"]];
+const setGems = n => Math.max(5, Math.min(50, Math.round(n / 10) * 5));   // 5 gems for a small set up to 50 for a big one (about 5 per 10 cards)
+let SETS = null;
+function setsData() {
+  if (SETS) return SETS; const pool = C.filter(c => inSet(c.id) && !c.ex), mk = (key, name, cards, hue) => ({ key, name, ids: cards.map(c => c.id), gems: setGems(cards.length), hue });
+  const out = { Factions: [], Elements: [], Types: [] };
+  for (const f in FAC) { const cs = pool.filter(c => arCard(c).fac === f); if (cs.length >= 3) out.Factions.push(mk("f:" + f, FAC[f], cs)); }
+  for (const e of ELKEYS) { const cs = pool.filter(c => arCard(c).el === e); if (cs.length >= 3) out.Elements.push(mk("e:" + e, EL[e][0], cs)); }
+  for (const [g, n] of SET_TYPES) { const cs = pool.filter(c => c.grp === g); if (cs.length >= 3) out.Types.push(mk("t:" + g, n, cs)); }
+  return (SETS = out);
+}
+const setProg = s => { const n = s.ids.filter(id => (P.own[id] || 0) > 0).length; return { n, t: s.ids.length, done: n === s.ids.length, claimed: !!(P.setc && P.setc[s.key]) }; };
+const allSets = () => { const d = setsData(); return [...d.Factions, ...d.Elements, ...d.Types]; };
+const setByKey = k => allSets().find(s => s.key === k);
+function collTabs() {
+  const un = allSets().filter(s => { const p = setProg(s); return p.done && !p.claimed; }).length;
+  return `<div class="ctabs">${[["cards", "Cards", "cards"], ["sets", "Sets", "layers"], ["gallery", "Gallery", "image"]].map(([k, n]) => `<button class="${CT === k ? "on" : ""}" data-cl="tab" data-k="${k}">${n}${k === "sets" && un ? "<u></u>" : ""}</button>`).join("")}</div>`;
+}
+function viewCards(v) {
+  if (CT === "sets") { v.innerHTML = collTabs() + viewSets(); return; }
+  if (CT === "gallery") { v.innerHTML = collTabs() + viewGallery(); return; }
+  viewCardsMain(v); v.insertAdjacentHTML("afterbegin", collTabs());
+}
+function viewSets() {
+  const d = setsData(), tot = allSets(), done = tot.filter(s => setProg(s).done).length, owned = C.filter(c => inSet(c.id) && !c.ex), have = owned.filter(c => P.own[c.id] > 0).length;
+  const tile = s => { const p = setProg(s), pic = (s.ids.find(id => P.own[id] > 0) || s.ids[0]), c = BY[pic];
+    return `<button class="stile ${p.done ? "done" : ""}" data-cl="set" data-k="${s.key}"><span class="sti">${c ? `<img alt="" src="${artSrc(c)}" ${P.own[pic] > 0 ? "" : 'style="filter:grayscale(1) brightness(.5)"'}>` : ""}</span><b>${esc(s.name)}</b><small>${p.n} / ${p.t}</small><span class="bar"><i style="width:${100 * p.n / p.t}%"></i></span><em>${p.claimed ? "Claimed ✓" : p.done ? "Claim " + s.gems : ic("gem", "") + " " + s.gems}</em></button>`; };
+  return `<div class="sethead"><div class="mring"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="15.5" fill="none" stroke="#ffffff22" stroke-width="3"/><circle cx="18" cy="18" r="15.5" fill="none" stroke="#f0d68a" stroke-width="3" stroke-linecap="round" stroke-dasharray="${97.4 * have / Math.max(1, owned.length)} 97.4" transform="rotate(-90 18 18)"/></svg><b>${Math.round(100 * have / Math.max(1, owned.length))}%</b></div><div><b class="fat">Set Completion</b><small>${done} of ${tot.length} sets complete · ${have} / ${owned.length} cards</small><small>Finish a set to claim 5 to 50 gems, once.</small></div></div>` +
+    Object.entries(d).map(([k, arr]) => arr.length ? `<span class="ribbon">${k.toUpperCase()}</span><div class="sgrid">${arr.map(tile).join("")}</div>` : "").join("");
+}
+function setSheet(key) {
+  const s = setByKey(key); if (!s) return; const p = setProg(s);
+  openSheet(`<h2 class="fat deck-edit"><i></i>${esc(s.name)}<i></i></h2><p class="note" style="text-align:center;margin:0 0 8px">${p.n} of ${p.t} cards · reward ${ic("gem", "")} ${s.gems} gems</p><div class="bar" style="margin:0 0 10px"><i style="width:${100 * p.n / p.t}%"></i></div>` +
+    `<div class="grid">${s.ids.map(id => BY[id] ? cardHtml(BY[id], { count: P.own[id] || 0, miss: !(P.own[id] > 0), attr: `data-act="detail" data-id="${id}"` }) : "").join("")}</div>` +
+    `<div class="row c" style="margin-top:12px">${p.claimed ? '<button class="btn dark" disabled>Reward claimed ✓</button>' : `<button class="btn yellow" data-cl="claim" data-k="${key}" ${p.done ? "" : "disabled"}>${p.done ? "Claim " + s.gems + " gems" : "Collect all " + p.t + " to claim"}</button>`}<button class="btn dark" data-act="closeModal">Close</button></div>`);
+}
+function setClaim(key) {
+  const s = setByKey(key); if (!s) return; const p = setProg(s); if (!p.done || p.claimed) return; if (!P.setc) P.setc = {}; P.setc[key] = 1; earn(0, s.gems); scheduleSave(); chrome(); uiFx("ok"); toast("Set complete: +" + s.gems + " gems"); closeModal(); show("cards");
+}
+/* Gallery: six frames the player fills with their favourite art, then every card they own as a picture */
+function viewGallery() {
+  if (!P.gal) P.gal = []; const gal = P.gal, ownedAll = ownedList();
+  const slot = i => { const id = gal[i], c = id && BY[id] && P.own[id] > 0 ? BY[id] : null; return `<button class="gslot ${c ? "" : "empty"}" data-cl="${c ? "gview" : "gpick"}" data-i="${i}" data-id="${c ? c.id : ""}">${c ? `<img alt="" src="${artSrc(c)}"><b>${esc(c.name)}</b>` : "<span>+</span>"}</button>`; };
+  return `<div class="sethead"><div><b class="fat">My Gallery</b><small>Show off six favourite cards. Tap a frame to choose.</small></div></div><div class="gfr">${[0, 1, 2, 3, 4, 5].map(slot).join("")}</div>` +
+    `<span class="ribbon">ALL ART · ${ownedAll.length}</span><div class="gall">${ownedAll.sort((a, b) => rarOf(b) - rarOf(a) || a.name.localeCompare(b.name)).map(c => `<button data-act="detail" data-id="${c.id}" aria-label="${esc(c.name)}"><img alt="" loading="lazy" src="${artSrc(c)}"></button>`).join("")}</div>`;
+}
+function galleryPick(i) {
+  const ids = ownedList().sort((a, b) => rarOf(b) - rarOf(a) || a.name.localeCompare(b.name));
+  openSheet(`<h2 class="fat deck-edit"><i></i>Frame ${+i + 1}<i></i></h2><div class="gall pick">${ids.map(c => `<button data-cl="gset" data-i="${i}" data-id="${c.id}" aria-label="${esc(c.name)}"><img alt="" loading="lazy" src="${artSrc(c)}"></button>`).join("")}</div><div class="row c" style="margin-top:12px">${P.gal && P.gal[i] ? `<button class="btn dark" data-cl="gclear" data-i="${i}">Empty this frame</button>` : ""}<button class="btn dark" data-act="closeModal">Close</button></div>`);
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest && e.target.closest("[data-cl]"); if (!b) return; const a = b.dataset.cl, k = b.dataset.k, i = +b.dataset.i;
+  if (a === "tab") { CT = k; return show("cards"); }
+  if (a === "set") return setSheet(k);
+  if (a === "claim") return setClaim(k);
+  if (a === "gpick") return galleryPick(i);
+  if (a === "gview") return detail(b.dataset.id);
+  if (a === "gset") { if (!P.gal) P.gal = []; P.gal[i] = b.dataset.id; scheduleSave(); closeModal(); return show("cards"); }
+  if (a === "gclear") { if (P.gal) P.gal[i] = null; scheduleSave(); closeModal(); return show("cards"); }
+});
+
 /* ===== missions.js: the Missions tab (2026-11 redesign): Daily, Weekly, Season and Achievements. UI + counters only.
    Weekly counters reset every Monday (12:00 AM EST, same as the shop's week), season counters when the ranked season (a calendar month) turns.
    Assumption: every reward amount below is my pick; change WK, WK_BONUS, SM and SM_BONUS to retune. ===== */
@@ -9706,7 +9781,7 @@ document.addEventListener("click", e => {
 
 /* ===== cards: collection, detail, decks ===== */
 let F = { q: "", own: "own", lv: 0, el: "all", sort: "rar", kind: "char", ssort: "name", sel: "all" };
-function viewCards(v) {
+function viewCardsMain(v) {
   ckInit(); seenInit(); const have = ownedList().filter(c => S1[c.id]).length, di = Math.min(P.cdi || 0, P.cd.length - 1), d = P.cd[di];
   const deckPanel = `<div class="panel dk" data-ck="deckOpen" data-i="${di}"><div class="dkh"><b class="fat">${esc(d.name)}</b></div><div class="dstrip">${d.cards.map(id => (isSkill(id) ? skTile(id) : BY[id] ? cardHtml(BY[id]) : "")).join("") || '<p class="note" style="margin:6px auto">Empty deck</p>'}</div></div>`;
   v.innerHTML = `<span class="ribbon">DECK</span>${deckPanel}<div class="row c" style="margin-top:10px">${P.cd.length > 1 ? '<button class="btn sm" data-ck="deckSwap">Swap deck</button>' : ""}<button class="btn sm yellow" data-ck="deckNew" ${P.cd.length >= 8 ? "disabled" : ""}>New deck</button><button class="btn sm dark" data-me="import" ${P.cd.length >= 8 ? "disabled" : ""}>Import code</button></div>` +
