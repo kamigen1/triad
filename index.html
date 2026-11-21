@@ -9573,7 +9573,8 @@ function soundPanel() {
 document.addEventListener("click", async e => {
   const el = e.target.closest("[data-act]"); if (!el || !P && el.dataset.act !== "tab") return; const a = el.dataset.act, d = el.dataset; const sn = SFXMAP[a]; sfx(sn === undefined ? "tap" : sn);
   switch (a) {
-    case "tab": return show(d.k);
+    case "tab": if (d.k === "battle" && tab === "battle" && typeof BV !== "undefined" && BV !== "home") BV = "home";   // tapping Battle while inside the campaign closes it and goes back to the battle menu
+      return show(d.k);
 
     case "quick": return startAi({ tier: +d.t });
     case "stage": { const ci = +d.c, si = +d.s, ch = CAMPAIGN[ci], st = ch.stages[si]; return openSheet(`<span class="ribbon">${esc(st[0]).toUpperCase()}</span><div class="row" style="flex-wrap:nowrap;align-items:flex-start"><div style="width:96px;flex:none">${cardHtml(BY[st[1]], { triad: true })}</div><p class="note" style="margin:0">${TIERS[ch.tier]} foes${si === 3 ? " · boss" : ""}. They hold ${esc(BY[st[1]].name)} and four more. Their deck costs about ${STAGE_COST[ci * 4 + si]}; yours is ${deckCost(P.decks[P.deck])} of ${deckCap()}.<br>First clear: ${ch.tickets[si]} ${ic("ticket")}. Every win lets you take a copy of one of their cards.</p></div><div class="row c" style="margin-top:14px"><button class="btn yellow big" data-act="stageGo" data-c="${ci}" data-s="${si}">FIGHT</button><button class="btn dark" data-act="closeModal">Back</button></div>`); }
