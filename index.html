@@ -699,6 +699,100 @@ html.nomo .cx.open .cl { transform: rotate(-9deg) translateY(-6%); } html.nomo .
 .pill .icopic { width: 21px; height: 21px; vertical-align: middle; } .rchip .ri .icopic { width: 24px; height: 24px; } .rchip .ri .icopic.big { width: 44px; height: 38px; } .rchip .ri { display: block; }
 .btn .icopic, .deal .icopic { width: 1.15em; height: 1.15em; }
 
+/* ===== campaign screen redesign ===== */
+.q-top2 { display: flex; align-items: center; gap: 8px; margin: 2px 0 8px; }
+.q-back { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px 7px 10px; border-radius: 999px; border: 1.5px solid #ffffff3a; background: linear-gradient(#1b2b44dd, #0e1828ee); color: #fff; font: 400 17px var(--display); box-shadow: 0 3px 10px #0007; } .q-back i { font-style: normal; font-size: 22px; line-height: 1; color: #f0d68a; margin-top: -2px; }
+.q-orn { flex: 1; display: flex; align-items: center; gap: 6px; opacity: .85; } .q-orn i { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, #f0d68a99); } .q-orn i:last-child { transform: scaleX(-1); } .q-orn b { color: #f0d68a; font-size: 18px; text-shadow: 0 0 10px #f0d68a99; }
+.q-sel { appearance: none; -webkit-appearance: none; padding: 7px 28px 7px 14px; border-radius: 999px; border: 1.5px solid #f0d68a66; background: linear-gradient(#1b2b44dd, #0e1828ee) no-repeat; color: #f0d68a; font: 600 14px var(--body); box-shadow: 0 3px 10px #0007; background-image: linear-gradient(45deg, transparent 50%, #f0d68a 50%), linear-gradient(135deg, #f0d68a 50%, transparent 50%); background-position: calc(100% - 15px) 52%, calc(100% - 10px) 52%; background-size: 5px 5px, 5px 5px; }
+.q-hero { height: 176px !important; border-width: 2px !important; box-shadow: 0 0 0 1px #0007, 0 8px 22px #000a, inset 0 0 40px #0006 !important; }
+.q-hero::after { background: linear-gradient(#0000 28%, #050a12f2) !important; } .q-hero::before { content: ""; position: absolute; inset: 4px; z-index: 3; border-radius: 14px; border: 1px solid #f0d68a55; pointer-events: none; }
+.q-ht .q-sn { font: 800 11px var(--body); letter-spacing: .3em; color: #f0d68a; text-shadow: 0 1px 6px #000; } .q-ht b { font-size: 31px !important; background: linear-gradient(#fff3c8, #f0c860 70%, #c9962a); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 2px 6px #000); letter-spacing: .01em; } .q-ht span:not(.q-sn) { font: 600 13px/1.3 var(--body); color: #e4ecf6; text-shadow: 0 1px 6px #000; }
+.q-arcbar { display: flex; align-items: center; justify-content: space-between; margin: 8px 2px 8px; padding: 7px 14px; border-radius: 999px; background: linear-gradient(90deg, #1a2a44cc, #12203acc); border: 1px solid #ffffff2e; font: 600 14px var(--body); color: #e8eef8; } .q-arcbar b { font: 700 13px var(--body); color: #f0d68a; }
+.q-map { position: relative; border-radius: 20px; overflow: hidden; border: 2px solid #f0d68a77; box-shadow: 0 8px 22px #000a, inset 0 0 50px #000a; background: #101a2a; }
+.q-mbg, .q-mbg img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; } .q-mbg img { filter: blur(2px) brightness(.5) saturate(1.2); transform: scale(1.12); } .q-mbg::after { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 50% 40%, #0000 0, #060b14aa 100%); }
+.q-map svg { position: absolute; inset: 0; width: 100%; height: 100%; } .q-map path { fill: none; stroke: #8f7a4a55; stroke-width: 5; stroke-linecap: round; stroke-dasharray: 2 9; } .q-map path.lit { stroke: #f6d878; stroke-width: 5; stroke-dasharray: none; filter: drop-shadow(0 0 5px #f0d068); }
+.qn2 { position: absolute; width: 84px; margin-left: -42px; padding: 0; border: 0; background: none; color: #fff; text-align: center; z-index: 2; } .qn2 .qb2 { display: grid; place-items: center; width: 60px; height: 60px; margin: 0 auto 4px; border-radius: 50%; font: 400 25px var(--display); background: radial-gradient(circle at 35% 28%, #4c3a86, #1d1740 72%); border: 3px solid #b99bf5; box-shadow: 0 5px 12px #000b, inset 0 0 10px #0009; }
+.qn2 small { display: block; font: 600 10.5px/1.15 var(--body); color: #f0f3fa; text-shadow: 0 1px 4px #000, 0 0 6px #000; min-height: 24px; }
+.qn2.done .qb2 { background: radial-gradient(circle at 35% 28%, #2f9a63, #134a2d 72%); border-color: #f0d68a; color: #fff; } .qn2 .qd2 { position: absolute; top: -4px; right: 8px; width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(#a6ffc4, #36c978); color: #052e14; font: 800 13px/22px var(--body); font-style: normal; box-shadow: 0 2px 6px #000a; }
+.qn2.next .qb2 { width: 70px; height: 70px; margin-bottom: 0; font-size: 31px; background: radial-gradient(circle at 35% 28%, #ffe28a, #b9801e 75%); border-color: #fff3c0; color: #2a1a02; box-shadow: 0 0 0 4px #f0d68a44, 0 0 26px #ffd25acc, 0 5px 12px #000b; } .qn2.next small { font-weight: 800; color: #ffe9a8; } .qmark { position: absolute; top: -17px; left: 50%; margin-left: -8px; font-style: normal; color: #ffe28a; font-size: 17px; text-shadow: 0 0 12px #ffd25a; }
+.qn2.boss .qb2 { border-radius: 18px; border-color: #ff9aa6; background: radial-gradient(circle at 35% 28%, #7a2a44, #2a0e1c 74%); } .qn2.boss.done .qb2 { background: radial-gradient(circle at 35% 28%, #2f9a63, #134a2d 72%); border-color: #f0d68a; } .qn2.fin .qb2 { border-color: #ffe28a; box-shadow: 0 0 22px #ffd25a99, 0 5px 12px #000b; }
+.qn2.lock .qb2 { background: radial-gradient(circle at 35% 28%, #3b3f58, #14172a 76%); border-color: #6c7194; font-size: 22px; } .qn2.lock { opacity: .72; }
+html:not(.nomo) .qn2.next .qb2 { animation: ttPulse 1.8s ease-in-out infinite; } html:not(.nomo) .qmark { animation: qbob 1.2s ease-in-out infinite; } @keyframes qbob { 50% { transform: translateY(-4px); } }
+.q-next { display: flex; gap: 12px; margin: 12px 0 0; padding: 12px; border-radius: 18px; background: linear-gradient(#17233be6, #0d1627f2); border: 1.5px solid #f0d68a66; box-shadow: 0 6px 18px #000a; }
+.qn-foe { position: relative; flex: 0 0 106px; height: 150px; padding: 0; border-radius: 12px; overflow: hidden; border: 2px solid #f0d68a; box-shadow: 0 0 0 2px #0008, 0 4px 12px #000a; background: #0d1522; } .qn-foe img { width: 100%; height: 100%; object-fit: cover; display: block; } .qn-foe i { position: absolute; left: 6px; bottom: 6px; padding: 2px 8px; border-radius: 999px; background: #060b14cc; color: #f0d68a; font: 800 9.5px var(--body); font-style: normal; letter-spacing: .1em; text-transform: uppercase; }
+.qn-tx { flex: 1; min-width: 0; } .qn-tx > small { font: 800 11px var(--body); letter-spacing: .14em; color: #f0d68a; } .qn-tx > small em { font-style: normal; opacity: .8; } .qn-tx > small u { text-decoration: none; margin-left: 4px; padding: 1px 7px; border-radius: 6px; background: #8a1f3a; color: #ffd9de; letter-spacing: .08em; } .qn-tx b { display: block; font: 400 22px/1.12 var(--display); color: #fff; margin: 2px 0 3px; }
+.qn-tx p { margin: 0 0 6px; font: 500 12.5px/1.35 var(--body); color: #d3dcea; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.qn-rw small { font: 700 11px var(--body); letter-spacing: .08em; color: #f0d68a; } .rws { display: flex; gap: 6px; margin-top: 3px; } .rw { flex: 1; min-width: 0; text-align: center; padding: 4px 2px 3px; border-radius: 10px; background: #0a1220cc; border: 1px solid #ffffff2a; } .rw .rwi { display: grid; place-items: center; height: 26px; } .rw .rwi .icopic { width: 24px; height: 24px; } .rw .rwi .chest-pic { width: 30px; } .rw .rwi svg { width: 20px; height: 20px; color: #8fd0ff; } .rw b { display: block; font: 700 12px var(--body); color: #fff; } .rw small { display: block; font: 600 9px var(--body); color: #aebfd6; letter-spacing: 0; }
+.q-cont { position: relative; display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; margin: 12px 0 4px; padding: 13px 20px; border: 2px solid #fff0b8; border-radius: 16px; background: linear-gradient(#ffe48c, #e9b43c 55%, #b9801e); color: #2a1a02; box-shadow: 0 0 22px #f0d68a77, 0 6px 14px #000a, inset 0 2px 0 #fff9; clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 50%, calc(100% - 14px) 100%, 14px 100%, 0 50%); } .q-cont b { font: 400 25px var(--display); color: #2a1a02; text-shadow: 0 1px 0 #fff8; } .q-cont i { font-style: normal; font-size: 22px; }
+html:not(.nomo) .q-cont::after { content: ""; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 40%, #ffffffaa 50%, transparent 60%); transform: translateX(-130%); animation: btnSheen 3.4s ease-in-out infinite; pointer-events: none; }
+.q-cont:active { transform: scale(.985); }
+.q-bar2 { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 6px 0 86px; }
+.rw .rwi { font-size: 0; }
+
+/* ===== summon page overhaul ===== */
+.seg { border-radius: 999px !important; padding: 4px !important; background: linear-gradient(#141f35e6, #0c1424e6) !important; border: 1.5px solid #ffffff26 !important; } .seg button { border-radius: 999px !important; font: 600 14px var(--body) !important; } .seg button.on { background: linear-gradient(#a98bff, #6f4cd6) !important; color: #fff !important; box-shadow: 0 0 14px #9a78ff88, inset 0 1px 0 #fff5 !important; }
+.pgr { padding: 5px; border-radius: 999px; background: #0d1626cc; border: 1.5px solid #ffffff22; } .pgr button { border: 0 !important; background: none !important; font: 600 13.5px var(--body) !important; color: #c8d3e3 !important; } .pgr button.on { background: linear-gradient(#a98bff, #6f4cd6) !important; color: #fff !important; box-shadow: 0 0 12px #9a78ff77; }
+.bst { padding: 0 !important; overflow: visible !important; border: 2px solid color-mix(in srgb, var(--bt, #8b6fe0) 60%, #f0d68a) !important; border-radius: 22px !important; background: radial-gradient(ellipse at 50% 55%, color-mix(in srgb, var(--bt, #53677A) 40%, #0f1428), #080d1a 82%) !important; box-shadow: 0 0 0 1px #000a, 0 10px 28px #000b, inset 0 0 40px #0008 !important; }
+.bst-hero { position: relative; height: 168px; border-radius: 20px 20px 0 0; overflow: hidden; border-bottom: 1.5px solid #f0d68a66; background: #101827; } .bst-hero > img { position: absolute; right: -6%; top: 0; width: 78%; height: 100%; object-fit: cover; object-position: 50% 18%; -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 38%); mask-image: linear-gradient(90deg, transparent 0, #000 38%); }
+.bst-hero::before { content: ""; position: absolute; inset: 0; z-index: 1; background: radial-gradient(circle at 80% 30%, color-mix(in srgb, var(--bt, #8b6fe0) 45%, transparent), transparent 60%), linear-gradient(90deg, #0a1020f2 20%, #0a102000 75%); pointer-events: none; } .bst-hero::after { content: ""; position: absolute; inset: 5px; z-index: 3; border-radius: 15px 15px 0 0; border: 1px solid #f0d68a44; pointer-events: none; }
+.bh-tx { position: absolute; z-index: 2; left: 14px; top: 14px; bottom: 12px; width: 62%; display: flex; flex-direction: column; justify-content: flex-end; } .bh-tag { align-self: flex-start; padding: 3px 12px; border-radius: 8px; background: linear-gradient(#f4d479, #c9962a); color: #2a1a02; font: 800 11px var(--body); letter-spacing: .05em; margin-bottom: auto; box-shadow: 0 2px 6px #0008; }
+.bh-tx b { font: italic 400 30px/1.05 var(--display) !important; color: #fff2cc; text-shadow: 0 2px 10px #000, 0 0 18px color-mix(in srgb, var(--bt, #9a78ff) 70%, transparent); } .bh-tx small { font: 600 12.5px/1.3 var(--body); color: #e6edf7; margin: 4px 0 6px; text-shadow: 0 1px 6px #000; } .bh-end { align-self: flex-start; padding: 3px 11px; border-radius: 999px; background: #070c18cc; border: 1px solid #ffffff2e; font: 700 11.5px var(--body); color: #f0d68a; }
+.bh-pk { position: absolute; z-index: 2; right: 10px; bottom: 8px; width: 40px; height: 56px; } .bh-pk .packw { position: absolute; left: 0; top: 0; transform: scale(.25); transform-origin: 0 0; animation: none; }
+.bst-feat { padding: 12px 12px 4px; } .bst-feat h4 { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; font: 400 17px var(--display); color: #f0d68a; text-align: center; } .bst-feat h4 i { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, #f0d68a88); } .bst-feat h4 i:last-child { transform: scaleX(-1); }
+.bf-row { display: flex; gap: 8px; } .bf-row button { position: relative; flex: 1; min-width: 0; aspect-ratio: .86; padding: 0; border-radius: 12px; overflow: hidden; border: 2px solid #f0d68a99; background: #0d1522; box-shadow: 0 4px 10px #000a; } .bf-row button:first-child { border-color: #fff0b8; box-shadow: 0 0 14px #f0d68a88, 0 4px 10px #000a; } .bf-row img { width: 100%; height: 100%; object-fit: cover; display: block; } .bf-el { position: absolute; left: 3px; top: 3px; width: 22px; height: 22px; border-radius: 50%; background: #070c18d9; border: 1px solid #ffffff44; display: grid; place-items: center; font-style: normal; } .bf-el svg { width: 14px; height: 14px; }
+.bst-fan { position: relative; margin-top: 10px !important; } .bst-fan::before { content: ""; position: absolute; left: -4%; right: -4%; bottom: -10px; height: 70px; border-radius: 50%; background: radial-gradient(ellipse, color-mix(in srgb, var(--bt, #ffb84a) 70%, #fff3c0) 0, transparent 68%); opacity: .55; filter: blur(4px); pointer-events: none; } .bst-fan::after { content: ""; position: absolute; left: 4%; right: 4%; bottom: -2px; height: 42px; border-radius: 50%; border: 2px solid #f0d68acc; box-shadow: 0 0 18px #f0d68a88, inset 0 0 14px #f0d68a66; pointer-events: none; }
+html:not(.nomo) .bst-fan::after { animation: ringGlow 3s ease-in-out infinite; } @keyframes ringGlow { 50% { box-shadow: 0 0 30px #f0d68acc, inset 0 0 22px #f0d68a99; } }
+html:not(.nomo) .bst-fan .f0 { animation: heroFloat 3.4s ease-in-out infinite; } @keyframes heroFloat { 50% { translate: 0 -5px; } }
+.bst-act { margin: 0 !important; padding: 12px 14px 14px !important; border-radius: 0 0 20px 20px !important; background: linear-gradient(#0a1020a0, #0a1020f5 30%) !important; }
+.sumbtns { gap: 10px !important; } .sumbtns .btn { position: relative; padding: 11px 6px 10px !important; border-width: 2px !important; clip-path: polygon(12px 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 12px 100%, 0 50%); } .sumbtns .btn .sb { font: 400 20px var(--display) !important; letter-spacing: .01em !important; } .sumbtns .btn .sp { font: 700 14px var(--body) !important; opacity: 1 !important; } .sumbtns .btn .sp .icopic { width: 20px; height: 20px; margin-right: 3px; }
+.sumbtns .btn.purple { background: linear-gradient(#b693ff, #7a4fe0 55%, #4b2ba8) !important; color: #fff !important; border-color: #e3d4ff !important; box-shadow: 0 0 18px #9a78ff77, 0 5px 12px #000a, inset 0 2px 0 #fff6 !important; } .sumbtns .btn.purple .sb { text-shadow: 0 2px 4px #2a1368; }
+.sumbtns .btn:disabled { filter: grayscale(.55) brightness(.75); }
+
+/* ===== typography and spacing: one scale for every screen ===== */
+:root { --t-title: 26px; --t-head: 19px; --t-body: 14px; --t-small: 12.5px; --t-micro: 11px; --c-text: #eef2f8; --c-sub: #b9c7da; --c-gold: #f0d68a; --gap: 12px; --rad: 16px; --line-ui: #ffffff2e; }
+.note { font: 500 13px/1.45 var(--body); color: var(--c-sub); }
+.sheet h2.fat, .sheet > h2 { font-size: var(--t-title); line-height: 1.1; background: linear-gradient(#fff3c8, #f0c860 75%, #c9962a); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: .01em; }
+.ribbon { font: 400 15px var(--display) !important; letter-spacing: .08em !important; }
+.panel { border-radius: var(--rad); border: 1.5px solid var(--line-ui); } .panel.item .t b { font: 700 var(--t-body) var(--body); color: var(--c-text); } .panel.item .t small { font: 500 var(--t-small) var(--body); color: var(--c-sub); }
+.btn { min-height: 44px; font-weight: 700; } .btn.sm { min-height: 36px; }
+small, .small { min-font-size: 11px; } .qn small, .hub-m small, .goal span { color: #dfe8f4; }
+#view { padding-left: 12px; padding-right: 12px; }
+.tile, .panel, .bst, .q-next, .q-map { margin-bottom: var(--gap); }
+
+/* ===== cutscene presentation ===== */
+.st-box { margin: 0 8px max(12px, env(safe-area-inset-bottom)) !important; padding: 26px 20px 18px !important; min-height: 168px !important; border-radius: 20px !important; background: linear-gradient(#111b2ef2, #080e1af7) !important; box-shadow: inset 0 0 0 1.5px #f0d68a55, inset 0 0 0 4px #0008, 0 12px 34px #000c !important; }
+.st-name { left: 18px !important; top: -17px !important; padding: 6px 20px !important; font: 400 19px var(--display) !important; letter-spacing: .03em !important; border-radius: 10px !important; box-shadow: 0 4px 12px #000a, inset 0 1px 0 #fff7; } .st-name::before { content: "◆"; font-size: 10px; margin-right: 8px; opacity: .65; vertical-align: 2px; }
+.st-text { font: 500 18px/1.55 var(--body) !important; min-height: 92px !important; letter-spacing: .005em; }
+.st-next { right: 18px !important; bottom: 10px !important; font-size: 17px; text-shadow: 0 0 10px #f0d68a99; }
+.st-p { width: 94% !important; } .st-p.on { transform: scale(1.04) !important; filter: drop-shadow(0 0 22px #00000088) !important; } .st-p:not(.on):not(:empty) { filter: brightness(.38) saturate(.6) !important; transform: scale(.94) translateY(10px) !important; }
+.st-p.enter.l { animation: pSlideL .5s cubic-bezier(.2, .9, .3, 1); } .st-p.enter.r { animation: pSlideR .5s cubic-bezier(.2, .9, .3, 1); } @keyframes pSlideL { from { opacity: 0; translate: -60px 0; } } @keyframes pSlideR { from { opacity: 0; translate: 60px 0; } }
+.st-bg { transition: opacity .5s ease; } #story.dip::after { content: ""; position: absolute; inset: 0; z-index: 4; background: #000; pointer-events: none; animation: dipBlack .9s ease-in-out both; } @keyframes dipBlack { 0% { opacity: 0; } 45% { opacity: .85; } 100% { opacity: 0; } }
+.st-shade { box-shadow: inset 0 0 120px 20px #000b; } .st-title { font: 400 14px var(--display); letter-spacing: .1em; color: #f0d68a; }
+.q-next .rw { display: flex !important; flex-direction: column; align-items: center; justify-content: center; gap: 1px; } .q-next .rw .rwi { display: grid; place-items: center; height: 28px; } .q-next .rw b { margin: 0; }
+
+/* ===== tuning after the first look ===== */
+.st-p { width: 82% !important; } .st-p.l { left: -14% !important; } .st-p.r { right: -14% !important; }
+.bst-hero { height: 142px !important; } .bh-tx { justify-content: center !important; gap: 3px; } .bh-tag { margin-bottom: 2px !important; } .bh-tx b { font-size: 25px !important; line-height: 1.05 !important; } .bh-tx small { margin: 0 !important; font-size: 12px !important; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; } .bh-end { margin-top: 2px; }
+.deal { padding: 7px 12px !important; margin-bottom: 8px !important; } .deal b { display: block; font-size: 15px !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bst-feat { padding-top: 9px !important; } .bst-feat h4 { margin-bottom: 6px !important; font-size: 15px !important; } .bf-row button { aspect-ratio: .95 !important; }
+.bst-act { padding: 8px 14px 10px !important; } .bst-act .pity { margin: 0 0 6px !important; } .bst-act .odds-link { margin-top: 2px !important; font-size: 12px; }
+.sumbtns .btn { min-height: 56px; padding: 8px 6px 7px !important; } .sumbtns .btn .sb { font-size: 19px !important; }
+.q-next .rw { display: flex !important; flex-direction: column; align-items: center; }
+.bh-tx { width: 66% !important; } .bh-tx b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 24px !important; }
+.bst-act { background: linear-gradient(#0a1020, #0a1020) !important; border-top: 1px solid #f0d68a44; box-shadow: 0 -10px 18px #0a1020; }
+
+/* ===== crystal shop tiles ===== */
+.gshop { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.gt { position: relative; text-align: center; padding: 14px 8px 10px; border-radius: 16px; background: radial-gradient(ellipse at 50% 55%, #4a2f96aa, #140f33f2 75%); border: 2px solid #f0d68aaa; box-shadow: 0 0 0 1px #000a, 0 6px 16px #000a, inset 0 0 24px #0008; }
+.gt::before { content: "✦"; position: absolute; left: 50%; top: -11px; margin-left: -8px; color: #f0d68a; font-size: 16px; text-shadow: 0 0 8px #f0d68a; }
+.gt-n { display: block; font: 400 22px/1.1 var(--display); color: #fff; } .gt-n span { font-size: 17px; color: #e8dcff; } .gt-s { display: block; font: 600 11.5px var(--body); color: #c8b6f5; margin-top: 2px; }
+.gt-i { display: grid; place-items: center; height: 84px; margin: 4px 0 2px; } .gt-i img { max-width: 92%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 4px 8px #000a) drop-shadow(0 0 12px #9a78ff88); } .gt.t0 .gt-i img { max-height: 62px; } .gt.t1 .gt-i img { max-height: 70px; } .gt.t2 .gt-i img { max-height: 76px; } .gt.t4 .gt-i img, .gt.t5 .gt-i img { max-height: 90px; transform: scale(1.12); }
+.gt-c { display: block; margin-bottom: 7px; font: 600 11.5px var(--body); color: #f0d68a; } .gt-c svg, .gt-c .icopic { width: 14px; height: 14px; vertical-align: -2px; }
+.gt .btn { width: 100%; min-height: 40px; font: 700 17px var(--body); clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 10px 100%, 0 50%); }
+.gt-b { position: absolute; right: -6px; top: -8px; min-width: 54px; padding: 3px 8px 2px; border-radius: 8px; background: linear-gradient(#d83a5a, #8c1230); border: 1.5px solid #ffb6c4; color: #fff; font: 800 14px/1 var(--body); font-style: normal; transform: rotate(5deg); box-shadow: 0 3px 8px #000a; z-index: 2; } .gt-b small { display: block; font: 800 8.5px var(--body); letter-spacing: .1em; }
+.gt { padding-top: 22px !important; } .gt-b { top: -13px !important; right: -9px !important; transform: rotate(5deg) scale(.82) !important; }
+.gt-i { height: 90px !important; } .gt-i img { max-height: 88px !important; } .gt.t0 .gt-i img { max-height: 60px !important; } .gt.t1 .gt-i img { max-height: 70px !important; } .gt.t2 .gt-i img { max-height: 78px !important; } .gt.t4 .gt-i img, .gt.t5 .gt-i img, .gt.t6 .gt-i img { max-height: 88px !important; transform: none !important; }
+
 /* ===== Clash ===== */
 #ck { position: fixed; inset: 0; z-index: 20; background: radial-gradient(ellipse at 50% 40%, #12583a 0%, var(--felt-d) 55%, var(--felt-dd) 100%); }
 #ck[hidden] { display: none; }
@@ -4204,30 +4298,51 @@ const CAMP_COL = ["#2fbf74", "#e8693a", "#5fb8ff", "#3fd0c9", "#b574ff"];
 let CSEL = -1;   // the season the quest screen shows (-1: the one the player is on)
 function campNext() { for (let ch = 0; ch < CAMP.length; ch++) for (let k = 0; k < CAMP[ch].foes.length; k++) if (campOpen(ch, k) && !P.camp.cl[ch + "-" + k]) return [ch, k]; return null; }
 /* the quest screen: one season at a time (arrows to move between them), its painting on top, each arc as a trail of stages, and a Continue button that stays on screen */
+function campBlurb(ch, k) {   // one line of flavour for a stage: the first narrated line of its opening scene
+  try { const ep = storyEp(ch, k), l = ep && ep.before.find(x => /^n: /.test(x)); if (!l) return ""; let t = l.slice(3).trim(); if (t.length > 170) { const cut = t.slice(0, 170), p = Math.max(cut.lastIndexOf(". "), cut.lastIndexOf("! ")); t = p > 60 ? cut.slice(0, p + 1) : cut.replace(/\s+\S*$/, "") + "…"; } return t; } catch (_) { return ""; }
+}
+function campRewards(ch, k, first) {
+  const n = CAMP[ch].foes.length, boss = campPos(ch, k).boss, fin = k === n - 1, m = campMode(ch, k), ti = typeof chestTier === "function" ? chestTier(m, true) : -1;
+  const coins = !first ? ECON.campRepeat : boss ? ECON.campBoss : ECON.campFirst, slot = (ico, n2, lab) => `<div class="rw"><span class="rwi">${ico}</span><b>${n2}</b>${lab ? `<small>${lab}</small>` : ""}</div>`;
+  return slot(ic("coin", ""), "×" + coins, "") + slot(ic("xp", ""), "×" + (first ? 30 : 10), "xp") + (first && fin ? slot(ic("gem", ""), "×" + ECON.region.gems, "") : "") + (ti >= 0 && typeof chestImg === "function" ? slot(chestImg(ti), "×1", "") : "");
+}
+/* the quest screen (2026-11 redesign): the season painting as a hero, a painted map with the stages on a glowing winding path, and the next stage with its foe, its rewards and a big Continue */
 function viewCamp(v) {
   if (!P.camp) P.camp = { cl: {} };
   const nx = campNext(), total = CAMP.length + SEASON_PLAN.slice(CAMP.length).length; if (CSEL < 0 || CSEL >= total) CSEL = nx ? nx[0] : CAMP.length - 1; const ch = CSEL;
   v.classList.add("qst");
-  let h = `<div class="q-top"><button class="btn sm dark" data-ck="campBack">← Back</button><span class="q-count">${campDone()} / ${CAMP_TOTAL} beaten</span><button class="btn sm dark" data-ck="storyLog">Story log</button></div>`;
+  const sel = `<select class="q-sel" data-ck="campSel" aria-label="Season">${Array.from({ length: total }, (_, i) => `<option value="${i}" ${i === ch ? "selected" : ""}>Season ${i + 1}${i >= CAMP.length ? " (soon)" : ""}</option>`).join("")}</select>`;
+  let h = `<div class="q-top2"><button class="q-back" data-ck="campBack"><i>‹</i> Campaign</button><span class="q-orn"><i></i><b>✦</b><i></i></span>${sel}</div>`;
   if (ch >= CAMP.length) {
     h += `<div class="q-hero lockd"><div class="q-ht"><small>Season ${ch + 1}</small><b class="fat">${esc(SEASON_PLAN[ch])}</b><span>Coming soon</span></div></div>`;
   } else {
-    const c0 = CAMP[ch], n = c0.foes.length, open = campOpen(ch, 0), done = c0.foes.filter((_, k) => P.camp.cl[ch + "-" + k]).length, SZ = campSizes(ch);
-    h += `<div class="q-hero ${open ? "" : "lockd"}" style="--rc:${CAMP_COL[ch] || "#b574ff"}">${regionImg(ch)}<div class="q-ht"><small>Season ${ch + 1} · ${done}/${n} stages</small><b class="fat">${esc(c0.name)}</b><span>${open ? esc(c0.sub) : "🔒 Finish the previous season first"}</span><div class="bar"><i style="width:${100 * done / n}%"></i></div></div></div>`;
-    h += `<div class="q-body">`; let k0 = 0;
-    for (let a = 0; a < SZ.length; a++) {
-      h += `<div class="arcn">Arc ${a + 1}${c0.arcs && c0.arcs[a] ? " · " + esc(c0.arcs[a]) : ""}</div><div class="q-trail">`;
-      for (let i2 = 0; i2 < SZ[a]; i2++) {
-        const k = k0 + i2, o = campOpen(ch, k), dn = !!P.camp.cl[ch + "-" + k], boss = i2 === SZ[a] - 1, fin = n > 6 && k === n - 1, cur = nx && nx[0] === ch && nx[1] === k;
-        h += `<button class="qn ${dn ? "done" : ""} ${!o ? "lock" : ""} ${cur ? "next" : ""} ${boss ? "boss" : ""}" ${o ? `data-ck="campStage" data-ch="${ch}" data-k="${k}"` : "disabled"}><span class="qb">${o ? (fin ? "♛" : boss ? "☠" : k + 1) : "🔒"}</span><small>${o ? esc(c0.foes[k]) : "???"}</small>${dn ? '<i class="qd">✓</i>' : ""}</button>`;
-      }
-      h += `</div>`; k0 += SZ[a];
+    const c0 = CAMP[ch], n = c0.foes.length, open = campOpen(ch, 0), done = c0.foes.filter((_, k) => P.camp.cl[ch + "-" + k]).length, SZ = campSizes(ch), col = CAMP_COL[ch] || "#b574ff";
+    const cur = nx && nx[0] === ch ? nx[1] : (done >= n ? n - 1 : 0), cp = campPos(ch, cur);
+    h += `<div class="q-hero ${open ? "" : "lockd"}" style="--rc:${col}">${regionImg(ch)}<div class="q-ht"><span class="q-sn">SEASON ${ch + 1}</span><b class="fat">${esc(c0.name)}</b><span>${open ? esc(c0.sub) : "🔒 Finish the previous season first"}</span></div></div>`;
+    h += `<div class="q-arcbar"><span>Arc ${cp.arc + 1}${c0.arcs && c0.arcs[cp.arc] ? " · " + esc(c0.arcs[cp.arc]) : ""}</span><b>${done} / ${n} Stages</b></div>`;
+    /* the map: four stages to a row, rows snake back and forth, a glowing line joins them */
+    const COLS = 4, XS = [52, 150, 250, 348], ROW = 118, rows = Math.ceil(n / COLS), pos = k => { const r = Math.floor(k / COLS), cc = k % COLS; return [r % 2 ? XS[COLS - 1 - cc] : XS[cc], 52 + r * ROW]; };
+    let svg = "", nodes = "";
+    for (let k = 0; k < n - 1; k++) {
+      const [x1, y1] = pos(k), [x2, y2] = pos(k + 1), lit = !!P.camp.cl[ch + "-" + k], w = k % 2 ? -1 : 1;
+      const d = y1 === y2 ? `M${x1} ${y1} C${x1 + (x2 - x1) * .35} ${y1 - 18 * w} ${x1 + (x2 - x1) * .65} ${y2 + 18 * w} ${x2} ${y2}` : `M${x1} ${y1} C${x1 + (x1 > 200 ? 56 : -56)} ${y1 + 10} ${x2 + (x1 > 200 ? 56 : -56)} ${y2 - 10} ${x2} ${y2}`;
+      svg += `<path class="${lit ? "lit" : ""}" d="${d}"/>`;
     }
-    if (n <= 6) h += `<p class="note" style="text-align:center;margin:0 0 10px">More of this season is coming.</p>`;
-    h += `<p class="note" style="text-align:center;margin:6px 0 80px">Each season favours two elements. Learn their combos, then build against them.</p></div>`;
+    for (let k = 0; k < n; k++) {
+      const [x, y] = pos(k), o = campOpen(ch, k), dn = !!P.camp.cl[ch + "-" + k], pk = campPos(ch, k), boss = pk.boss, fin = n > 6 && k === n - 1, isNext = nx && nx[0] === ch && nx[1] === k, nm = o ? esc(c0.foes[k]) : "???";
+      nodes += `<button class="qn2 ${dn ? "done" : ""} ${!o ? "lock" : ""} ${isNext ? "next" : ""} ${boss ? "boss" : ""} ${fin ? "fin" : ""}" style="left:${(x / 4).toFixed(2)}%;top:${y - 34}px" ${o ? `data-ck="campStage" data-ch="${ch}" data-k="${k}"` : "disabled"}>${isNext ? '<i class="qmark">◆</i>' : ""}<span class="qb2">${!o ? "🔒" : fin ? "♛" : boss ? "☠" : k + 1}</span>${dn ? '<i class="qd2">✓</i>' : ""}<small>${nm}</small></button>`;
+    }
+    h += `<div class="q-map" style="height:${rows * ROW + 8}px;--rc:${col}"><div class="q-mbg">${regionImg(ch)}</div><svg viewBox="0 0 400 ${rows * ROW + 8}" preserveAspectRatio="none">${svg}</svg>${nodes}</div>`;
+    if (n <= 6) h += `<p class="note" style="text-align:center;margin:8px 0">More of this season is coming.</p>`;
+    /* the next stage: foe, story line, rewards, Continue */
+    const focus = nx && nx[0] === ch ? nx : null;
+    if (focus) {
+      const [fc, fk] = focus, deck = campDeck(fc, fk), top = (typeof bestCard === "function" ? bestCard(deck.filter(id => BY[id])) : null) || deck.find(id => BY[id]), blurb = campBlurb(fc, fk), first = !P.camp.cl[fc + "-" + fk], pk = campPos(fc, fk), ep = typeof storyEp === "function" ? storyEp(fc, fk) : null;
+      h += `<div class="q-next"><button class="qn-foe" data-ck="campStage" data-ch="${fc}" data-k="${fk}" aria-label="See their deck">${top ? `<img alt="" src="${artSrc(BY[top], true)}">` : ""}<i>Deck</i></button><div class="qn-tx"><small>NEXT STAGE <em>· ${fk + 1} / ${CAMP[fc].foes.length}</em>${pk.boss ? ' <u>BOSS</u>' : ""}</small><b class="fat">${esc(CAMP[fc].foes[fk])}</b><p>${esc(blurb || (ep ? ep.t : ""))}</p><div class="qn-rw"><small>Rewards</small><div class="rws">${campRewards(fc, fk, first)}</div></div></div></div>` +
+        `<button class="q-cont" data-ck="campGo" data-ch="${fc}" data-k="${fk}"><b class="fat">Continue</b><i>▶</i></button>`;
+    } else h += `<p class="note" style="text-align:center;margin:14px 0 6px">${done >= n ? "Season cleared. Tap any stage to play it again." : "Finish the previous season to open this one."}</p>`;
   }
-  const cont = nx ? `<button class="q-go" data-ck="campStage" data-ch="${nx[0]}" data-k="${nx[1]}"><small>${campDone() ? "Continue" : "Begin"} · Season ${nx[0] + 1}</small><b>${esc(CAMP[nx[0]].foes[nx[1]])}</b><i>▶</i></button>` : "";
-  h += `<div class="q-bar"><button class="q-arr" data-ck="campSeason" data-d="-1" ${ch <= 0 ? "disabled" : ""}>‹</button><div class="q-dots">${Array.from({ length: total }, (_, i) => `<i class="${i === ch ? "on" : ""} ${i >= CAMP.length ? "soon" : ""}"></i>`).join("")}</div><button class="q-arr" data-ck="campSeason" data-d="1" ${ch >= total - 1 ? "disabled" : ""}>›</button></div>${cont}`;
+  h += `<div class="q-bar2"><button class="q-arr" data-ck="campSeason" data-d="-1" ${ch <= 0 ? "disabled" : ""}>‹</button><div class="q-dots">${Array.from({ length: total }, (_, i) => `<i class="${i === ch ? "on" : ""} ${i >= CAMP.length ? "soon" : ""}"></i>`).join("")}</div><button class="q-arr" data-ck="campSeason" data-d="1" ${ch >= total - 1 ? "disabled" : ""}>›</button></div>`;
   v.innerHTML = h;
   if (typeof storyIntroMaybe === "function") storyIntroMaybe();
 }
@@ -4514,7 +4629,7 @@ document.addEventListener("click", async e => {
   }
 });
 document.addEventListener("change", e => {
-  const el = e.target.closest && e.target.closest("[data-ck]"); if (!el) return; if (el.dataset.ck === "deckSel") { P.cdi = +el.value; scheduleSave(); show(tab); } else if (el.dataset.ck === "dfilt") { CKD.el = el.value; deckSheet2(); } else if (el.dataset.ck === "dsort") { CKD.sort = el.value; deckSheet2(); }
+  const el = e.target.closest && e.target.closest("[data-ck]"); if (!el) return; if (el.dataset.ck === "campSel") { CSEL = +el.value; uiFx("tap"); show("battle"); } else if (el.dataset.ck === "deckSel") { P.cdi = +el.value; scheduleSave(); show(tab); } else if (el.dataset.ck === "dfilt") { CKD.el = el.value; deckSheet2(); } else if (el.dataset.ck === "dsort") { CKD.sort = el.value; deckSheet2(); }
 });
 
 /* ----- turn timer: 60 seconds to plan; the second time you run out you are disqualified and lose ----- */
@@ -7341,6 +7456,7 @@ function storyPlay(sc, done, cancel) {
     const cut = art2("portrait", card.id), face = FACE[key] || "f", flip = (side === "l" && face === "l") || (side === "r" && face === "r");
     const ps = PSCALE[card.id] || 1;   // how big the figure stands next to Veyr (1 = his size); a wide picture is also enlarged until it is as tall as he is
     p.innerHTML = `<img class="${cut ? "cut" : ""}" alt="" style="${flip ? "scale:-1 1;" : ""}--ps:${ps}" src="${cut || artSrc(card, true)}"><i class="st-mood"></i>`;
+    p.classList.remove("enter"); void p.offsetWidth; p.classList.add("enter");
     const im = p.querySelector("img"); if (cut) im.onload = () => { const r = im.naturalWidth / im.naturalHeight; if (r > 1.0) im.style.setProperty("--ps", Math.min(1.5, ps * r / 0.92).toFixed(2)); };
     return p;
   };
@@ -7349,7 +7465,7 @@ function storyPlay(sc, done, cancel) {
   const next = () => {
     clearTimeout(S.at); S.i++; if (S.i >= lines.length) return end(true);
     if (lines[S.i].dir === "bg" && sc.painted && !/^scene:/.test(lines[S.i].arg)) return next();
-    if (lines[S.i].dir === "bg") { const b = $s(".st-bg"); b.style.opacity = 0; setTimeout(() => { b.style.backgroundImage = `url(${storyBgUrl(lines[S.i].arg)})`; b.style.opacity = 1; }, 220); return next(); }
+    if (lines[S.i].dir === "bg") { const b = $s(".st-bg"); b.style.opacity = 0; el.classList.add("dip"); setTimeout(() => el.classList.remove("dip"), 900); setTimeout(() => { b.style.backgroundImage = `url(${storyBgUrl(lines[S.i].arg)})`; b.style.opacity = 1; }, 520); return next(); }
     if (lines[S.i].dir === "card") { setSlot("l", null); setSlot("r", null); text.textContent = ""; name.style.visibility = "hidden"; S.typing = true; return showCard(lines[S.i].arg, () => { S.typing = false; next(); }); }
     const L = lines[S.i], card = L.who === "n" ? null : spkCard(L.who); S.seen.push(L);
     const side = L.who === "veyr" ? "l" : "r"; if (card) setSlot(side, card, L.who);
@@ -8710,13 +8826,16 @@ function bannerHtml(p) {
 }
 /* the summon page shows one banner at a time, large: a rail to switch banners, the banner's best cards fanned out, its pity, and the summon buttons */
 function bannerStage(p) {
-  const st = poolState(p), plan1 = payPlan(p, 1), planN = payPlan(p, ECON.multi), left = Math.max(0, p.pity - st.pity), list = poolList(p), top = list.slice(0, 3);
-  const btn = (n, plan) => `<button class="btn ${plan.ok ? "yellow" : ""}" data-act="summon" data-k="${p.key}" data-n="${n}" ${plan.ok ? "" : "disabled"}><b class="sb">Summon ×${n}</b><small class="sp">${planLabel(plan) || "—"}</small></button>`;
+  const st = poolState(p), plan1 = payPlan(p, 1), planN = payPlan(p, ECON.multi), left = Math.max(0, p.pity - st.pity), list = poolList(p), top = list.slice(0, 3), feat = list.slice(0, 5), lead = list[0];
+  const btn = (n, plan, cls) => `<button class="btn ${plan.ok ? cls : ""}" data-act="summon" data-k="${p.key}" data-n="${n}" ${plan.ok ? "" : "disabled"}><b class="sb">Summon ×${n}</b><small class="sp">${planLabel(plan) || "—"}</small></button>`;
   const fan = top.map((c, i) => `<div class="fc f${i}">${cardHtml(c, { attr: `data-act="detail" data-id="${c.id}"` })}</div>`).join("");
-  return `<div class="bst" style="${p.tone ? "--bt:" + p.tone : ""}"><div class="bst-head"><div class="bpk">${packHtml("mini", p.key)}</div><div class="bnt"><b class="fat">${esc(p.name)}</b><small>${esc(p.sub)}</small><span class="ends">${p.ends ? "Ends in " + leftTxt(p.ends) : "Always on"}</span></div></div>` +
+  const tag = p.ends ? "Limited Summon" : p.group === "core" ? "Standard Summon" : "Summon";
+  const hero = `<div class="bst-hero">${lead ? `<img alt="" src="${artSrc(lead, true)}">` : ""}<div class="bh-tx"><span class="bh-tag">${tag}</span><b class="fat">${esc(p.name)}</b><small>${esc(p.sub)}</small><span class="bh-end">${p.ends ? "⏱ Ends in " + leftTxt(p.ends) : "Always on"}</span></div><div class="bh-pk">${packHtml("mini", p.key)}</div></div>`;
+  const featRow = `<div class="bst-feat"><h4><i></i>Featured Heroes<i></i></h4><div class="bf-row">${feat.map(c => `<button data-act="detail" data-id="${c.id}" aria-label="${esc(c.name)}"><img alt="" src="${artSrc(c)}"><i class="bf-el">${elIco(arCard(c).el, "")}</i></button>`).join("")}</div></div>`;
+  return `<div class="bst" style="${p.tone ? "--bt:" + p.tone : ""}">${hero}${featRow}` +
     `<div class="bst-fan n${top.length}">${fan}</div><button class="bst-all" data-act="poolcards" data-k="${p.key}">See all ${list.length} cards</button>` +
     `<div class="bst-act"><div class="pity"><small><span>LEGENDARY OR BETTER WITHIN</span><span>${left} summon${left === 1 ? "" : "s"}</span></small><div class="bar"><i style="width:${Math.min(100, 100 * st.pity / p.pity)}%"></i></div></div>` +
-    `<div class="sumbtns">${btn(1, plan1)}${btn(ECON.multi, planN)}</div><button class="odds-link" data-act="odds" data-k="${p.key}">Odds</button></div></div>`;
+    `<div class="sumbtns">${btn(1, plan1, "yellow")}${btn(ECON.multi, planN, "purple")}</div><button class="odds-link" data-act="odds" data-k="${p.key}">Odds</button></div></div>`;
 }
 function bannerRail(pools) {
   const sel = pools.find(p => p.key === SEL) || pools[0], groups = POOL_GROUPS.filter(([g]) => pools.some(x => x.group === g)), inGroup = pools.filter(x => x.group === sel.group);
@@ -8728,12 +8847,12 @@ function viewSummon(v) {
   let h = `<div class="seg">${[["summon", "Summon"], ["shop", "Shop"], ["exch", "Exchange"]].map(([k, n]) => `<button class="${SV === k ? "on" : ""}" data-act="svtab" data-k="${k}">${n}</button>`).join("")}</div>`;
   if (SV === "summon") {
     h += typeof dealPanel === "function" ? dealPanel() : "";
-    h += bannerRail(pools) + bannerStage(pools.find(p => p.key === SEL));
+    h += bannerRail(pools) + bannerStage(pools.find(p => p.key === SEL)) +
       `<p class="note" style="text-align:center;margin:10px 0 0">Free Standard packs: <b>${fi.n}/${PACK.freeMax}</b>${fi.n < PACK.freeMax ? " · the next in " + fmtT(fi.next) : ""}. A Standard summon costs ${ECON.std} coins; every other summon costs Gems.</p>` +
       `<span class="ribbon">COLLECTION</span>${setProgress()}${setProgress2()}` + (rec.length ? `<span class="ribbon green">RECENT PULLS</span><div class="recent">${rec.map(id => BY[id] ? cardHtml(BY[id], { attr: `data-act="detail" data-id="${id}"` }) : "").join("")}</div>` : "");
     h += `<span class="ribbon">EARNING</span><div class="panel"><ul class="earn"><li><b>Coins</b> from every fight (wins pay more, campaign first clears pay most), the daily login and the daily missions.</li><li><b>Gems</b> from clearing a campaign region, climbing a ranked tier, finishing the daily list and every 5th level. Or buy them in the Shop.</li><li><b>Tokens</b> only from events. There are none running right now.</li></ul></div>`;
   } else if (SV === "shop") {
-    h += `<span class="ribbon gold">GEMS AND COINS</span><p class="note" style="text-align:center;margin:0 0 10px">Gems buy summons in every pool except Standard. Each pack also comes with Coins.</p><div class="list">${IAP.map(o => `<div class="panel item"><div class="t"><b>${ic("gem")} ${o.gems.toLocaleString()} Gems <span style="color:var(--yellow)">${o.bonus ? "+ " + o.bonus.toLocaleString() + " bonus" : "no bonus"}</span></b><small>+ ${ic("coin")} ${o.coins.toLocaleString()} Coins · ${(o.gems + o.bonus).toLocaleString()} Gems in all</small></div><button class="btn sm yellow" data-act="iap" data-id="${o.id}">${o.usd}</button></div>`).join("")}</div><p class="note" style="text-align:center;margin:12px 0 0">Purchases are not open yet. Nothing here charges you.</p>`;
+    h += `<span class="ribbon gold">GEMS AND COINS</span><p class="note" style="text-align:center;margin:0 0 10px">Gems buy summons in every pool except Standard. Each pack also comes with Coins.</p><div class="gshop">${IAP.map((o, i) => `<div class="gt t${Math.min(i, 5)}">${o.bonus ? `<i class="gt-b">+${Math.round(100 * o.bonus / o.gems)}%<small>BONUS</small></i>` : ""}<b class="gt-n">${(o.gems + o.bonus).toLocaleString()} <span>Gems</span></b><small class="gt-s">${o.bonus ? o.gems.toLocaleString() + " + " + o.bonus.toLocaleString() + " bonus" : "no bonus"}</small><div class="gt-i">${art2("icon", i < 1 ? "gem" : "gempile") ? `<img alt="" src="${art2("icon", i < 1 ? "gem" : "gempile")}">` : ic("gem")}</div><small class="gt-c">+ ${ic("coin", "")} ${o.coins.toLocaleString()} coins</small><button class="btn yellow" data-act="iap" data-id="${o.id}">${o.usd}</button></div>`).join("")}</div><p class="note" style="text-align:center;margin:12px 0 0">Purchases are not open yet. Nothing here charges you.</p>`;
   } else {
     const t = P.tokens || 0, row = (kind, title, rate) => `<div class="panel item" style="flex-wrap:wrap"><div class="t"><b>${title}</b><small>${rate}</small></div><div class="row" style="gap:6px;flex-wrap:wrap;justify-content:flex-end">${[1, 10, 100].map(n => `<button class="btn sm ${t >= n ? "yellow" : ""}" data-act="tokx" data-k="${kind}" data-n="${n}" ${t >= n ? "" : "disabled"}>${n}</button>`).join("")}<button class="btn sm ${t >= 1 ? "yellow" : ""}" data-act="tokx" data-k="${kind}" data-n="all" ${t >= 1 ? "" : "disabled"}>All${t >= 1 ? " (" + t + ")" : ""}</button></div></div>`;
     h += `<span class="ribbon">TOKEN EXCHANGE</span><p class="note" style="text-align:center;margin:0 0 10px">Tokens come only from events. Whatever you have left over turns into Gems or Coins here.</p><div class="list">${row("gems", "Tokens → Gems", "1 Token = " + ECON.tokGems + " Gems")}${row("coins", "Tokens → Coins", "1 Token = " + ECON.tokCoins + " Coins")}</div>`;
