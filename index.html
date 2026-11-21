@@ -855,6 +855,38 @@ nav button .dia .icomask { width: 28px; height: 28px; opacity: .85; } nav button
 .pv-banner { position: relative; width: 150px; } .pv-banner .icomask.big { position: absolute; left: 50%; top: 18px; width: 128px; height: 124px; margin-left: -64px; color: #eef2fa; background: linear-gradient(#ffffff, #aeb9d0); filter: drop-shadow(0 3px 6px #000b); }
 .pv-feats i { font-style: normal; }
 .mb-b { flex-wrap: wrap; justify-content: center; } .mtrack.many { flex: 1 1 100%; margin-top: 4px; } .mtrack { min-width: 0; } .mtrack span i { width: 28px; height: 28px; } nav button .dia .icomask { width: 25px; height: 25px; }
+/* ===== Exchange page ===== */
+.xhero { position: relative; overflow: hidden; border-radius: 18px; border: 1.5px solid #f0d68a88; padding: 18px 16px; margin-bottom: 10px; background: linear-gradient(135deg, #2a2160, #0e1228); } .xhero .xbg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .45; } .xhero > div { position: relative; } .xt { display: block; font: 400 30px/1.1 var(--display); color: #fff; text-shadow: 0 2px 8px #000; } .xhero small { display: block; margin-top: 4px; font: 500 13px var(--body); color: #e0e8f6; }
+.xcur { border-radius: 16px; border: 1.5px solid #8a76e066; background: linear-gradient(#171f45e0, #0c1228f0); padding: 8px 10px 10px; margin-bottom: 10px; } .xch { font: 700 13px var(--body); color: #f0d68a; margin-bottom: 8px; } .xcs { display: flex; gap: 8px; } .xc { display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; border: 1.5px solid #ffffff2e; background: #0b1124; } .xc b { font: 700 15px var(--body); color: #fff; } .xc small { font: 500 12px var(--body); color: #aebfd6; }
+.xi { display: grid; place-items: center; flex: none; width: 36px; height: 36px; font-style: normal; } .xi .tokp, .xi .icopic, .xi svg { width: 100%; height: 100%; }
+.xtabs { display: flex; padding: 4px; margin-bottom: 10px; border-radius: 999px; border: 1.5px solid #ffffff2e; background: #0b1124; } .xtabs button { flex: 1; padding: 9px 0; border-radius: 999px; font: 600 14px var(--body); color: #cdd8e8; background: none; border: 0; } .xtabs button.on { background: linear-gradient(#a98bff, #6f4cd6); color: #fff; box-shadow: 0 0 14px #9a78ff88; }
+.xlist { display: flex; flex-direction: column; gap: 8px; } .xrow { display: grid; grid-template-columns: 1fr auto 1fr; grid-template-areas: "l ar o" "q q g"; align-items: center; gap: 8px 6px; padding: 10px; border-radius: 16px; border: 1.5px solid #ffffff2e; background: linear-gradient(#141c38e8, #0b1124f2); }
+.xl, .xo { display: flex; align-items: center; gap: 8px; min-width: 0; } .xl span b, .xo span b { display: block; font: 600 14px var(--body); color: #fff; } .xl small { display: block; font: 500 12px var(--body); color: #aebfd6; } .xo em { display: block; font: 400 20px var(--display); font-style: normal; color: #fff; } .xar { grid-area: ar; color: #f0d68a; font-style: normal; font-size: 22px; } .xl { grid-area: l; } .xo { grid-area: o; }
+.xq { grid-area: q; display: flex; align-items: center; gap: 8px; } .xs { display: flex; align-items: center; border-radius: 999px; border: 1.5px solid #ffffff3a; background: #0b1124; } .xs button { width: 34px; height: 34px; border: 0; background: none; color: #fff; font: 700 20px var(--body); } .xs button:disabled { opacity: .35; } .xs b { min-width: 34px; text-align: center; font: 700 15px var(--body); color: #fff; } .xq small { font: 500 12px var(--body); color: #aebfd6; } .xgo { grid-area: g; min-height: 38px; }
+.xempty, .xnote { text-align: center; color: #aebfd6; font: 500 13px var(--body); } .xempty { padding: 26px 10px; border-radius: 16px; border: 1.5px dashed #ffffff2e; } .xempty b { display: block; color: #fff; margin-bottom: 4px; } .xnote { margin: 14px 4px 0; }
+#modal:has(.set-edit) .ribbon::before { display: none !important; }
+/* ===== one colour world: every screen and sheet takes the Settings look (deep violet-navy, gold headings, violet-edged panels) ===== */
+:root { --sx-bg1: #2b1f66; --sx-bg2: #0f1230; --sx-bg3: #0a0d1f; --sx-edge: #8a76e066; --sx-gold: #f0d68a; --sx-pa: #171f45e0; --sx-pb: #0c1228f0; }
+body { background: radial-gradient(130% 70% at 50% -6%, #3a2a85 0%, var(--sx-bg2) 48%, var(--sx-bg3) 100%) fixed !important; }
+body::after { background: radial-gradient(ellipse at 50% 40%, transparent 58%, #04051088 100%) !important; }
+.sheet, #modal .sheet { background: radial-gradient(ellipse at 50% 100%, var(--sx-bg1), var(--sx-bg2) 60%, var(--sx-bg3)) !important; border: 1.5px solid #f0d68a66 !important; border-bottom: 0 !important; }
+.sheet h2 { font-family: var(--display) !important; font-weight: 400 !important; color: #fff !important; letter-spacing: .04em !important; }
+.panel, .item.panel, .list > .panel { background: linear-gradient(var(--sx-pa), var(--sx-pb)) !important; border: 1.5px solid var(--sx-edge) !important; border-radius: 16px !important; box-shadow: inset 0 0 20px #0006, 0 6px 16px #0007 !important; }
+.panel::before { display: none !important; }
+.ribbon, .ribbon.gold, .ribbon.green { display: flex !important; align-items: center; gap: 8px; width: auto !important; margin: 16px 0 8px !important; padding: 0 4px !important; background: none !important; border: 0 !important; box-shadow: none !important; clip-path: none !important; text-align: left; color: var(--sx-gold) !important; font: 400 19px var(--display) !important; letter-spacing: .03em !important; text-transform: none !important; text-shadow: none !important; -webkit-text-stroke: 0 !important; }
+.ribbon::before { display: none !important; } .ribbon::after { content: ""; flex: 1; height: 1px; transform: none !important; background: linear-gradient(90deg, #f0d68a77, transparent) !important; margin: 0 !important; }
+.btn { background: linear-gradient(#a98bff, #6f4cd6); border: 1.5px solid #d9c8ff; color: #fff; text-shadow: 0 1px 2px #0006; box-shadow: 0 0 12px #9a78ff55; border-radius: 12px; }
+.btn.yellow { background: linear-gradient(#ffe48c, #c9962a); border-color: #fff0b8; color: #2a1a02; text-shadow: none; box-shadow: 0 0 12px #f0d68a55; }
+.btn.dark { background: #0b1124; border: 1.5px solid #ffffff33; color: #cdd8e8; box-shadow: none; text-shadow: none; }
+.btn.red { background: linear-gradient(#e0586b, #9b2a3c); border-color: #ff9aa8aa; }
+.seg { border: 1.5px solid #ffffff2e !important; background: #0b1124 !important; border-radius: 999px !important; padding: 4px; } .seg button { border-radius: 999px !important; color: #cdd8e8 !important; font-family: var(--body) !important; letter-spacing: .04em !important; } .seg button.on { background: linear-gradient(#a98bff, #6f4cd6) !important; color: #fff !important; box-shadow: 0 0 14px #9a78ff88; }
+nav { background: linear-gradient(#141a3ff0, #080b1c) !important; border-top: 1.5px solid #8a76e055 !important; }
+nav button.on { background: linear-gradient(#6f4cd600, #a98bff33) !important; box-shadow: inset 0 2px 0 #c9b6ff !important; color: #fff !important; }
+nav button.on .dia svg { color: #d9c8ff !important; filter: drop-shadow(0 0 6px #9a78ffaa) !important; }
+.bar { background: #0a1022 !important; border: 1px solid #ffffff22 !important; } .bar > i { background: linear-gradient(90deg, #7a5bff, #c9b6ff) !important; }
+body .ribbon, body .ribbon.green, body .ribbon.gold { color: #f0d68a !important; width: 100% !important; justify-content: flex-start !important; }
+body .ribbon::after { background: linear-gradient(90deg, #f0d68a88, transparent) !important; height: 1px !important; opacity: 1 !important; }
+.xq small { white-space: nowrap; }
 
 /* ===== Clash ===== */
 #ck { position: fixed; inset: 0; z-index: 20; background: radial-gradient(ellipse at 50% 40%, #12583a 0%, var(--felt-d) 55%, var(--felt-dd) 100%); }
@@ -8677,7 +8709,7 @@ async function cloudCall(path, body) {
 const meaningful = p => !!p && ((p.pulls || 0) > 0 || (p.plays || 0) > 0 || (p.lv || 1) > 1);
 /* WHICH SAVE WINS: asked once per account on this phone, then remembered. "online" (the default and the recommended one) means the account's saved game always wins at sign-in; "device" means this phone's progress replaces it. Changed in Settings, never by a prompt at sign-in. */
 const srcKey = () => "triad.src." + (ACC ? ACC.name.toLowerCase() : "");
-const srcPref = () => { try { return localStorage.getItem(srcKey()) || ""; } catch (_) { return ""; } };
+const srcPref = () => "online";   // the account's online save always wins; this phone's progress never replaces it
 const srcSet = v => { try { localStorage.setItem(srcKey(), v); } catch (_) {} };
 function useDevice(rev) {
   CLOUD.conflict = false; CLOUD.on = true; P.acct = ACC.name; P.us = 1;
@@ -9015,6 +9047,21 @@ function exchangeTokens(kind, amt) {
   const n = amt === "all" ? P.tokens : Math.min(P.tokens, +amt || 1), g = kind === "gems"; P.tokens -= n; if (g) P.gems += n * ECON.tokGems; else P.coins += n * ECON.tokCoins;
   scheduleSave(); chrome(); toast("+" + (g ? n * ECON.tokGems + " gems" : n * ECON.tokCoins + " coins")); show("summon");
 }
+const EXQ = { gems: 1, coins: 1 }, EXT = { tab: "ex" };
+const tokIcon = () => `<svg class="tokp" viewBox="0 0 40 40" aria-hidden="true"><defs><radialGradient id="tkg" cx=".5" cy=".4" r=".7"><stop offset="0" stop-color="#b79cff"/><stop offset="1" stop-color="#3b2a8c"/></radialGradient></defs><circle cx="20" cy="20" r="17" fill="url(#tkg)" stroke="#e9dcff" stroke-width="2.5"/><path d="M20 6 L23 17 L34 20 L23 23 L20 34 L17 23 L6 20 L17 17 Z" fill="#fff" opacity=".92"/></svg>`;
+function exchangeView() {   // the Exchange page: event Tokens (the only exchange currency in the game) into Gems or Coins
+  const t = P.tokens || 0, art = art2("arena", "void") || art2("arena", "sky");
+  const row = (kind, title, per) => {
+    const q = Math.max(1, Math.min(EXQ[kind], Math.max(1, t)));
+    return `<div class="xrow"><div class="xl"><i class="xi">${tokIcon()}</i><span><b>Event Token</b><small>Owned: ${t.toLocaleString()}</small></span></div><i class="xar">»</i><div class="xo"><i class="xi">${ic(kind === "gems" ? "gem" : "coin", "")}</i><span><b>${title}</b><em>×${(q * per).toLocaleString()}</em></span></div>` +
+      `<div class="xq"><div class="xs"><button data-act="tokq" data-k="${kind}" data-d="-1" ${q <= 1 ? "disabled" : ""}>−</button><b>${q}</b><button data-act="tokq" data-k="${kind}" data-d="1" ${q >= t ? "disabled" : ""}>+</button></div><small>(${q} Token${q > 1 ? "s" : ""})</small></div><button class="btn yellow xgo" data-act="tokx" data-k="${kind}" data-n="${q}" ${t >= 1 ? "" : "disabled"}>Exchange</button></div>`;
+  };
+  const tabs = `<div class="xtabs"><button class="${EXT.tab === "ex" ? "on" : ""}" data-act="extab" data-k="ex">Exchange</button><button class="${EXT.tab === "shop" ? "on" : ""}" data-act="extab" data-k="shop">Event Shop</button></div>`;
+  return `<div class="xhero">${art ? `<img class="xbg" alt="" src="${art}">` : ""}<div><b class="xt">Event Exchange</b><small>Convert event Tokens into Gems and Coins.</small></div></div>` +
+    `<div class="xcur"><div class="xch">◆ Your Exchange Currencies ◆</div><div class="xcs"><div class="xc"><i class="xi">${tokIcon()}</i><b>${t.toLocaleString()}</b><small>Tokens</small></div></div></div>${tabs}` +
+    (EXT.tab === "ex" ? `<div class="xlist">${row("gems", "Gems", ECON.tokGems)}${row("coins", "Coins", ECON.tokCoins)}</div>` : `<div class="xempty"><b>No event shop is running.</b><small>When an event starts, its shop opens here and spends the same Tokens.</small></div>`) +
+    `<p class="xnote">Tokens come only from events. Whatever you have left over can be exchanged here.</p>`;
+}
 function buyIap() { toast("Purchases are not open yet."); }
 
 /* ----- the Shop tab ----- */
@@ -9076,8 +9123,7 @@ function viewSummon(v) {
   } else if (SV === "shop") {
     h += `<span class="ribbon gold">GEMS AND COINS</span><p class="note" style="text-align:center;margin:0 0 10px">Gems buy summons in every pool except Standard. Each pack also comes with Coins.</p><div class="gshop">${IAP.map((o, i) => `<div class="gt t${Math.min(i, 5)}">${o.bonus ? `<i class="gt-b">+${Math.round(100 * o.bonus / o.gems)}%<small>BONUS</small></i>` : ""}<b class="gt-n">${(o.gems + o.bonus).toLocaleString()} <span>Gems</span></b><small class="gt-s">${o.bonus ? o.gems.toLocaleString() + " + " + o.bonus.toLocaleString() + " bonus" : "no bonus"}</small><div class="gt-i">${art2("icon", "gem" + Math.min(6, i + 1)) ? `<img alt="" src="${art2("icon", "gem" + Math.min(6, i + 1))}">` : ic("gem")}</div><small class="gt-c">+ ${ic("coin", "")} ${o.coins.toLocaleString()} coins</small><button class="btn yellow" data-act="iap" data-id="${o.id}">${o.usd}</button></div>`).join("")}</div><p class="note" style="text-align:center;margin:12px 0 0">Purchases are not open yet. Nothing here charges you.</p>`;
   } else {
-    const t = P.tokens || 0, row = (kind, title, rate) => `<div class="panel item" style="flex-wrap:wrap"><div class="t"><b>${title}</b><small>${rate}</small></div><div class="row" style="gap:6px;flex-wrap:wrap;justify-content:flex-end">${[1, 10, 100].map(n => `<button class="btn sm ${t >= n ? "yellow" : ""}" data-act="tokx" data-k="${kind}" data-n="${n}" ${t >= n ? "" : "disabled"}>${n}</button>`).join("")}<button class="btn sm ${t >= 1 ? "yellow" : ""}" data-act="tokx" data-k="${kind}" data-n="all" ${t >= 1 ? "" : "disabled"}>All${t >= 1 ? " (" + t + ")" : ""}</button></div></div>`;
-    h += `<span class="ribbon">TOKEN EXCHANGE</span><p class="note" style="text-align:center;margin:0 0 10px">Tokens come only from events. Whatever you have left over turns into Gems or Coins here.</p><div class="list">${row("gems", "Tokens → Gems", "1 Token = " + ECON.tokGems + " Gems")}${row("coins", "Tokens → Coins", "1 Token = " + ECON.tokCoins + " Coins")}</div>`;
+    h += exchangeView();
   }
   v.innerHTML = h;
 }
@@ -9199,7 +9245,7 @@ function settingsSheet() {
     `<span class="ribbon">SOUND</span><div class="panel">${tg("sMute", allOff, "Mute all sound")}${tg("sBgm", AU.bgm, "Music")}${sl("mvol", AU.mv)}${tg("sSfx", AU.sfx, "Sound effects")}${sl("svol", AU.sv)}<div class="row"><button class="btn sm dark" data-act="soundLab">Sound test</button></div></div>` +
     `<span class="ribbon">DISPLAY</span><div class="panel">${tg("sMot", !(pf.motion === "off" || UI.mq.matches), "Animations", "Menu and card movement")}${tg("sVfx", pf.vfx !== false, "Battle effects", "Flashes, sparks and rings")}${tg("sShake", pf.shake !== false, "Screen shake")}${tg("sHap", pf.haptics !== false, "Vibration")}${UI.mq.matches ? '<p class="note" style="margin:8px 0 0">Your phone asks apps to reduce motion, so animations stay off.</p>' : ""}</div>` +
     `<span class="ribbon">CARDS AND PACKS</span><div class="panel">${tg("sTilt", TILT.on, "Card tilt", tiltNote)}${tg("sPack", pf.packQuick === true, "Quick pack opening", "Skip the tear and the flips, and go straight to your cards")}</div>` +
-    `<span class="ribbon">ACCOUNT AND DATA</span><div class="panel"><div class="row setrow"><span>Display name<small class="setsub">${esc(playerName())}</small></span><button class="btn sm dark" data-act="nameEdit">Rename</button></div>${ACC ? '<div class="row setrow"><span>Recovery code<small class="setsub">Resets a forgotten password. Shown once.</small></span><button class="btn sm dark" data-ac="recMake">Make one</button></div>' : ""}<p class="note" style="margin:0 0 8px">${ACC ? "Signed in as <b style=\"color:var(--yellow)\">" + esc(ACC.name) + "</b>. Your progress is saved to your account." : "Playing as a guest. Progress is only on this phone."}</p>${ACC ? `<p class="note" style="margin:0 0 4px">Which save wins when you sign in: <b>${srcDev ? "this phone" : "your online save"}</b>.</p><div class="row"><button class="btn sm dark" data-me="${srcDev ? "srconl" : "srcdev"}">${srcDev ? "Use my online save" : "Use this phone instead…"}</button></div>` : ""}<div class="row" style="gap:8px;margin-top:8px">${ACC ? `<button class="btn sm dark" data-me="blocked">Blocked (${blockedList().length})</button>` : ""}${ACC ? '<button class="btn sm dark" data-ac="logout">Sign out</button>' : '<button class="btn sm yellow" data-ac="up">Create account</button>'}<button class="btn sm red" data-me="del">${ACC ? "Delete account" : "Erase my progress"}</button></div></div>` +
+    `<span class="ribbon">ACCOUNT AND DATA</span><div class="panel"><div class="row setrow"><span>Display name<small class="setsub">${esc(playerName())}</small></span><button class="btn sm dark" data-act="nameEdit">Rename</button></div>${ACC ? '<div class="row setrow"><span>Recovery code<small class="setsub">Resets a forgotten password. Shown once.</small></span><button class="btn sm dark" data-ac="recMake">Make one</button></div>' : ""}<p class="note" style="margin:0 0 8px">${ACC ? "Signed in as <b style=\"color:var(--yellow)\">" + esc(ACC.name) + "</b>. Your progress is saved to your account." : "Playing as a guest. Progress is only on this phone."}</p><div class="row" style="gap:8px;margin-top:8px">${ACC ? `<button class="btn sm dark" data-me="blocked">Blocked (${blockedList().length})</button>` : ""}${ACC ? '<button class="btn sm dark" data-ac="logout">Sign out</button>' : '<button class="btn sm yellow" data-ac="up">Create account</button>'}<button class="btn sm red" data-me="del">${ACC ? "Delete account" : "Erase my progress"}</button></div></div>` +
     `<span class="ribbon">HELP</span><div class="row c" style="gap:8px"><button class="btn sm" data-ck="rules">How to play</button><button class="btn sm" data-me="tut">Replay the tutorial</button></div>` +
     `<p class="note" style="text-align:center;margin:12px 0 0;opacity:.6;font-size:11px">Version ${typeof VER !== "undefined" ? VER : ""}</p>` +
     `<div class="row c" style="margin-top:10px"><button class="btn sm dark" data-me="profile">Back</button></div>`);
@@ -10263,7 +10309,9 @@ document.addEventListener("click", async e => {
     case "setav": P.avatar = d.id || null; scheduleSave(); chrome(); closeModal(); return toast(d.id ? BY[d.id].name + " is now your portrait" : "Your portrait follows your best card");
     case "openPack": return summon(SEL, 1);
     case "iap": return buyIap(d.id);
-    case "tokx": return exchangeTokens(d.k, d.n);
+    case "tokx": { const r = exchangeTokens(d.k, d.n); EXQ[d.k] = 1; return r; }
+    case "tokq": { const t = P.tokens || 0; EXQ[d.k] = Math.max(1, Math.min(t, (EXQ[d.k] || 1) + +d.d)); return show("summon"); }
+    case "extab": EXT.tab = d.k; return show("summon");
     case "sell": return sellCopy(d.id);
     case "packTear": return packTear();
     case "packNext": return packNext();
