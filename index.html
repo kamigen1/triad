@@ -907,6 +907,14 @@ body .ribbon::after { background: linear-gradient(90deg, #f0d68a88, transparent)
 .gfr { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; } .gslot { position: relative; aspect-ratio: 3 / 4; overflow: hidden; border-radius: 14px; border: 2px solid #f0d68a99; background: #0b1124; padding: 0; color: #fff; box-shadow: 0 6px 14px #0008; } .gslot img { width: 100%; height: 100%; object-fit: cover; } .gslot b { position: absolute; left: 0; right: 0; bottom: 0; padding: 14px 4px 5px; font: 600 12px var(--body); background: linear-gradient(#0000, #070a18f0); } .gslot.empty { border: 2px dashed #8a76e088; display: grid; place-items: center; } .gslot.empty span { font: 300 38px var(--body); color: #8a76e0; }
 .gall { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; } .gall button { padding: 0; aspect-ratio: 1; overflow: hidden; border-radius: 10px; border: 1.5px solid #ffffff26; background: #0b1124; } .gall img { width: 100%; height: 100%; object-fit: cover; } .gall.pick { max-height: 52vh; overflow: auto; }
 
+.q-hero, .q-hero.on { border-color: #f0d68aaa !important; }
+
+/* ===== filter chips and the cleaner controls from the mockups ===== */
+.fchips { display: flex; gap: 6px; margin: 0 0 8px; overflow-x: auto; scrollbar-width: none; } .fchip { flex: 1 0 auto; max-width: 48%; min-height: 36px; padding: 0 26px 0 12px; border-radius: 999px; border: 1.5px solid #8a76e077; background: #0b1124 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23cdd8e8' stroke-width='2'/%3E%3C/svg%3E") no-repeat right 10px center; color: #e8eefc; font: 600 13px var(--body); -webkit-appearance: none; appearance: none; }
+.cbar .fbtn { width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid #8a76e0aa; background: linear-gradient(#171f45, #0c1228); color: #f0d68a; display: grid; place-items: center; } .cbar .fbtn svg { width: 20px; height: 20px; }
+.cbar input[type=search] { border-radius: 999px; border: 1.5px solid #8a76e066; background: #0b1124; }
+.dback { position: absolute; left: 10px; top: 8px; z-index: 6; width: 40px; height: 40px; border: 0; background: none; color: #f0d68a; font: 400 38px/1 var(--display); }
+
 /* ===== Clash ===== */
 #ck { position: fixed; inset: 0; z-index: 20; background: radial-gradient(ellipse at 50% 40%, #12583a 0%, var(--felt-d) 55%, var(--felt-dd) 100%); }
 #ck[hidden] { display: none; }
@@ -4539,14 +4547,14 @@ function deckSheet2() {
   const nSkill = D.cards.filter(x => x && isSkill(x)).length;
   const slot = k => { const id = D.cards[k]; return `<div class="kslot ${D.sel === k ? "on" : ""} ${D.flash === k ? "swapflash" : ""}" data-ck="dslot" data-k="${k}">${id && (BY[id] || isSkill(id)) ? kcardMini(id) : '<div class="ku mini empty"><span>+</span></div>'}</div>`; };
   const selId = D.cards[D.sel];
-  openSheet(`<button class="sheetx keep" data-ck="dx" aria-label="Close">✕</button><h2 class="fat deck-edit"><i></i>Edit Deck<i></i></h2><div class="dhead"><div class="dcover">${deckCover(P.cd[D.i] ? Object.assign({}, P.cd[D.i], { cards: D.cards, cover: D.cover || P.cd[D.i].cover }) : { cards: D.cards })}<div class="dnm"><input type="text" id="ckname" maxlength="14" value="${esc(D.name)}" aria-label="Deck name"><b>${D.cards.filter(Boolean).length} / 12</b></div></div>${deckStatsHtml(D)}</div><div class="row dtools"><button class="btn sm" data-me="fill" ${D.cards.filter(Boolean).length >= 12 ? "disabled" : ""}>✦ Auto Build</button><button class="btn sm dark" data-ck="deckDel" ${P.cd.length <= 1 ? "disabled" : ""}>Delete deck</button></div>` +
+  openSheet(`<button class="sheetx keep" data-ck="dx" aria-label="Close">✕</button><button class="dback" data-ck="dx" aria-label="Back">‹</button><h2 class="fat deck-edit"><i></i>Edit Deck<i></i></h2><div class="dhead"><div class="dcover">${deckCover(P.cd[D.i] ? Object.assign({}, P.cd[D.i], { cards: D.cards, cover: D.cover || P.cd[D.i].cover }) : { cards: D.cards })}<div class="dnm"><input type="text" id="ckname" maxlength="14" value="${esc(D.name)}" aria-label="Deck name"><b>${D.cards.filter(Boolean).length} / 12</b></div></div>${deckStatsHtml(D)}</div><div class="row dtools"><button class="btn sm" data-me="fill" ${D.cards.filter(Boolean).length >= 12 ? "disabled" : ""}>✦ Auto Build</button><button class="btn sm dark" data-ck="deckDel" ${P.cd.length <= 1 ? "disabled" : ""}>Delete deck</button></div>` +
     `<p class="note" style="margin:0 0 6px">12 CARDS. Each fight starts with 5 of them at random on the field; draw the rest for 3 energy. Hold a card and drag it to move it.</p><div class="kd6">${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(slot).join("")}</div>` +
     `<div class="row" style="margin:6px 0 0;gap:6px;flex-wrap:wrap"><small class="note" style="margin:0">Sort deck</small>${[["cost", "Cost"], ["rar", "Rarity"], ["el", "Element"], ["type", "Type"], ["name", "Name"]].map(([k, n]) => `<button class="btn sm dark" data-ck="dsortdeck" data-s="${k}">${n}</button>`).join("")}</div>` +
     `<div class="selbar"><span>Editing <b>${esc(SLOT_NAME(D.sel))}</b>${selId && (BY[selId] || isSkill(selId)) ? ": " + esc(isSkill(selId) ? SKC[selId].n : BY[selId].name) : ": empty"}</span>${selId ? '<button class="btn sm dark" data-ck="dremove">Remove</button>' : ""}</div>` +
     `<div class="row" style="margin:6px 0 0;gap:6px"><button class="btn sm dark" data-ck="dundo" ${D.undo.length ? "" : "disabled"}>↶ Undo</button><button class="btn sm dark" data-me="copycode">Copy code</button><button class="btn sm dark" data-me="cover" ${selId && BY[selId] ? "" : "disabled"}>Set as cover</button></div>` +
     styleLine(D.cards) + (err ? `<p class="note" style="color:#ff9aa4;margin:6px 0 0">${esc(err)}</p>` : '<p class="note" style="color:var(--ok);margin:6px 0 0">Ready to play.</p>') +
     (D.cmp ? cmpPanel(D) : `<div class="dcol"><b>Collection</b><span>${D.tab === "sk" ? SKC_IDS.length : ownedList().length} ${D.tab === "sk" ? "skills" : "cards"}</span></div><div class="seg ckind" style="margin-top:8px"><button class="${D.tab !== "sk" ? "on" : ""}" data-ck="dtab" data-t="cr">Character cards</button><button class="${D.tab === "sk" ? "on" : ""}" data-ck="dtab" data-t="sk">Skill cards · ${nSkill}/${SK_MAX}</button></div>` +
-      `<div class="cbar dbar"><input type="search" id="dq" placeholder="${D.tab === "sk" ? "Search skill cards" : "Search cards"}" value="${esc(D.q || "")}"><button class="fbtn" data-ck="dfiltOpen" aria-label="Sort and filter">${ic("filter", "")}${deckFiltN(D) ? '<i class="dot"></i>' : ""}</button></div>` +
+      `<div class="cbar dbar"><input type="search" id="dq" placeholder="${D.tab === "sk" ? "Search skill cards" : "Search cards"}" value="${esc(D.q || "")}"><button class="fbtn" data-ck="dfiltOpen" aria-label="Sort and filter">${ic("filter", "")}${deckFiltN(D) ? '<i class="dot"></i>' : ""}</button></div>${D.tab !== "sk" ? fchips() : ""}` +
       `<p class="note" style="margin:0 0 6px">Tap a card to see it in full, then put it in ${esc(SLOT_NAME(D.sel).toLowerCase())}.${D.tab === "sk" ? " Skill cards are drawn like any card, played once for their energy cost, and then gone." : " Your cards only."}</p>`) +
     `<div class="grid pickgrid ${D.cmp ? "short" : ""}" id="dgrid">${deckGridHtml(D)}</div>` +
     `<div class="row c dfoot" style="margin-top:10px"><button class="btn dark" data-ck="dclear" ${D.cards.some(Boolean) ? "" : "disabled"}>🗑 Clear Deck</button><button class="btn yellow" data-ck="deckSave" ${deckDirty(D) ? "" : "disabled"}>${deckDirty(D) ? "✓ Save Deck" : "Saved"}</button></div>`);
@@ -8476,25 +8484,30 @@ function setClaim(key) {
   const s = setByKey(key); if (!s) return; const p = setProg(s); if (!p.done || p.claimed) return; if (!P.setc) P.setc = {}; P.setc[key] = 1; earn(0, s.gems); scheduleSave(); chrome(); uiFx("ok"); toast("Set complete: +" + s.gems + " gems"); closeModal(); show("cards");
 }
 /* Gallery: six frames the player fills with their favourite art, then every card they own as a picture */
-function viewGallery() {
-  if (!P.gal) P.gal = []; const gal = P.gal, ownedAll = ownedList();
-  const slot = i => { const id = gal[i], c = id && BY[id] && P.own[id] > 0 ? BY[id] : null; return `<button class="gslot ${c ? "" : "empty"}" data-cl="${c ? "gview" : "gpick"}" data-i="${i}" data-id="${c ? c.id : ""}">${c ? `<img alt="" src="${artSrc(c)}"><b>${esc(c.name)}</b>` : "<span>+</span>"}</button>`; };
-  return `<div class="sethead"><div><b class="fat">My Gallery</b><small>Show off six favourite cards. Tap a frame to choose.</small></div></div><div class="gfr">${[0, 1, 2, 3, 4, 5].map(slot).join("")}</div>` +
-    `<span class="ribbon">ALL ART · ${ownedAll.length}</span><div class="gall">${ownedAll.sort((a, b) => rarOf(b) - rarOf(a) || a.name.localeCompare(b.name)).map(c => `<button data-act="detail" data-id="${c.id}" aria-label="${esc(c.name)}"><img alt="" loading="lazy" src="${artSrc(c)}"></button>`).join("")}</div>`;
-}
-function galleryPick(i) {
-  const ids = ownedList().sort((a, b) => rarOf(b) - rarOf(a) || a.name.localeCompare(b.name));
-  openSheet(`<h2 class="fat deck-edit"><i></i>Frame ${+i + 1}<i></i></h2><div class="gall pick">${ids.map(c => `<button data-cl="gset" data-i="${i}" data-id="${c.id}" aria-label="${esc(c.name)}"><img alt="" loading="lazy" src="${artSrc(c)}"></button>`).join("")}</div><div class="row c" style="margin-top:12px">${P.gal && P.gal[i] ? `<button class="btn dark" data-cl="gclear" data-i="${i}">Empty this frame</button>` : ""}<button class="btn dark" data-act="closeModal">Close</button></div>`);
+function viewGallery() {   // the six frames are the same showcase friends see on the player's profile
+  const bnd = (P.binder || []).filter(id => BY[id] && P.own[id] > 0), ownedAll = ownedList();
+  const slot = i => { const c = BY[bnd[i]]; return `<button class="gslot ${c ? "" : "empty"}" data-me="binder" aria-label="Frame ${i + 1}">${c ? `<img alt="" src="${artSrc(c)}"><b>${esc(c.name)}</b>` : "<span>+</span>"}</button>`; };
+  return `<div class="sethead"><div><b class="fat">My Gallery</b><small>Six favourite cards. Friends who open your profile see them too. Tap a frame to choose.</small></div></div><div class="gfr">${[0, 1, 2, 3, 4, 5].map(slot).join("")}</div>` +
+    `<span class="ribbon">ALL ART · ${ownedAll.length}</span><div class="gall">${ownedAll.sort((x, y) => rarOf(y) - rarOf(x) || x.name.localeCompare(y.name)).map(c => `<button data-act="detail" data-id="${c.id}" aria-label="${esc(c.name)}"><img alt="" loading="lazy" src="${artSrc(c)}"></button>`).join("")}</div>`;
 }
 document.addEventListener("click", e => {
   const b = e.target.closest && e.target.closest("[data-cl]"); if (!b) return; const a = b.dataset.cl, k = b.dataset.k, i = +b.dataset.i;
   if (a === "tab") { CT = k; return show("cards"); }
   if (a === "set") return setSheet(k);
   if (a === "claim") return setClaim(k);
-  if (a === "gpick") return galleryPick(i);
-  if (a === "gview") return detail(b.dataset.id);
-  if (a === "gset") { if (!P.gal) P.gal = []; P.gal[i] = b.dataset.id; scheduleSave(); closeModal(); return show("cards"); }
-  if (a === "gclear") { if (P.gal) P.gal[i] = null; scheduleSave(); closeModal(); return show("cards"); }
+});
+
+/* ---------- filter chips (All Rarities / All Elements / Sort) shared by the collection and the deck builder ---------- */
+function fchips() {
+  const opt = (v, n, cur) => `<option value="${v}" ${String(cur) === String(v) ? "selected" : ""}>${n}</option>`;
+  return `<div class="fchips"><select class="fchip" data-fs="lv" aria-label="Rarity">${opt(0, "All Rarities", F.lv)}${[1, 2, 3, 4, 5].map(l => opt(l, RNAME[l], F.lv)).join("")}</select>` +
+    `<select class="fchip" data-fs="el" aria-label="Element">${opt("all", "All Elements", F.el)}${ELKEYS.map(e => opt(e, EL[e][0], F.el)).join("")}</select>` +
+    `<select class="fchip" data-fs="sort" aria-label="Sort">${[["rar", "Rarity"], ["new", "Newest"], ["cost", "Cost"], ["atk", "Attack"], ["hp", "Health"], ["name", "Name"], ["cnt", "Copies"]].map(([v, n]) => opt(v, "Sort: " + n, F.sort)).join("")}</select></div>`;
+}
+document.addEventListener("change", e => {
+  const s = e.target.closest && e.target.closest("[data-fs]"); if (!s) return; const f = s.dataset.fs;
+  F[f] = f === "lv" ? +s.value : s.value;
+  if (typeof CKD !== "undefined" && CKD && document.querySelector("#dgrid")) deckGridFill(); else fillColl();
 });
 
 /* ===== missions.js: the Missions tab (2026-11 redesign): Daily, Weekly, Season and Achievements. UI + counters only.
@@ -9786,7 +9799,7 @@ function viewCardsMain(v) {
   const deckPanel = `<div class="panel dk" data-ck="deckOpen" data-i="${di}"><div class="dkh"><b class="fat">${esc(d.name)}</b></div><div class="dstrip">${d.cards.map(id => (isSkill(id) ? skTile(id) : BY[id] ? cardHtml(BY[id]) : "")).join("") || '<p class="note" style="margin:6px auto">Empty deck</p>'}</div></div>`;
   v.innerHTML = `<span class="ribbon">DECK</span>${deckPanel}<div class="row c" style="margin-top:10px">${P.cd.length > 1 ? '<button class="btn sm" data-ck="deckSwap">Swap deck</button>' : ""}<button class="btn sm yellow" data-ck="deckNew" ${P.cd.length >= 8 ? "disabled" : ""}>New deck</button><button class="btn sm dark" data-me="import" ${P.cd.length >= 8 ? "disabled" : ""}>Import code</button></div>` +
     `<span class="ribbon">COLLECTION · SET 1 ${have}/${POOL.length} · SET 2 ${ownedList().filter(c => c.set2).length}/${POOL2.length}</span>` +
-    `<div class="cbar"><input type="search" id="fq" placeholder="${F.kind === "skill" ? "Search skill cards" : "Search cards"}" value="${esc(F.q)}"><button class="fbtn" data-act="filtOpen" aria-label="Sort and filter">${ic("filter", "")}${filtN() ? '<i class="dot"></i>' : ""}</button></div>` +
+    `<div class="cbar"><input type="search" id="fq" placeholder="${F.kind === "skill" ? "Search skill cards" : "Search cards"}" value="${esc(F.q)}"><button class="fbtn" data-act="filtOpen" aria-label="Sort and filter">${ic("filter", "")}${filtN() ? '<i class="dot"></i>' : ""}</button></div>${F.kind !== "skill" ? fchips() : ""}` +
     `<div class="seg ckind"><button class="${F.kind !== "skill" ? "on" : ""}" data-act="ckind" data-k="char">Character cards</button><button class="${F.kind === "skill" ? "on" : ""}" data-act="ckind" data-k="skill">Skill cards</button></div><div class="grid" id="coll"></div>`;
   fillColl(); const q = $("#fq"); q.oninput = () => { F.q = q.value; fillColl(); };
 }
