@@ -1491,7 +1491,7 @@ function arNew(deck0, deck1, o = {}) {
 }
 const arRand = A => { A.seed = (Math.imul(A.seed, 1103515245) + 12345) & 0x7fffffff; return A.seed / 0x7fffffff; };   // 32-bit integer arithmetic so every phone gets the same numbers
 /* the combat log: every skill, reaction and passive trigger is written down with the side it happened to (GAME_RULES_v2: no invisible procs). kind: skill, react, passive, die, swap, level, core */
-const arLog = (A, t, s, k) => { A.log.push({ tk: A.tick, s, k: k || "", t }); if (A.log.length > 120) A.log.shift(); };
+const arLog = (A, t, s, k) => { A.log.push({ tk: A.tm ? A.round : A.tick, s, k: k || "", t }); if (A.log.length > 120) A.log.shift(); };
 const arEv = (A, e) => { if (A.ui) { A.ev.push(e); if (A.ev.length > 300) A.ev.shift(); } };
 const arLane = (A, s, i) => A.s[s].lane[i];
 const arLive = (A, s) => A.s[s].lane.map((u, i) => ({ u, i })).filter(x => x.u);
