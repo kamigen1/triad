@@ -996,6 +996,14 @@ body .ribbon::after { background: linear-gradient(90deg, #f0d68a88, transparent)
 #ck.tnmode .mcry i.full u { filter: drop-shadow(0 0 5px #4fb8ff); } html:not(.nomo) #ck.tnmode .mcry i.full { animation: orbPulse 2.4s ease-in-out infinite; }
 #ck.tnmode .mcry i.gain { animation: orbGain .55s ease-out; } #ck.tnmode .mcry i.spend { animation: orbSpend .45s ease-out; }
 @keyframes orbPulse { 50% { transform: scale(1.07); } } @keyframes orbGain { 0% { transform: scale(.6); filter: brightness(2.2); } 55% { transform: scale(1.25); filter: brightness(1.6) drop-shadow(0 0 8px #7fd2ff); } 100% { transform: scale(1); filter: none; } } @keyframes orbSpend { 0% { transform: scale(1.2); filter: brightness(2); } 100% { transform: scale(1); filter: none; } }
+/* energy orbs: about 40% smaller, a little dimmer, and kept below the card layer */
+#ck.tnmode .a2energy { position: relative; z-index: 0; margin-top: 8px; padding-bottom: 2px; }
+#ck.tnmode .a2energy .mcry { align-items: center; } #ck.tnmode .mcry i { width: 60% !important; justify-self: center; filter: brightness(.82) saturate(.8); }
+#ck.tnmode .mcry i.full u { filter: drop-shadow(0 0 2px #4fb8ff77); }
+#ck.tnmode .a2zone.foe .mcry i { width: 70% !important; }
+@keyframes orbPulse { 50% { transform: scale(1.03); } }
+@keyframes orbGain { 0% { transform: scale(.7); filter: brightness(1.4); } 55% { transform: scale(1.1); filter: brightness(1.15); } 100% { transform: scale(1); filter: brightness(.82) saturate(.8); } }
+@keyframes orbSpend { 0% { transform: scale(1.08); filter: brightness(1.3); } 100% { transform: scale(1); filter: brightness(.82) saturate(.8); } }
 
 /* ===== Clash ===== */
 #ck { position: fixed; inset: 0; z-index: 20; background: radial-gradient(ellipse at 50% 40%, #12583a 0%, var(--felt-d) 55%, var(--felt-dd) 100%); }
