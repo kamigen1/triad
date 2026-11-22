@@ -1094,6 +1094,8 @@ html.nomo #ck .slot .stfx, html.nomo #ck .slot .stfx b, html.nomo #ck .slot.st-s
 #ck .slot.st-poison { animation: tnPoi 1.8s ease-in-out infinite alternate; }
 html.nomo .stfx img, html.nomo #ck .slot.st-shock { animation: none !important; } html.nomo .stfx img.ss.s1 { opacity: 1; }
 
+#ck .slot .tnchips { position: absolute; left: 2px; top: 22px; z-index: 6; display: flex; flex-direction: column; gap: 1px; pointer-events: none; } #ck .slot .tnchips span { display: grid; place-items: center; width: 15px; height: 15px; border-radius: 50%; background: #0a0f26d9; border: 1px solid #f0d68a88; font-size: 9px; line-height: 1; }
+
 /* ===== Clash ===== */
 #ck { position: fixed; inset: 0; z-index: 20; background: radial-gradient(ellipse at 50% 40%, #12583a 0%, var(--felt-d) 55%, var(--felt-dd) 100%); }
 #ck[hidden] { display: none; }
@@ -8921,6 +8923,8 @@ function tnMarks(el, u, s, mineTurn, planned) {
   if (u && s === 0 && mineTurn) { const S = A.s[0], first = A.round === 1 && A.cur === A.first && TU.FIRST_NOATK, canA = !first && tuCanAct(u, true) && S.energy >= tuAtkCost(u), canS = !!ABIL[u.active] && u.silT <= 0 && tuCanAct(u, false) && S.energy >= tuSkillCost(u); spent = !planned && !canA && !canS; }
   el.classList.toggle("queued", !!(u && planned)); el.classList.toggle("spent", spent);
   const on = u ? { burn: !!u.burn, freeze: u.frozen > 0 && u.fk !== "shock", shock: u.frozen > 0 && u.fk === "shock", poison: !!u.poison, regen: !!u.reg, silence: u.silT > 0, ward: u.shield > 0 } : {};
+  const chips = u ? [u.wkT > 0 ? ["⬇", "weakened"] : null, u.vulnT > 0 ? ["🎯", "exposed"] : null, u.slowT > 0 ? ["🐌", "slowed"] : null, u.tmpT > 0 && u.tmp > 0 ? ["⬆", "attack up"] : null, u.fz > 0 ? ["🔥", "frenzied"] : null, u.nh ? ["🚫", "cannot be healed"] : null, u.extraNext || u.extra ? ["⏩", "extra play"] : null, u.wait ? ["💤", "waits"] : null].filter(Boolean) : [];
+  let ch = el.querySelector(".tnchips"); const key = chips.map(c => c[0]).join(""); if (!chips.length) { if (ch) ch.remove(); } else { if (!ch) { ch = document.createElement("i"); ch.className = "tnchips"; el.appendChild(ch); } if (ch._k !== key) { ch._k = key; ch.innerHTML = chips.map(c => `<span title="${c[1]}">${c[0]}</span>`).join(""); } }
   for (const k of TN_STATUS) {
     el.classList.toggle("st-" + k, !!on[k]); let f = el.querySelector(".stfx.sf-" + k);
     if (on[k] && !f) { f = document.createElement("i"); f.className = "stfx sf-" + k; f.innerHTML = tnFxHtml(k); el.appendChild(f); } else if (!on[k] && f) f.remove();
@@ -8971,7 +8975,7 @@ function tnLine(a, b) {
 function tnInfoShow(u, skill) {   // hold a card: its stats and skills in a transparent overlay until the finger lifts
   tnInfoHide(); const d = document.createElement("div"); d.className = "tninfo"; let h;
   if (skill) { const k = SKC[u.sid]; h = `<b>${tnEsc(k.n)}</b><small>Skill card · free to play</small><p>${tnEsc(skText(u.sid))}</p>`; }
-  else { const k = BY[u.cid], ab = ABIL[u.active], A = TN.A, s = A.s[0].lane.includes(u) ? 0 : 1, sts = [u.wait ? "waits until its next turn" : "", u.frozen > 0 ? (u.stunAll ? "cannot play next turn" : "cannot attack next turn") : "", u.silT > 0 ? "silenced" : "", u.slowT > 0 ? "plays cost 1 more energy" : "", u.burn ? "burning" : "", u.poison ? "poisoned" : "", u.reg ? "regrowing" : "", u.shield > 0 ? "ward " + Math.ceil(u.shield) : "", u.mark ? EL[u.mark.el][0] + " mark" : ""].filter(Boolean);
+  else { const k = BY[u.cid], ab = ABIL[u.active], A = TN.A, s = A.s[0].lane.includes(u) ? 0 : 1, sts = [u.wait ? "waits until its next turn" : "", u.frozen > 0 ? (u.stunAll ? "cannot play next turn" : "cannot attack next turn") : "", u.silT > 0 ? "silenced" : "", u.wkT > 0 ? "attack lowered" : "", u.vulnT > 0 ? "takes extra damage" : "", u.tmpT > 0 && u.tmp > 0 ? "attack raised" : "", u.fz > 0 ? "frenzied (+" + Math.round(u.fz * 100) + "% damage, no healing)" : "", u.extraNext || u.extra ? "gets an extra play" : "", u.slowT > 0 ? "plays cost 1 more energy" : "", u.burn ? "burning" : "", u.poison ? "poisoned" : "", u.reg ? "regrowing" : "", u.shield > 0 ? "ward " + Math.ceil(u.shield) : "", u.mark ? EL[u.mark.el][0] + " mark" : ""].filter(Boolean);
     h = `<b>${tnEsc(u.name)}</b><small>${RNAME[rarOf(k)]} · ${EL[u.el][0]} · ${FAC[u.fac] || u.fac}</small><div class="tis"><span>ATK <b>${Math.round(arAtk(A, s, u) * TU.ATTACK)}</b></span><span>HP <b>${Math.max(0, Math.ceil(u.hp))}/${Math.ceil(u.max)}</b></span><span>SPD <b>${(+u.spd).toFixed(2)}</b></span><span>LV <b>${u.lv}</b></span></div><p><em>${tnEsc(passName({ passive: u.passive, id: u.cid }))}:</em> ${tnEsc(typeof passText === "function" ? passText(u.passive) : "")}</p><p><em>${tnEsc(actName(u))} (${u.acost} energy):</em> ${tnEsc(ab ? abilText(ab) : "")}</p>${sts.length ? `<p class="st">${tnEsc(sts.join(" · "))}</p>` : ""}`; }
   d.innerHTML = h; $("#ck").appendChild(d);
 }
