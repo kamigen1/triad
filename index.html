@@ -981,6 +981,15 @@ body .ribbon::after { background: linear-gradient(90deg, #f0d68a88, transparent)
 @keyframes tnflip { from { transform: rotateY(0) scale(.6); } to { transform: rotateY(1800deg) scale(1); } } .tcn-c.tails { animation-name: tnflip2; } @keyframes tnflip2 { from { transform: rotateY(0) scale(.6); } to { transform: rotateY(1980deg) scale(1); } }
 .tnico { width: 1em; height: 1em; vertical-align: -.15em; }
 
+/* turn mode uses the original board: the real-time-only buttons are hidden, planned plays get a badge */
+#ck.tnmode #arauto, #ck.tnmode #arspeed, #ck.tnmode #arlogb { display: none; }
+#ck .slot .tplan { position: absolute; right: 2px; top: 2px; z-index: 5; width: 18px; height: 18px; display: grid; place-items: center; border-radius: 50%; background: #f0d68a; color: #2a1500; font-style: normal; font-size: 12px; box-shadow: 0 0 8px #f0d68a; }
+#ck .slot.waits { filter: saturate(.55) brightness(.8); }
+#ck.tnmode .ckpanel .tnend { flex: none; align-self: center; min-width: 96px; }
+#ck.tnmode .ckpanel { display: flex; align-items: center; gap: 8px; }
+#ck.tnmode .ckpanel .tnp, #ck.tnmode .ckpanel > .note { flex: 1; }
+#ck.tnmode .ckpanel .tnp { gap: 6px; } #ck.tnmode .ckpanel .tinfo { font-size: 11px; line-height: 1.3; max-height: 64px; overflow: auto; } #ck.tnmode .ckpanel .tbtns { flex-direction: row; } #ck.tnmode .ckpanel .tnend { min-width: 84px; padding-left: 10px; padding-right: 10px; }
+
 /* ===== Clash ===== */
 #ck { position: fixed; inset: 0; z-index: 20; background: radial-gradient(ellipse at 50% 40%, #12583a 0%, var(--felt-d) 55%, var(--felt-dd) 100%); }
 #ck[hidden] { display: none; }
@@ -4258,39 +4267,40 @@ function arAbil(A, s, src, ab, ti, E) {
 }
 
 /* ----- what an ability does, in words (read live from the numbers) ----- */
+const turnsTxt = sec => (sec <= 5 ? "1 turn" : sec <= 8 ? "2 turns" : "3 turns");   // a duration in seconds, said in turns (turn.js: up to 5 s = 1 turn, 6 to 8 = 2, longer = 3)
 function abilText(ab) {
   if (!ab) return ""; const Hh = AR.HPX, X = AR.ATKX, hp = v => Math.round(v * Hh), at = v => Math.round(v * X), pc = v => Math.round(v * 100) + "%", who = ab.t === "none" ? "every " + (["weaken", "vuln", "slow", "stun", "poison", "silence", "strip"].includes(ab.k) ? "enemy card" : "card on your field") : ({ ally: "a card of yours", enemy: "an enemy card", slot: "an empty lane" }[ab.t]);
   const cap = s => s[0].toUpperCase() + s.slice(1);
   switch (ab.k) {
-    case "dmg": { const bits = [`${cap(ab.el ? EL[ab.el][0] : "Neutral")} damage to an enemy: ${pc(ab.m)} of this card's attack`]; if (ab.aoe) bits.push(`${pc(ab.aoe)} to every other enemy`); if (ab.burn) bits.push(`burns for ${hp(ab.burn[0])} a second for ${ab.burn[1]} s`); if (ab.slow) bits.push(`slows it ${pc(ab.slow[0])} for ${ab.slow[1]} s`); if (ab.stag) bits.push(`delays its next strike ${ab.stag} s`); if (ab.freeze) bits.push(`freezes it ${ab.freeze} s`); if (ab.split) bits.push(`${pc(ab.split)} to both neighbours`); if (ab.chain) bits.push(`jumps to the strongest other enemy for ${pc(ab.chain)}`); if (ab.purge) bits.push("strips its buffs"); if (ab.heal) bits.push(`heals your weakest card for ${pc(ab.heal)} of the damage`); if (ab.drain) bits.push(`heals this card for ${pc(ab.drain)} of the damage`); if (ab.weak) bits.push(`every enemy loses ${at(ab.weak[0])} attack for ${ab.weak[1]} s`); if (ab.pierce) bits.push(`${pc(ab.pierce)} of its shield is ignored`); if (ab.exec) bits.push(`+${pc(ab.exec)} against a card below 30% health`); return bits.join("; ") + "."; }
+    case "dmg": { const bits = [`${cap(ab.el ? EL[ab.el][0] : "Neutral")} damage to an enemy: ${pc(ab.m)} of this card's attack`]; if (ab.aoe) bits.push(`${pc(ab.aoe)} to every other enemy`); if (ab.burn) bits.push(`burns for ${hp(ab.burn[0] * 3)} at the start of each of its turns, for ${turnsTxt(ab.burn[1])}`); if (ab.slow) bits.push(`makes its plays cost 1 more energy for ${turnsTxt(ab.slow[1])}`); if (ab.stag) bits.push(`makes its plays cost 1 more energy next turn`); if (ab.freeze) bits.push(`${ab.freeze >= 1.5 ? "stops it from playing next turn" : "makes its plays cost 1 more energy next turn"}`); if (ab.split) bits.push(`${pc(ab.split)} to both neighbours`); if (ab.chain) bits.push(`jumps to the strongest other enemy for ${pc(ab.chain)}`); if (ab.purge) bits.push("strips its buffs"); if (ab.heal) bits.push(`heals your weakest card for ${pc(ab.heal)} of the damage`); if (ab.drain) bits.push(`heals this card for ${pc(ab.drain)} of the damage`); if (ab.weak) bits.push(`every enemy loses ${at(ab.weak[0])} attack for ${turnsTxt(ab.weak[1])}`); if (ab.pierce) bits.push(`${pc(ab.pierce)} of its shield is ignored`); if (ab.exec) bits.push(`+${pc(ab.exec)} against a card below 30% health`); return bits.join("; ") + "."; }
     case "heal": return `Heal ${who} for ${hp(ab.v)}${ab.cleanse ? " and remove its statuses" : ""}.`;
     case "shield": return `${cap(who)} absorbs the next ${hp(ab.v)} damage.`;
-    case "buff": return `${cap(who)} gets +${at(ab.v)} attack for ${ab.T} s.`;
-    case "haste": return `${cap(who)} strikes ${AR.SK.gale}x as fast for ${ab.T} s${ab.reset ? " and its skill is ready again" : ""}.`;
-    case "weaken": return `${cap(who)} loses ${at(ab.v)} attack for ${ab.T} s${ab.vuln ? " and takes " + pc(ab.vuln) + " more damage" : ""}.`;
-    case "vuln": return `${cap(who)} takes ${pc(ab.m)} more damage for ${ab.T} s.`;
-    case "slow": return `${cap(who)} is slowed ${pc(ab.m)} for ${ab.T} s.`;
-    case "stun": return `${cap(who)} cannot strike for ${ab.T} s.`;
-    case "poison": return `${cap(who)} is poisoned: ${hp(ab.d)} damage a second for ${ab.T} s (ignores shields).`;
-    case "silence": return `${cap(who)} cannot use its skill for ${ab.T} s.`;
-    case "regen": return `${cap(who)} heals ${hp(ab.d)} a second for ${ab.T} s.`;
+    case "buff": return `${cap(who)} gets +${at(ab.v)} attack for ${turnsTxt(ab.T)}.`;
+    case "haste": return `${cap(who)} may play twice next turn (each play pays its own energy).`;
+    case "weaken": return `${cap(who)} loses ${at(ab.v)} attack for ${turnsTxt(ab.T)}${ab.vuln ? " and takes " + pc(ab.vuln) + " more damage" : ""}.`;
+    case "vuln": return `${cap(who)} takes ${pc(ab.m)} more damage for ${turnsTxt(ab.T)}.`;
+    case "slow": return `${cap(who)} is slowed: its plays cost 1 more energy for ${turnsTxt(ab.T)}.`;
+    case "stun": return `${cap(who)} ${ab.T >= 2 ? "cannot play at all next turn" : "cannot attack next turn (it can still use its skill)"}.`;
+    case "poison": return `${cap(who)} is poisoned: ${hp(ab.d * 3)} damage at the start of each of its turns for ${turnsTxt(ab.T)} (ignores shields).`;
+    case "silence": return `${cap(who)} cannot use its skill for ${turnsTxt(ab.T)}.`;
+    case "regen": return `${cap(who)} heals ${hp(ab.d * 3)} at the start of each of its turns for ${turnsTxt(ab.T)}.`;
     case "grow": return `${cap(who)} permanently gains${ab.a ? " +" + at(ab.a) + " attack" : ""}${ab.a && ab.h ? " and" : ""}${ab.h ? " +" + hp(ab.h) + " health" : ""}.`;
     case "strip": return `Strip the buffs, ward, mark and heal-over-time from ${who}.`;
     case "cleanse": return `Remove marks and harmful statuses from ${who} and give it ${hp(ab.v)} ward.`;
     case "mark": return `Mark an enemy card with ${EL[ab.el][0]}. The next ${EL[ab.el][0]} hit on it may react.`;
-    case "pact": return `Pay ${pc(ab.cost)} of this card's health: ${who} gets +${at(ab.v)} attack for ${ab.T} s.`;
-    case "fate": return `Send an enemy card back to its deck; the ${ab.cheap ? "cheapest" : "next random"} creature of that deck takes its place${ab.stun ? ", stunned for " + ab.stun + " s" : ""}. Fails if the deck has none.`;
-    case "trade": return `${ab.weakest ? "Your weakest card" : "This card"} and an enemy card change sides${ab.heal ? "; the one you take is healed " + pc(ab.heal) : ""}${ab.stun ? "; the one you give is stunned " + ab.stun + " s" : ""}.`;
+    case "pact": return `Pay ${pc(ab.cost)} of this card's health: ${who} gets +${at(ab.v)} attack for ${turnsTxt(ab.T)}.`;
+    case "fate": return `Send an enemy card back to its deck; the ${ab.cheap ? "cheapest" : "next random"} creature of that deck takes its place${ab.stun ? ", unable to play next turn" : ""}. Fails if the deck has none.`;
+    case "trade": return `${ab.weakest ? "Your weakest card" : "This card"} and an enemy card change sides${ab.heal ? "; the one you take is healed " + pc(ab.heal) : ""}${ab.stun ? "; the one you give cannot play next turn" : ""}.`;
     case "siphon": return `Steal ${ab.e} energy from the enemy.`;
     case "raise": return `Bring back your latest fallen card in an empty lane with ${pc(ab.v)} health${ab.shield ? " and a ward" : ""}.`;
     case "draw": return `Draw ${ab.cnt} cards from your deck (as many as fit in your hand).`;
     case "energy": return `Gain ${ab.e} energy right now.`;
     case "swap": return ab.src === "own" ? "Change one of your cards in play into a random creature from your deck. The old card goes back into the deck." : ab.src === "foe" ? "Change one of your cards in play into a random creature taken from the enemy deck. The old card goes into your deck." : "Change one of your cards in play into a completely random creature.";
     case "frenzy": return `One of your cards deals ${pc(ab.m)} more damage for the rest of the fight, but it can no longer be healed.`;
-    case "tide": return `Heal every card of yours in play for ${pc(ab.f)} of its health, but your energy fills ${pc(ab.m)} slower for ${ab.T} s.`;
+    case "tide": return `Heal every card of yours in play for ${pc(ab.f)} of its health, but your next turn starts with ${ab.m >= .7 ? 5 : 3} less energy.`;
     case "sacrifice": return `Sacrifice one of your cards (you need two in play): your energy fills to the maximum${ab.draw ? " and you draw a card" : ""}.`;
-    case "tempo": return `Your energy fills ${pc(ab.m)} faster for ${ab.T} s.`;
-    case "overclock": return `Every card of yours gets its skill ready and strikes ${AR.SK.gale}x as fast for ${ab.T} s${ab.e ? ", and you gain " + ab.e + " energy" : ""}.`;
+    case "tempo": return `Your next turn starts with ${ab.m >= 1 ? 4 : ab.m >= .75 ? 3 : 2} extra energy.`;
+    case "overclock": return `Every card of yours may play twice next turn${ab.e ? ", and you gain " + ab.e + " energy" : ""}.`;
   }
   return "";
 }
@@ -4801,7 +4811,7 @@ function tuAtkTargets(A, s) {
 }
 const tuPlansOf = (A, u) => A.plans.filter(p => p.u === u).length;
 const tuSlowCost = u => (u.slowT > 0 ? 1 : 0);
-const tuAtkCost = u => TU.ATK_COST + tuSlowCost(u);
+const tuAtkCost = u => (u.passive === "swift" ? 0 : TU.ATK_COST) + tuSlowCost(u);
 const tuSkillCost = u => u.acost + tuSlowCost(u);
 /* the coin-flip winner's first turn: why a damage skill is not allowed right now, or "" */
 function tuFirstLimit(A, s, ab, t) {
@@ -8274,14 +8284,14 @@ const lvText = u => {
   return Math.floor(u.xp) + " / " + L.xp[u.lv - 1] + " to level " + nl + ": " + gain;
 };
 const passText = k => { const P = AR.PS, hp = x => Math.round(x * AR.HPX), pc = x => Math.round(x * 100) + "%", n = x => +x.toFixed(2), ax = x => +(x * AR.ATKX).toFixed(1); return ({
-  grow: `+${ax(P.grow)} attack every ${AR.GROW_T} s`, fortify: `+${hp(P.fortify)} HP every ${AR.GROW_T} s`, thorns: `Deals ${ax(P.thorns)} damage back to whatever strikes it`, guard: `Takes ${pc(1 - P.guard)} less from every hit`, swift: `Strikes ${pc(P.swift - 1)} faster`,
-  vamp: `Heals ${pc(P.vamp)} of the damage it deals`, lastwords: `When it falls, your other cards get +${ax(P.lastwords)} attack and +${hp(P.lastwords)} HP`, rally: `Adjacent cards get +${ax(P.rally)} attack every ${AR.GROW_T} s`, pack: `+${ax(P.pack)} attack for each other card of its kind`,
+  grow: `+${ax(P.grow)} attack at the start of each of your turns`, fortify: `+${hp(P.fortify)} HP at the start of each of your turns`, thorns: `Deals ${ax(P.thorns)} damage back to whatever strikes it`, guard: `Takes ${pc(1 - P.guard)} less from every hit`, swift: `Acts earlier in the turn and its normal attacks cost no energy`,
+  vamp: `Heals ${pc(P.vamp)} of the damage it deals`, lastwords: `When it falls, your other cards get +${ax(P.lastwords)} attack and +${hp(P.lastwords)} HP`, rally: `Adjacent cards get +${ax(P.rally)} attack at the start of each of your turns`, pack: `+${ax(P.pack)} attack for each other card of its kind`,
   reserve: "From the backups: steps in free when a front card falls",
   soul: `Gains +${ax(P.soul)} attack whenever any card falls`, laststand: `Below 30% health: +${ax(P.laststand)} attack and ${pc(1 - P.lsGuard)} less damage taken`, blood: `Strikes hit ${pc(P.blood)} harder but cost it ${pc(P.bloodCost)} of its health`,
   chain: `Reactions it triggers hit ${pc(P.chainAmp)} harder and mark the neighbors of the target too`, decree: `Other allies of its faction gain +${ax(P.decree)} attack`, mimic: "On its first strike it copies the passive of the card it hit",
   phoenix: `Once per match, returns with ${pc(P.phoenix)} health when it would fall`, voideater: `Strikes hit ${pc(P.voideater - 1)} harder, ignore shields and strip buffs`, formation: `+${ax(P.formation)} attack for each neighbor beside it`,
-  treasure: `A kill by it refunds ${P.treasure} energy`, protector: "Enemies must strike it before anything else", regen: `Heals ${pc(P.regen)} of its health every second`, echo: "Every third strike hits twice", crit: `Every fourth strike hits for ${P.crit}×`, overkill: `Excess damage hits the enemy core (×${P.overkill})`, mender: `Heals your most hurt card for ${hp(P.mender)} every 4 s`, berserk: `+${ax(P.berserk)} attack below half health`,
-  pierce: `Strikes also hit a neighbor for ${pc(P.pierce)}`, battery: `Your energy regenerates ${pc(P.battery)} faster`, amp: `Reactions it triggers hit for ${pc(P.amp)} more`, sponge: `Absorbs the first hit, recharges after ${P.spongeT} s`,
+  treasure: `A kill by it refunds ${P.treasure} energy`, protector: "Enemies must strike it before anything else", regen: `Heals ${pc(P.regen * 3)} of its health at the start of each of your turns`, echo: "Every third strike hits twice", crit: `Every fourth strike hits for ${P.crit}×`, overkill: `Excess damage hits the enemy core (×${P.overkill})`, mender: `Heals your most hurt card for ${hp(P.mender)} at the start of each of your turns`, berserk: `+${ax(P.berserk)} attack below half health`,
+  pierce: `Strikes also hit a neighbor for ${pc(P.pierce)}`, battery: `Your turns start with 1 more energy`, amp: `Reactions it triggers hit for ${pc(P.amp)} more`, sponge: `Absorbs the first hit, recharges at the start of each of your turns`,
 }[k] || ""); };
 /* actText(id) is in abilities.js */
 
@@ -8758,8 +8768,9 @@ async function tnStart(level, mode = { kind: "practice" }) {
   const foe = sv ? sv.foe : (mode.deck || ckAiDeck(level, mode.arch)), seed = sv ? sv.seed : (Math.random() * 2147483647) | 0;
   const A = tuNew(d.cards, foe, { ui: true, level: [2, level], mode, seed }); tuBoss(A, { core: mode.core || 0, eMul: mode.energy ? 1 : 0 });
   ME = 0; G = { arena: false, over: false, phase: "arena", online: false, mode, level: level || 0, winner: null, round: 1, time: 0, s: [{ core: A.s[0].core }, { core: A.s[1].core }], speed: 1, verified: !!sv };
+  AM = { A, me: 0, net: null, speed: 1, auto: false, sel: null, mode: null, drag: null, last: 0, acc: 0, sig: "", done: false, maxCore: [A.s[0].core, A.s[1].core], opp: mode.kind === "camp" ? CAMP[mode.ch].foes[mode.k] : mode.kind === "ranked" ? "RANKED" : "ENEMY", tut: null, intro: null };
   TN = { A, sel: null, act: null, rec: [], busy: true, mid: sv ? sv.mid : null, deck: d.cards.slice(), opp: mode.kind === "camp" ? CAMP[mode.ch].foes[mode.k] : mode.kind === "ranked" ? "RANKED" : "ENEMY", maxCore: [A.s[0].core, A.s[1].core], logAt: 0, t0: 0, tid: 0, msg: "" };
-  $("#ck").hidden = false; closeModal(); musicMode("match"); $("#ck").className = "th-" + themeOf(mode); if (typeof arenaBg === "function") arenaBg(A);
+  $("#ck").hidden = false; closeModal(); musicMode("match"); if (typeof arenaBg === "function") arenaBg(A); arBuild(); $("#ck").classList.add("tnmode");
   tnRender(); await tnCoin(); TN.logAt = A.log.length; await tnBeginTurn();
 }
 const tnIco = (k, cls = "") => (typeof art2 === "function" && art2("icon", k)) ? `<img class="tnico ${cls}" alt="" src="${art2("icon", k)}">` : "";
@@ -8782,17 +8793,25 @@ function tnTargets() {   // which lane cards can be tapped right now
   return { me: t === "ally" ? arLive(A, 0).map(x => x.i) : t === "slot" ? [0, 1, 2, 3, 4].filter(i => !A.s[0].lane[i]) : a.k === "swap" ? [0, 1, 2, 3, 4] : [], foe: t === "enemy" ? arLive(A, 1).map(x => x.i) : [] };
 }
 function tnRender() {
-  const A = TN.A, me = A.s[0], foe = A.s[1], mineTurn = A.cur === 0 && !A.over && !TN.busy, tg = tnTargets(), sel = TN.sel;
-  const lane = (S, s) => [0, 1, 2, 3, 4].map(i => tnCardHtml(S.lane[i], s, i, { kind: "lane", sel: s === 0 && sel && sel.kind === "lane" && sel.i === i, tgt: (s === 0 ? tg.me : tg.foe).includes(i) })).join("");
-  const hand = [0, 1, 2].map(i => { const u = me.bench[i]; return !u ? `<div class="tc empty" data-tn="hand" data-s="0" data-i="${i}"></div>` : u.skill ? tnSkillHtml(u, i, sel && sel.kind === "hand" && sel.i === i) : tnCardHtml(u, 0, i, { kind: "hand", sel: sel && sel.kind === "hand" && sel.i === i }); }).join("");
-  const core = (S, s) => `<div class="tncore ${s === 0 ? "me" : "foe"}"><span>${s === 0 ? "YOU" : tnEsc(String(TN.opp).toUpperCase().slice(0, 9))}</span><div class="tcb"><i style="width:${Math.max(0, 100 * S.core / TN.maxCore[s])}%"></i><em>${Math.max(0, Math.ceil(S.core))}</em></div><b class="ten">⚡ ${s === 0 ? Math.floor(S.energy * 10) / 10 : "?"}${s === 0 ? " / " + (AR.EMAX) : ""}</b></div>`;
-  const pips = Array.from({ length: Math.max(AR.EMAX, Math.ceil(me.energy)) }, (_, k) => `<i class="${me.energy >= k + 1 ? "on" : me.energy > k ? "half" : ""}"></i>`).join("");
-  const canDraw = mineTurn && me.pile && me.pile.length && me.bench.some(b => !b) && me.energy >= AR.DRAW_E;
-  $("#ck").innerHTML = `<div class="tnw"><div class="tntop"><button class="btn sm red" data-tn="menu" aria-label="Menu">✕</button><b class="tnround">Round ${Math.min(A.round, TU.MAXR)}<small>${A.over ? "" : A.cur === 0 ? " · your turn" : " · opponent's turn"}${A.round >= TU.SURGE_AT ? " · SURGE" : ""}</small></b><span class="tntimer" id="tntimer"></span></div>` +
-    `<div class="tnside foe">${core(foe, 1)}<div class="tnlane">${lane(foe, 1)}</div><div class="tnhand foe"><span>Hand ${foe.bench.filter(Boolean).length} · Deck ${foe.pile ? foe.pile.length : 0}</span></div></div>` +
-    `<div class="tnvs" id="tnmsg">${tnEsc(TN.msg || "")}</div>` +
-    `<div class="tnside me"><div class="tnlane">${lane(me, 0)}</div>${core(me, 0)}<div class="tnpips">${pips}</div><div class="tnhand"><div class="tnh3">${hand}</div><button class="btn sm ${canDraw ? "yellow" : "dark"}" data-tn="draw" ${canDraw ? "" : "disabled"}>Draw<small>${AR.DRAW_E}⚡ · ${me.pile ? me.pile.length : 0}</small></button></div></div>` +
-    `<div class="tnpanel" id="tnpanel">${tnPanel(mineTurn)}</div><button class="tnend btn big yellow" data-tn="end" ${mineTurn ? "" : "disabled"}>${A.cur === 0 && !TN.busy ? "End turn" : "…"}</button></div>`;
+  const A = TN.A; if (!document.getElementById("arena")) { arBuild(); $("#ck").classList.add("tnmode"); }
+  const mineTurn = A.cur === 0 && !A.over && !TN.busy, tg = tnTargets(), sel = TN.sel, now = performance.now();
+  AM.sel = sel ? { s: 0, i: sel.i, kind: sel.kind === "hand" ? "bench" : "lane" } : null; AM.mode = null; AM.drag = null;
+  for (let s = 0; s < 2; s++) {
+    const S = A.s[s]; const c = $("#core" + s), pc = Math.max(0, 100 * S.core / AM.maxCore[s]); c.querySelector(".hbar i").style.width = pc + "%"; c.querySelector("em").textContent = Math.max(0, Math.ceil(S.core)); c.classList.toggle("low", pc < 30);
+    const en = S.energy; document.querySelectorAll("#mana" + s + " .mcry i").forEach((p, k) => { p.firstChild.style.height = Math.max(0, Math.min(1, en - k)) * 100 + "%"; p.classList.toggle("full", en >= k + 1); });
+    $(s === 0 ? "#arenum" : "#arfoeen").textContent = s === 0 ? (Math.floor(en * 10) / 10) : "?";
+    for (let i = 0; i < 5; i++) { const el = arSlotEl(s, i, "lane"); arSlotUpd(el, S.lane[i], s, "lane", now); const u = S.lane[i]; const isT = (s === 0 ? tg.me : tg.foe).includes(i); el.classList.toggle("tgt", isT);
+      const plan = u && A.plans.find(p => p.u === u); el.classList.toggle("planned", !!plan); let b = el.querySelector(".tplan"); if (plan && !b) { b = document.createElement("i"); b.className = "tplan"; el.appendChild(b); } if (b) { b.textContent = plan ? (plan.k === "atk" ? "⚔" : "✦") : ""; if (!plan) b.remove(); }
+      const cd = el.querySelector(".kcd"); if (cd) cd.style.width = "0"; const sk = el.querySelector(".kskl"); if (sk) sk.style.display = "none";
+      if (u && u.wait) el.classList.add("waits"); else el.classList.remove("waits"); }
+    for (let i = 0; i < 3; i++) arSlotUpd(arSlotEl(s, i, "bench"), S.bench[i], s, "bench", now);
+    const pn = S.pile ? S.pile.length : 0, pe = $("#arpile" + s); if (pe && pe.textContent !== String(pn)) pe.textContent = pn;
+  }
+  const db = $("#ardraw"); if (db) { const can = mineTurn && A.s[0].pile && A.s[0].pile.length && A.s[0].bench.some(b => !b) && A.s[0].energy >= AR.DRAW_E; db.classList.toggle("ready", !!can); db.classList.toggle("off", !can); }
+  const clk = $("#arclock"); if (clk) { clk.textContent = "Round " + Math.min(A.round, TU.MAXR); clk.classList.remove("late"); }
+  const sg = $("#arsurge"); if (sg) sg.textContent = A.over ? "" : (A.round >= TU.SURGE_AT ? "SURGE · " : "") + (A.cur === 0 ? "your turn" : "opponent's turn") + (TN.timerTxt && A.cur === 0 && !TN.busy ? " · " + TN.timerTxt : "");
+  const mg = $("#armsg"); if (mg) mg.textContent = TN.msg || "";
+  const pnl = $("#arpanel"); if (pnl) pnl.innerHTML = tnPanel(mineTurn) + `<button class="btn yellow tnend" data-tn="end" ${mineTurn ? "" : "disabled"}>${mineTurn ? "End turn" : "…"}</button>`;
 }
 function tnPanel(mineTurn) {
   const A = TN.A, sel = TN.sel, act = TN.act, S = A.s[0];
@@ -8825,8 +8844,13 @@ function tnTap(el) {
   if (kind === "lane" && s === 1) { const u = A.s[1].lane[i]; if (u) toast(`${u.name}: attack ${Math.round(arAtk(A, 1, u))}, health ${Math.ceil(u.hp)}. ${actName(u)}: ${abilText(ABIL[u.active])}`); }
 }
 async function tnClick(e) {
-  const b = e.target.closest && e.target.closest("[data-tn]"); if (!b || !TN) return; const k = b.dataset.tn, A = TN.A, sel = TN.sel;
-  if (b.classList.contains("tc")) return tnTap(b);
+  if (!TN) return; const sl = e.target.closest && e.target.closest('#ck .slot[data-ar="slot"]');
+  if (sl) return tnTap({ dataset: { tn: sl.dataset.kind === "bench" ? "hand" : "lane", s: sl.dataset.s, i: sl.dataset.i } });
+  const ab0 = e.target.closest && e.target.closest("[data-ar]"); if (ab0 && ab0.dataset.ar === "draw") return tnClickK("draw"); if (ab0 && ab0.dataset.ar === "menu") return tnClickK("menu");
+  const b = e.target.closest && e.target.closest("[data-tn]"); if (!b) return; return tnClickK(b.dataset.tn);
+}
+async function tnClickK(k) {
+  const A = TN.A, sel = TN.sel;
   if (k === "menu") return openSheet(`<h2 class="fat">PAUSED</h2><div class="row c" style="margin-top:10px"><button class="btn red" data-tn="leave">Give up</button><button class="btn yellow" data-act="closeModal">Resume</button></div>`);
   if (k === "leave") { closeModal(); TN.busy = true; TN.left = true; A.over = true; A.winner = 1; A.why = "resigned"; return tnFinish(); }
   if (!(A.cur === 0 && !A.over && !TN.busy)) return;
@@ -8844,7 +8868,7 @@ document.addEventListener("click", e => { if (TN && document.getElementById("ck"
 function tnBanner(text, sub) { const d = document.createElement("div"); d.className = "tnban"; d.innerHTML = `<b>${tnEsc(text)}</b>${sub ? `<small>${tnEsc(sub)}</small>` : ""}`; const w = $("#ck"); if (w) { w.appendChild(d); setTimeout(() => d.remove(), 1300); } }
 async function tnShowLog() {   // the engine's log since the last call, one line at a time
   const A = TN.A; const lines = A.log.slice(Math.max(0, A.log.length - (A.log.length - TN.logAt))).filter(l => l.k !== "turn"); TN.logAt = A.log.length;
-  for (const l of lines.slice(-8)) { TN.msg = l.t; const m = $("#tnmsg"); if (m) m.textContent = l.t; if (l.k === "core" || l.k === "die") sfx("hit"); await tnSleep(520); }
+  for (const l of lines.slice(-8)) { TN.msg = l.t; const m = $("#armsg"); if (m) m.textContent = l.t; if (l.k === "core" || l.k === "die") sfx("hit"); await tnSleep(520); }
   TN.msg = ""; tnRender();
 }
 async function tnBeginTurn() {
@@ -8852,22 +8876,22 @@ async function tnBeginTurn() {
   if (A.cur === 0) { tnBanner(A.round === 1 ? "Round 1" : "Round " + A.round, "Your turn"); await tnSleep(700); TN.busy = false; TN.t0 = Date.now(); tnTimerStart(); tnRender(); }
   else { tnBanner("Opponent's turn"); await tnSleep(700); await tnAiTurn(); }
 }
-function tnTimerStart() { clearInterval(TN.tid); TN.tid = setInterval(() => { if (!TN || !TN.A || TN.A.cur !== 0 || TN.busy) return; const left = Math.max(0, TU.TIMER_LONG - Math.floor((Date.now() - TN.t0) / 1000)), e = $("#tntimer"); if (e) e.textContent = Math.floor(left / 60) + ":" + String(left % 60).padStart(2, "0"); if (left <= 0) tnEndTurn(); }, 500); }
+function tnTimerStart() { clearInterval(TN.tid); TN.tid = setInterval(() => { if (!TN || !TN.A || TN.A.cur !== 0 || TN.busy) return; const left = Math.max(0, TU.TIMER_LONG - Math.floor((Date.now() - TN.t0) / 1000)); TN.timerTxt = Math.floor(left / 60) + ":" + String(left % 60).padStart(2, "0"); const sg = $("#arsurge"); if (sg) sg.textContent = (TN.A.round >= TU.SURGE_AT ? "SURGE · " : "") + "your turn · " + TN.timerTxt; if (left <= 0) tnEndTurn(); }, 500); }
 async function tnEndTurn() {
   const A = TN.A; if (!(A.cur === 0 && !A.over) || TN.busy) return; TN.busy = true; TN.sel = null; TN.act = null; clearInterval(TN.tid); TN.logAt = A.log.length;
   TN.rec.push(["end", null, null, null, null]); tuEnd(A); await tnShowLog(); if (A.over) return tnFinish(); await tnBeginTurn();
 }
 async function tnAiTurn() {
   const A = TN.A; TN.logAt = A.log.length; let guard = 0;
-  while (!A.over && A.cur === 1 && guard++ < 200) { const x = tuAiStep(A, 1); tnRender(); if (x.c.k !== "end") { TN.msg = x.c.k === "atk" ? "The opponent plans an attack" : x.c.k === "skill" ? "The opponent readies a skill" : x.c.k === "swap" ? "The opponent brings in a card" : x.c.k === "draw" ? "The opponent draws" : "The opponent plays a skill card"; const m = $("#tnmsg"); if (m) m.textContent = TN.msg; await tnSleep(420); } if (x.done) break; }
+  while (!A.over && A.cur === 1 && guard++ < 200) { const x = tuAiStep(A, 1); tnRender(); if (x.c.k !== "end") { TN.msg = x.c.k === "atk" ? "The opponent plans an attack" : x.c.k === "skill" ? "The opponent readies a skill" : x.c.k === "swap" ? "The opponent brings in a card" : x.c.k === "draw" ? "The opponent draws" : "The opponent plays a skill card"; const m = $("#armsg"); if (m) m.textContent = TN.msg; await tnSleep(420); } if (x.done) break; }
   await tnShowLog(); if (A.over) return tnFinish(); await tnBeginTurn();
 }
 async function tnFinish() {
   const A = TN.A; clearInterval(TN.tid); TN.busy = true; tnRender(); const w = A.winner; tnBanner(w === -1 ? "DRAW" : w === 0 ? "VICTORY" : "DEFEAT", ""); sfx(w === 0 ? "win" : "lose"); if (w === 0 && typeof fxConfetti === "function") fxConfetti(); await tnSleep(1900);
   if (TN.mid && typeof ACC !== "undefined" && ACC && !TN.left) { VQ.push({ mid: TN.mid, deck: TN.deck, q: TN.rec, turn: true, acct: ACC.name }); vqSave(); vqDrain(); }
-  G.over = true; G.winner = A.winner; G.time = A.round * 30; G.s = [{ core: A.s[0].core }, { core: A.s[1].core }]; if (TN.left) G.verified = false; const t = TN; TN = null; G.turns = t.A.round; ckResult();
+  G.over = true; G.winner = A.winner; G.time = A.round * 30; G.s = [{ core: A.s[0].core }, { core: A.s[1].core }]; if (TN.left) G.verified = false; const t = TN; TN = null; G.turns = t.A.round; AM = null; ckResult();
 }
-function tnLeave() { if (TN) { clearInterval(TN.tid); TN = null; } }
+function tnLeave() { if (TN) { clearInterval(TN.tid); TN = null; } AM = null; }
 
 /* ===== feel.js: game feel and small mechanics (2026-11). UI only: nothing here touches the fight simulation the server re-runs. =====
    1 Back button/gesture closes the top sheet first      2 hit-stop (arenaui.js calls fxHitStop)       3 number pop sizes and reaction combos

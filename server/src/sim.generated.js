@@ -1256,39 +1256,40 @@ function arAbil(A, s, src, ab, ti, E) {
 }
 
 /* ----- what an ability does, in words (read live from the numbers) ----- */
+const turnsTxt = sec => (sec <= 5 ? "1 turn" : sec <= 8 ? "2 turns" : "3 turns");   // a duration in seconds, said in turns (turn.js: up to 5 s = 1 turn, 6 to 8 = 2, longer = 3)
 function abilText(ab) {
   if (!ab) return ""; const Hh = AR.HPX, X = AR.ATKX, hp = v => Math.round(v * Hh), at = v => Math.round(v * X), pc = v => Math.round(v * 100) + "%", who = ab.t === "none" ? "every " + (["weaken", "vuln", "slow", "stun", "poison", "silence", "strip"].includes(ab.k) ? "enemy card" : "card on your field") : ({ ally: "a card of yours", enemy: "an enemy card", slot: "an empty lane" }[ab.t]);
   const cap = s => s[0].toUpperCase() + s.slice(1);
   switch (ab.k) {
-    case "dmg": { const bits = [`${cap(ab.el ? EL[ab.el][0] : "Neutral")} damage to an enemy: ${pc(ab.m)} of this card's attack`]; if (ab.aoe) bits.push(`${pc(ab.aoe)} to every other enemy`); if (ab.burn) bits.push(`burns for ${hp(ab.burn[0])} a second for ${ab.burn[1]} s`); if (ab.slow) bits.push(`slows it ${pc(ab.slow[0])} for ${ab.slow[1]} s`); if (ab.stag) bits.push(`delays its next strike ${ab.stag} s`); if (ab.freeze) bits.push(`freezes it ${ab.freeze} s`); if (ab.split) bits.push(`${pc(ab.split)} to both neighbours`); if (ab.chain) bits.push(`jumps to the strongest other enemy for ${pc(ab.chain)}`); if (ab.purge) bits.push("strips its buffs"); if (ab.heal) bits.push(`heals your weakest card for ${pc(ab.heal)} of the damage`); if (ab.drain) bits.push(`heals this card for ${pc(ab.drain)} of the damage`); if (ab.weak) bits.push(`every enemy loses ${at(ab.weak[0])} attack for ${ab.weak[1]} s`); if (ab.pierce) bits.push(`${pc(ab.pierce)} of its shield is ignored`); if (ab.exec) bits.push(`+${pc(ab.exec)} against a card below 30% health`); return bits.join("; ") + "."; }
+    case "dmg": { const bits = [`${cap(ab.el ? EL[ab.el][0] : "Neutral")} damage to an enemy: ${pc(ab.m)} of this card's attack`]; if (ab.aoe) bits.push(`${pc(ab.aoe)} to every other enemy`); if (ab.burn) bits.push(`burns for ${hp(ab.burn[0] * 3)} at the start of each of its turns, for ${turnsTxt(ab.burn[1])}`); if (ab.slow) bits.push(`makes its plays cost 1 more energy for ${turnsTxt(ab.slow[1])}`); if (ab.stag) bits.push(`makes its plays cost 1 more energy next turn`); if (ab.freeze) bits.push(`${ab.freeze >= 1.5 ? "stops it from playing next turn" : "makes its plays cost 1 more energy next turn"}`); if (ab.split) bits.push(`${pc(ab.split)} to both neighbours`); if (ab.chain) bits.push(`jumps to the strongest other enemy for ${pc(ab.chain)}`); if (ab.purge) bits.push("strips its buffs"); if (ab.heal) bits.push(`heals your weakest card for ${pc(ab.heal)} of the damage`); if (ab.drain) bits.push(`heals this card for ${pc(ab.drain)} of the damage`); if (ab.weak) bits.push(`every enemy loses ${at(ab.weak[0])} attack for ${turnsTxt(ab.weak[1])}`); if (ab.pierce) bits.push(`${pc(ab.pierce)} of its shield is ignored`); if (ab.exec) bits.push(`+${pc(ab.exec)} against a card below 30% health`); return bits.join("; ") + "."; }
     case "heal": return `Heal ${who} for ${hp(ab.v)}${ab.cleanse ? " and remove its statuses" : ""}.`;
     case "shield": return `${cap(who)} absorbs the next ${hp(ab.v)} damage.`;
-    case "buff": return `${cap(who)} gets +${at(ab.v)} attack for ${ab.T} s.`;
-    case "haste": return `${cap(who)} strikes ${AR.SK.gale}x as fast for ${ab.T} s${ab.reset ? " and its skill is ready again" : ""}.`;
-    case "weaken": return `${cap(who)} loses ${at(ab.v)} attack for ${ab.T} s${ab.vuln ? " and takes " + pc(ab.vuln) + " more damage" : ""}.`;
-    case "vuln": return `${cap(who)} takes ${pc(ab.m)} more damage for ${ab.T} s.`;
-    case "slow": return `${cap(who)} is slowed ${pc(ab.m)} for ${ab.T} s.`;
-    case "stun": return `${cap(who)} cannot strike for ${ab.T} s.`;
-    case "poison": return `${cap(who)} is poisoned: ${hp(ab.d)} damage a second for ${ab.T} s (ignores shields).`;
-    case "silence": return `${cap(who)} cannot use its skill for ${ab.T} s.`;
-    case "regen": return `${cap(who)} heals ${hp(ab.d)} a second for ${ab.T} s.`;
+    case "buff": return `${cap(who)} gets +${at(ab.v)} attack for ${turnsTxt(ab.T)}.`;
+    case "haste": return `${cap(who)} may play twice next turn (each play pays its own energy).`;
+    case "weaken": return `${cap(who)} loses ${at(ab.v)} attack for ${turnsTxt(ab.T)}${ab.vuln ? " and takes " + pc(ab.vuln) + " more damage" : ""}.`;
+    case "vuln": return `${cap(who)} takes ${pc(ab.m)} more damage for ${turnsTxt(ab.T)}.`;
+    case "slow": return `${cap(who)} is slowed: its plays cost 1 more energy for ${turnsTxt(ab.T)}.`;
+    case "stun": return `${cap(who)} ${ab.T >= 2 ? "cannot play at all next turn" : "cannot attack next turn (it can still use its skill)"}.`;
+    case "poison": return `${cap(who)} is poisoned: ${hp(ab.d * 3)} damage at the start of each of its turns for ${turnsTxt(ab.T)} (ignores shields).`;
+    case "silence": return `${cap(who)} cannot use its skill for ${turnsTxt(ab.T)}.`;
+    case "regen": return `${cap(who)} heals ${hp(ab.d * 3)} at the start of each of its turns for ${turnsTxt(ab.T)}.`;
     case "grow": return `${cap(who)} permanently gains${ab.a ? " +" + at(ab.a) + " attack" : ""}${ab.a && ab.h ? " and" : ""}${ab.h ? " +" + hp(ab.h) + " health" : ""}.`;
     case "strip": return `Strip the buffs, ward, mark and heal-over-time from ${who}.`;
     case "cleanse": return `Remove marks and harmful statuses from ${who} and give it ${hp(ab.v)} ward.`;
     case "mark": return `Mark an enemy card with ${EL[ab.el][0]}. The next ${EL[ab.el][0]} hit on it may react.`;
-    case "pact": return `Pay ${pc(ab.cost)} of this card's health: ${who} gets +${at(ab.v)} attack for ${ab.T} s.`;
-    case "fate": return `Send an enemy card back to its deck; the ${ab.cheap ? "cheapest" : "next random"} creature of that deck takes its place${ab.stun ? ", stunned for " + ab.stun + " s" : ""}. Fails if the deck has none.`;
-    case "trade": return `${ab.weakest ? "Your weakest card" : "This card"} and an enemy card change sides${ab.heal ? "; the one you take is healed " + pc(ab.heal) : ""}${ab.stun ? "; the one you give is stunned " + ab.stun + " s" : ""}.`;
+    case "pact": return `Pay ${pc(ab.cost)} of this card's health: ${who} gets +${at(ab.v)} attack for ${turnsTxt(ab.T)}.`;
+    case "fate": return `Send an enemy card back to its deck; the ${ab.cheap ? "cheapest" : "next random"} creature of that deck takes its place${ab.stun ? ", unable to play next turn" : ""}. Fails if the deck has none.`;
+    case "trade": return `${ab.weakest ? "Your weakest card" : "This card"} and an enemy card change sides${ab.heal ? "; the one you take is healed " + pc(ab.heal) : ""}${ab.stun ? "; the one you give cannot play next turn" : ""}.`;
     case "siphon": return `Steal ${ab.e} energy from the enemy.`;
     case "raise": return `Bring back your latest fallen card in an empty lane with ${pc(ab.v)} health${ab.shield ? " and a ward" : ""}.`;
     case "draw": return `Draw ${ab.cnt} cards from your deck (as many as fit in your hand).`;
     case "energy": return `Gain ${ab.e} energy right now.`;
     case "swap": return ab.src === "own" ? "Change one of your cards in play into a random creature from your deck. The old card goes back into the deck." : ab.src === "foe" ? "Change one of your cards in play into a random creature taken from the enemy deck. The old card goes into your deck." : "Change one of your cards in play into a completely random creature.";
     case "frenzy": return `One of your cards deals ${pc(ab.m)} more damage for the rest of the fight, but it can no longer be healed.`;
-    case "tide": return `Heal every card of yours in play for ${pc(ab.f)} of its health, but your energy fills ${pc(ab.m)} slower for ${ab.T} s.`;
+    case "tide": return `Heal every card of yours in play for ${pc(ab.f)} of its health, but your next turn starts with ${ab.m >= .7 ? 5 : 3} less energy.`;
     case "sacrifice": return `Sacrifice one of your cards (you need two in play): your energy fills to the maximum${ab.draw ? " and you draw a card" : ""}.`;
-    case "tempo": return `Your energy fills ${pc(ab.m)} faster for ${ab.T} s.`;
-    case "overclock": return `Every card of yours gets its skill ready and strikes ${AR.SK.gale}x as fast for ${ab.T} s${ab.e ? ", and you gain " + ab.e + " energy" : ""}.`;
+    case "tempo": return `Your next turn starts with ${ab.m >= 1 ? 4 : ab.m >= .75 ? 3 : 2} extra energy.`;
+    case "overclock": return `Every card of yours may play twice next turn${ab.e ? ", and you gain " + ab.e + " energy" : ""}.`;
   }
   return "";
 }
@@ -1799,7 +1800,7 @@ function tuAtkTargets(A, s) {
 }
 const tuPlansOf = (A, u) => A.plans.filter(p => p.u === u).length;
 const tuSlowCost = u => (u.slowT > 0 ? 1 : 0);
-const tuAtkCost = u => TU.ATK_COST + tuSlowCost(u);
+const tuAtkCost = u => (u.passive === "swift" ? 0 : TU.ATK_COST) + tuSlowCost(u);
 const tuSkillCost = u => u.acost + tuSlowCost(u);
 /* the coin-flip winner's first turn: why a damage skill is not allowed right now, or "" */
 function tuFirstLimit(A, s, ab, t) {
