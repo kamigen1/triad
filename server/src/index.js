@@ -394,6 +394,15 @@ export class Hub {
       let pm; try { pm = JSON.parse(row.j); } catch (_) { return json({ ok: false, bad: true, err: "Bad fight record." }); }
       if (pm.ver !== SIM_VER) return json({ ok: false, gone: true, err: STALE });
       const why = this.deckWhy(s.lname, b.deck); if (why) return json({ ok: false, bad: true, err: why });
+      if (b.turn) {   // a turn-based fight: the commands are [k, i, t, b, l] in order, and the server plays the opponent itself
+        const TK = ["atk", "skill", "unplan", "swap", "draw", "play", "end"], tq = Array.isArray(b.q) && b.q.length <= 800 ? b.q : null;
+        if (!tq || !tq.every((c) => Array.isArray(c) && c.length === 5 && TK.includes(c[0]) && c.slice(1).every((x) => x == null || (Number.isInteger(x) && x >= 0 && x < 100)))) return json({ ok: false, bad: true, err: "Bad command list." });
+        let T; try { T = SIM.tuReplay(b.deck, pm.foe, pm.level, pm.seed, pm.kind, pm.boss, tq); } catch (_) { T = null; }
+        if (!T) return json({ ok: false, bad: true, err: "The fight could not be re-run." });
+        if (now - row.at < T.round * 2500) return json({ ok: false, bad: true, err: "The fight was reported faster than it can be played." });
+        this.credit(s.lname, pm.kind, T.winner === 0 ? true : T.winner === -1 ? null : false, pm.key);
+        return json({ ok: true, winner: T.winner, ticks: T.round });
+      }
       const q = cleanQ(b.q, [0]); if (!q) return json({ ok: false, bad: true, err: "Bad command list." });
       let A; try { A = simRun(b.deck, pm.foe, [2, pm.level], pm.seed, pm.kind, pm.boss, q, true); } catch (_) { return json({ ok: false, bad: true, err: "The fight could not be re-run." }); }
       if (!A.over) return json({ ok: false, bad: true, err: "The fight did not finish." });
