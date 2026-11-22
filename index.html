@@ -1016,6 +1016,35 @@ body .ribbon::after { background: linear-gradient(90deg, #f0d68a88, transparent)
 .tnmenu button { display: block; width: 100%; padding: 9px 12px; border: 0; border-radius: 10px; background: transparent; color: #fff; text-align: left; font: 700 16px var(--body); } .tnmenu button small { display: block; margin-top: 1px; font: 500 11.5px/1.3 var(--body); color: #cdd8e8; } .tnmenu button:active { background: #ffffff22; } .tnmenu button:disabled { opacity: .4; }
 .tninfo { pointer-events: none; padding: 12px 14px; } .tninfo > b { padding: 0 0 2px; } .tninfo small { display: block; font: 600 12px var(--body); color: #cdd8e8; margin-bottom: 6px; } .tninfo p { margin: 6px 0 0; font: 500 12.5px/1.4 var(--body); } .tninfo p em { color: #f0d68a; font-style: normal; font-weight: 700; } .tninfo .st { color: #ffb0bb; } .tninfo .tis { display: flex; gap: 12px; margin-top: 4px; font: 600 12px var(--body); color: #cdd8e8; } .tninfo .tis b { color: #fff; }
 
+/* ===== turn board: who is queued, who cannot act, and what is happening to each card ===== */
+#ck .slot.queued { box-shadow: 0 0 0 2px #ffd84a, 0 0 18px 4px #ffd84acc !important; animation: tnq 1.1s ease-in-out infinite alternate; } @keyframes tnq { from { filter: brightness(1.02); } to { filter: brightness(1.22) saturate(1.2); } }
+#ck .slot.spent { filter: grayscale(.95) brightness(.6); } #ck .slot.spent .tplan { display: none; }
+#ck .slot .stfx { position: absolute; inset: 0; z-index: 4; pointer-events: none; overflow: hidden; border-radius: inherit; } #ck .slot .stfx b { position: absolute; display: block; }
+/* burning: licking flames along the bottom, an orange heat glow */
+#ck .slot.st-burn { box-shadow: 0 0 14px 2px #ff6a1acc !important; } .stfx.sf-burn { background: linear-gradient(0deg, #ff5a0055, transparent 55%); }
+.stfx.sf-burn b { bottom: -4px; width: 34%; height: 60%; border-radius: 50% 50% 25% 25% / 85% 85% 15% 15%; background: radial-gradient(ellipse at 50% 90%, #fff4a0 0, #ffb02e 30%, #ff5a0a 60%, transparent 75%); transform-origin: 50% 100%; animation: tnFlame .55s ease-in-out infinite alternate; mix-blend-mode: screen; }
+.stfx.sf-burn b:nth-child(1) { left: -4%; } .stfx.sf-burn b:nth-child(2) { left: 22%; height: 78%; animation-delay: -.2s; } .stfx.sf-burn b:nth-child(3) { left: 48%; animation-delay: -.35s; } .stfx.sf-burn b:nth-child(4) { left: 70%; height: 70%; animation-delay: -.1s; }
+@keyframes tnFlame { from { transform: scaleY(.8) scaleX(1) skewX(-5deg); opacity: .8; } to { transform: scaleY(1.15) scaleX(.85) skewX(6deg); opacity: 1; } }
+/* frozen: pale blue tint, frost over the picture, icicles */
+#ck .slot.st-freeze { filter: saturate(.55) brightness(1.1) hue-rotate(-12deg); box-shadow: 0 0 14px 2px #9fe6ffcc !important; } .stfx.sf-freeze { background: linear-gradient(135deg, #d8f6ff88, #7fc8ff44 45%, #e8fbff88); box-shadow: inset 0 0 14px 3px #ffffffcc; }
+.stfx.sf-freeze b { top: 0; width: 14%; height: 34%; background: linear-gradient(#ffffffee, #9fe6ff99); clip-path: polygon(0 0, 100% 0, 50% 100%); } .stfx.sf-freeze b:nth-child(1) { left: 6%; } .stfx.sf-freeze b:nth-child(2) { left: 30%; height: 24%; } .stfx.sf-freeze b:nth-child(3) { left: 56%; height: 40%; } .stfx.sf-freeze b:nth-child(4) { left: 80%; height: 28%; }
+/* poisoned: a sickly green pulse and bubbles */
+#ck .slot.st-poison { animation: tnPoi 1s ease-in-out infinite alternate; } @keyframes tnPoi { from { box-shadow: 0 0 6px 1px #6ae04a88; } to { box-shadow: 0 0 20px 5px #6ae04aee; } } .stfx.sf-poison { background: radial-gradient(circle at 50% 100%, #4ad03a66, transparent 70%); animation: tnPoiBg 1s ease-in-out infinite alternate; } @keyframes tnPoiBg { from { opacity: .5; } to { opacity: 1; } }
+.stfx.sf-poison b { bottom: 0; width: 9px; height: 9px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #d8ffb0, #4ad03a); animation: tnBub 1.6s ease-in infinite; } .stfx.sf-poison b:nth-child(1) { left: 15%; } .stfx.sf-poison b:nth-child(2) { left: 40%; animation-delay: -.5s; width: 6px; height: 6px; } .stfx.sf-poison b:nth-child(3) { left: 62%; animation-delay: -1s; } .stfx.sf-poison b:nth-child(4) { left: 82%; animation-delay: -.3s; width: 6px; height: 6px; }
+@keyframes tnBub { from { transform: translateY(0) scale(.6); opacity: 0; } 25% { opacity: 1; } to { transform: translateY(-120px) scale(1.1); opacity: 0; } }
+/* shocked (paralyzed): pulsing static, a yellow flicker and sparks */
+#ck .slot.st-shock { animation: tnShock .22s steps(2) infinite; } @keyframes tnShock { 0% { filter: brightness(1.5) contrast(1.15); box-shadow: 0 0 16px 3px #fff27acc; } 50% { filter: brightness(.9); box-shadow: 0 0 6px 1px #fff27a66; } 100% { filter: brightness(1.35) contrast(1.1); box-shadow: 0 0 20px 4px #fff27aee; } }
+.stfx.sf-shock { background: repeating-linear-gradient(0deg, #ffffff10 0 2px, transparent 2px 5px); animation: tnStatic .18s steps(3) infinite; } @keyframes tnStatic { 0% { opacity: .9; transform: translateY(0); } 50% { opacity: .35; transform: translateY(2px); } 100% { opacity: .8; transform: translateY(-2px); } }
+.stfx.sf-shock b { width: 3px; height: 40%; background: linear-gradient(#fffbb0, #ffd400); box-shadow: 0 0 6px #fff27a; transform: rotate(18deg); animation: tnZap .35s steps(2) infinite; } .stfx.sf-shock b:nth-child(1) { left: 18%; top: 10%; } .stfx.sf-shock b:nth-child(2) { left: 45%; top: 40%; transform: rotate(-22deg); animation-delay: -.1s; } .stfx.sf-shock b:nth-child(3) { left: 70%; top: 8%; animation-delay: -.2s; } .stfx.sf-shock b:nth-child(4) { left: 86%; top: 45%; transform: rotate(-15deg); animation-delay: -.05s; } @keyframes tnZap { 0% { opacity: 1; } 50% { opacity: 0; } 100% { opacity: .8; } }
+/* regenerating: green plus signs rising off the card */
+#ck .slot.st-regen { box-shadow: 0 0 12px 2px #5aff8a99 !important; } .stfx.sf-regen { overflow: visible; background: linear-gradient(0deg, #5aff8a30, transparent 60%); } .stfx.sf-regen b { bottom: 8%; font: 900 20px/1 var(--body); color: #7dff9a; text-shadow: 0 0 8px #2bd45a, 0 1px 2px #000; animation: tnPlus 1.5s ease-out infinite; } .stfx.sf-regen b::before { content: "+"; }
+.stfx.sf-regen b:nth-child(1) { left: 12%; } .stfx.sf-regen b:nth-child(2) { left: 38%; animation-delay: -.4s; font-size: 15px; } .stfx.sf-regen b:nth-child(3) { left: 62%; animation-delay: -.8s; } .stfx.sf-regen b:nth-child(4) { left: 82%; animation-delay: -1.1s; font-size: 14px; }
+@keyframes tnPlus { from { transform: translateY(0) scale(.7); opacity: 0; } 20% { opacity: 1; } to { transform: translateY(-70px) scale(1.15); opacity: 0; } }
+/* silenced: a muted purple veil; warded: a blue shimmer ring */
+#ck .slot.st-silence .stfx.sf-silence { background: repeating-linear-gradient(45deg, #5a2a8a44 0 6px, #1a0a2a55 6px 12px); } .stfx.sf-silence b { display: none !important; }
+#ck .slot.st-ward { box-shadow: 0 0 0 2px #7fd0ffaa, 0 0 12px 2px #7fd0ff88 !important; } .stfx.sf-ward b { display: none !important; } .stfx.sf-ward { background: radial-gradient(circle at 50% 40%, transparent 55%, #7fd0ff33 100%); }
+html.nomo #ck .slot .stfx, html.nomo #ck .slot .stfx b, html.nomo #ck .slot.st-shock, html.nomo #ck .slot.st-poison, html.nomo #ck .slot.queued { animation: none !important; }
+
 /* ===== Clash ===== */
 #ck { position: fixed; inset: 0; z-index: 20; background: radial-gradient(ellipse at 50% 40%, #12583a 0%, var(--felt-d) 55%, var(--felt-dd) 100%); }
 #ck[hidden] { display: none; }
@@ -4233,7 +4262,7 @@ function arAbil(A, s, src, ab, ti, E) {
         if (ab.burn) { T.burn = { d: ab.burn[0] * Hh * P3, t: R(ab.burn[1]) }; buff(T, 1 - s, "burning"); }
         if (ab.slow) { T.slow = ab.slow[0]; T.slowT = R(ab.slow[1]); buff(T, 1 - s, "slowed"); }
         if (ab.stag) { if (TM) T.slowT = Math.max(T.slowT, 1); else T.cd += ab.stag; buff(T, 1 - s, "staggered"); }
-        if (ab.freeze) { if (TM) { if (ab.freeze >= 1.5) { T.frozen = Math.max(T.frozen, 1); T.stunAll = false; } else T.slowT = Math.max(T.slowT, 1); } else { T.frozen = Math.max(T.frozen, ab.freeze); T.cd += ab.freeze; } buff(T, 1 - s, "frozen"); }
+        if (ab.freeze) { if (TM) { if (ab.freeze >= 1.5) { T.frozen = Math.max(T.frozen, 1); T.stunAll = false; T.fk = "ice"; } else T.slowT = Math.max(T.slowT, 1); } else { T.frozen = Math.max(T.frozen, ab.freeze); T.cd += ab.freeze; } buff(T, 1 - s, "frozen"); }
       }
       if (ab.split) for (const j of [ti - 1, ti + 1]) if (F.lane[j]) arHit(A, src, s, 1 - s, j, base * ab.split, el);
       if (ab.chain) { const o = foes().filter(x => x !== T).sort((p, q) => q.atk - p.atk)[0]; if (o) arHit(A, src, s, 1 - s, F.lane.indexOf(o), base * ab.chain, el); }
@@ -4248,7 +4277,7 @@ function arAbil(A, s, src, ab, ti, E) {
     case "weaken": each(1 - s, T, u => { u.wk = ab.v * E; u.wkT = R(ab.T); if (ab.vuln) { u.vuln = ab.vuln; u.vulnT = R(ab.T); } buff(u, 1 - s, "-" + Math.round(ab.v * E * X) + " ATK"); }); return;
     case "vuln": each(1 - s, T, u => { u.vuln = ab.m * E; u.vulnT = R(ab.T); buff(u, 1 - s, "exposed"); }); return;
     case "slow": each(1 - s, T, u => { u.slow = Math.min(.8, ab.m * E); u.slowT = R(ab.T); buff(u, 1 - s, "slowed"); }); return;
-    case "stun": each(1 - s, T, u => { if (TM) { u.frozen = Math.max(u.frozen, 1); u.stunAll = ab.T >= 2; } else { u.frozen = Math.max(u.frozen, ab.T * E); u.cd += ab.T * E; } buff(u, 1 - s, "stunned"); }); return;
+    case "stun": each(1 - s, T, u => { if (TM) { u.frozen = Math.max(u.frozen, 1); u.stunAll = ab.T >= 2; u.fk = "shock"; } else { u.frozen = Math.max(u.frozen, ab.T * E); u.cd += ab.T * E; } buff(u, 1 - s, "stunned"); }); return;
     case "poison": each(1 - s, T, u => { u.poison = { d: ab.d * Hh * E * P3, t: R(ab.T) }; buff(u, 1 - s, "poisoned"); }); return;
     case "silence": each(1 - s, T, u => { u.silT = TM ? R(ab.T) : ab.T * E; buff(u, 1 - s, "silenced"); }); return;
     case "regen": each(s, T, u => { u.reg = { d: ab.d * Hh * E * P3, t: R(ab.T) }; buff(u, s, "regrowing"); }); return;
@@ -4566,7 +4595,7 @@ function arHit(A, src, ss, ts, ti, dmg, el, o = {}) {
   if (el && T.mark && REACT[T.mark.el + ">" + el]) {
     react = REACT[T.mark.el + ">" + el]; const amp = src && (src.passive === "amp" ? AR.PS.amp : src.passive === "chain" ? AR.PS.chainAmp : 0); d = dmg * ((react.mul || 1) + (react.mul > 1 ? amp : 0));
     if (react.strip) { T.atk = Math.max(1, T.atk - T.pb.a); T.max = Math.max(1, T.max - T.pb.h); T.hp = Math.min(T.hp, T.max); T.pb = { a: 0, h: 0 }; T.shield = 0; T.tmpT = 0; }
-    if (react.freeze) { if (A.tm) { T.frozen = Math.max(T.frozen, 1); T.stunAll = false; } else { T.frozen = AR.IV * .75; T.cd += AR.IV * .75; } } T.mark = null; arLog(A, react.n + "! on " + T.name + (src ? " (hit by " + src.name + ")" : ""), ts, "react");
+    if (react.freeze) { if (A.tm) { T.frozen = Math.max(T.frozen, 1); T.stunAll = false; T.fk = "ice"; } else { T.frozen = AR.IV * .75; T.cd += AR.IV * .75; } } T.mark = null; arLog(A, react.n + "! on " + T.name + (src ? " (hit by " + src.name + ")" : ""), ts, "react");
     if (src && src.passive === "chain") for (const j of [ti - 1, ti + 1]) { const N = A.s[ts].lane[j]; if (N && !N.mark) N.mark = { el, t: AR.MARK_T }; }   // Chain Reaction: the neighbors are marked too
     if (src && src.passive === "chain") arLog(A, src.name + " spreads the mark to the neighbors (Chain Reaction)", ss, "passive");
   }
@@ -8823,6 +8852,18 @@ function tnTargets() {   // which lane cards can be tapped right now
   const ab = a.ab; if (!ab) return { me: [], foe: [] }; const t = ab.t;
   return { me: t === "ally" ? arLive(A, 0).map(x => x.i) : t === "slot" ? [0, 1, 2, 3, 4].filter(i => !A.s[0].lane[i]) : a.k === "swap" ? [0, 1, 2, 3, 4] : [], foe: t === "enemy" ? arLive(A, 1).map(x => x.i) : [] };
 }
+const TN_STATUS = ["burn", "freeze", "poison", "shock", "regen", "silence", "ward"];
+/* queued plays glow yellow, cards that cannot act this turn are greyed, and every status shows on the card itself (fire, frost, green bubbles, static, rising plus signs) */
+function tnMarks(el, u, s, mineTurn, planned) {
+  const A = TN.A; let spent = false;
+  if (u && s === 0 && mineTurn) { const S = A.s[0], first = A.round === 1 && A.cur === A.first && TU.FIRST_NOATK, canA = !first && tuCanAct(u, true) && S.energy >= tuAtkCost(u), canS = !!ABIL[u.active] && u.silT <= 0 && tuCanAct(u, false) && S.energy >= tuSkillCost(u); spent = !planned && !canA && !canS; }
+  el.classList.toggle("queued", !!(u && planned)); el.classList.toggle("spent", spent);
+  const on = u ? { burn: !!u.burn, freeze: u.frozen > 0 && u.fk !== "shock", shock: u.frozen > 0 && u.fk === "shock", poison: !!u.poison, regen: !!u.reg, silence: u.silT > 0, ward: u.shield > 0 } : {};
+  for (const k of TN_STATUS) {
+    el.classList.toggle("st-" + k, !!on[k]); let f = el.querySelector(".stfx.sf-" + k);
+    if (on[k] && !f) { f = document.createElement("i"); f.className = "stfx sf-" + k; f.innerHTML = "<b></b><b></b><b></b><b></b>"; el.appendChild(f); } else if (!on[k] && f) f.remove();
+  }
+}
 function tnRender() {
   const A = TN.A; if (!document.getElementById("arena")) { arBuild(); $("#ck").classList.add("tnmode"); tnOrbVars(); }
   const mineTurn = A.cur === 0 && !A.over && !TN.busy, tg = tnTargets(), sel = TN.sel, now = performance.now();
@@ -8835,6 +8876,7 @@ function tnRender() {
     $(s === 0 ? "#arenum" : "#arfoeen").textContent = s === 0 ? (Math.floor(en * 10) / 10) : "?";
     for (let i = 0; i < 5; i++) { const el = arSlotEl(s, i, "lane"); arSlotUpd(el, S.lane[i], s, "lane", now); const u = S.lane[i]; const isT = (s === 0 ? tg.me : tg.foe).includes(i); el.classList.toggle("tgt", isT);
       const plan = u && A.plans.find(p => p.u === u); el.classList.toggle("planned", !!plan); let b = el.querySelector(".tplan"); if (plan && !b) { b = document.createElement("i"); b.className = "tplan"; el.appendChild(b); } if (b) { b.textContent = plan ? (plan.k === "atk" ? "⚔" : "✦") : ""; if (!plan) b.remove(); }
+      tnMarks(el, u, s, mineTurn, !!plan);
       const cd = el.querySelector(".kcd"); if (cd) cd.style.width = "0"; const sk = el.querySelector(".kskl"); if (sk) sk.style.display = "none";
       if (u && u.wait) el.classList.add("waits"); else el.classList.remove("waits"); }
     for (let i = 0; i < 3; i++) arSlotUpd(arSlotEl(s, i, "bench"), S.bench[i], s, "bench", now);
@@ -8868,15 +8910,17 @@ const tnMine = () => { const A = TN.A; return A.cur === 0 && !A.over && !TN.busy
 /* a tap on a card slot (view side s: 0 = mine, 1 = the opponent's) */
 function tnTap(kind, s, i) {
   const A = TN.A; if (!tnMine()) return; const S = A.s[0], act = TN.act;
-  if (act && act.k === "swap") { if (kind === "lane" && s === 0) return tnDo("swap", null, null, act.b, i); return tnCancelPick(); }
-  if (act && act.k === "card") { if (kind === "lane") { const t = act.ab.t; if ((t === "ally" && s === 0 && S.lane[i]) || (t === "enemy" && s === 1 && A.s[1].lane[i]) || (t === "slot" && s === 0 && !S.lane[i])) return tnDo("play", null, i, act.b); } return tnCancelPick(); }
+  const again = () => { tnCancelPick(); if (kind === "hand" || (kind === "lane" && s === 0)) tnTap(kind, s, i); };   // tapping another card of mine ends the old interaction and starts a new one
+  if (act && act.k === "swap") { if (kind === "lane" && s === 0) return tnDo("swap", null, null, act.b, i); return again(); }
+  if (act && act.k === "card") { if (kind === "lane") { const t = act.ab.t; if ((t === "ally" && s === 0 && S.lane[i]) || (t === "enemy" && s === 1 && A.s[1].lane[i]) || (t === "slot" && s === 0 && !S.lane[i])) return tnDo("play", null, i, act.b); } return again(); }
   if (act && act.k === "pick") {   // I picked one of my cards; this tap is its target
-    if (kind !== "lane") return tnCancelPick(); const src = S.lane[act.i], tu = A.s[s].lane[i]; if (!src) return tnCancelPick();
-    if (s === 0 && i === act.i && !act.self) { TN.act = Object.assign({}, act, { self: true }); }   // a second tap on the same card means "on itself"
+    if (kind !== "lane") return again(); const src = S.lane[act.i], tu = A.s[s].lane[i]; if (!src) return tnCancelPick();
+    if (s === 0 && i !== act.i && !act.ally) return again();   // another card of mine: switch to it
     const ab = ABIL[src.active], items = [], atkOk = s === 1 && tu && tuAtkTargets(A, 0).includes(i), first = A.round === 1 && A.cur === A.first && TU.FIRST_NOATK;
     if (atkOk) items.push({ label: "Attack", sub: tuAtkCost(src) + " energy · " + Math.round(arAtk(A, 0, src) * TU.ATTACK) + " damage", off: first || S.energy < tuAtkCost(src) || !tuCanAct(src, true), fn: () => tnDo("atk", act.i, i) });
     if (ab && src.silT <= 0) { const t = ab.t, okT = (t === "enemy" && s === 1 && tu) || (t === "ally" && s === 0 && tu) || (t === "none") || (t === "slot" && s === 0 && !tu);
       if (okT) items.push({ label: actName(src), sub: tuSkillCost(src) + " energy · " + abilText(ab).slice(0, 80), off: S.energy < tuSkillCost(src) || !tuCanAct(src, false), fn: () => tnDo("skill", act.i, t === "none" ? null : i) }); }
+    if (s === 0 && i === act.i && ab && ab.t === "ally" && !act.ally) items.push({ label: "Skill on another card…", sub: "then tap one of your other cards", fn: () => { TN.act = Object.assign({}, act, { ally: true }); tnHint("Tap one of your cards for " + actName(src)); tnRender(); } });
     if (!items.length) { toast(s === 1 && first ? "No normal attacks on the first turn: use skills." : s === 1 ? "That card can't be targeted." : "Nothing to do there."); return; }
     const first2 = items[0].off && items.length === 1; tnMenu((src.name) + " → " + (tu ? tu.name : "an empty lane"), items.concat([{ label: "Cancel", fn: tnCancelPick }])); return;
   }
@@ -8915,7 +8959,7 @@ function tnDragEnd(p, x, y) {
 function tnPtrDown(e) {
   if (!TN || !document.getElementById("ck") || document.getElementById("ck").hidden) return; if (e.target.closest(".tnmenu")) return;
   const sl = e.target.closest && e.target.closest('#ck .slot[data-ar="slot"]'), pile = e.target.closest && e.target.closest("#ck .a2pile.me .pcard");
-  if (!sl && !pile) { if (document.querySelector("#ck .tnmenu") && !e.target.closest("#ck button")) tnCancelPick(); return; }
+  if (!sl && !pile) { if ((document.querySelector("#ck .tnmenu") || TN.sel || TN.act) && !e.target.closest("#ck button")) tnCancelPick(); return; }
   if (document.querySelector("#ck .tnmenu")) { tnMenuClose(); }
   const p = TN.ptr = { id: e.pointerId, x0: e.clientX, y0: e.clientY, el: sl || pile, kind: pile ? "pile" : sl.dataset.kind, s: sl ? +sl.dataset.s : 0, i: sl ? +sl.dataset.i : 0, dragging: false, long: false };
   const A = TN.A; let u = null, skill = false;

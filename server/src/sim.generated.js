@@ -1196,7 +1196,7 @@ function arAbil(A, s, src, ab, ti, E) {
         if (ab.burn) { T.burn = { d: ab.burn[0] * Hh * P3, t: R(ab.burn[1]) }; buff(T, 1 - s, "burning"); }
         if (ab.slow) { T.slow = ab.slow[0]; T.slowT = R(ab.slow[1]); buff(T, 1 - s, "slowed"); }
         if (ab.stag) { if (TM) T.slowT = Math.max(T.slowT, 1); else T.cd += ab.stag; buff(T, 1 - s, "staggered"); }
-        if (ab.freeze) { if (TM) { if (ab.freeze >= 1.5) { T.frozen = Math.max(T.frozen, 1); T.stunAll = false; } else T.slowT = Math.max(T.slowT, 1); } else { T.frozen = Math.max(T.frozen, ab.freeze); T.cd += ab.freeze; } buff(T, 1 - s, "frozen"); }
+        if (ab.freeze) { if (TM) { if (ab.freeze >= 1.5) { T.frozen = Math.max(T.frozen, 1); T.stunAll = false; T.fk = "ice"; } else T.slowT = Math.max(T.slowT, 1); } else { T.frozen = Math.max(T.frozen, ab.freeze); T.cd += ab.freeze; } buff(T, 1 - s, "frozen"); }
       }
       if (ab.split) for (const j of [ti - 1, ti + 1]) if (F.lane[j]) arHit(A, src, s, 1 - s, j, base * ab.split, el);
       if (ab.chain) { const o = foes().filter(x => x !== T).sort((p, q) => q.atk - p.atk)[0]; if (o) arHit(A, src, s, 1 - s, F.lane.indexOf(o), base * ab.chain, el); }
@@ -1211,7 +1211,7 @@ function arAbil(A, s, src, ab, ti, E) {
     case "weaken": each(1 - s, T, u => { u.wk = ab.v * E; u.wkT = R(ab.T); if (ab.vuln) { u.vuln = ab.vuln; u.vulnT = R(ab.T); } buff(u, 1 - s, "-" + Math.round(ab.v * E * X) + " ATK"); }); return;
     case "vuln": each(1 - s, T, u => { u.vuln = ab.m * E; u.vulnT = R(ab.T); buff(u, 1 - s, "exposed"); }); return;
     case "slow": each(1 - s, T, u => { u.slow = Math.min(.8, ab.m * E); u.slowT = R(ab.T); buff(u, 1 - s, "slowed"); }); return;
-    case "stun": each(1 - s, T, u => { if (TM) { u.frozen = Math.max(u.frozen, 1); u.stunAll = ab.T >= 2; } else { u.frozen = Math.max(u.frozen, ab.T * E); u.cd += ab.T * E; } buff(u, 1 - s, "stunned"); }); return;
+    case "stun": each(1 - s, T, u => { if (TM) { u.frozen = Math.max(u.frozen, 1); u.stunAll = ab.T >= 2; u.fk = "shock"; } else { u.frozen = Math.max(u.frozen, ab.T * E); u.cd += ab.T * E; } buff(u, 1 - s, "stunned"); }); return;
     case "poison": each(1 - s, T, u => { u.poison = { d: ab.d * Hh * E * P3, t: R(ab.T) }; buff(u, 1 - s, "poisoned"); }); return;
     case "silence": each(1 - s, T, u => { u.silT = TM ? R(ab.T) : ab.T * E; buff(u, 1 - s, "silenced"); }); return;
     case "regen": each(s, T, u => { u.reg = { d: ab.d * Hh * E * P3, t: R(ab.T) }; buff(u, s, "regrowing"); }); return;
@@ -1529,7 +1529,7 @@ function arHit(A, src, ss, ts, ti, dmg, el, o = {}) {
   if (el && T.mark && REACT[T.mark.el + ">" + el]) {
     react = REACT[T.mark.el + ">" + el]; const amp = src && (src.passive === "amp" ? AR.PS.amp : src.passive === "chain" ? AR.PS.chainAmp : 0); d = dmg * ((react.mul || 1) + (react.mul > 1 ? amp : 0));
     if (react.strip) { T.atk = Math.max(1, T.atk - T.pb.a); T.max = Math.max(1, T.max - T.pb.h); T.hp = Math.min(T.hp, T.max); T.pb = { a: 0, h: 0 }; T.shield = 0; T.tmpT = 0; }
-    if (react.freeze) { if (A.tm) { T.frozen = Math.max(T.frozen, 1); T.stunAll = false; } else { T.frozen = AR.IV * .75; T.cd += AR.IV * .75; } } T.mark = null; arLog(A, react.n + "! on " + T.name + (src ? " (hit by " + src.name + ")" : ""), ts, "react");
+    if (react.freeze) { if (A.tm) { T.frozen = Math.max(T.frozen, 1); T.stunAll = false; T.fk = "ice"; } else { T.frozen = AR.IV * .75; T.cd += AR.IV * .75; } } T.mark = null; arLog(A, react.n + "! on " + T.name + (src ? " (hit by " + src.name + ")" : ""), ts, "react");
     if (src && src.passive === "chain") for (const j of [ti - 1, ti + 1]) { const N = A.s[ts].lane[j]; if (N && !N.mark) N.mark = { el, t: AR.MARK_T }; }   // Chain Reaction: the neighbors are marked too
     if (src && src.passive === "chain") arLog(A, src.name + " spreads the mark to the neighbors (Chain Reaction)", ss, "passive");
   }
