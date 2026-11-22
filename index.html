@@ -1045,6 +1045,38 @@ body .ribbon::after { background: linear-gradient(90deg, #f0d68a88, transparent)
 #ck .slot.st-ward { box-shadow: 0 0 0 2px #7fd0ffaa, 0 0 12px 2px #7fd0ff88 !important; } .stfx.sf-ward b { display: none !important; } .stfx.sf-ward { background: radial-gradient(circle at 50% 40%, transparent 55%, #7fd0ff33 100%); }
 html.nomo #ck .slot .stfx, html.nomo #ck .slot .stfx b, html.nomo #ck .slot.st-shock, html.nomo #ck .slot.st-poison, html.nomo #ck .slot.queued { animation: none !important; }
 
+/* ===== design pass: one navy and gold system for the turn board ===== */
+:root { --tn-navy1: #131b3d; --tn-navy2: #0a0f26; --tn-gold: #f0d68a; --tn-gold2: #b88a2e; }
+/* confirm panel */
+.tnmenu { left: 50%; top: 42%; min-width: 0; width: min(78%, 300px); max-width: none; padding: 10px 12px 12px; border-radius: 16px; background: linear-gradient(#141c40f2, #0a0f26f6); border: 1.5px solid var(--tn-gold); box-shadow: 0 10px 32px #000b, inset 0 0 0 1px #f0d68a33, inset 0 1px 0 #ffffff18; -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); animation: tnPop .2s cubic-bezier(.2, 1.3, .4, 1) both; }
+@keyframes tnPop { from { opacity: 0; transform: translate(-50%, -50%) scale(.82); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+.tnmenu .tm-h b { display: block; margin: 0 0 6px; padding: 0 0 6px; border-bottom: 1px solid #f0d68a44; font: 400 15px var(--display); color: #fff; text-align: center; }
+.tnmenu .tm-row + .tm-row { margin-top: 8px; padding-top: 8px; border-top: 1px solid #ffffff14; } .tm-top { display: flex; align-items: center; gap: 8px; } .tm-top > b { flex: 1; font: 700 16px var(--body); color: #fff; } .mi-i { flex: none; width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center; background: linear-gradient(135deg, #4a2c9a, #1b1245); border: 1.5px solid #8a76e0; color: var(--tn-gold); font-size: 17px; } .mi-i.icomask { background: linear-gradient(135deg, #4a2c9a, #1b1245); color: var(--tn-gold); width: 34px; height: 34px; -webkit-mask: none; mask: none; position: relative; } .mi-i.icomask::after { content: ""; position: absolute; inset: 6px; background: currentColor; -webkit-mask: var(--m) center / contain no-repeat; mask: var(--m) center / contain no-repeat; }
+.tm-cost { flex: none; display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px 3px 5px; border-radius: 999px; background: #0a1a3a; border: 1px solid #4fb8ff88; font: 700 12px var(--body); color: #cfeaff; } .tm-cost .tnico { width: 15px; height: 15px; }
+.tnmenu p { margin: 6px 0 8px; font: 500 12.5px/1.4 var(--body); color: #dfe7f6; text-shadow: none; }
+.tm-btns { display: flex; gap: 8px; } .tm-btns button { flex: 1; min-height: 38px; border-radius: 11px; font: 800 14px var(--body); letter-spacing: .02em; } .tm-end { margin-top: 8px; }
+.tm-ok { border: 1.5px solid #fff0b8; background: linear-gradient(#ffe48c, #c9962a); color: #2a1a02; box-shadow: 0 3px 0 #7a5410, 0 5px 10px #0008; } .tm-ok:active { transform: translateY(2px); box-shadow: 0 1px 0 #7a5410; } .tm-ok:disabled { filter: grayscale(.8) brightness(.7); }
+.tm-c { border: 1.5px solid #ffffff3a; background: linear-gradient(#2a3358, #161c3a); color: #dfe7f6; box-shadow: 0 3px 0 #0a0f26, 0 5px 10px #0008; } .tm-c:active { transform: translateY(2px); box-shadow: 0 1px 0 #0a0f26; }
+.tnline { position: absolute; inset: 0; z-index: 30; pointer-events: none; } .tnline .tl-l { stroke: var(--tn-gold); stroke-width: 3; stroke-dasharray: 8 7; stroke-linecap: round; filter: drop-shadow(0 0 5px #f0d68acc); animation: tnDash .6s linear infinite; } .tnline .tl-ring { fill: none; stroke: #ff6a7e; stroke-width: 3; filter: drop-shadow(0 0 6px #ff6a7ecc); } .tnline .tl-dot { fill: var(--tn-gold); } @keyframes tnDash { to { stroke-dashoffset: -30; } }
+/* selection: the picked card rises and straightens, the others step back */
+#ck.tnpick .slot.me:not(.sel):not(.tgt), #ck.tnpick .slot.foe:not(.sel):not(.tgt) { filter: brightness(.62) saturate(.8); transition: filter .2s; }
+#ck .slot.me.sel { rotate: 0deg !important; translate: 0 -10px !important; scale: 1.06 !important; z-index: 12 !important; box-shadow: 0 0 0 2px var(--selc, #f0d68a), 0 0 16px 3px var(--selc, #f0d68a), 0 14px 18px #000a !important; transition: translate .18s, scale .18s; }
+/* health bars: smooth, with the lost part in red for a moment */
+.khp, .hbar { position: relative; } .khp i, .hbar i { position: relative; z-index: 1; transition: width .45s cubic-bezier(.3, .8, .3, 1) !important; } .khp .tr, .hbar .tr { position: absolute; left: 0; top: 0; bottom: 0; width: 100%; z-index: 0; background: #ff3b4a; border-radius: inherit; transition: width .55s ease-out; box-shadow: 0 0 6px #ff3b4a; }
+/* energy: a backing track with a gold edge */
+#ck.tnmode .a2energy .mana { padding: 4px 12px; border-radius: 999px; background: linear-gradient(#0c1330f0, #060a1cf5); border: 1.5px solid #f0d68a88; box-shadow: inset 0 2px 6px #000a, 0 2px 8px #0008; } #ck.tnmode .a2energy .mana b { color: var(--tn-gold); font-weight: 700; } #ck.tnmode .mcry i u { transition: clip-path .45s cubic-bezier(.3, .8, .3, 1); }
+/* the header, Draw and End turn share one look */
+#ck.tnmode .a2clk { min-width: 150px; padding: 5px 16px 6px; border-radius: 14px; background: linear-gradient(#17204a, #0a0f26); border: 1.5px solid var(--tn-gold); box-shadow: 0 3px 0 #5a3f0a, 0 6px 12px #0009, inset 0 1px 0 #ffffff22; } #ck.tnmode .a2clk .clock { font: 400 20px var(--display); color: #fff; letter-spacing: .03em; } #ck.tnmode .a2clk .surge { font: 700 11px var(--body); color: var(--tn-gold); letter-spacing: .06em; text-transform: uppercase; }
+#ck.tnmode .drawb { border-radius: 12px; border: 1.5px solid var(--tn-gold); background: linear-gradient(#17204a, #0a0f26); color: #fff; box-shadow: 0 3px 0 #5a3f0a, 0 6px 10px #0008; } #ck.tnmode .drawb.ready { background: linear-gradient(#ffe48c, #c9962a); color: #2a1a02; border-color: #fff0b8; } #ck.tnmode .drawb.off { filter: grayscale(.5) brightness(.7); }
+#ck.tnmode .tnend { border-radius: 14px; border: 1.5px solid #fff0b8; background: linear-gradient(#ffe48c, #c9962a); color: #2a1a02; font: 400 20px var(--display); letter-spacing: .03em; box-shadow: 0 4px 0 #7a5410, 0 8px 14px #000a; clip-path: none; } #ck.tnmode .tnend:active { transform: translateY(3px); box-shadow: 0 1px 0 #7a5410; } #ck.tnmode .tnend:disabled { background: linear-gradient(#2a3358, #161c3a); border-color: #ffffff30; color: #8a96b8; box-shadow: 0 3px 0 #0a0f26; }
+#ck.tnmode .a2l .btn.red { border-radius: 50%; border: 1.5px solid var(--tn-gold); background: linear-gradient(#17204a, #0a0f26); color: var(--tn-gold); box-shadow: 0 2px 0 #5a3f0a, 0 4px 8px #0008; }
+/* whose turn it is: the active portrait glows gold and pulses */
+#ck .portrait.active .hframe { box-shadow: 0 0 0 3px var(--tn-gold), 0 0 22px 5px #f0d68acc; animation: tnAct 1.3s ease-in-out infinite alternate; } @keyframes tnAct { from { box-shadow: 0 0 0 3px var(--tn-gold), 0 0 10px 2px #f0d68a88; } to { box-shadow: 0 0 0 3px var(--tn-gold), 0 0 26px 7px #f0d68add; } } html.nomo #ck .portrait.active .hframe { animation: none; }
+/* turn banner: a navy and gold ribbon that sweeps in */
+.tnban { left: -10%; right: -10%; top: 36%; padding: 10px 0 12px; background: linear-gradient(90deg, #0a0f2600, #0a0f26ee 18%, #17204aee 50%, #0a0f26ee 82%, #0a0f2600); border-top: 1.5px solid #f0d68a99; border-bottom: 1.5px solid #f0d68a99; animation: tnRib 1.4s cubic-bezier(.2, .9, .3, 1) both; } .tnban.mine { border-color: #ffe48c; box-shadow: 0 0 30px #f0d68a66; } .tnban b { font-size: 32px; letter-spacing: .04em; } @keyframes tnRib { 0% { opacity: 0; transform: translateX(-40%) scaleY(.6); } 18% { opacity: 1; transform: translateX(0) scaleY(1); } 78% { opacity: 1; } 100% { opacity: 0; transform: translateX(30%); } }
+.tnmenu .tm-btns button { display: block; width: auto; flex: 1; min-height: 38px; padding: 0 10px; border-radius: 11px; text-align: center; font: 800 14px var(--body); } .tnmenu .tm-ok { border: 1.5px solid #fff0b8; background: linear-gradient(#ffe48c, #c9962a); color: #2a1a02; text-shadow: none; box-shadow: 0 3px 0 #7a5410, 0 5px 10px #0008; } .tnmenu .tm-c { border: 1.5px solid #ffffff3a; background: linear-gradient(#2a3358, #161c3a); color: #dfe7f6; box-shadow: 0 3px 0 #0a0f26, 0 5px 10px #0008; } .tnmenu .tm-btns button:active { background-color: transparent; transform: translateY(2px); }
+#ck.tnpick .slot.me:not(.sel):not(.ghosting), #ck.tnpick .a2zone.me .slot.me:not(.sel) { filter: brightness(.6) saturate(.75) !important; } #ck.tnpick .slot.foe.tgt { filter: none !important; }
+
 /* ===== Clash ===== */
 #ck { position: fixed; inset: 0; z-index: 20; background: radial-gradient(ellipse at 50% 40%, #12583a 0%, var(--felt-d) 55%, var(--felt-dd) 100%); }
 #ck[hidden] { display: none; }
@@ -8852,6 +8884,11 @@ function tnTargets() {   // which lane cards can be tapped right now
   const ab = a.ab; if (!ab) return { me: [], foe: [] }; const t = ab.t;
   return { me: t === "ally" ? arLive(A, 0).map(x => x.i) : t === "slot" ? [0, 1, 2, 3, 4].filter(i => !A.s[0].lane[i]) : a.k === "swap" ? [0, 1, 2, 3, 4] : [], foe: t === "enemy" ? arLive(A, 1).map(x => x.i) : [] };
 }
+/* the lost part of a bar stays red for a moment, then drains away */
+function tnTrail(bar, fill, pct) {
+  if (!bar || !fill) return; let tr = bar.querySelector(".tr"); if (!tr) { tr = document.createElement("u"); tr.className = "tr"; bar.insertBefore(tr, bar.firstChild); tr._p = pct; }
+  pct = Math.max(0, Math.min(100, pct)); if (pct < tr._p - .3) { tr.style.width = tr._p + "%"; clearTimeout(tr._t); tr._t = setTimeout(() => { tr.style.width = pct + "%"; }, 420); } else { tr.style.width = pct + "%"; } tr._p = pct;
+}
 const TN_STATUS = ["burn", "freeze", "poison", "shock", "regen", "silence", "ward"];
 /* queued plays glow yellow, cards that cannot act this turn are greyed, and every status shows on the card itself (fire, frost, green bubbles, static, rising plus signs) */
 function tnMarks(el, u, s, mineTurn, planned) {
@@ -8868,15 +8905,15 @@ function tnRender() {
   const A = TN.A; if (!document.getElementById("arena")) { arBuild(); $("#ck").classList.add("tnmode"); tnOrbVars(); }
   const mineTurn = A.cur === 0 && !A.over && !TN.busy, tg = tnTargets(), sel = TN.sel, now = performance.now();
   if (!A.snaps && A.ev.length) arEvents(now);   // planning effects (a card entering, a draw, a skill card) play at once; a resolved turn is replayed play by play instead
-  AM.sel = sel ? { s: 0, i: sel.i, kind: sel.kind === "hand" ? "bench" : "lane" } : null; AM.mode = null; AM.drag = null;
+  AM.sel = sel ? { s: 0, i: sel.i, kind: sel.kind === "hand" ? "bench" : "lane" } : null; AM.mode = null; AM.drag = null; $("#ck").classList.toggle("tnpick", !!sel);
   for (let s = 0; s < 2; s++) {
-    const S = A.s[s]; const c = $("#core" + s), pc = Math.max(0, 100 * S.core / AM.maxCore[s]); c.querySelector(".hbar i").style.width = pc + "%"; c.querySelector("em").textContent = Math.max(0, Math.ceil(S.core)); c.classList.toggle("low", pc < 30);
+    const S = A.s[s]; const c = $("#core" + s), pc = Math.max(0, 100 * S.core / AM.maxCore[s]); c.querySelector(".hbar i").style.width = pc + "%"; tnTrail(c.querySelector(".hbar"), c.querySelector(".hbar i"), pc); c.classList.toggle("active", !A.over && A.cur === s); c.querySelector("em").textContent = Math.max(0, Math.ceil(S.core)); c.classList.toggle("low", pc < 30);
     const en = S.energy, pe0 = TN.pe && TN.pe[s] != null ? TN.pe[s] : en; document.querySelectorAll("#mana" + s + " .mcry i").forEach((p, k) => { const f = Math.max(0, Math.min(1, en - k)); p.firstChild.style.height = f * 100 + "%"; p.firstChild.style.setProperty("--f", f * 100 + "%"); p.classList.toggle("full", en >= k + 1); const was = pe0 >= k + 1, now = en >= k + 1; if (now && !was) { p.classList.remove("spend"); void p.offsetWidth; p.classList.add("gain"); } if (!now && was) { p.classList.remove("gain"); void p.offsetWidth; p.classList.add("spend"); } });
     if (s === 0 && TN.pe) { if (en > pe0 + .9) sfx(en >= pe0 + 3 ? "orbFull" : "orbGain"); else if (en < pe0 - .9) sfx("orbSpend"); } (TN.pe = TN.pe || [])[s] = en;
     $(s === 0 ? "#arenum" : "#arfoeen").textContent = s === 0 ? (Math.floor(en * 10) / 10) : "?";
     for (let i = 0; i < 5; i++) { const el = arSlotEl(s, i, "lane"); arSlotUpd(el, S.lane[i], s, "lane", now); const u = S.lane[i]; const isT = (s === 0 ? tg.me : tg.foe).includes(i); el.classList.toggle("tgt", isT);
       const plan = u && A.plans.find(p => p.u === u); el.classList.toggle("planned", !!plan); let b = el.querySelector(".tplan"); if (plan && !b) { b = document.createElement("i"); b.className = "tplan"; el.appendChild(b); } if (b) { b.textContent = plan ? (plan.k === "atk" ? "⚔" : "✦") : ""; if (!plan) b.remove(); }
-      tnMarks(el, u, s, mineTurn, !!plan);
+      tnMarks(el, u, s, mineTurn, !!plan); if (u && s === 0 && sel && sel.kind === "lane" && sel.i === i) el.style.setProperty("--selc", elColor(u.el)); tnTrail(el.querySelector(".khp"), el.querySelector(".khp i"), u ? 100 * u.hp / u.max : 0);
       const cd = el.querySelector(".kcd"); if (cd) cd.style.width = "0"; const sk = el.querySelector(".kskl"); if (sk) sk.style.display = "none";
       if (u && u.wait) el.classList.add("waits"); else el.classList.remove("waits"); }
     for (let i = 0; i < 3; i++) arSlotUpd(arSlotEl(s, i, "bench"), S.bench[i], s, "bench", now);
@@ -8891,11 +8928,20 @@ function tnRender() {
 /* ===== input: tap, hold and drag ===== */
 const TN_HOLD = 3000, TN_MOVE = 10;
 function tnHint(s) { TN.hint = s || ""; const m = $("#armsg"); if (m && !TN.msg) m.textContent = TN.hint; }
-function tnMenuClose() { document.querySelectorAll("#ck .tnmenu").forEach(e => e.remove()); }
-function tnMenu(title, items) {   // a transparent overlay menu in the middle of the board; tapping outside it closes it
-  tnMenuClose(); const d = document.createElement("div"); d.className = "tnmenu"; d.innerHTML = `<b>${tnEsc(title)}</b>` + items.map((it, k) => `<button data-mi="${k}" ${it.off ? "disabled" : ""}><span>${tnEsc(it.label)}</span>${it.sub ? `<small>${tnEsc(it.sub)}</small>` : ""}</button>`).join("");
-  d.addEventListener("pointerup", e => e.stopPropagation()); d.addEventListener("click", e => { e.stopPropagation(); const b = e.target.closest("[data-mi]"); if (!b) return; const it = items[+b.dataset.mi]; tnMenuClose(); if (it && it.fn) it.fn(); });
-  $("#ck").appendChild(d); sfx("tap");
+function tnMenuClose() { document.querySelectorAll("#ck .tnmenu, #ck .tnline").forEach(e => e.remove()); }
+function tnMenu(title, items, o = {}) {   // a compact navy panel with a gold edge: icon, name, energy cost, a line of text and styled buttons. Tapping outside closes it.
+  tnMenuClose(); const d = document.createElement("div"); d.className = "tnmenu"; const cancel = items.find(it => it.cancel), acts = items.filter(it => !it.cancel);
+  const ico = it => it.ic === "atk" ? (art2("icon", "swords") ? `<i class="icomask mi-i" style="--m:url(${art2("icon", "swords")})"></i>` : "⚔") : it.ic === "skill" ? `<span class="mi-i sk">✦</span>` : `<span class="mi-i sk">•</span>`;
+  d.innerHTML = `<div class="tm-h"><b>${tnEsc(title)}</b></div>` + acts.map((it, k) => `<div class="tm-row"><div class="tm-top">${ico(it)}<b>${tnEsc(it.label)}</b>${it.cost != null ? `<span class="tm-cost">${tnIco("orb1")}${it.cost} Energy</span>` : ""}</div>${it.sub ? `<p>${tnEsc(it.sub)}</p>` : ""}<div class="tm-btns">${acts.length === 1 && cancel ? `<button class="tm-c" data-mi="c">${tnEsc(cancel.label)}</button>` : ""}<button class="tm-ok" data-mi="${k}" ${it.off ? "disabled" : ""}>${tnEsc(it.btn || "Confirm")}</button></div></div>`).join("") + (acts.length > 1 && cancel ? `<div class="tm-btns tm-end"><button class="tm-c" data-mi="c">${tnEsc(cancel.label)}</button></div>` : "");
+  d.addEventListener("pointerup", e => e.stopPropagation()); d.addEventListener("click", e => { e.stopPropagation(); const b = e.target.closest("[data-mi]"); if (!b) return; const it = b.dataset.mi === "c" ? cancel : acts[+b.dataset.mi]; tnMenuClose(); if (it && it.fn) it.fn(); });
+  $("#ck").appendChild(d); if (o.line) tnLine(o.line[0], o.line[1]); sfx("tap");
+}
+/* a clean targeting line from the selected card to its target */
+function tnLine(a, b) {
+  document.querySelectorAll("#ck .tnline").forEach(e => e.remove()); if (!a || !b) return; const ck = $("#ck").getBoundingClientRect(), ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect();
+  const x1 = ra.left + ra.width / 2 - ck.left, y1 = ra.top + ra.height / 2 - ck.top, x2 = rb.left + rb.width / 2 - ck.left, y2 = rb.top + rb.height / 2 - ck.top, same = a === b;
+  const s = document.createElementNS("http://www.w3.org/2000/svg", "svg"); s.setAttribute("class", "tnline"); s.setAttribute("width", ck.width); s.setAttribute("height", ck.height);
+  s.innerHTML = same ? `<circle cx="${x1}" cy="${y1}" r="${ra.width * .55}" class="tl-ring"/>` : `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="tl-l"/><circle cx="${x2}" cy="${y2}" r="${rb.width * .5}" class="tl-ring"/><circle cx="${x1}" cy="${y1}" r="5" class="tl-dot"/>`; $("#ck").appendChild(s);
 }
 function tnInfoShow(u, skill) {   // hold a card: its stats and skills in a transparent overlay until the finger lifts
   tnInfoHide(); const d = document.createElement("div"); d.className = "tninfo"; let h;
@@ -8917,22 +8963,22 @@ function tnTap(kind, s, i) {
     if (kind !== "lane") return again(); const src = S.lane[act.i], tu = A.s[s].lane[i]; if (!src) return tnCancelPick();
     if (s === 0 && i !== act.i && !act.ally) return again();   // another card of mine: switch to it
     const ab = ABIL[src.active], items = [], atkOk = s === 1 && tu && tuAtkTargets(A, 0).includes(i), first = A.round === 1 && A.cur === A.first && TU.FIRST_NOATK;
-    if (atkOk) items.push({ label: "Attack", sub: tuAtkCost(src) + " energy · " + Math.round(arAtk(A, 0, src) * TU.ATTACK) + " damage", off: first || S.energy < tuAtkCost(src) || !tuCanAct(src, true), fn: () => tnDo("atk", act.i, i) });
+    if (atkOk) items.push({ ic: "atk", label: "Attack", cost: tuAtkCost(src), sub: "Deal " + Math.round(arAtk(A, 0, src) * TU.ATTACK) + " damage to " + (tu ? tu.name : "the target") + ".", btn: "Attack", off: first || S.energy < tuAtkCost(src) || !tuCanAct(src, true), fn: () => tnDo("atk", act.i, i) });
     if (ab && src.silT <= 0) { const t = ab.t, okT = (t === "enemy" && s === 1 && tu) || (t === "ally" && s === 0 && tu) || (t === "none") || (t === "slot" && s === 0 && !tu);
-      if (okT) items.push({ label: actName(src), sub: tuSkillCost(src) + " energy · " + abilText(ab).slice(0, 80), off: S.energy < tuSkillCost(src) || !tuCanAct(src, false), fn: () => tnDo("skill", act.i, t === "none" ? null : i) }); }
-    if (s === 0 && i === act.i && ab && ab.t === "ally" && !act.ally) items.push({ label: "Skill on another card…", sub: "then tap one of your other cards", fn: () => { TN.act = Object.assign({}, act, { ally: true }); tnHint("Tap one of your cards for " + actName(src)); tnRender(); } });
+      if (okT) items.push({ ic: "skill", label: actName(src), cost: tuSkillCost(src), sub: abilText(ab), off: S.energy < tuSkillCost(src) || !tuCanAct(src, false), fn: () => tnDo("skill", act.i, t === "none" ? null : i) }); }
+    if (s === 0 && i === act.i && ab && ab.t === "ally" && !act.ally) items.push({ ic: "skill", label: "Skill on another card", sub: "Then tap one of your other cards.", btn: "Choose", fn: () => { TN.act = Object.assign({}, act, { ally: true }); tnHint("Tap one of your cards for " + actName(src)); tnRender(); } });
     if (!items.length) { toast(s === 1 && first ? "No normal attacks on the first turn: use skills." : s === 1 ? "That card can't be targeted." : "Nothing to do there."); return; }
-    const first2 = items[0].off && items.length === 1; tnMenu((src.name) + " → " + (tu ? tu.name : "an empty lane"), items.concat([{ label: "Cancel", fn: tnCancelPick }])); return;
+    const first2 = items[0].off && items.length === 1; tnMenu((src.name) + " → " + (tu ? tu.name : "an empty lane"), items.concat([{ cancel: true, label: "Cancel", fn: tnCancelPick }]), { line: [arSlotEl(0, act.i, "lane"), arSlotEl(s, i, "lane")] }); return;
   }
   // nothing picked yet
   if (kind === "hand") {
     const h = S.bench[i]; if (!h) return;
-    if (h.skill) { const k = SKC[h.sid], ab = ABIL[k.ab]; if (ab.t === "none") return tnMenu(k.n, [{ label: "Play", sub: "free · " + skText(h.sid).slice(0, 80), fn: () => tnDo("play", null, null, i) }, { label: "Cancel", fn: tnCancelPick }]); TN.sel = { kind: "hand", i }; TN.act = { k: "card", b: i, ab }; tnHint("Tap a target for " + k.n + ", or drag the card onto it"); return tnRender(); }
+    if (h.skill) { const k = SKC[h.sid], ab = ABIL[k.ab]; if (ab.t === "none") return tnMenu(k.n, [{ ic: "skill", label: "Play", cost: 0, sub: skText(h.sid), btn: "Play", fn: () => tnDo("play", null, null, i) }, { cancel: true, label: "Cancel", fn: tnCancelPick }]); TN.sel = { kind: "hand", i }; TN.act = { k: "card", b: i, ab }; tnHint("Tap a target for " + k.n + ", or drag the card onto it"); return tnRender(); }
     TN.sel = { kind: "hand", i }; TN.act = { k: "swap", b: i }; tnHint("Tap a lane to bring it in, or drag the card onto one"); return tnRender();
   }
   if (kind === "lane" && s === 0) {
     const u = S.lane[i]; if (!u) return; const plan = A.plans.find(p => p.u === u);
-    if (plan) return tnMenu(u.name, [{ label: "Cancel this plan", sub: "gets the energy back", fn: () => tnDo("unplan", i) }, { label: "Close", fn: tnCancelPick }]);
+    if (plan) return tnMenu(u.name, [{ label: "Cancel this plan", sub: "You get the energy back.", btn: "Cancel plan", fn: () => tnDo("unplan", i) }, { cancel: true, label: "Close", fn: tnCancelPick }]);
     TN.sel = { kind: "lane", i }; TN.act = { k: "pick", i, slotOk: ABIL[u.active] && ABIL[u.active].t === "slot" }; tnHint("Now tap an enemy card, or one of yours"); return tnRender();
   }
 }
@@ -9000,7 +9046,7 @@ async function tnClickK(k) {
 }
 document.addEventListener("click", e => { if (TN && document.getElementById("ck") && !document.getElementById("ck").hidden) tnClick(e); });
 /* ----- the flow of a turn ----- */
-function tnBanner(text, sub) { const d = document.createElement("div"); d.className = "tnban"; d.innerHTML = `<b>${tnEsc(text)}</b>${sub ? `<small>${tnEsc(sub)}</small>` : ""}`; const w = $("#ck"); if (w) { w.appendChild(d); setTimeout(() => d.remove(), 1300); } }
+function tnBanner(text, sub) { const d = document.createElement("div"); d.className = "tnban" + (sub === "Your turn" ? " mine" : ""); d.innerHTML = `<b>${tnEsc(text)}</b>${sub ? `<small>${tnEsc(sub)}</small>` : ""}`; const w = $("#ck"); if (w) { w.appendChild(d); setTimeout(() => d.remove(), 1300); } }
 /* A resolved turn is shown play by play. The engine has already finished it, so the board is first put back to how it was (tnHold), each play's effects run, and the numbers (health, cores) move to what that play left behind at the moment the hit lands. */
 function tnAllUnits(A) { const set = new Set(); for (const sn of A.snaps || []) for (const u of sn.st.keys()) set.add(u); for (const s of [0, 1]) for (const u of A.s[s].lane) if (u) set.add(u); return [...set]; }
 function tnHold() {
