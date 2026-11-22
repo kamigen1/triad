@@ -1232,7 +1232,7 @@ function arAbil(A, s, src, ab, ti, E) {
       if (ab.heal) arHeal(T, T.max * ab.heal); if (ab.stun) { give.u.frozen = ab.stun; give.u.cd += ab.stun; }
       arLog(A, give.u.name + " and " + T.name + " change sides", s, "swap"); arEv(A, { t: "enter", s, i: give.i }); arEv(A, { t: "enter", s: 1 - s, i: ti }); return;
     }
-    case "siphon": { if (TM) { const e = ab.e * E; S.energy = Math.min(AR.EMAX + 6, S.energy + e); F.nextE = (F.nextE || 0) - e; arLog(A, "Energy is siphoned: " + e.toFixed(1), s, "skill"); return; } const e = Math.min(F.energy, ab.e * E); F.energy -= e; S.energy = Math.min(AR.EMAX, S.energy + e); arLog(A, "Energy is siphoned: " + e.toFixed(1), s, "skill"); return; }
+    case "siphon": { if (TM) { const e = ab.e * E; S.energy = Math.min(AR.EMAX + 6, S.energy + e); F.nextE = (F.nextE || 0) - e; arEv(A, { t: "siphon", s, n: Math.max(2, Math.min(7, Math.round(e))) }); arLog(A, "Energy is siphoned: " + e.toFixed(1), s, "skill"); return; } const e = Math.min(F.energy, ab.e * E); F.energy -= e; S.energy = Math.min(AR.EMAX, S.energy + e); arLog(A, "Energy is siphoned: " + e.toFixed(1), s, "skill"); return; }
     case "raise": {
       const g = S.grave.pop(); if (!g || S.lane[ti]) return; const u = arUnit(A, g); u.hp = Math.max(1, u.max * ab.v); if (ab.shield) u.shield = u.max * .25; u.cd = AR.IV / u.spd; S.lane[ti] = u;
       arLog(A, u.name + " rises again", s, "swap"); arEv(A, { t: "enter", s, i: ti }); return;
@@ -1540,7 +1540,7 @@ function arHit(A, src, ss, ts, ti, dmg, el, o = {}) {
   if (T.sponge) { T.sponge = false; T.spT = AR.PS.spongeT; d = 0; arLog(A, T.name + " absorbs the hit (Sponge)", ts, "passive"); }
   const ab = Math.min(T.shield, d); T.shield -= ab; d -= ab; T.hp -= d;
   if (el && !react) T.mark = { el, t: AR.MARK_T };
-  if (src) { if (src.passive === "vamp" && d > 0) arHeal(src, d * AR.PS.vamp); if (T.passive === "thorns" && o.melee) { src.hp -= AR.PS.thorns * AR.ATKX; if (!T.thT || A.tick - T.thT > 30) { T.thT = A.tick; arLog(A, T.name + " reflects damage (Thorns)", ts, "passive"); } } if (src.passive === "overkill" && T.hp < 0) { arLog(A, src.name + "'s excess damage hits the core (Overkill)", ss, "passive"); arCoreHit(A, ts, -T.hp * AR.PS.overkill); } }
+  if (src) { if (src.passive === "vamp" && d > 0) arHeal(src, d * AR.PS.vamp); if (T.passive === "thorns" && o.melee) { src.hp -= AR.PS.thorns * AR.ATKX; if (!T.thT || A.tick - T.thT > 30) { T.thT = A.tick; arLog(A, T.name + " reflects damage (Thorns)", ts, "passive"); arEv(A, { t: "buff", s: ts, i: A.s[ts].lane.indexOf(T), text: "thorns" }); } } if (src.passive === "overkill" && T.hp < 0) { arLog(A, src.name + "'s excess damage hits the core (Overkill)", ss, "passive"); arCoreHit(A, ts, -T.hp * AR.PS.overkill); } }
   arEv(A, { t: "hit", s: ts, i: ti, d, el, react: react && react.n });
   if (src && !o.noStat) { const st = A.stat || (A.stat = { auto: 0, skill: 0, uses: 0 }); if (o.melee) st.auto += d; else st.skill += d; }   // balance counters (not part of the fight)
   if (react && react.splash) for (const j of [ti - 1, ti + 1]) { const N = A.s[ts].lane[j]; if (N) { N.hp -= d * react.splash; arEv(A, { t: "hit", s: ts, i: j, d: d * react.splash }); } }
