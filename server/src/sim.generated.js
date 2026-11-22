@@ -1849,7 +1849,10 @@ function tuCmd(A, s, c) {
 }
 /* ----- the end of a turn: plans resolve fastest card first, effects count down, the other side starts ----- */
 function tuNearest(A, s, i, list) { return list.slice().sort((p, q) => Math.abs(p - i) - Math.abs(q - i) || p - q)[0]; }
+/* what the screen needs to show a play at a time: the lanes, each card's numbers and both cores (only kept when a screen is watching) */
+function tuSnap(A) { const lane = [A.s[0].lane.slice(), A.s[1].lane.slice()], st = new Map(); for (const L of lane) for (const u of L) if (u) st.set(u, { hp: u.hp, max: u.max, shield: u.shield, atk: u.atk, mark: u.mark, frozen: u.frozen }); return { lane, st, core: [A.s[0].core, A.s[1].core] }; }
 function tuEnd(A) {
+  if (A.ui) A.snaps = [tuSnap(A)];
   const s = A.cur, S = A.s[s], F = A.s[1 - s], surge = 1 + TU.SURGE * Math.max(0, A.round - TU.SURGE_AT + 1);
   const order = A.plans.map((p, n) => ({ p, n })).sort((x, y) => (y.p.u.spd - x.p.u.spd) || (S.lane.indexOf(x.p.u) - S.lane.indexOf(y.p.u)) || x.n - y.n).map(x => x.p); A.plans = [];
   for (const p of order) {
@@ -1871,7 +1874,7 @@ function tuEnd(A) {
       u.pl++; (A.stat || (A.stat = { auto: 0, skill: 0, uses: 0 })).uses++; arLog(A, u.name + " uses " + actName(u), s, "skill"); arEv(A, { t: "skill", s, i, name: actName(u), ti: t, ta: ab.t === "slot" ? "ally" : ab.t, el: u.el });
       arAbil(A, s, u, ab, t, u.lv >= 3 ? AR.LV.enhance : 1); arGain(A, u, AR.LV.skill);
     }
-    arSweep(A); tuCheck(A);
+    arSweep(A); tuCheck(A); if (A.ui) { A.snaps.push(tuSnap(A)); arEv(A, { t: "snap", k: A.snaps.length - 1 }); }
   }
   if (A.over) return;
   for (const { u } of arLive(A, s)) {   // effects count down at the end of their owner's turn

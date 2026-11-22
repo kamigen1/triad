@@ -1005,6 +1005,17 @@ body .ribbon::after { background: linear-gradient(90deg, #f0d68a88, transparent)
 @keyframes orbGain { 0% { transform: scale(.7); filter: brightness(1.4); } 55% { transform: scale(1.1); filter: brightness(1.15); } 100% { transform: scale(1); filter: brightness(.82) saturate(.8); } }
 @keyframes orbSpend { 0% { transform: scale(1.08); filter: brightness(1.3); } 100% { transform: scale(1); filter: brightness(.82) saturate(.8); } }
 
+/* energy orbs gathered in the middle */
+#ck.tnmode .mcry { display: flex !important; justify-content: center; gap: 1px; grid-template-columns: none !important; } #ck.tnmode .mcry i { width: 21px !important; flex: none; } #ck.tnmode .a2zone.foe .mcry i { width: 14px !important; }
+/* turn board: no bottom panel text, only the End turn button; cards can be dragged */
+#ck.tnmode .ckpanel { min-height: 0; justify-content: center; } #ck.tnmode .ckpanel .tnend { min-width: 150px; }
+#ck.tnmode .slot { touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+/* transparent overlay menus and the hold-to-read card info */
+.tnmenu, .tninfo { position: absolute; left: 50%; top: 44%; transform: translate(-50%, -50%); z-index: 36; min-width: 220px; max-width: 86%; padding: 10px 6px; border-radius: 16px; background: rgba(8, 10, 30, .62); -webkit-backdrop-filter: blur(7px); backdrop-filter: blur(7px); border: 1px solid #f0d68a55; box-shadow: 0 8px 30px #000a; color: #fff; text-shadow: 0 1px 3px #000; }
+.tnmenu > b, .tninfo > b { display: block; padding: 2px 12px 6px; font: 400 19px var(--display); color: #f0d68a; }
+.tnmenu button { display: block; width: 100%; padding: 9px 12px; border: 0; border-radius: 10px; background: transparent; color: #fff; text-align: left; font: 700 16px var(--body); } .tnmenu button small { display: block; margin-top: 1px; font: 500 11.5px/1.3 var(--body); color: #cdd8e8; } .tnmenu button:active { background: #ffffff22; } .tnmenu button:disabled { opacity: .4; }
+.tninfo { pointer-events: none; padding: 12px 14px; } .tninfo > b { padding: 0 0 2px; } .tninfo small { display: block; font: 600 12px var(--body); color: #cdd8e8; margin-bottom: 6px; } .tninfo p { margin: 6px 0 0; font: 500 12.5px/1.4 var(--body); } .tninfo p em { color: #f0d68a; font-style: normal; font-weight: 700; } .tninfo .st { color: #ffb0bb; } .tninfo .tis { display: flex; gap: 12px; margin-top: 4px; font: 600 12px var(--body); color: #cdd8e8; } .tninfo .tis b { color: #fff; }
+
 /* ===== Clash ===== */
 #ck { position: fixed; inset: 0; z-index: 20; background: radial-gradient(ellipse at 50% 40%, #12583a 0%, var(--felt-d) 55%, var(--felt-dd) 100%); }
 #ck[hidden] { display: none; }
@@ -4875,7 +4886,10 @@ function tuCmd(A, s, c) {
 }
 /* ----- the end of a turn: plans resolve fastest card first, effects count down, the other side starts ----- */
 function tuNearest(A, s, i, list) { return list.slice().sort((p, q) => Math.abs(p - i) - Math.abs(q - i) || p - q)[0]; }
+/* what the screen needs to show a play at a time: the lanes, each card's numbers and both cores (only kept when a screen is watching) */
+function tuSnap(A) { const lane = [A.s[0].lane.slice(), A.s[1].lane.slice()], st = new Map(); for (const L of lane) for (const u of L) if (u) st.set(u, { hp: u.hp, max: u.max, shield: u.shield, atk: u.atk, mark: u.mark, frozen: u.frozen }); return { lane, st, core: [A.s[0].core, A.s[1].core] }; }
 function tuEnd(A) {
+  if (A.ui) A.snaps = [tuSnap(A)];
   const s = A.cur, S = A.s[s], F = A.s[1 - s], surge = 1 + TU.SURGE * Math.max(0, A.round - TU.SURGE_AT + 1);
   const order = A.plans.map((p, n) => ({ p, n })).sort((x, y) => (y.p.u.spd - x.p.u.spd) || (S.lane.indexOf(x.p.u) - S.lane.indexOf(y.p.u)) || x.n - y.n).map(x => x.p); A.plans = [];
   for (const p of order) {
@@ -4897,7 +4911,7 @@ function tuEnd(A) {
       u.pl++; (A.stat || (A.stat = { auto: 0, skill: 0, uses: 0 })).uses++; arLog(A, u.name + " uses " + actName(u), s, "skill"); arEv(A, { t: "skill", s, i, name: actName(u), ti: t, ta: ab.t === "slot" ? "ally" : ab.t, el: u.el });
       arAbil(A, s, u, ab, t, u.lv >= 3 ? AR.LV.enhance : 1); arGain(A, u, AR.LV.skill);
     }
-    arSweep(A); tuCheck(A);
+    arSweep(A); tuCheck(A); if (A.ui) { A.snaps.push(tuSnap(A)); arEv(A, { t: "snap", k: A.snaps.length - 1 }); }
   }
   if (A.over) return;
   for (const { u } of arLive(A, s)) {   // effects count down at the end of their owner's turn
@@ -8804,6 +8818,7 @@ function tnCardHtml(u, s, i, o = {}) {
 function tnSkillHtml(u, i, sel) { const k = SKC[u.sid]; return `<div class="tc skill ${sel ? "sel" : ""}" style="--sk:${skTone(u.sid)}" data-tn="hand" data-s="0" data-i="${i}"><div class="tca">${(typeof ARTTHUMB !== "undefined" && ARTTHUMB[u.sid]) ? `<img alt="" src="${ARTTHUMB[u.sid]}">` : `<span class="skg">${skGlyph(u.sid)}</span>`}</div><b class="tcn">${tnEsc(k.n)}</b></div>`; }
 function tnTargets() {   // which lane cards can be tapped right now
   if (!TN.act) return { me: [], foe: [] }; const A = TN.A, a = TN.act;
+  if (a.k === "pick") return { me: arLive(A, 0).map(x => x.i).concat([0, 1, 2, 3, 4].filter(i => !A.s[0].lane[i] && a.slotOk)), foe: arLive(A, 1).map(x => x.i) };
   if (a.k === "atk") return { me: [], foe: tuAtkTargets(A, 0) };
   const ab = a.ab; if (!ab) return { me: [], foe: [] }; const t = ab.t;
   return { me: t === "ally" ? arLive(A, 0).map(x => x.i) : t === "slot" ? [0, 1, 2, 3, 4].filter(i => !A.s[0].lane[i]) : a.k === "swap" ? [0, 1, 2, 3, 4] : [], foe: t === "enemy" ? arLive(A, 1).map(x => x.i) : [] };
@@ -8811,6 +8826,7 @@ function tnTargets() {   // which lane cards can be tapped right now
 function tnRender() {
   const A = TN.A; if (!document.getElementById("arena")) { arBuild(); $("#ck").classList.add("tnmode"); tnOrbVars(); }
   const mineTurn = A.cur === 0 && !A.over && !TN.busy, tg = tnTargets(), sel = TN.sel, now = performance.now();
+  if (!A.snaps && A.ev.length) arEvents(now);   // planning effects (a card entering, a draw, a skill card) play at once; a resolved turn is replayed play by play instead
   AM.sel = sel ? { s: 0, i: sel.i, kind: sel.kind === "hand" ? "bench" : "lane" } : null; AM.mode = null; AM.drag = null;
   for (let s = 0; s < 2; s++) {
     const S = A.s[s]; const c = $("#core" + s), pc = Math.max(0, 100 * S.core / AM.maxCore[s]); c.querySelector(".hbar i").style.width = pc + "%"; c.querySelector("em").textContent = Math.max(0, Math.ceil(S.core)); c.classList.toggle("low", pc < 30);
@@ -8827,73 +8843,144 @@ function tnRender() {
   const db = $("#ardraw"); if (db) { const can = mineTurn && A.s[0].pile && A.s[0].pile.length && A.s[0].bench.some(b => !b) && A.s[0].energy >= AR.DRAW_E; db.classList.toggle("ready", !!can); db.classList.toggle("off", !can); }
   const clk = $("#arclock"); if (clk) { clk.textContent = "Round " + Math.min(A.round, TU.MAXR); clk.classList.remove("late"); }
   const sg = $("#arsurge"); if (sg) sg.textContent = A.over ? "" : (A.round >= TU.SURGE_AT ? "SURGE · " : "") + (A.cur === 0 ? "your turn" : "opponent's turn") + (TN.timerTxt && A.cur === 0 && !TN.busy ? " · " + TN.timerTxt : "");
-  const mg = $("#armsg"); if (mg) mg.textContent = TN.msg || "";
-  const pnl = $("#arpanel"); if (pnl) pnl.innerHTML = tnPanel(mineTurn) + `<button class="btn yellow tnend" data-tn="end" ${mineTurn ? "" : "disabled"}>${mineTurn ? "End turn" : "…"}</button>`;
+  const mg = $("#armsg"); if (mg) mg.textContent = TN.msg || (mineTurn ? TN.hint || "" : "");
+  const pnl = $("#arpanel"); if (pnl) pnl.innerHTML = `<button class="btn yellow tnend" data-tn="end" ${mineTurn ? "" : "disabled"}>${mineTurn ? "End turn" : "…"}</button>`;
 }
-function tnPanel(mineTurn) {
-  const A = TN.A, sel = TN.sel, act = TN.act, S = A.s[0];
-  if (!mineTurn) return `<span class="note">${A.over ? "" : "Wait for the opponent…"}</span>`;
-  if (act) return `<div class="tnp"><b>${act.k === "atk" ? "Attack" : act.k === "swap" ? "Bring in" : tnEsc(act.name || "Skill")}</b><span>${act.k === "swap" ? "Tap a lane" : act.k === "atk" ? "Tap an enemy card" : act.ab && act.ab.t === "enemy" ? "Tap an enemy card" : act.ab && act.ab.t === "slot" ? "Tap an empty lane of yours" : "Tap one of your cards"}</span><button class="btn sm dark" data-tn="cancel">Cancel</button></div>`;
-  if (!sel) return `<span class="note">${A.round === 1 && A.cur === A.first ? "First turn: skills only (at most " + TU.FIRST_DMG_SKILLS + " damage skills, each on a different card)." : "Tap one of your cards, then choose what it does. Attacks and skills happen when you end the turn."}</span>`;
-  if (sel.kind === "lane") {
-    const u = S.lane[sel.i]; if (!u) return `<span class="note">Pick a card from your hand to bring in here (free).</span>`; const ab = ABIL[u.active], plan = A.plans.find(p => p.u === u), firstTurn = A.round === 1 && A.cur === A.first && TU.FIRST_NOATK;
-    return `<div class="tnp"><div class="tinfo"><b>${tnEsc(u.name)}</b> <small>${tnEsc(PASS[u.passive] ? passName({ passive: u.passive }) : "")}</small><br><em>${tnEsc(actName(u))} (${u.acost}⚡):</em> ${tnEsc(ab ? abilText(ab) : "")}</div><div class="tbtns">${plan ? `<button class="btn sm dark" data-tn="unplan">Cancel plan</button>` : `<button class="btn sm yellow" data-tn="atk" ${firstTurn || S.energy < tuAtkCost(u) || !tuCanAct(u, true) ? "disabled" : ""}>Attack ${tuAtkCost(u)}⚡</button><button class="btn sm yellow" data-tn="skill" ${S.energy < tuSkillCost(u) || u.silT > 0 || !tuCanAct(u, false) ? "disabled" : ""}>Skill ${tuSkillCost(u)}⚡</button>`}</div></div>`;
+/* ===== input: tap, hold and drag ===== */
+const TN_HOLD = 3000, TN_MOVE = 10;
+function tnHint(s) { TN.hint = s || ""; const m = $("#armsg"); if (m && !TN.msg) m.textContent = TN.hint; }
+function tnMenuClose() { document.querySelectorAll("#ck .tnmenu").forEach(e => e.remove()); }
+function tnMenu(title, items) {   // a transparent overlay menu in the middle of the board; tapping outside it closes it
+  tnMenuClose(); const d = document.createElement("div"); d.className = "tnmenu"; d.innerHTML = `<b>${tnEsc(title)}</b>` + items.map((it, k) => `<button data-mi="${k}" ${it.off ? "disabled" : ""}><span>${tnEsc(it.label)}</span>${it.sub ? `<small>${tnEsc(it.sub)}</small>` : ""}</button>`).join("");
+  d.addEventListener("pointerup", e => e.stopPropagation()); d.addEventListener("click", e => { e.stopPropagation(); const b = e.target.closest("[data-mi]"); if (!b) return; const it = items[+b.dataset.mi]; tnMenuClose(); if (it && it.fn) it.fn(); });
+  $("#ck").appendChild(d); sfx("tap");
+}
+function tnInfoShow(u, skill) {   // hold a card: its stats and skills in a transparent overlay until the finger lifts
+  tnInfoHide(); const d = document.createElement("div"); d.className = "tninfo"; let h;
+  if (skill) { const k = SKC[u.sid]; h = `<b>${tnEsc(k.n)}</b><small>Skill card · free to play</small><p>${tnEsc(skText(u.sid))}</p>`; }
+  else { const k = BY[u.cid], ab = ABIL[u.active], A = TN.A, s = A.s[0].lane.includes(u) ? 0 : 1, sts = [u.wait ? "waits until its next turn" : "", u.frozen > 0 ? (u.stunAll ? "cannot play next turn" : "cannot attack next turn") : "", u.silT > 0 ? "silenced" : "", u.slowT > 0 ? "plays cost 1 more energy" : "", u.burn ? "burning" : "", u.poison ? "poisoned" : "", u.reg ? "regrowing" : "", u.shield > 0 ? "ward " + Math.ceil(u.shield) : "", u.mark ? EL[u.mark.el][0] + " mark" : ""].filter(Boolean);
+    h = `<b>${tnEsc(u.name)}</b><small>${RNAME[rarOf(k)]} · ${EL[u.el][0]} · ${FAC[u.fac] || u.fac}</small><div class="tis"><span>ATK <b>${Math.round(arAtk(A, s, u) * TU.ATTACK)}</b></span><span>HP <b>${Math.max(0, Math.ceil(u.hp))}/${Math.ceil(u.max)}</b></span><span>SPD <b>${(+u.spd).toFixed(2)}</b></span><span>LV <b>${u.lv}</b></span></div><p><em>${tnEsc(passName({ passive: u.passive, id: u.cid }))}:</em> ${tnEsc(typeof passText === "function" ? passText(u.passive) : "")}</p><p><em>${tnEsc(actName(u))} (${u.acost} energy):</em> ${tnEsc(ab ? abilText(ab) : "")}</p>${sts.length ? `<p class="st">${tnEsc(sts.join(" · "))}</p>` : ""}`; }
+  d.innerHTML = h; $("#ck").appendChild(d);
+}
+function tnInfoHide() { document.querySelectorAll("#ck .tninfo").forEach(e => e.remove()); }
+function tnCancelPick() { TN.sel = null; TN.act = null; tnMenuClose(); tnHint(""); tnRender(); }
+const tnMine = () => { const A = TN.A; return A.cur === 0 && !A.over && !TN.busy; };
+/* a tap on a card slot (view side s: 0 = mine, 1 = the opponent's) */
+function tnTap(kind, s, i) {
+  const A = TN.A; if (!tnMine()) return; const S = A.s[0], act = TN.act;
+  if (act && act.k === "swap") { if (kind === "lane" && s === 0) return tnDo("swap", null, null, act.b, i); return tnCancelPick(); }
+  if (act && act.k === "card") { if (kind === "lane") { const t = act.ab.t; if ((t === "ally" && s === 0 && S.lane[i]) || (t === "enemy" && s === 1 && A.s[1].lane[i]) || (t === "slot" && s === 0 && !S.lane[i])) return tnDo("play", null, i, act.b); } return tnCancelPick(); }
+  if (act && act.k === "pick") {   // I picked one of my cards; this tap is its target
+    if (kind !== "lane") return tnCancelPick(); const src = S.lane[act.i], tu = A.s[s].lane[i]; if (!src) return tnCancelPick();
+    if (s === 0 && i === act.i && !act.self) { TN.act = Object.assign({}, act, { self: true }); }   // a second tap on the same card means "on itself"
+    const ab = ABIL[src.active], items = [], atkOk = s === 1 && tu && tuAtkTargets(A, 0).includes(i), first = A.round === 1 && A.cur === A.first && TU.FIRST_NOATK;
+    if (atkOk) items.push({ label: "Attack", sub: tuAtkCost(src) + " energy · " + Math.round(arAtk(A, 0, src) * TU.ATTACK) + " damage", off: first || S.energy < tuAtkCost(src) || !tuCanAct(src, true), fn: () => tnDo("atk", act.i, i) });
+    if (ab && src.silT <= 0) { const t = ab.t, okT = (t === "enemy" && s === 1 && tu) || (t === "ally" && s === 0 && tu) || (t === "none") || (t === "slot" && s === 0 && !tu);
+      if (okT) items.push({ label: actName(src), sub: tuSkillCost(src) + " energy · " + abilText(ab).slice(0, 80), off: S.energy < tuSkillCost(src) || !tuCanAct(src, false), fn: () => tnDo("skill", act.i, t === "none" ? null : i) }); }
+    if (!items.length) { toast(s === 1 && first ? "No normal attacks on the first turn: use skills." : s === 1 ? "That card can't be targeted." : "Nothing to do there."); return; }
+    const first2 = items[0].off && items.length === 1; tnMenu((src.name) + " → " + (tu ? tu.name : "an empty lane"), items.concat([{ label: "Cancel", fn: tnCancelPick }])); return;
   }
-  const u = S.bench[sel.i]; if (!u) return `<span class="note">Empty slot.</span>`;
-  if (u.skill) { const k = SKC[u.sid]; return `<div class="tnp"><div class="tinfo"><b>${tnEsc(k.n)}</b> · free<br>${tnEsc(skText(u.sid))}</div><div class="tbtns"><button class="btn sm yellow" data-tn="play">Play</button></div></div>`; }
-  return `<div class="tnp"><div class="tinfo"><b>${tnEsc(u.name)}</b><br>Bring it into a lane for free. It can act from your next turn.</div><div class="tbtns"><button class="btn sm yellow" data-tn="swapgo">Choose lane</button></div></div>`;
+  // nothing picked yet
+  if (kind === "hand") {
+    const h = S.bench[i]; if (!h) return;
+    if (h.skill) { const k = SKC[h.sid], ab = ABIL[k.ab]; if (ab.t === "none") return tnMenu(k.n, [{ label: "Play", sub: "free · " + skText(h.sid).slice(0, 80), fn: () => tnDo("play", null, null, i) }, { label: "Cancel", fn: tnCancelPick }]); TN.sel = { kind: "hand", i }; TN.act = { k: "card", b: i, ab }; tnHint("Tap a target for " + k.n + ", or drag the card onto it"); return tnRender(); }
+    TN.sel = { kind: "hand", i }; TN.act = { k: "swap", b: i }; tnHint("Tap a lane to bring it in, or drag the card onto one"); return tnRender();
+  }
+  if (kind === "lane" && s === 0) {
+    const u = S.lane[i]; if (!u) return; const plan = A.plans.find(p => p.u === u);
+    if (plan) return tnMenu(u.name, [{ label: "Cancel this plan", sub: "gets the energy back", fn: () => tnDo("unplan", i) }, { label: "Close", fn: tnCancelPick }]);
+    TN.sel = { kind: "lane", i }; TN.act = { k: "pick", i, slotOk: ABIL[u.active] && ABIL[u.active].t === "slot" }; tnHint("Now tap an enemy card, or one of yours"); return tnRender();
+  }
 }
+/* drag from the hand to a card (or lane), or from the draw pile to the hand */
+function tnDragStart(p) {
+  const A = TN.A, S = A.s[0], ghost = p.el.cloneNode(true); ghost.removeAttribute("data-ar"); ghost.classList.remove("sel", "tgt"); const r = p.el.getBoundingClientRect();
+  ghost.style.cssText = `position:fixed;left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px;margin:0;z-index:60;pointer-events:none;transform:scale(1.15);opacity:.92;filter:drop-shadow(0 8px 14px #000a)`; document.body.appendChild(ghost); p.ghost = ghost; p.dx = r.width / 2; p.dy = r.height / 2; p.el.style.opacity = ".35";
+  if (p.kind === "pile") { TN.act = null; tnHint("Drop it on your hand to draw"); return; }
+  const h = S.bench[p.i]; if (h.skill) { const ab = ABIL[SKC[h.sid].ab]; TN.act = { k: "card", b: p.i, ab }; p.skill = ab; tnHint(ab.t === "none" ? "Drop it anywhere on the board to play it" : "Drop it on a target"); } else { TN.act = { k: "swap", b: p.i }; tnHint("Drop it on one of your lanes"); }
+  TN.sel = { kind: "hand", i: p.i }; tnRender(); p.el = arSlotEl(0, p.i, "bench"); if (p.el) p.el.style.opacity = ".35";
+}
+function tnDragEnd(p, x, y) {
+  if (p.ghost) p.ghost.remove(); if (p.el) p.el.style.opacity = ""; const under = document.elementFromPoint(x, y), sl = under && under.closest && under.closest('#ck .slot[data-ar="slot"]'), A = TN.A, S = A.s[0];
+  const kind = sl ? sl.dataset.kind : "", s = sl ? +sl.dataset.s : -1, i = sl ? +sl.dataset.i : -1; TN.sel = null; TN.act = null; tnHint("");
+  if (!tnMine()) return tnRender();
+  if (p.kind === "pile") { const inHand = under && under.closest && (under.closest("#arb0") || under.closest(".a2zone.me")); if (inHand) { if (!tnDo("draw")) tnRender(); } else tnRender(); return; }
+  const h = S.bench[p.i]; if (!h) return tnRender();
+  if (!h.skill) { if (kind === "lane" && s === 0) { if (!tnDo("swap", null, null, p.i, i)) tnRender(); } else tnRender(); return; }
+  const ab = p.skill, tu = sl && kind === "lane" ? A.s[s].lane[i] : null;
+  if (ab.t === "none") { if (under && under.closest && under.closest("#ck") && !under.closest(".tnmenu")) { if (!tnDo("play", null, null, p.i)) tnRender(); } else tnRender(); return; }
+  const ok = kind === "lane" && ((ab.t === "ally" && s === 0 && tu) || (ab.t === "enemy" && s === 1 && tu) || (ab.t === "slot" && s === 0 && !tu));
+  if (ok) { if (!tnDo("play", null, i, p.i)) tnRender(); } else { toast("Drop it on a valid target."); tnRender(); }
+}
+function tnPtrDown(e) {
+  if (!TN || !document.getElementById("ck") || document.getElementById("ck").hidden) return; if (e.target.closest(".tnmenu")) return;
+  const sl = e.target.closest && e.target.closest('#ck .slot[data-ar="slot"]'), pile = e.target.closest && e.target.closest("#ck .a2pile.me .pcard");
+  if (!sl && !pile) { if (document.querySelector("#ck .tnmenu") && !e.target.closest("#ck button")) tnCancelPick(); return; }
+  if (document.querySelector("#ck .tnmenu")) { tnMenuClose(); }
+  const p = TN.ptr = { id: e.pointerId, x0: e.clientX, y0: e.clientY, el: sl || pile, kind: pile ? "pile" : sl.dataset.kind, s: sl ? +sl.dataset.s : 0, i: sl ? +sl.dataset.i : 0, dragging: false, long: false };
+  const A = TN.A; let u = null, skill = false;
+  if (sl) { if (p.kind === "lane") u = A.s[p.s].lane[p.i]; else if (p.s === 0) { u = A.s[0].bench[p.i]; skill = !!(u && u.skill); } }
+  p.timer = setTimeout(() => { if (TN && TN.ptr === p && !p.dragging && u) { p.long = true; tnInfoShow(u, skill); try { navigator.vibrate && navigator.vibrate(15); } catch (_) {} } }, TN_HOLD);
+}
+function tnPtrMove(e) {
+  const p = TN && TN.ptr; if (!p || e.pointerId !== p.id) return; const d = Math.hypot(e.clientX - p.x0, e.clientY - p.y0);
+  if (!p.dragging && d > TN_MOVE) { clearTimeout(p.timer); if (p.long) return; const mine = tnMine(); if (mine && ((p.kind === "bench" && p.s === 0 && TN.A.s[0].bench[p.i]) || (p.kind === "pile"))) { p.dragging = true; tnDragStart(p); } else p.cancel = true; }
+  if (p.dragging && p.ghost) { p.ghost.style.left = e.clientX - p.dx + "px"; p.ghost.style.top = e.clientY - p.dy + "px"; }
+}
+function tnPtrUp(e) {
+  const p = TN && TN.ptr; if (!p || e.pointerId !== p.id) return; clearTimeout(p.timer); TN.ptr = null;
+  if (p.dragging) return tnDragEnd(p, e.clientX, e.clientY);
+  if (p.long) { tnInfoHide(); return; }
+  if (p.cancel) return;
+  if (p.kind === "pile") { tnClickK("draw"); return; }
+  tnTap(p.kind === "bench" ? "hand" : p.kind, p.s, p.i);
+}
+function tnPtrCancel() { const p = TN && TN.ptr; if (!p) return; clearTimeout(p.timer); if (p.ghost) p.ghost.remove(); if (p.el) p.el.style.opacity = ""; tnInfoHide(); TN.ptr = null; }
+document.addEventListener("pointerdown", tnPtrDown); document.addEventListener("pointermove", tnPtrMove); document.addEventListener("pointerup", tnPtrUp); document.addEventListener("pointercancel", tnPtrCancel);
+document.addEventListener("contextmenu", e => { if (TN && e.target.closest && e.target.closest("#ck .slot")) e.preventDefault(); });
 /* run a command for me: record it for the server, show the engine's refusal if there is one */
 function tnDo(k, i, t, b, l) {
-  const c = tuMk(k, i, t, b, l), r = tuCmd(TN.A, 0, c); if (!r.ok) { toast(r.err || "Not possible."); return false; } TN.rec.push([k, i == null ? null : i, t == null ? null : t, b == null ? null : b, l == null ? null : l]); TN.sel = null; TN.act = null; sfx("tap"); tnRender(); return true;
-}
-function tnTap(el) {
-  const A = TN.A; if (!(A.cur === 0 && !A.over && !TN.busy)) return; const kind = el.dataset.tn, s = +el.dataset.s, i = +el.dataset.i, act = TN.act;
-  if (act && kind === "lane") {
-    if (act.k === "swap" && s === 0) return tnDo("swap", null, null, act.b, i);
-    if (act.k === "atk" && s === 1) return tnDo("atk", act.i, i);
-    if (act.k === "skill" && act.ab) { const t = act.ab.t; if ((t === "ally" && s === 0 && A.s[0].lane[i]) || (t === "enemy" && s === 1 && A.s[1].lane[i])) return tnDo("skill", act.i, i); }
-    if (act.k === "card" && act.ab) { const t = act.ab.t; if ((t === "ally" && s === 0 && A.s[0].lane[i]) || (t === "enemy" && s === 1 && A.s[1].lane[i]) || (t === "slot" && s === 0 && !A.s[0].lane[i])) return tnDo("play", null, i, act.b); }
-    return;
-  }
-  if (kind === "lane" && s === 0) { TN.sel = { kind: "lane", i }; TN.act = null; sfx("tap"); return tnRender(); }
-  if (kind === "hand") { TN.sel = { kind: "hand", i }; TN.act = null; sfx("tap"); return tnRender(); }
-  if (kind === "lane" && s === 1) { const u = A.s[1].lane[i]; if (u) toast(`${u.name}: attack ${Math.round(arAtk(A, 1, u))}, health ${Math.ceil(u.hp)}. ${actName(u)}: ${abilText(ABIL[u.active])}`); }
+  const c = tuMk(k, i, t, b, l), r = tuCmd(TN.A, 0, c); if (!r.ok) { toast(r.err || "Not possible."); return false; } TN.rec.push([k, i == null ? null : i, t == null ? null : t, b == null ? null : b, l == null ? null : l]); TN.sel = null; TN.act = null; tnHint(""); tnMenuClose(); sfx("tap"); tnRender(); return true;
 }
 async function tnClick(e) {
-  if (!TN) return; const sl = e.target.closest && e.target.closest('#ck .slot[data-ar="slot"]');
-  if (sl) return tnTap({ dataset: { tn: sl.dataset.kind === "bench" ? "hand" : "lane", s: sl.dataset.s, i: sl.dataset.i } });
-  const ab0 = e.target.closest && e.target.closest("[data-ar]"); if (ab0 && ab0.dataset.ar === "draw") return tnClickK("draw"); if (ab0 && ab0.dataset.ar === "menu") return tnClickK("menu");
+  if (!TN) return; const ab0 = e.target.closest && e.target.closest("[data-ar]"); if (ab0 && ab0.dataset.ar === "draw") return tnClickK("draw"); if (ab0 && ab0.dataset.ar === "menu") return tnClickK("menu");
   const b = e.target.closest && e.target.closest("[data-tn]"); if (!b) return; return tnClickK(b.dataset.tn);
 }
 async function tnClickK(k) {
-  const A = TN.A, sel = TN.sel;
+  const A = TN.A;
   if (k === "menu") return openSheet(`<h2 class="fat">PAUSED</h2><div class="row c" style="margin-top:10px"><button class="btn red" data-tn="leave">Give up</button><button class="btn yellow" data-act="closeModal">Resume</button></div>`);
   if (k === "leave") { closeModal(); TN.busy = true; TN.left = true; A.over = true; A.winner = 1; A.why = "resigned"; return tnFinish(); }
-  if (!(A.cur === 0 && !A.over && !TN.busy)) return;
-  if (k === "cancel") { TN.act = null; return tnRender(); }
-  if (k === "atk" && sel && sel.kind === "lane") { TN.act = { k: "atk", i: sel.i }; return tnRender(); }
-  if (k === "skill" && sel && sel.kind === "lane") { const u = A.s[0].lane[sel.i], ab = ABIL[u.active]; if (ab && ab.t === "none") return tnDo("skill", sel.i); TN.act = { k: "skill", i: sel.i, ab, name: actName(u) }; return tnRender(); }
-  if (k === "unplan" && sel) return tnDo("unplan", sel.i);
-  if (k === "swapgo" && sel) { TN.act = { k: "swap", b: sel.i }; return tnRender(); }
-  if (k === "play" && sel) { const h = A.s[0].bench[sel.i], ab = ABIL[SKC[h.sid].ab]; if (ab.t === "none") return tnDo("play", null, null, sel.i); TN.act = { k: "card", b: sel.i, ab, name: SKC[h.sid].n }; return tnRender(); }
+  if (!tnMine()) return;
   if (k === "draw") return tnDo("draw");
-  if (k === "end") return tnEndTurn();
+  if (k === "end") { tnMenuClose(); return tnEndTurn(); }
 }
 document.addEventListener("click", e => { if (TN && document.getElementById("ck") && !document.getElementById("ck").hidden) tnClick(e); });
 /* ----- the flow of a turn ----- */
 function tnBanner(text, sub) { const d = document.createElement("div"); d.className = "tnban"; d.innerHTML = `<b>${tnEsc(text)}</b>${sub ? `<small>${tnEsc(sub)}</small>` : ""}`; const w = $("#ck"); if (w) { w.appendChild(d); setTimeout(() => d.remove(), 1300); } }
-/* the engine's effect events (strikes, hits, skills, falls) play in small groups with a pause between them; the board is already in its final state, the effects replay what happened */
+/* A resolved turn is shown play by play. The engine has already finished it, so the board is first put back to how it was (tnHold), each play's effects run, and the numbers (health, cores) move to what that play left behind at the moment the hit lands. */
+function tnAllUnits(A) { const set = new Set(); for (const sn of A.snaps || []) for (const u of sn.st.keys()) set.add(u); for (const s of [0, 1]) for (const u of A.s[s].lane) if (u) set.add(u); return [...set]; }
+function tnHold() {
+  const A = TN.A; if (!A.snaps || TN.real) return; const units = tnAllUnits(A), real = { lane: [A.s[0].lane.slice(), A.s[1].lane.slice()], st: new Map(), core: [A.s[0].core, A.s[1].core] };
+  for (const u of units) real.st.set(u, { hp: u.hp, max: u.max, shield: u.shield, atk: u.atk, mark: u.mark, frozen: u.frozen }); TN.real = real; tnApplySnap(A.snaps[0]);
+}
+function tnApplySnap(sn) { const A = TN.A; for (const s of [0, 1]) { A.s[s].lane.splice(0, 5, ...sn.lane[s]); A.s[s].core = sn.core[s]; } for (const [u, v] of sn.st) Object.assign(u, v); }
+function tnRelease() { const A = TN.A, r = TN.real; if (!r) return; for (const s of [0, 1]) { A.s[s].lane.splice(0, 5, ...r.lane[s]); A.s[s].core = r.core[s]; } for (const [u, v] of r.st) Object.assign(u, v); TN.real = null; A.snaps = null; }
 async function tnPlayEvents() {
-  const A = TN.A, evs = A.ev.slice(); A.ev = []; if (!evs.length) return; const groups = []; let cur = [];
-  for (const e of evs) { if ((e.t === "strike" || (e.t === "skill" && !e.card)) && cur.length) { groups.push(cur); cur = []; } cur.push(e); } if (cur.length) groups.push(cur);
-  for (const g of groups) { if (!TN) return; A.ev = g; arEvents(performance.now()); AM.sfxAt = 0; await tnSleep(560); }
-  A.ev = [];
+  const A = TN.A, evs = A.ev.slice(); A.ev = []; const snaps = A.snaps; if (!TN.real) tnHold(); if (!evs.length || !snaps) { tnRelease(); return; }
+  tnRender(); await tnSleep(250); let cur = [];
+  for (const e of evs) {
+    if (!TN) return;
+    if (e.t !== "snap") { cur.push(e); continue; }
+    A.ev = cur; cur = []; arEvents(performance.now()); AM.sfxAt = 0; const sk = A.ev.length; A.ev = [];
+    await tnSleep(300); tnApplySnap(snaps[e.k]); tnRender(); await tnSleep(620);
+  }
+  A.ev = cur; if (cur.length) { arEvents(performance.now()); A.ev = []; }
+  tnRelease(); tnRender();
 }
 async function tnShowLog() {   // the engine's log since the last call, one line at a time
   const A = TN.A; const lines = A.log.slice(Math.max(0, A.log.length - (A.log.length - TN.logAt))).filter(l => l.k !== "turn"); TN.logAt = A.log.length;
   await tnPlayEvents(); tnRender();
-  for (const l of lines.slice(-8)) { TN.msg = l.t; const m = $("#armsg"); if (m) m.textContent = l.t; if (l.k === "core" || l.k === "die") sfx("hit"); await tnSleep(520); }
+  for (const l of lines.slice(-4)) { TN.msg = l.t; const m = $("#armsg"); if (m) m.textContent = l.t; await tnSleep(380); }
   TN.msg = ""; tnRender();
 }
 async function tnBeginTurn() {
@@ -8904,11 +8991,11 @@ async function tnBeginTurn() {
 function tnTimerStart() { clearInterval(TN.tid); TN.tid = setInterval(() => { if (!TN || !TN.A || TN.A.cur !== 0 || TN.busy) return; const left = Math.max(0, TU.TIMER_LONG - Math.floor((Date.now() - TN.t0) / 1000)); TN.timerTxt = Math.floor(left / 60) + ":" + String(left % 60).padStart(2, "0"); const sg = $("#arsurge"); if (sg) sg.textContent = (TN.A.round >= TU.SURGE_AT ? "SURGE · " : "") + "your turn · " + TN.timerTxt; if (left <= 0) tnEndTurn(); }, 500); }
 async function tnEndTurn() {
   const A = TN.A; if (!(A.cur === 0 && !A.over) || TN.busy) return; TN.busy = true; TN.sel = null; TN.act = null; clearInterval(TN.tid); TN.logAt = A.log.length;
-  TN.rec.push(["end", null, null, null, null]); tuEnd(A); await tnShowLog(); if (A.over) return tnFinish(); await tnBeginTurn();
+  TN.rec.push(["end", null, null, null, null]); tuEnd(A); tnHold(); tnRender(); await tnShowLog(); if (A.over) return tnFinish(); await tnBeginTurn();
 }
 async function tnAiTurn() {
   const A = TN.A; TN.logAt = A.log.length; let guard = 0;
-  while (!A.over && A.cur === 1 && guard++ < 200) { const x = tuAiStep(A, 1); tnRender(); if (x.c.k !== "end") { TN.msg = x.c.k === "atk" ? "The opponent plans an attack" : x.c.k === "skill" ? "The opponent readies a skill" : x.c.k === "swap" ? "The opponent brings in a card" : x.c.k === "draw" ? "The opponent draws" : "The opponent plays a skill card"; const m = $("#armsg"); if (m) m.textContent = TN.msg; await tnSleep(420); } if (x.done) break; }
+  while (!A.over && A.cur === 1 && guard++ < 200) { const x = tuAiStep(A, 1); if (A.snaps) tnHold(); tnRender(); if (x.c.k !== "end") { TN.msg = x.c.k === "atk" ? "The opponent plans an attack" : x.c.k === "skill" ? "The opponent readies a skill" : x.c.k === "swap" ? "The opponent brings in a card" : x.c.k === "draw" ? "The opponent draws" : "The opponent plays a skill card"; const m = $("#armsg"); if (m) m.textContent = TN.msg; await tnSleep(420); } if (x.done) break; }
   await tnShowLog(); if (A.over) return tnFinish(); await tnBeginTurn();
 }
 async function tnFinish() {
