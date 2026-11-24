@@ -11632,9 +11632,10 @@ Object.assign(SFX, {
 /* ===== recorded effects (audio/sfx_*.mp3, 2026-11-24): these REPLACE the synthesized tap, select and go; drawCard, fav, trans and claim are new ===== */
 const SFXF = { tap: { url: "audio/sfx_press.mp3?v=73935408", t: .1 }, select: { url: "audio/sfx_select.mp3?v=176987fe", t: .1 }, drawCard: { url: "audio/sfx_draw.mp3?v=1b538120", t: .1 }, fav: { url: "audio/sfx_fav.mp3?v=b26c2059", t: .1 }, trans: { url: "audio/sfx_trans.mp3?v=785c4bc0", t: .09 }, claim: { url: "audio/sfx_claim.mp3?v=4689f365", t: .11 }, go: { url: "audio/sfx_start.mp3?v=25105a0d", t: .11 } };
 const SFXB = {};   // decoded buffers and the gain that matches each to the same loudness
+/* each effect is levelled to the same loudness and never clipped */
 async function sfxFilesLoad() {
   const c = AU.ctx; if (!c || SFXB._busy) return; SFXB._busy = 1;
-  await Promise.all(Object.keys(SFXF).map(async k => { try { const r = await fetch(SFXF[k].url), b = await c.decodeAudioData(await r.arrayBuffer()), d = b.getChannelData(0); let s = 0, pk = 0; for (let i = 0; i < d.length; i++) { s += d[i] * d[i]; if (Math.abs(d[i]) > pk) pk = Math.abs(d[i]); } SFXB[k] = { b, g: Math.max(.3, Math.min(6, SFXF[k].t / (Math.sqrt(s / d.length) || .05), .9 / (pk || .5))) };   // as loud as the others, never clipping } catch (_) {} }));
+  await Promise.all(Object.keys(SFXF).map(async k => { try { const r = await fetch(SFXF[k].url), b = await c.decodeAudioData(await r.arrayBuffer()), d = b.getChannelData(0); let s = 0, pk = 0; for (let i = 0; i < d.length; i++) { s += d[i] * d[i]; if (Math.abs(d[i]) > pk) pk = Math.abs(d[i]); } SFXB[k] = { b, g: Math.max(.3, Math.min(6, SFXF[k].t / (Math.sqrt(s / d.length) || .05), .9 / (pk || .5))) }; } catch (_) {} }));
 }
 for (const k of Object.keys(SFXF)) SFX[k] = (c, t) => { const f = SFXB[k]; if (!f) { sfxFilesLoad(); return; } const s = c.createBufferSource(), g = c.createGain(); s.buffer = f.b; g.gain.value = f.g; s.connect(g); g.connect(AU.out); s.start(t); };
 document.addEventListener("pointerdown", () => { if (auCtx()) sfxFilesLoad(); }, { once: true, capture: true });
