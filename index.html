@@ -2790,7 +2790,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.12.23-e";
+const VER = "2026.12.23-f";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -4502,7 +4502,7 @@ const abilHit = (A, s, u, ab, E) => Math.max(3 * AR.ATKX, arAtk(A, s, u)) * ab.m
 /* can this ability be used right now? (checked before any energy is spent) */
 function abilOK(A, s, src, ab, ti) {
   const S = A.s[s], F = A.s[1 - s];
-  if (ti >= 10 && ti < 20) return !!src && ab.k === "dmg" && ab.el === "fire" && tuThawOk(A, s, src, ti - 10);   // thaw: a fire hit on your own frozen card
+  if (ti >= 10 && ti < 20) return !!src && ab.k === "dmg" && (ab.el === "fire" || ab.el === "light") && tuThawOk(A, s, src, ti - 10);   // thaw: a fire or light hit on your own frozen card
   switch (ab.k) {
     case "fate": return !!F.lane[ti] && !!(F.pile || []).some(id => !isSkill(id));
     case "trade": return !!F.lane[ti] && (S.lane.filter(Boolean).length > 0) && (!!ab.weakest || !!src);
@@ -4611,7 +4611,7 @@ function abilText(ab) {
   if (!ab) return ""; const Hh = AR.HPX, X = AR.ATKX, hp = v => Math.round(v * Hh), at = v => Math.round(v * X), pc = v => Math.round(v * 100) + "%", who = ab.t === "none" ? "every " + (["weaken", "vuln", "slow", "stun", "poison", "silence", "strip", "frost", "soak", "blind"].includes(ab.k) ? "enemy card" : "card on your field") : ({ ally: "a card of yours", enemy: "an enemy card", slot: "an empty lane" }[ab.t]);
   const cap = s => s[0].toUpperCase() + s.slice(1);
   switch (ab.k) {
-    case "dmg": { const bits = [`${cap(ab.el ? EL[ab.el][0] : "Neutral")} damage to an enemy: ${pc(ab.m)} of this card's attack`]; if (ab.aoe) bits.push(`${pc(ab.aoe)} to every other enemy`); if (ab.burn) bits.push(`burns for ${hp(ab.burn[0] * 3)} at the start of each of its turns, for ${turnsTxt(ab.burn[1])}`); if (ab.soak) bits.push(`soaks it for ${ab.soak} turn${ab.soak > 1 ? "s" : ""} (lightning hits it ${CH.SOAK_LIGHTNING}× harder, earth ${CH.SOAK_EARTH}×, ice flash-freezes it, fire only ${CH.STEAM_DMG}× and turns it to steam)`); if (ab.blind) bits.push(`blinds it for ${ab.blind} turn${ab.blind > 1 ? "s" : ""} (it misses ${Math.round(CH.BLIND_MISS * 100)}% of its attacks; light hits it ${CH.LIGHT_VS_BLIND}× harder, once)`); if (ab.stag) bits.push(`makes its plays cost 1 more energy next turn`); if (ab.freeze) bits.push(`${ab.freeze >= 2 ? "freezes it for 2 turns (it cannot attack; fire thaws it)" : ab.freeze >= 1.5 ? "freezes it for 1 turn (it cannot attack; fire thaws it)" : "makes its plays cost 1 more energy next turn"}`); if (ab.split) bits.push(`${pc(ab.split)} to both neighbours`); if (ab.chain) bits.push(`jumps to the strongest other enemy for ${pc(ab.chain)}`); if (ab.el === "wind") bits.push(`scours an earth card's ward and its next hit takes ${CH.ERODE}×; ${CH.GROUND_WIND}× against a card the earth has weighed down; charges the target, so a lightning hit on it arcs to its neighbours`); if (ab.el === "lightning") bits.push(`on a card that wind has charged, it arcs to both neighbours for ${pc(CH.ARC)}`); if (ab.el === "earth") bits.push(`shatters a frozen card (${CH.SHATTER}×, its ice is gone) and weighs the target down, so wind hits it for ${CH.GROUND_WIND}× for a turn`); if (ab.purge) bits.push("strips its buffs"); if (ab.heal) bits.push(`heals your weakest card for ${pc(ab.heal)} of the damage`); if (ab.drain) bits.push(`heals this card for ${pc(ab.drain)} of the damage`); if (ab.weak) bits.push(`every enemy loses ${at(ab.weak[0])} attack for ${turnsTxt(ab.weak[1])}`); if (ab.pierce) bits.push(`${pc(ab.pierce)} of its shield is ignored`); if (ab.exec) bits.push(`+${pc(ab.exec)} against a card below 30% health`); return bits.join("; ") + "."; }
+    case "dmg": { const bits = [`${cap(ab.el ? EL[ab.el][0] : "Neutral")} damage to an enemy: ${pc(ab.m)} of this card's attack`]; if (ab.aoe) bits.push(`${pc(ab.aoe)} to every other enemy`); if (ab.burn) bits.push(`burns for ${hp(ab.burn[0] * 3)} at the start of each of its turns, for ${turnsTxt(ab.burn[1])}`); if (ab.soak) bits.push(`soaks it for ${ab.soak} turn${ab.soak > 1 ? "s" : ""} (lightning hits it ${CH.SOAK_LIGHTNING}× harder, earth ${CH.SOAK_EARTH}×, ice flash-freezes it, fire only ${CH.STEAM_DMG}× and turns it to steam)`); if (ab.blind) bits.push(`blinds it for ${ab.blind} turn${ab.blind > 1 ? "s" : ""} (it misses ${Math.round(CH.BLIND_MISS * 100)}% of its attacks; light hits it ${CH.LIGHT_VS_BLIND}× harder, once)`); if (ab.stag) bits.push(`makes its plays cost 1 more energy next turn`); if (ab.freeze) bits.push(`${ab.freeze >= 2 ? "freezes it for 2 turns (it cannot attack; fire thaws it)" : ab.freeze >= 1.5 ? "freezes it for 1 turn (it cannot attack; fire thaws it)" : "makes its plays cost 1 more energy next turn"}`); if (ab.split) bits.push(`${pc(ab.split)} to both neighbours`); if (ab.chain) bits.push(`jumps to the strongest other enemy for ${pc(ab.chain)}`); if (ab.el === "light") bits.push(`on your own frozen card it thaws the ice gently: no damage and a heal of ${pc(CH.LIGHT_THAW_HEAL)} of its health`); if (ab.el === "fire") bits.push("thaws a frozen card, even your own (reduced damage)"); if (ab.el === "wind") bits.push(`scours an earth card's ward and its next hit takes ${CH.ERODE}×; ${CH.GROUND_WIND}× against a card the earth has weighed down; charges the target, so a lightning hit on it arcs to its neighbours`); if (ab.el === "lightning") bits.push(`on a card that wind has charged, it arcs to both neighbours for ${pc(CH.ARC)}`); if (ab.el === "earth") bits.push(`shatters a frozen card (${CH.SHATTER}×, its ice is gone) and weighs the target down, so wind hits it for ${CH.GROUND_WIND}× for a turn`); if (ab.purge) bits.push("strips its buffs"); if (ab.heal) bits.push(`heals your weakest card for ${pc(ab.heal)} of the damage`); if (ab.drain) bits.push(`heals this card for ${pc(ab.drain)} of the damage`); if (ab.weak) bits.push(`every enemy loses ${at(ab.weak[0])} attack for ${turnsTxt(ab.weak[1])}`); if (ab.pierce) bits.push(`${pc(ab.pierce)} of its shield is ignored`); if (ab.exec) bits.push(`+${pc(ab.exec)} against a card below 30% health`); return bits.join("; ") + "."; }
     case "heal": return `Heal ${who} for ${hp(ab.v)}${ab.cleanse ? " and remove its statuses" : ""}.`;
     case "shield": return `${cap(who)} absorbs the next ${hp(ab.v)} damage.`;
     case "buff": return `${cap(who)} gets +${at(ab.v)} attack for ${turnsTxt(ab.T)}.`;
@@ -4621,7 +4621,7 @@ function abilText(ab) {
     case "slow": return `${cap(who)} is slowed: its plays cost 1 more energy for ${turnsTxt(ab.T)}.`;
     case "stun": return `${cap(who)} ${ab.T >= 2 ? "cannot play at all next turn" : "cannot attack next turn (it can still use its skill)"}.`;
     case "poison": return `${cap(who)} is poisoned: ${hp(ab.d * 3)} damage at the start of each of its turns for ${turnsTxt(ab.T)} (ignores shields).`;
-    case "frost": return `${cap(who)} is frozen for ${ab.turns} turn${ab.turns > 1 ? "s" : ""}${ab.all ? " and cannot play at all" : ": it cannot attack"}. Fire thaws it.`;
+    case "frost": return `${cap(who)} is frozen for ${ab.turns} turn${ab.turns > 1 ? "s" : ""}${ab.all ? " and cannot play at all" : ": it cannot attack"}. Fire thaws it; light thaws your own gently.`;
     case "soak": return `${cap(who)} is soaked for ${ab.turns} turns: lightning hits it ${CH.SOAK_LIGHTNING}× harder, earth only ${CH.SOAK_EARTH}×, an ice hit flash-freezes it, and a fire hit does ${CH.STEAM_DMG}× and boils it into steam (the card misses ${Math.round(CH.STEAM_MISS * 100)}% of its attacks for a turn).`;
     case "blind": return `${cap(who)} is blinded for ${ab.turns} turns: it misses ${Math.round(CH.BLIND_MISS * 100)}% of its attacks, and a light hit on it deals ${CH.LIGHT_VS_BLIND}× once and ends the blindness.`;
     case "silence": return `${cap(who)} cannot use its skill for ${turnsTxt(ab.T)}.`;
@@ -4880,9 +4880,9 @@ function arGain(A, u, x) {
   }
 }
 /* ===== ELEMENT CHAINS (2026-11-26): an element leaves a status on the card it hits and other elements use it (turn-based mode only).
-   Ice freezes (a frozen card cannot attack) and Fire thaws it, so a Fire card may hit its OWN frozen card for reduced damage. Water soaks: lightning hits a soaked card for 1.5x, earth for 0.75x, and ice flash-freezes it.
+   Ice freezes (a frozen card cannot attack) and Fire thaws it, so a Fire card may hit its OWN frozen card for reduced damage, and a Light card thaws its own frozen card gently (no damage, a heal). Water soaks: lightning hits a soaked card for 1.5x, earth for 0.75x, and ice flash-freezes it.
    Dark blinds: a blinded card misses some of its attacks, and a Light hit on it deals 1.5x once and ends the blindness. ===== */
-const CH = { SOAK_LIGHTNING: 1.5, SOAK_EARTH: .75, LIGHT_VS_BLIND: 1.5, BLIND_MISS: .4, FRIENDLY: .35, STEAM_DMG: .75, STEAM_MISS: .2, ERODE: 1.25, SHATTER: 1.5, GROUND_WIND: .75, ARC: .5 };
+const CH = { SOAK_LIGHTNING: 1.5, SOAK_EARTH: .75, LIGHT_VS_BLIND: 1.5, BLIND_MISS: .4, FRIENDLY: .35, STEAM_DMG: .75, STEAM_MISS: .2, ERODE: 1.25, SHATTER: 1.5, GROUND_WIND: .75, ARC: .5, LIGHT_THAW_HEAL: .2 };
 const CHAIN_OFF = { "water>lightning": 1, "ice>fire": 1, "water>ice": 1, "light>dark": 1, "dark>light": 1 };   // the old mark reactions these statuses replace in the turn-based mode
 const chTurns = u => (u.rar <= 3 ? 1 : u.rar === 4 ? 2 : 3);   // a passive's status lasts 1 turn (Rare and below), 2 (Epic), 3 (Legendary and up)
 function chFreeze(A, T, n, all) { if (!A.tm || !T) return; T.stunAll = !!all || (T.fk === "ice" && T.frozen > 0 && !!T.stunAll); T.frozen = Math.max(T.frozen, n); T.fk = "ice"; }
@@ -4892,7 +4892,7 @@ const chSteam = (A, T, n) => { if (A.tm && T) T.steamT = Math.max(T.steamT || 0,
 const chMissP = u => (u.blindT > 0 ? CH.BLIND_MISS : u.steamT > 0 ? CH.STEAM_MISS : 0);
 const chBlind = (A, T, n) => { if (A.tm && T) T.blindT = Math.max(T.blindT || 0, n + 1); };
 /* can this fire card thaw that ally? (the ally must be frozen by ice, and it cannot thaw itself) */
-const tuThawOk = (A, s, src, ti) => { const T = A.s[s].lane[ti]; return !!(A.tm && src && src.hp > 0 && src.el === "fire" && T && T !== src && T.hp > 0 && T.frozen > 0 && T.fk === "ice"); };
+const tuThawOk = (A, s, src, ti) => { const T = A.s[s].lane[ti]; return !!(A.tm && src && src.hp > 0 && (src.el === "fire" || src.el === "light") && T && T !== src && T.hp > 0 && T.frozen > 0 && T.fk === "ice"); };
 /* what the target's statuses and marks do to an incoming hit of this element (a number to multiply by) */
 function chMul(T, el) {
   let m = 1; if (!el) return m;
@@ -4926,7 +4926,12 @@ function chStatus(A, T, ts, el, d) {
 }
 /* a fire hit on your own frozen card: it thaws, and takes reduced damage */
 function chFriendly(A, src, s, ti, dmg, el) {
-  const T = A.s[s].lane[ti]; if (!T) return 0; let d = dmg * CH.FRIENDLY; const ab = Math.min(T.shield, d); T.shield -= ab; d -= ab; T.hp -= d;
+  const T = A.s[s].lane[ti]; if (!T) return 0;
+  if (el === "light") {   // light thaws gently: no damage at all, and it heals
+    if (!(T.frozen > 0 && T.fk === "ice")) return 0; T.frozen = 0; T.stunAll = false; const g = arHeal(T, T.max * CH.LIGHT_THAW_HEAL);
+    arLog(A, (src ? src.name : "Light") + " gently thaws " + T.name + " (+" + Math.round(g) + " health)", s, "react"); arEv(A, { t: "buff", s, i: ti, text: "thawed" }); if (g > 0) arEv(A, { t: "heal", s, i: ti, d: g }); return 0;
+  }
+  let d = dmg * CH.FRIENDLY; const ab = Math.min(T.shield, d); T.shield -= ab; d -= ab; T.hp -= d;
   if (T.frozen > 0 && T.fk === "ice") { T.frozen = 0; T.stunAll = false; arLog(A, (src ? src.name : "Fire") + " thaws " + T.name + " (" + Math.round(d) + " damage)", s, "react"); arEv(A, { t: "buff", s, i: ti, text: "thawed" }); }
   arEv(A, { t: "hit", s, i: ti, d, el, react: "Thaw" }); return d;
 }
@@ -5347,7 +5352,7 @@ function tuAiNext(A, s) {
     if (tuCanAct(u, true)) { const d = arAtk(A, s, u) * TU.ATTACK, cost = tuAtkCost(u); if (S.energy >= cost) for (const t of tg) {
       let v; if (t < 0) v = d * 1.4; else { const T = F.lane[t], hpT = T.hp + T.shield, rx = chMul(T, u.el), dd = d * rx; v = Math.min(hpT, dd) + (hpT <= dd ? T.max * .6 + T.atk * .5 : 0); if (u.el === "lightning" && T.chargeT > 0) v += d * CH.ARC * [F.lane[t - 1], F.lane[t + 1]].filter(Boolean).length; }
       opts.push({ u, i, k: "atk", t, v, cost, r: v / cost }); }
-      if (S.energy >= cost && u.el === "fire") for (const x of live) if (tuThawOk(A, s, u, x.i)) { const v = arAtk(A, s, x.u) * TU.ATTACK * 2.2 - d * CH.FRIENDLY * .5; if (v > 0) opts.push({ u, i, k: "atk", t: 10 + x.i, v, cost, r: v / cost }); } }
+      if (S.energy >= cost && (u.el === "fire" || u.el === "light")) for (const x of live) if (tuThawOk(A, s, u, x.i)) { const v = arAtk(A, s, x.u) * TU.ATTACK * 2.2 - (u.el === "fire" ? d * CH.FRIENDLY * .5 : -x.u.max * CH.LIGHT_THAW_HEAL * .3); if (v > 0) opts.push({ u, i, k: "atk", t: 10 + x.i, v, cost, r: v / cost }); } }
     const ab = ABIL[u.active]; if (ab && u.silT <= 0 && tuCanAct(u, false)) { const cost = tuSkillCost(u); if (S.energy >= cost) for (const x of abilCands(A, s, u, ab, u.lv >= 3 ? AR.LV.enhance : 1)) if (abilOK(A, s, u, ab, x.t) && !tuFirstLimit(A, s, ab, x.t)) opts.push({ u, i, k: "skill", t: x.t, v: x.v, cost, r: x.v / cost }); }
   }
   opts.sort((p, q) => q.r - p.r || q.v - p.v);
@@ -8727,7 +8732,7 @@ const passText = k => { const P = AR.PS, hp = x => Math.round(x * AR.HPX), pc = 
   chain: `Reactions it triggers hit ${pc(P.chainAmp)} harder and mark the neighbors of the target too`, decree: `Other allies of its faction gain +${ax(P.decree)} attack`, mimic: "On its first strike it copies the passive of the card it hit",
   phoenix: `Once per match, returns with ${pc(P.phoenix)} health when it would fall`, voideater: `Strikes hit ${pc(P.voideater - 1)} harder, ignore shields and strip buffs`, formation: `+${ax(P.formation)} attack for each neighbor beside it`,
   treasure: `A kill by it refunds ${P.treasure} energy`, protector: "Enemies must strike it before anything else", regen: `Heals ${pc(P.regen * 3)} of its health at the start of each of your turns`, echo: "Every third strike hits twice", crit: `Every fourth strike hits for ${P.crit}×`, overkill: `Excess damage hits the enemy core (×${P.overkill})`, mender: `Heals your most hurt card for ${hp(P.mender)} at the start of each of your turns`, berserk: `+${ax(P.berserk)} attack below half health`,
-  chill: `Its normal attacks freeze the target: it cannot attack for 1 turn (Rare and below), 2 (Epic) or 3 (Legendary and up). Fire thaws it`, drench: `Its normal attacks soak the target for 1 to 3 turns (by rarity): lightning hits it ${CH.SOAK_LIGHTNING}× harder, earth ${CH.SOAK_EARTH}×, ice flash-freezes it, and fire does ${CH.STEAM_DMG}× and turns it to steam`, gloom: `Its normal attacks blind the target for 1 to 3 turns (by rarity): it misses ${Math.round(CH.BLIND_MISS * 100)}% of its attacks, and a light hit on it deals ${CH.LIGHT_VS_BLIND}× once`,
+  chill: `Its normal attacks freeze the target: it cannot attack for 1 turn (Rare and below), 2 (Epic) or 3 (Legendary and up). Fire thaws it, and light thaws your own gently`, drench: `Its normal attacks soak the target for 1 to 3 turns (by rarity): lightning hits it ${CH.SOAK_LIGHTNING}× harder, earth ${CH.SOAK_EARTH}×, ice flash-freezes it, and fire does ${CH.STEAM_DMG}× and turns it to steam`, gloom: `Its normal attacks blind the target for 1 to 3 turns (by rarity): it misses ${Math.round(CH.BLIND_MISS * 100)}% of its attacks, and a light hit on it deals ${CH.LIGHT_VS_BLIND}× once`,
   pierce: `Strikes also hit a neighbor for ${pc(P.pierce)}`, battery: `Your turns start with 1 more energy`, amp: `Reactions it triggers hit for ${pc(P.amp)} more`, sponge: `Absorbs the first hit, recharges at the start of each of your turns`,
 }[k] || ""); };
 /* actText(id) is in abilities.js */
@@ -9360,8 +9365,8 @@ function tnTargetMenu(act, s, i) {
   const thaw = s === 0 && !!tu && tu !== src && tuThawOk(A, 0, src, i);
   const ab = ABIL[src.active], items = [], atkOk = s === 1 && (tu || i === -1) && tuAtkTargets(A, 0).includes(i), first = A.round === 1 && A.cur === A.first && TU.FIRST_NOATK;
   if (atkOk) items.push({ ic: "atk", label: "Attack", cost: tuAtkCost(src), sub: "Deal " + Math.round(arAtk(A, 0, src) * TU.ATTACK) + " damage to " + (tu ? tu.name : i === -1 ? "the enemy player" : "the target") + ".", btn: "Attack", off: first || S.energy < tuAtkCost(src) || !tuCanAct(src, true), fn: () => tnDo("atk", act.i, i) });
-  if (thaw) items.push({ ic: "atk", label: "Thaw", cost: tuAtkCost(src), sub: "Hit " + tu.name + " with fire for " + Math.round(arAtk(A, 0, src) * TU.ATTACK * CH.FRIENDLY) + " damage (reduced) to melt its ice, so it can attack again.", btn: "Thaw", off: first || S.energy < tuAtkCost(src) || !tuCanAct(src, true), fn: () => tnDo("atk", act.i, 10 + i) });
-  if (thaw && ab && ab.k === "dmg" && ab.el === "fire" && src.silT <= 0) items.push({ ic: "skill", label: actName(src) + " (thaw)", cost: tuSkillCost(src), sub: "The fire skill on your own frozen card: reduced damage, and its ice melts.", btn: "Thaw", off: S.energy < tuSkillCost(src) || !tuCanAct(src, false), fn: () => tnDo("skill", act.i, 10 + i) });
+  if (thaw) items.push({ ic: "atk", label: "Thaw", cost: tuAtkCost(src), sub: src.el === "light" ? "Light melts " + tu.name + "'s ice gently: no damage, and it heals " + Math.round(tu.max * CH.LIGHT_THAW_HEAL) + "." : "Hit " + tu.name + " with fire for " + Math.round(arAtk(A, 0, src) * TU.ATTACK * CH.FRIENDLY) + " damage (reduced) to melt its ice, so it can attack again.", btn: "Thaw", off: first || S.energy < tuAtkCost(src) || !tuCanAct(src, true), fn: () => tnDo("atk", act.i, 10 + i) });
+  if (thaw && ab && ab.k === "dmg" && (ab.el === "fire" || ab.el === "light") && src.silT <= 0) items.push({ ic: "skill", label: actName(src) + " (thaw)", cost: tuSkillCost(src), sub: ab.el === "light" ? "The light skill on your own frozen card: no damage, its ice melts and it heals." : "The fire skill on your own frozen card: reduced damage, and its ice melts.", btn: "Thaw", off: S.energy < tuSkillCost(src) || !tuCanAct(src, false), fn: () => tnDo("skill", act.i, 10 + i) });
   if (ab && src.silT <= 0) { const t = ab.t, okT = (t === "enemy" && s === 1 && tu) || (t === "ally" && s === 0 && tu) || (t === "none") || (t === "slot" && s === 0 && !tu);
     if (okT) items.push({ ic: "skill", label: actName(src), cost: tuSkillCost(src), sub: abilText(ab), off: S.energy < tuSkillCost(src) || !tuCanAct(src, false), fn: () => tnDo("skill", act.i, t === "none" ? null : i) }); }
   if (s === 0 && i === act.i && ab && ab.t === "ally" && !act.ally) items.push({ ic: "skill", label: "Skill on another card", sub: "Or drag this card onto one of your other cards.", btn: "Choose", fn: () => { TN.act = Object.assign({}, act, { ally: true }); tnHint("Tap one of your cards for " + actName(src)); tnRender(); } });
