@@ -2790,7 +2790,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.12.23-i";
+const VER = "2026.12.23-j";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -4882,7 +4882,7 @@ function arGain(A, u, x) {
 /* ===== ELEMENT CHAINS (2026-11-26): an element leaves a status on the card it hits and other elements use it (turn-based mode only).
    Ice freezes (a frozen card cannot attack) and Fire thaws it, so a Fire card may hit its OWN frozen card for reduced damage, and a Light card thaws its own frozen card gently (no damage, a heal). Lightning overcharges Mechanical cards: +1 energy for their owner's next turn. Water soaks: lightning hits a soaked card for 1.5x, earth for 0.75x, and ice flash-freezes it.
    Dark blinds: a blinded card misses some of its attacks, and a Light hit on it deals 1.5x once and ends the blindness. ===== */
-const CH = { SOAK_LIGHTNING: 1.5, SOAK_EARTH: .75, LIGHT_VS_BLIND: 1.5, BLIND_MISS: .25, FRIENDLY: .35, STEAM_DMG: .75, STEAM_MISS: .2, ERODE: 1.25, SHATTER: 1.5, GROUND_WIND: .75, ARC: .35, LIGHT_THAW_HEAL: .2, OVERCHARGE_E: 1, RELIGHT_MUL: 2, RELIGHT_MAX: 4 };
+const CH = { SOAK_LIGHTNING: 1.5, SOAK_EARTH: .75, LIGHT_VS_BLIND: 1.5, BLIND_MISS: .2, FRIENDLY: .35, STEAM_DMG: .75, STEAM_MISS: .2, ERODE: 1.25, SHATTER: 1.5, GROUND_WIND: .75, ARC: .25, LIGHT_THAW_HEAL: .2, OVERCHARGE_E: 1, RELIGHT_MUL: 2, RELIGHT_MAX: 4 };
 const CHAIN_OFF = { "water>lightning": 1, "ice>fire": 1, "water>ice": 1, "light>dark": 1, "dark>light": 1 };   // the old mark reactions these statuses replace in the turn-based mode
 const chTurns = u => (u.rar <= 3 ? 1 : u.rar === 4 ? 2 : 3);   // a passive's status lasts 1 turn (Rare and below), 2 (Epic), 3 (Legendary and up)
 function chFreeze(A, T, n, all) { if (!A.tm || !T) return; T.stunAll = !!all || (T.fk === "ice" && T.frozen > 0 && !!T.stunAll); T.frozen = Math.max(T.frozen, n); T.fk = "ice"; }
