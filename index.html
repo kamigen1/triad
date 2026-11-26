@@ -1173,6 +1173,9 @@ html.nomo .stfx.sf-soak b { animation: none !important; }
 #ck .slot.st-erode { box-shadow: 0 0 12px 2px #d9b36acc !important; } .stfx.sf-erode { background: repeating-linear-gradient(105deg, transparent 0 9px, #e9cf9a55 9px 11px); animation: stScour 1.2s linear infinite; } .stfx.sf-erode b { display: none; } @keyframes stScour { from { background-position: 0 0; } to { background-position: 22px 0; } }
 #ck .slot.st-ground { box-shadow: 0 0 12px 2px #8a6a3acc !important; } .stfx.sf-ground { background: linear-gradient(0deg, #6b4a2299, transparent 55%); } .stfx.sf-ground b { display: none; }
 html.nomo .stfx.sf-erode { animation: none !important; }
+/* charged air: faint crackling blue-white sparks */
+#ck .slot.st-charge { box-shadow: 0 0 12px 2px #b9d8ffcc !important; } .stfx.sf-charge { background: radial-gradient(circle at 25% 30%, #eaf4ff66 0, transparent 22%), radial-gradient(circle at 75% 65%, #eaf4ff66 0, transparent 22%); animation: stCharge .35s steps(2) infinite; } .stfx.sf-charge b { display: none; }
+@keyframes stCharge { 0% { opacity: .35; } 50% { opacity: 1; } } html.nomo .stfx.sf-charge { animation: none !important; }
 
 /* ===== Clash ===== */
 #ck { position: fixed; inset: 0; z-index: 20; background: radial-gradient(ellipse at 50% 40%, #12583a 0%, var(--felt-d) 55%, var(--felt-dd) 100%); }
@@ -2787,7 +2790,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.12.23-d";
+const VER = "2026.12.23-e";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -4512,7 +4515,7 @@ function abilOK(A, s, src, ab, ti) {
   }
   if (ab.t === "ally") return !!S.lane[ti]; if (ab.t === "enemy") return !!F.lane[ti]; return true;
 }
-function abilCured(u) { u.soakT = 0; u.blindT = 0; u.steamT = 0; u.erodeT = 0; u.groundT = 0; u.burn = null; u.poison = null; u.silT = 0; u.slowT = 0; u.wkT = 0; u.vulnT = 0; u.mark = null; }
+function abilCured(u) { u.soakT = 0; u.blindT = 0; u.steamT = 0; u.erodeT = 0; u.groundT = 0; u.chargeT = 0; u.burn = null; u.poison = null; u.silT = 0; u.slowT = 0; u.wkT = 0; u.vulnT = 0; u.mark = null; }
 /* heal a card (a card under Bloodlust, u.nh, can no longer be healed); returns what was healed */
 function arHeal(u, g) { if (!u || u.nh || !(g > 0)) return 0; const b = u.hp; u.hp = Math.min(u.max, u.hp + g); return u.hp - b; }
 /* draw up to n cards from the pile into the free spots of the hand */
@@ -4608,7 +4611,7 @@ function abilText(ab) {
   if (!ab) return ""; const Hh = AR.HPX, X = AR.ATKX, hp = v => Math.round(v * Hh), at = v => Math.round(v * X), pc = v => Math.round(v * 100) + "%", who = ab.t === "none" ? "every " + (["weaken", "vuln", "slow", "stun", "poison", "silence", "strip", "frost", "soak", "blind"].includes(ab.k) ? "enemy card" : "card on your field") : ({ ally: "a card of yours", enemy: "an enemy card", slot: "an empty lane" }[ab.t]);
   const cap = s => s[0].toUpperCase() + s.slice(1);
   switch (ab.k) {
-    case "dmg": { const bits = [`${cap(ab.el ? EL[ab.el][0] : "Neutral")} damage to an enemy: ${pc(ab.m)} of this card's attack`]; if (ab.aoe) bits.push(`${pc(ab.aoe)} to every other enemy`); if (ab.burn) bits.push(`burns for ${hp(ab.burn[0] * 3)} at the start of each of its turns, for ${turnsTxt(ab.burn[1])}`); if (ab.soak) bits.push(`soaks it for ${ab.soak} turn${ab.soak > 1 ? "s" : ""} (lightning hits it ${CH.SOAK_LIGHTNING}× harder, earth ${CH.SOAK_EARTH}×, ice flash-freezes it, fire only ${CH.STEAM_DMG}× and turns it to steam)`); if (ab.blind) bits.push(`blinds it for ${ab.blind} turn${ab.blind > 1 ? "s" : ""} (it misses ${Math.round(CH.BLIND_MISS * 100)}% of its attacks; light hits it ${CH.LIGHT_VS_BLIND}× harder, once)`); if (ab.stag) bits.push(`makes its plays cost 1 more energy next turn`); if (ab.freeze) bits.push(`${ab.freeze >= 2 ? "freezes it for 2 turns (it cannot attack; fire thaws it)" : ab.freeze >= 1.5 ? "freezes it for 1 turn (it cannot attack; fire thaws it)" : "makes its plays cost 1 more energy next turn"}`); if (ab.split) bits.push(`${pc(ab.split)} to both neighbours`); if (ab.chain) bits.push(`jumps to the strongest other enemy for ${pc(ab.chain)}`); if (ab.el === "wind") bits.push(`scours an earth card's ward and its next hit takes ${CH.ERODE}×; ${CH.GROUND_WIND}× against a card the earth has weighed down`); if (ab.el === "earth") bits.push(`shatters a frozen card (${CH.SHATTER}×, its ice is gone) and weighs the target down, so wind hits it for ${CH.GROUND_WIND}× for a turn`); if (ab.purge) bits.push("strips its buffs"); if (ab.heal) bits.push(`heals your weakest card for ${pc(ab.heal)} of the damage`); if (ab.drain) bits.push(`heals this card for ${pc(ab.drain)} of the damage`); if (ab.weak) bits.push(`every enemy loses ${at(ab.weak[0])} attack for ${turnsTxt(ab.weak[1])}`); if (ab.pierce) bits.push(`${pc(ab.pierce)} of its shield is ignored`); if (ab.exec) bits.push(`+${pc(ab.exec)} against a card below 30% health`); return bits.join("; ") + "."; }
+    case "dmg": { const bits = [`${cap(ab.el ? EL[ab.el][0] : "Neutral")} damage to an enemy: ${pc(ab.m)} of this card's attack`]; if (ab.aoe) bits.push(`${pc(ab.aoe)} to every other enemy`); if (ab.burn) bits.push(`burns for ${hp(ab.burn[0] * 3)} at the start of each of its turns, for ${turnsTxt(ab.burn[1])}`); if (ab.soak) bits.push(`soaks it for ${ab.soak} turn${ab.soak > 1 ? "s" : ""} (lightning hits it ${CH.SOAK_LIGHTNING}× harder, earth ${CH.SOAK_EARTH}×, ice flash-freezes it, fire only ${CH.STEAM_DMG}× and turns it to steam)`); if (ab.blind) bits.push(`blinds it for ${ab.blind} turn${ab.blind > 1 ? "s" : ""} (it misses ${Math.round(CH.BLIND_MISS * 100)}% of its attacks; light hits it ${CH.LIGHT_VS_BLIND}× harder, once)`); if (ab.stag) bits.push(`makes its plays cost 1 more energy next turn`); if (ab.freeze) bits.push(`${ab.freeze >= 2 ? "freezes it for 2 turns (it cannot attack; fire thaws it)" : ab.freeze >= 1.5 ? "freezes it for 1 turn (it cannot attack; fire thaws it)" : "makes its plays cost 1 more energy next turn"}`); if (ab.split) bits.push(`${pc(ab.split)} to both neighbours`); if (ab.chain) bits.push(`jumps to the strongest other enemy for ${pc(ab.chain)}`); if (ab.el === "wind") bits.push(`scours an earth card's ward and its next hit takes ${CH.ERODE}×; ${CH.GROUND_WIND}× against a card the earth has weighed down; charges the target, so a lightning hit on it arcs to its neighbours`); if (ab.el === "lightning") bits.push(`on a card that wind has charged, it arcs to both neighbours for ${pc(CH.ARC)}`); if (ab.el === "earth") bits.push(`shatters a frozen card (${CH.SHATTER}×, its ice is gone) and weighs the target down, so wind hits it for ${CH.GROUND_WIND}× for a turn`); if (ab.purge) bits.push("strips its buffs"); if (ab.heal) bits.push(`heals your weakest card for ${pc(ab.heal)} of the damage`); if (ab.drain) bits.push(`heals this card for ${pc(ab.drain)} of the damage`); if (ab.weak) bits.push(`every enemy loses ${at(ab.weak[0])} attack for ${turnsTxt(ab.weak[1])}`); if (ab.pierce) bits.push(`${pc(ab.pierce)} of its shield is ignored`); if (ab.exec) bits.push(`+${pc(ab.exec)} against a card below 30% health`); return bits.join("; ") + "."; }
     case "heal": return `Heal ${who} for ${hp(ab.v)}${ab.cleanse ? " and remove its statuses" : ""}.`;
     case "shield": return `${cap(who)} absorbs the next ${hp(ab.v)} damage.`;
     case "buff": return `${cap(who)} gets +${at(ab.v)} attack for ${turnsTxt(ab.T)}.`;
@@ -4655,7 +4658,7 @@ function abilCands(A, s, u, ab, E) {
     case "dmg": {
       if (needFoe) break; const base = abilHit(A, s, u, ab, E), other = Math.max(3 * X, arAtk(A, s, u)) * (ab.aoe || 0) * E;
       for (const f of fo) { const T = f.u, rx = chMul(T, ab.el), d = base * rx; let v = Math.min(T.hp + T.shield, d) + (T.hp + T.shield <= d ? T.max * .6 + hit(1 - s, T) * 4 : 0);
-        if (ab.burn) v += ab.burn[0] * Hh * ab.burn[1] * .7; if (ab.slow) v += hit(1 - s, T) * ab.slow[0] * ab.slow[1] / per(T); if (ab.freeze) v += hit(1 - s, T) * Math.min(1.2, ab.freeze / per(T)) * 1.1; if (ab.soak) v += (fo.length > 1 ? 2 : 1) * 2 + ab.soak; if (ab.blind) v += hit(1 - s, T) * ab.blind * .4; if (ab.stag) v += hit(1 - s, T) * ab.stag / per(T);
+        if (ab.burn) v += ab.burn[0] * Hh * ab.burn[1] * .7; if (ab.slow) v += hit(1 - s, T) * ab.slow[0] * ab.slow[1] / per(T); if (ab.freeze) v += hit(1 - s, T) * Math.min(1.2, ab.freeze / per(T)) * 1.1; if (ab.el === "lightning" && T.chargeT > 0) v += base * CH.ARC * [F.lane[f.i - 1], F.lane[f.i + 1]].filter(Boolean).length; if (ab.soak) v += (fo.length > 1 ? 2 : 1) * 2 + ab.soak; if (ab.blind) v += hit(1 - s, T) * ab.blind * .4; if (ab.stag) v += hit(1 - s, T) * ab.stag / per(T);
         if (ab.split) for (const j of [f.i - 1, f.i + 1]) if (F.lane[j]) v += Math.min(F.lane[j].hp, base * ab.split); if (ab.chain) v += base * ab.chain * .8; if (ab.aoe) v += fo.filter(o => o.u !== T).reduce((a, o) => a + Math.min(o.u.hp + o.u.shield, other), 0);
         if (ab.drain) v += d * ab.drain * .6; if (ab.heal) v += d * ab.heal * .6; if (ab.weak) v += fo.length * ab.weak[0] * X * AR.STRIKE * ab.weak[1] / 6 * .5; if (ab.purge) v += T.pb.a + T.pb.h + T.shield + (T.tmpT > 0 ? T.tmp * X * 3 : 0); if (ab.exec && T.hp < T.max * .3) v += d * ab.exec * .5;
         push(f.i, v); } break;
@@ -4828,7 +4831,7 @@ function arUnit(A, cid) {
   const k = arCard(BY[cid]), spd = k.spd * (k.passive === "swift" ? AR.PS.swift : 1);
   const rm = AR.RHP[k.rar] || 1, hp = k.hp * AR.HPX * rm * (k.nudge || 1), atk = k.atk * AR.ATKX;
   return { uid: ++A.uid, cid, name: k.name, el: k.el, tribe: k.tribe, atk, hp, max: hp, cost: k.cost, spd, tm: k.tm, passive: k.passive, active: k.active, acost: k.acost, rar: k.rar,
-    cd: AR.IV / spd * .6, skcd: 0, lock: null, mark: null, frozen: 0, shield: 0, tmp: 0, tmpT: 0, pb: { a: 0, h: 0 }, pt: AR.GROW_T, sponge: k.passive === "sponge", spT: 0, fac: k.fac, n: 0, used: false, hasteT: 0, by: null, bys: 0, lv: 1, xp: 0, burn: null, poison: null, reg: null, slow: 0, slowT: 0, silT: 0, vuln: 0, vulnT: 0, wk: 0, wkT: 0, soakT: 0, blindT: 0, steamT: 0, erodeT: 0, groundT: 0 };
+    cd: AR.IV / spd * .6, skcd: 0, lock: null, mark: null, frozen: 0, shield: 0, tmp: 0, tmpT: 0, pb: { a: 0, h: 0 }, pt: AR.GROW_T, sponge: k.passive === "sponge", spT: 0, fac: k.fac, n: 0, used: false, hasteT: 0, by: null, bys: 0, lv: 1, xp: 0, burn: null, poison: null, reg: null, slow: 0, slowT: 0, silT: 0, vuln: 0, vulnT: 0, wk: 0, wkT: 0, soakT: 0, blindT: 0, steamT: 0, erodeT: 0, groundT: 0, chargeT: 0 };
 }
 function arNew(deck0, deck1, o = {}) {
   const A = { t: 0, tick: 0, uid: 0, seed: o.seed != null ? o.seed : 20261111, over: false, winner: null, ev: [], log: [], q: [], seq: [0, 0], ui: !!o.ui, level: o.level || [1, 1], mode: o.mode || {}, horizon: null, s: [] }; A.init = { d: [deck0.slice(), deck1.slice()], lv: A.level.slice(), seed: A.seed, mode: A.mode };
@@ -4879,7 +4882,7 @@ function arGain(A, u, x) {
 /* ===== ELEMENT CHAINS (2026-11-26): an element leaves a status on the card it hits and other elements use it (turn-based mode only).
    Ice freezes (a frozen card cannot attack) and Fire thaws it, so a Fire card may hit its OWN frozen card for reduced damage. Water soaks: lightning hits a soaked card for 1.5x, earth for 0.75x, and ice flash-freezes it.
    Dark blinds: a blinded card misses some of its attacks, and a Light hit on it deals 1.5x once and ends the blindness. ===== */
-const CH = { SOAK_LIGHTNING: 1.5, SOAK_EARTH: .75, LIGHT_VS_BLIND: 1.5, BLIND_MISS: .4, FRIENDLY: .35, STEAM_DMG: .75, STEAM_MISS: .2, ERODE: 1.25, SHATTER: 1.5, GROUND_WIND: .75 };
+const CH = { SOAK_LIGHTNING: 1.5, SOAK_EARTH: .75, LIGHT_VS_BLIND: 1.5, BLIND_MISS: .4, FRIENDLY: .35, STEAM_DMG: .75, STEAM_MISS: .2, ERODE: 1.25, SHATTER: 1.5, GROUND_WIND: .75, ARC: .5 };
 const CHAIN_OFF = { "water>lightning": 1, "ice>fire": 1, "water>ice": 1, "light>dark": 1, "dark>light": 1 };   // the old mark reactions these statuses replace in the turn-based mode
 const chTurns = u => (u.rar <= 3 ? 1 : u.rar === 4 ? 2 : 3);   // a passive's status lasts 1 turn (Rare and below), 2 (Epic), 3 (Legendary and up)
 function chFreeze(A, T, n, all) { if (!A.tm || !T) return; T.stunAll = !!all || (T.fk === "ice" && T.frozen > 0 && !!T.stunAll); T.frozen = Math.max(T.frozen, n); T.fk = "ice"; }
@@ -4914,6 +4917,7 @@ function chStatus(A, T, ts, el, d) {
     T.groundT = 2;   // weighed down for a turn: wind hits it for less (counts down like soak)
   }
   if (el === "wind") {
+    T.chargeT = 2; arEv(A, { t: "buff", s: ts, i: A.s[ts].lane.indexOf(T), text: "charged" });   // the air around it is charged for a turn (counts down like soak)
     if (T.groundT > 0) { d *= CH.GROUND_WIND; arLog(A, T.name + " is weighed down: wind hits it for " + CH.GROUND_WIND + "×", ts, "react"); }
     if (T.el === "earth") { if (T.shield > 0) arLog(A, "The wind scours " + T.name + "'s ward away", ts, "react"); T.shield = 0; T.erodeT = 2; arEv(A, { t: "buff", s: ts, i: A.s[ts].lane.indexOf(T), text: "scoured" }); }
   }
@@ -4949,6 +4953,10 @@ function arHit(A, src, ss, ts, ti, dmg, el, o = {}) {
   if (src && !o.noStat) { const st = A.stat || (A.stat = { auto: 0, skill: 0, uses: 0 }); if (o.melee) st.auto += d; else st.skill += d; }   // balance counters (not part of the fight)
   if (react && react.splash) for (const j of [ti - 1, ti + 1]) { const N = A.s[ts].lane[j]; if (N) { N.hp -= d * react.splash; arEv(A, { t: "hit", s: ts, i: j, d: d * react.splash }); } }
   if (src && o.melee && src.passive === "pierce") { const j = A.s[ts].lane[ti + 1] ? ti + 1 : ti - 1, N = A.s[ts].lane[j]; if (N) { N.hp -= d * AR.PS.pierce; arEv(A, { t: "hit", s: ts, i: j, d: d * AR.PS.pierce }); } }
+  if (A.tm && el === "lightning" && T.chargeT > 0 && !o.arc) {   // wind charged the air: the lightning arcs to both neighbours
+    T.chargeT = 0; const js = [ti - 1, ti + 1].filter(j => A.s[ts].lane[j]);
+    if (js.length) { arLog(A, "Arc! The charged air carries the lightning from " + T.name + " to its neighbours (" + CH.ARC + "×)", ts, "react"); for (const j of js) arHit(A, src, ss, ts, j, dmg * CH.ARC, "lightning", { arc: true, noStat: true }); }
+  }
   return d;
 }
 function arSweep(A) {
@@ -5254,7 +5262,7 @@ function tuCmd(A, s, c) {
 /* ----- the end of a turn: plans resolve fastest card first, effects count down, the other side starts ----- */
 function tuNearest(A, s, i, list) { return list.slice().sort((p, q) => Math.abs(p - i) - Math.abs(q - i) || p - q)[0]; }
 /* what the screen needs to show a play at a time: the lanes, each card's numbers and both cores (only kept when a screen is watching) */
-function tuSnap(A) { const lane = [A.s[0].lane.slice(), A.s[1].lane.slice()], st = new Map(); for (const L of lane) for (const u of L) if (u) st.set(u, { hp: u.hp, max: u.max, shield: u.shield, atk: u.atk, mark: u.mark, frozen: u.frozen, soakT: u.soakT, blindT: u.blindT, steamT: u.steamT, erodeT: u.erodeT, groundT: u.groundT }); return { lane, st, core: [A.s[0].core, A.s[1].core] }; }
+function tuSnap(A) { const lane = [A.s[0].lane.slice(), A.s[1].lane.slice()], st = new Map(); for (const L of lane) for (const u of L) if (u) st.set(u, { hp: u.hp, max: u.max, shield: u.shield, atk: u.atk, mark: u.mark, frozen: u.frozen, soakT: u.soakT, blindT: u.blindT, steamT: u.steamT, erodeT: u.erodeT, groundT: u.groundT, chargeT: u.chargeT }); return { lane, st, core: [A.s[0].core, A.s[1].core] }; }
 function tuEnd(A) {
   if (A.ui) A.snaps = [tuSnap(A)];
   const s = A.cur, S = A.s[s], F = A.s[1 - s], surge = 1 + TU.SURGE * Math.max(0, A.round - TU.SURGE_AT + 1);
@@ -5299,7 +5307,7 @@ function tuEnd(A) {
     if (u.tmpT > 0) u.tmpT--; if (u.wkT > 0) u.wkT--; if (u.vulnT > 0) u.vulnT--; if (u.slowT > 0) u.slowT--; if (u.silT > 0) u.silT--; if (u.frozen > 0 && --u.frozen <= 0) u.stunAll = false;
     if (u.mark && --u.mark.t <= 0) u.mark = null; u.wait = false;
   }
-  for (const { u } of arLive(A, 1 - s)) { if (u.soakT > 0) u.soakT--; if (u.blindT > 0) u.blindT--; if (u.steamT > 0) u.steamT--; if (u.erodeT > 0) u.erodeT--; if (u.groundT > 0) u.groundT--; }   // soak and blindness count down at the end of the turn of the side that applied them
+  for (const { u } of arLive(A, 1 - s)) { if (u.soakT > 0) u.soakT--; if (u.blindT > 0) u.blindT--; if (u.steamT > 0) u.steamT--; if (u.erodeT > 0) u.erodeT--; if (u.groundT > 0) u.groundT--; if (u.chargeT > 0) u.chargeT--; }   // soak and blindness count down at the end of the turn of the side that applied them
   S.freeDraw = false;
   if (A.dq) { A.miss[s] = A.acted ? 0 : A.miss[s] + 1; if (A.miss[s] >= 2) { A.over = true; A.winner = 1 - s; A.why = "missed"; arLog(A, "Two turns missed in a row", s, "core"); return; } }
   if (s !== A.first) { A.round++; if (A.round > TU.MAXR) { tuDecide(A); return; } }
@@ -5337,7 +5345,7 @@ function tuAiNext(A, s) {
   for (const { u, i } of live) {
     if (u.wait || u.hp <= 0 || A.aiSkip[u.uid] === A.round * 2 + s) continue; if (u.pl + tuPlansOf(A, u) >= 1 + (u.extra || 0)) continue;
     if (tuCanAct(u, true)) { const d = arAtk(A, s, u) * TU.ATTACK, cost = tuAtkCost(u); if (S.energy >= cost) for (const t of tg) {
-      let v; if (t < 0) v = d * 1.4; else { const T = F.lane[t], hpT = T.hp + T.shield, rx = chMul(T, u.el), dd = d * rx; v = Math.min(hpT, dd) + (hpT <= dd ? T.max * .6 + T.atk * .5 : 0); }
+      let v; if (t < 0) v = d * 1.4; else { const T = F.lane[t], hpT = T.hp + T.shield, rx = chMul(T, u.el), dd = d * rx; v = Math.min(hpT, dd) + (hpT <= dd ? T.max * .6 + T.atk * .5 : 0); if (u.el === "lightning" && T.chargeT > 0) v += d * CH.ARC * [F.lane[t - 1], F.lane[t + 1]].filter(Boolean).length; }
       opts.push({ u, i, k: "atk", t, v, cost, r: v / cost }); }
       if (S.energy >= cost && u.el === "fire") for (const x of live) if (tuThawOk(A, s, u, x.i)) { const v = arAtk(A, s, x.u) * TU.ATTACK * 2.2 - d * CH.FRIENDLY * .5; if (v > 0) opts.push({ u, i, k: "atk", t: 10 + x.i, v, cost, r: v / cost }); } }
     const ab = ABIL[u.active]; if (ab && u.silT <= 0 && tuCanAct(u, false)) { const cost = tuSkillCost(u); if (S.energy >= cost) for (const x of abilCands(A, s, u, ab, u.lv >= 3 ? AR.LV.enhance : 1)) if (abilOK(A, s, u, ab, x.t) && !tuFirstLimit(A, s, ab, x.t)) opts.push({ u, i, k: "skill", t: x.t, v: x.v, cost, r: x.v / cost }); }
@@ -9270,14 +9278,14 @@ function tnFxHtml(k) {
   return "<b></b><b></b><b></b><b></b>";
 }
 const TN_ICONFX = ["weaken", "expose", "slow", "silence", "atkup", "haste", "frenzy", "noheal"];
-const TN_STATUS = ["burn", "freeze", "poison", "shock", "regen", "ward", "soak", "blind", "steam", "erode", "ground"].concat(TN_ICONFX);
+const TN_STATUS = ["burn", "freeze", "poison", "shock", "regen", "ward", "soak", "blind", "steam", "erode", "ground", "charge"].concat(TN_ICONFX);
 /* queued plays glow yellow, cards that cannot act this turn are greyed, and every status shows on the card itself (fire, frost, green bubbles, static, rising plus signs) */
 function tnMarks(el, u, s, mineTurn, planned) {
   const A = TN.A; let spent = false;
   if (u && s === 0 && mineTurn) { const S = A.s[0], first = A.round === 1 && A.cur === A.first && TU.FIRST_NOATK, canA = !first && tuCanAct(u, true) && S.energy >= tuAtkCost(u), canS = !!ABIL[u.active] && u.silT <= 0 && tuCanAct(u, false) && S.energy >= tuSkillCost(u); spent = !planned && !canA && !canS; }
   el.classList.toggle("queued", !!(u && planned)); el.classList.toggle("spent", spent);
-  const on = u ? { burn: !!u.burn, freeze: u.frozen > 0 && u.fk !== "shock", shock: u.frozen > 0 && u.fk === "shock", poison: !!u.poison, soak: u.soakT > 0, blind: u.blindT > 0, steam: u.steamT > 0, erode: u.erodeT > 0, ground: u.groundT > 0, regen: !!u.reg, silence: u.silT > 0, ward: u.shield > 0, weaken: u.wkT > 0, expose: u.vulnT > 0, slow: u.slowT > 0, atkup: u.tmpT > 0 && u.tmp > 0, haste: !!(u.extraNext || u.extra), frenzy: u.fz > 0, noheal: !!u.nh } : {};
-  const chips = u && u.wait ? [["💤", "waits"]] : []; if (u && u.soakT > 0) chips.push(["💧", "soaked"]); if (u && u.blindT > 0) chips.push(["🌑", "blinded"]); if (u && u.steamT > 0) chips.push(["☁", "steam"]); if (u && u.erodeT > 0) chips.push(["🌬", "scoured"]); if (u && u.groundT > 0) chips.push(["⛰", "weighed down"]);
+  const on = u ? { burn: !!u.burn, freeze: u.frozen > 0 && u.fk !== "shock", shock: u.frozen > 0 && u.fk === "shock", poison: !!u.poison, soak: u.soakT > 0, blind: u.blindT > 0, steam: u.steamT > 0, erode: u.erodeT > 0, ground: u.groundT > 0, charge: u.chargeT > 0, regen: !!u.reg, silence: u.silT > 0, ward: u.shield > 0, weaken: u.wkT > 0, expose: u.vulnT > 0, slow: u.slowT > 0, atkup: u.tmpT > 0 && u.tmp > 0, haste: !!(u.extraNext || u.extra), frenzy: u.fz > 0, noheal: !!u.nh } : {};
+  const chips = u && u.wait ? [["💤", "waits"]] : []; if (u && u.soakT > 0) chips.push(["💧", "soaked"]); if (u && u.blindT > 0) chips.push(["🌑", "blinded"]); if (u && u.steamT > 0) chips.push(["☁", "steam"]); if (u && u.erodeT > 0) chips.push(["🌬", "scoured"]); if (u && u.groundT > 0) chips.push(["⛰", "weighed down"]); if (u && u.chargeT > 0) chips.push(["⚡", "charged"]);
   let ch = el.querySelector(".tnchips"); const key = chips.map(c => c[0]).join(""); if (!chips.length) { if (ch) ch.remove(); } else { if (!ch) { ch = document.createElement("i"); ch.className = "tnchips"; el.appendChild(ch); } if (ch._k !== key) { ch._k = key; ch.innerHTML = chips.map(c => `<span title="${c[1]}">${c[0]}</span>`).join(""); } }
   for (const k of TN_STATUS) {
     el.classList.toggle("st-" + k, !!on[k]); let f = el.querySelector(".stfx.sf-" + k);
@@ -9339,7 +9347,7 @@ function tnLine(a, b) {
 function tnInfoShow(u, skill) {   // hold a card: its stats and skills in a transparent overlay until the finger lifts
   tnInfoHide(); const d = document.createElement("div"); d.className = "tninfo"; let h;
   if (skill) { const k = SKC[u.sid]; h = `<b>${tnEsc(k.n)}</b><small>Skill card · free to play</small><p>${tnEsc(skText(u.sid))}</p>`; }
-  else { const k = BY[u.cid], ab = ABIL[u.active], A = TN.A, s = A.s[0].lane.includes(u) ? 0 : 1, sts = [u.wait ? "waits until its next turn" : "", u.frozen > 0 ? (u.stunAll ? "cannot play next turn" : "cannot attack next turn") : "", u.soakT > 0 ? "soaked (lightning ×" + CH.SOAK_LIGHTNING + ", earth ×" + CH.SOAK_EARTH + ", ice flash-freezes)" : "", u.blindT > 0 ? "blinded (" + Math.round(CH.BLIND_MISS * 100) + "% miss; light hits ×" + CH.LIGHT_VS_BLIND + ")" : "", u.erodeT > 0 ? "armor scoured (its next hit taken ×" + CH.ERODE + ")" : "", u.groundT > 0 ? "weighed down (wind hits it ×" + CH.GROUND_WIND + ")" : "", u.steamT > 0 ? "in steam (" + Math.round(CH.STEAM_MISS * 100) + "% miss)" : "", u.silT > 0 ? "silenced" : "", u.wkT > 0 ? "attack lowered" : "", u.vulnT > 0 ? "takes extra damage" : "", u.tmpT > 0 && u.tmp > 0 ? "attack raised" : "", u.fz > 0 ? "frenzied (+" + Math.round(u.fz * 100) + "% damage, no healing)" : "", u.extraNext || u.extra ? "gets an extra play" : "", u.slowT > 0 ? "plays cost 1 more energy" : "", u.burn ? "burning" : "", u.poison ? "poisoned" : "", u.reg ? "regrowing" : "", u.shield > 0 ? "ward " + Math.ceil(u.shield) : "", u.mark ? EL[u.mark.el][0] + " mark" : ""].filter(Boolean);
+  else { const k = BY[u.cid], ab = ABIL[u.active], A = TN.A, s = A.s[0].lane.includes(u) ? 0 : 1, sts = [u.wait ? "waits until its next turn" : "", u.frozen > 0 ? (u.stunAll ? "cannot play next turn" : "cannot attack next turn") : "", u.soakT > 0 ? "soaked (lightning ×" + CH.SOAK_LIGHTNING + ", earth ×" + CH.SOAK_EARTH + ", ice flash-freezes)" : "", u.blindT > 0 ? "blinded (" + Math.round(CH.BLIND_MISS * 100) + "% miss; light hits ×" + CH.LIGHT_VS_BLIND + ")" : "", u.chargeT > 0 ? "charged air (a lightning hit arcs to its neighbours)" : "", u.erodeT > 0 ? "armor scoured (its next hit taken ×" + CH.ERODE + ")" : "", u.groundT > 0 ? "weighed down (wind hits it ×" + CH.GROUND_WIND + ")" : "", u.steamT > 0 ? "in steam (" + Math.round(CH.STEAM_MISS * 100) + "% miss)" : "", u.silT > 0 ? "silenced" : "", u.wkT > 0 ? "attack lowered" : "", u.vulnT > 0 ? "takes extra damage" : "", u.tmpT > 0 && u.tmp > 0 ? "attack raised" : "", u.fz > 0 ? "frenzied (+" + Math.round(u.fz * 100) + "% damage, no healing)" : "", u.extraNext || u.extra ? "gets an extra play" : "", u.slowT > 0 ? "plays cost 1 more energy" : "", u.burn ? "burning" : "", u.poison ? "poisoned" : "", u.reg ? "regrowing" : "", u.shield > 0 ? "ward " + Math.ceil(u.shield) : "", u.mark ? EL[u.mark.el][0] + " mark" : ""].filter(Boolean);
     h = `<b>${tnEsc(u.name)}</b><small>${RNAME[rarOf(k)]} · ${EL[u.el][0]} · ${FAC[u.fac] || u.fac}</small><div class="tis"><span>ATK <b>${Math.round(arAtk(A, s, u) * TU.ATTACK)}</b></span><span>HP <b>${Math.max(0, Math.ceil(u.hp))}/${Math.ceil(u.max)}</b></span><span>SPD <b>${(+u.spd).toFixed(2)}</b></span><span>LV <b>${u.lv}</b></span></div><p><em>${tnEsc(passName({ passive: u.passive, id: u.cid }))}:</em> ${tnEsc(typeof passText === "function" ? passText(u.passive) : "")}</p><p><em>${tnEsc(actName(u))} (${u.acost} energy):</em> ${tnEsc(ab ? abilText(ab) : "")}</p>${sts.length ? `<p class="st">${tnEsc(sts.join(" · "))}</p>` : ""}`; }
   d.innerHTML = h; $("#ck").appendChild(d);
 }
@@ -9458,7 +9466,7 @@ function tnBanner(text, sub) { const d = document.createElement("div"); d.classN
 function tnAllUnits(A) { const set = new Set(); for (const sn of A.snaps || []) for (const u of sn.st.keys()) set.add(u); for (const s of [0, 1]) for (const u of A.s[s].lane) if (u) set.add(u); return [...set]; }
 function tnHold() {
   const A = TN.A; if (!A.snaps || TN.real) return; const units = tnAllUnits(A), real = { lane: [A.s[0].lane.slice(), A.s[1].lane.slice()], st: new Map(), core: [A.s[0].core, A.s[1].core] };
-  for (const u of units) real.st.set(u, { hp: u.hp, max: u.max, shield: u.shield, atk: u.atk, mark: u.mark, frozen: u.frozen, soakT: u.soakT, blindT: u.blindT, steamT: u.steamT, erodeT: u.erodeT, groundT: u.groundT }); TN.real = real; tnApplySnap(A.snaps[0]);
+  for (const u of units) real.st.set(u, { hp: u.hp, max: u.max, shield: u.shield, atk: u.atk, mark: u.mark, frozen: u.frozen, soakT: u.soakT, blindT: u.blindT, steamT: u.steamT, erodeT: u.erodeT, groundT: u.groundT, chargeT: u.chargeT }); TN.real = real; tnApplySnap(A.snaps[0]);
 }
 function tnApplySnap(sn) { const A = TN.A; for (const s of [0, 1]) { A.s[s].lane.splice(0, 5, ...sn.lane[s]); A.s[s].core = sn.core[s]; } for (const [u, v] of sn.st) Object.assign(u, v); }
 function tnRelease() { const A = TN.A, r = TN.real; if (!r) return; for (const s of [0, 1]) { A.s[s].lane.splice(0, 5, ...r.lane[s]); A.s[s].core = r.core[s]; } for (const [u, v] of r.st) Object.assign(u, v); TN.real = null; A.snaps = null; }
