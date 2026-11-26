@@ -2766,7 +2766,7 @@ let NET = null;   // { pc, dc, host, open, name, deck, theirName, theirDeck }
 const b64u = bytes => { let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
 const unb64u = t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; const s = atob(t); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
 /* The connection details are short: only what two phones must know (ICE name and password, the DTLS fingerprint, a few addresses). The full description is rebuilt from them on the other side. */
-const VER = "2026.12.22-y";
+const VER = "2026.12.22-z";
 const FP_BYTES = hex => Uint8Array.from(hex.match(/../g).map(h => parseInt(h, 16)));
 function sdpPack(role, sdp) {
   const L = sdp.split(/\r?\n/), get = k => { const l = L.find(x => x.startsWith(k)); return l ? l.slice(k.length).trim() : ""; };
@@ -4240,7 +4240,7 @@ const S7 = {
   s7_marlo: ["water", "H", "regen", "mend"],
   s7_kappari: ["water", "B", "sponge", "freeze"],
   s7_featherpaw: ["wind", "B", "swift", "gale"],
-  s7_madking: ["dark", "V", "amp", "mark"],
+  s7_madking: ["light", "V", "amp", "mark"],
   s7_grubnak: ["earth", "B", "pack", "empower"],
   s7_skarrag: ["earth", "B", "berserk", "strike"],
   s7_hollow: ["dark", "V", "sponge", "pact"],
@@ -4258,7 +4258,7 @@ const S7 = {
   s7_violetbraid: ["light", "C", "pack", "empower"],
   s7_gamma: ["water", "A", "fortify", "ward"],
   s7_brightblade: ["light", "H", "decree", "strike"],
-  s7_madking2: ["dark", "V", "laststand", "mark"],
+  s7_madking2: ["light", "V", "laststand", "light4"],
   s7_hollow2: ["dark", "V", "overkill", "pact"],
   s7_nerith: ["fire", "H", "laststand", "mend"],
   s7_cael: ["dark", "H", "amp", "disrupt"],
@@ -4394,7 +4394,7 @@ const S7SKN = {
   s7_violetbraid: ["Three Familiars", "Call of the Pack"],
   s7_gamma: ["Mossback", "Falls Veil"],
   s7_brightblade: ["Bright Vow", "Dawn Cut"],
-  s7_madking2: ["Hands Over the Eyes", "Weeping Eye"],
+  s7_madking2: ["Hands Over the Eyes", "Weeping Daybreak"],
   s7_hollow2: ["Broken Chains", "Hunger of the Pit"],
   s7_nerith: ["Burned Vow", "Quiet Mercy"],
   s7_cael: ["Star of Ash", "Outstretched Hand"],
